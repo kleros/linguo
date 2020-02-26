@@ -1,0 +1,8 @@
+{
+  "modules": true,
+  "plugins": {
+    "autoprefixer": true,
+    "cssnano": true,
+    "postcss-custom-media": true
+  }
+}
