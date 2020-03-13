@@ -4,13 +4,17 @@ import styled from 'styled-components';
 import { Layout, Row, Col } from 'antd';
 import LinguoLogo from '~/assets/images/logo-linguo-white.svg';
 import * as r from '~/app/routes';
-import { MainMenu } from '~/app/Menu';
-import ActionTrayray from './ActionTray';
+import { MainMenu } from '~/components/Menu';
+import SystemTray from './SystemTray';
 
 const StyledHeader = styled(Layout.Header)`
   height: 4rem;
-  background: linear-gradient(92.54deg, #00aaff 0%, #0043c5 100%);
   padding: 0 1.5rem;
+  background-image: linear-gradient(
+    92.54deg,
+    ${({ theme }) => theme.secondary.default} 0%,
+    ${({ theme }) => theme.primary.default} 100%
+  );
 
   .ant-row,
   .ant-col {
@@ -46,10 +50,10 @@ function Navbar() {
           </StyledLogoWrapper>
         </Col>
         <Col md={16} xs={0}>
-          {MainMenu}
+          <MainMenu />
         </Col>
         <StyledToolbarCol md={4} sm={12} xs={24}>
-          <ActionTrayray />
+          <SystemTray />
         </StyledToolbarCol>
       </Row>
     </StyledHeader>

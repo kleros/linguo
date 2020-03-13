@@ -7,24 +7,18 @@
   "author": "Kleros",
   "license": "MIT",
   "private": false,
-  "keywords": [
-    "blockchain",
-    "ethereum",
-    "dapp",
-    "linguo",
-    "translation"
-  ],
+  "keywords": ["blockchain", "ethereum", "dapp", "linguo", "translation"],
   "scripts": {
     "clean": "rm -rf .cache dist",
     "build": "parcel build src/index.html",
     "start": "parcel src/index.html",
     "lint:js": "eslint src/",
-    "lint:css": "stylelint src/"
+    "lint:css": "stylelint 'src/**/*.js{,x}'"
   },
   "dependencies": {
     "@ant-design/icons": "^4.0.2",
     "@hot-loader/react-dom": "^16.11.0",
-    "@kleros/react-components": "^3.9.0",
+    "@kleros/react-components": "^3.10.0",
     "antd": "^4.0.2",
     "clsx": "^1.1.0",
     "dayjs": "^1.8.22",
@@ -82,8 +76,9 @@
     "postcss-preset-env": "^6.7.0",
     "prettier": "^1.19.1",
     "prettier-config-standard": "^1.0.1",
-    "stylelint": "^13.2.0",
-    "stylelint-config-css-modules": "^2.2.0",
-    "stylelint-config-standard": "^20.0.0"
+    "stylelint": "^13.2.1",
+    "stylelint-config-recommended": "^3.0.0",
+    "stylelint-config-styled-components": "^0.1.1",
+    "stylelint-processor-styled-components": "^1.10.0"
   }
 }
