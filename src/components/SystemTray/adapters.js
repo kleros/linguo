@@ -54,6 +54,7 @@ const StyledIcon = styled(Icon)`
 export { StyledIcon as Icon };
 
 const StyledPopover = styled(StylablePopover)`
+  z-index: 300;
   .ant-popover-arrow {
     background: ${props => props.theme.background.light};
     transform: scale(1.5) rotate(45deg);
