@@ -1,6 +1,7 @@
 export default {
   text: {
     default: '#000000',
+    inverted: '#FFFFFF',
   },
   primary: {
     default: '#0043C5',

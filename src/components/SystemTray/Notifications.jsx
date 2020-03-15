@@ -58,12 +58,7 @@ const itemIconStyles = css`
   padding: 0.375rem;
   width: 1.75rem;
   height: 1.75rem;
-
-  svg {
-    width: 100%;
-    height: 100%;
-    fill: white;
-  }
+  fill: white;
 `;
 
 const BellItemIcon = styled(_NotificationIcon)`
