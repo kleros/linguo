@@ -14,6 +14,16 @@ import EthLogo from '~/assets/images/logo-eth.svg';
 
 const SettingsIcon = createCustomIcon(_SettingsIcon, Icon);
 
+const StyledSectionTitle = styled(Typography.Title)`
+  && {
+    color: ${props => props.theme.text.default};
+    font-size: 0.875rem;
+    line-height: 0.875rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+  }
+`;
+
 const StyledAccountRow = styled(Row)`
   align-items: center;
 
@@ -38,18 +48,6 @@ const StyledText = styled(Typography.Text)`
   color: inherit;
 `;
 
-const StyledDiv = styled.div`
-  color: ${props => props.theme.text.default};
-  margin-left: auto;
-  line-height: 1rem;
-
-  svg {
-    fill: currentColor;
-    width: 0.875rem;
-    height: 0.875rem;
-  }
-`;
-
 function EthAccount({ address }) {
   return (
     <StyledAccountRow>
@@ -64,12 +62,34 @@ function EthAccount({ address }) {
       >
         <StyledReactBlockies seed={address} shape="round" size={10} scale={4} />
         <StyledText>
-          {address.slice(0, 6)}...{address.slice(address.length - 4)}
+          {address.slice(0, 6)}...{address.slice(-4)}
         </StyledText>
       </a>
-      <StyledDiv>
-        Settings <SettingsIcon />
-      </StyledDiv>
+      <StyledSectionTitle
+        level={3}
+        css={`
+          display: flex;
+          align-items: center;
+          margin-left: auto;
+
+          && {
+            margin-bottom: 0;
+
+            .anticon {
+              width: 0.875rem;
+              height: 0.875rem;
+              margin-left: 0.375rem;
+            }
+
+            svg {
+              fill: currentColor;
+            }
+          }
+        `}
+      >
+        <span>Settings</span>
+        <SettingsIcon />
+      </StyledSectionTitle>
     </StyledAccountRow>
   );
 }
@@ -78,7 +98,7 @@ EthAccount.propTypes = {
   address: t.string.isRequired,
 };
 
-const StyledContainer = styled.div`
+const StyledSection = styled.section`
   margin: 1rem 0;
 
   :last-child {
@@ -86,15 +106,13 @@ const StyledContainer = styled.div`
   }
 `;
 
-const StyledTitle = styled(Typography.Title)`
-  && {
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-align: center;
-  }
+const StyledBalanceInnerContainer = styled.div`
+  background-color: ${props => props.theme.background.default};
+  border-radius: 0.75rem;
+  padding: 1.5rem;
 `;
 
-const StyledRow = styled(Row)`
+const StyledBalanceRow = styled(Row)`
   flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
@@ -104,18 +122,12 @@ const StyledEthLogo = styled(EthLogo)`
   flex: 2.4rem 0 0;
 `;
 
-const StyledDisplay = styled.span`
+const StyledBalanceDisplay = styled.span`
   color: ${props => props.theme.text.default};
   flex: auto 0 0;
   font-size: 2rem;
   line-height: 4rem;
   margin-left: 2rem;
-`;
-
-const StyledInnerContainer = styled.div`
-  background-color: ${props => props.theme.background.default};
-  border-radius: 0.75rem;
-  padding: 1.5rem;
 `;
 
 function EthBalance({ amount, decimals, isLoading }) {
@@ -128,25 +140,26 @@ function EthBalance({ amount, decimals, isLoading }) {
   );
 
   return (
-    <StyledContainer>
-      <StyledInnerContainer>
-        <StyledTitle
+    <StyledSection>
+      <StyledBalanceInnerContainer>
+        <StyledSectionTitle
           level={3}
           css={`
             && {
+              text-align: center;
               margin-top: -0.75rem;
               margin-bottom: -0.5rem;
             }
           `}
         >
           Balance
-        </StyledTitle>
-        <StyledRow>
+        </StyledSectionTitle>
+        <StyledBalanceRow>
           <StyledEthLogo />
-          <StyledDisplay>{content} ETH</StyledDisplay>
-        </StyledRow>
-      </StyledInnerContainer>
-    </StyledContainer>
+          <StyledBalanceDisplay>{content} ETH</StyledBalanceDisplay>
+        </StyledBalanceRow>
+      </StyledBalanceInnerContainer>
+    </StyledSection>
   );
 }
 
@@ -162,20 +175,26 @@ EthBalance.defaultProps = {
   decimals: 18,
 };
 
-const StyledDivider = styled(Divider)`
-  background-color: ${props => props.theme.background.light};
-`;
-
 function TranslatorSetup({ onClick }) {
   return (
-    <StyledContainer>
-      <StyledTitle>Translator</StyledTitle>
+    <StyledSection>
+      <StyledSectionTitle
+        level={3}
+        css={`
+          text-align: center;
+          && {
+            font-weight: 500;
+          }
+        `}
+      >
+        Translator
+      </StyledSectionTitle>
       <NavLink to={r.TRANSLATOR_SETUP}>
         <Button fullWidth onClick={onClick}>
           Update your language skills
         </Button>
       </NavLink>
-    </StyledContainer>
+    </StyledSection>
   );
 }
 
@@ -186,6 +205,14 @@ TranslatorSetup.propTypes = {
 TranslatorSetup.defaultProps = {
   onClick: () => {},
 };
+
+const StyledPopover = styled(Popover)`
+  width: 32rem;
+`;
+
+const StyledDivider = styled(Divider)`
+  background-color: ${props => props.theme.background.light};
+`;
 
 function Settings() {
   const account = useAccount();
@@ -202,11 +229,8 @@ function Settings() {
   }, []);
 
   return (
-    <Popover
+    <StyledPopover
       arrowPointAtCenter
-      overlayStyle={{
-        width: '32rem',
-      }}
       content={
         <>
           <EthAccount address={account} />
@@ -224,7 +248,7 @@ function Settings() {
       <TrayButton shape="round">
         <SettingsIcon />
       </TrayButton>
-    </Popover>
+    </StyledPopover>
   );
 }
 
