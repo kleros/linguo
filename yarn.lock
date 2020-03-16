@@ -965,7 +965,7 @@
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.2"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.4.4", "@babel/runtime@^7.8.4":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.4.4", "@babel/runtime@^7.7.7", "@babel/runtime@^7.8.4":
   version "7.8.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.7.tgz#8fefce9802db54881ba59f90bb28719b4996324d"
   integrity sha512-+AATMUFppJDw6aiR5NVPHqIQBlV/Pj8wY/EZH+lmvRdUo9xBaz/rF3alAwFJQavvKfeOlPE7oaaDHVbcySbCsg==
@@ -1253,6 +1253,14 @@
     is-image "^3.0.0"
     is-text-path "^2.0.0"
     is-video "^1.0.1"
+
+"@loadable/component@^5.12.0":
+  version "5.12.0"
+  resolved "https://registry.yarnpkg.com/@loadable/component/-/component-5.12.0.tgz#34d056d15f53dc08d04e9203cad6867cf4f7306c"
+  integrity sha512-eDG7FPZ8tCFA/mqu2IrYV6eS+UxGBo21PwtEV9QpkpYrx25xKRXzJUm36yfQPK3o7jXu43xpPkwiU4mLWcjJlw==
+  dependencies:
+    "@babel/runtime" "^7.7.7"
+    hoist-non-react-statics "^3.3.1"
 
 "@marionebl/sander@^0.6.0":
   version "0.6.1"
@@ -5402,7 +5410,7 @@ hoist-non-react-statics@^2.3.1:
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
   integrity sha512-rqcy4pJo55FTTLWt+bU8ukscqHeE/e9KWvsOW2b/a3afxQZhwkQdT1rPPCJ0rYXdj4vNcasY8zHTH+jF/qStxw==
 
-hoist-non-react-statics@^3.0.0, hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0:
+hoist-non-react-statics@^3.0.0, hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.1:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
   integrity sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==

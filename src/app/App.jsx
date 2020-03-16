@@ -1,16 +1,13 @@
 import { hot } from 'react-hot-loader';
 import React from 'react';
-import { HashRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { Layout, Spin } from 'antd';
-import Home from '~/pages/Home';
-import TranslatorMain from '~/pages/TranslatorMain';
-import TranslatorSetup from '~/pages/TranslatorSetup';
-import * as r from './routes';
 import Navbar from '~/components/Navbar';
 import Footer from '~/components/Footer';
 import { DrawerMenu } from '~/components/Menu';
 import { DrizzleProvider, Initializer } from '~/adapters/drizzle';
+import MainRouterSwitch from './MainRouterSwitch';
 import drizzle from './setupDrizzle';
 import theme from './theme';
 
@@ -44,24 +41,14 @@ function App() {
         loadingWeb3={<StyledSpin tip="Connecting to your Web3 provider" />}
       >
         <ThemeProvider theme={theme}>
+          <GlobalStyle />
           <Router>
-            <GlobalStyle />
             <Layout>
               <DrawerMenu />
               <Layout>
                 <Navbar />
                 <StyledContent>
-                  <Switch>
-                    <Route exact path={r.HOME}>
-                      <Home />
-                    </Route>
-                    <Route exact path={r.TRANSLATOR_MAIN}>
-                      <TranslatorMain />
-                    </Route>
-                    <Route exact path={r.TRANSLATOR_SETUP}>
-                      <TranslatorSetup />
-                    </Route>
-                  </Switch>
+                  <MainRouterSwitch />
                 </StyledContent>
                 <Footer />
               </Layout>
