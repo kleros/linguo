@@ -30,6 +30,9 @@ export default {
   glow: {
     default: 'rgba(255, 255, 255, 0.5)',
   },
+  border: {
+    default: '#CDDEFF',
+  },
   fontSize: {
     xl: '1.5rem',
     lg: '1.33rem',
