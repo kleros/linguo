@@ -137,6 +137,10 @@ const StyledButton = styled(BaseButton)`
 
   ${props => sizeStyles[props.size]}
   ${props => variantStyles[props.variant]}
+
+  &&[ant-click-animating-without-extra-node]:after {
+    animation: none !important;
+  }
 `;
 
 function Button({ variant, size, color, fullWidth, ...props }) {
