@@ -7,18 +7,6 @@ import { createCustomIcon } from '~/adapters/antd';
 import _EmailIcon from '~/assets/images/icon-email.svg';
 import { Popover, Button as TrayButton, Icon } from './adapters';
 
-const EmailIcon = createCustomIcon(_EmailIcon, Icon);
-
-const settings = {
-  delivery: 'The translator delivers the translation (Review Time).',
-  challenge: 'The translation is challenged and goes to arbitration.',
-  ruling: 'The jurors rule about the translation.',
-};
-
-const StyledPopover = styled(Popover)`
-  width: 24rem;
-`;
-
 const StyledForm = styled(Form)`
   padding-top: 1rem;
 `;
@@ -27,6 +15,12 @@ const StyleFormButtonRow = styled(Row)`
   display: flex;
   justify-content: flex-end;
 `;
+
+const settings = {
+  delivery: 'The translator delivers the translation (Review Time).',
+  challenge: 'The translation is challenged and goes to arbitration.',
+  ruling: 'The jurors rule about the translation.',
+};
 
 function EmailNotificationsForm({ onSubmit }) {
   const [form] = Form.useForm();
@@ -86,12 +80,14 @@ EmailNotificationsForm.defaultProps = {
   onSubmit: () => {},
 };
 
+const StyledPopover = styled(Popover)`
+  width: 24rem;
+`;
+
+const EmailIcon = createCustomIcon(_EmailIcon, Icon);
+
 function EmailNotifications() {
   const [visible, setVisible] = React.useState(false);
-
-  const handleTrayButtonClick = React.useCallback(() => {
-    setVisible(visible => !visible);
-  }, []);
 
   const handleVisibilityChange = React.useCallback(visible => {
     setVisible(visible);
@@ -111,7 +107,7 @@ function EmailNotifications() {
       visible={visible}
       onVisibleChange={handleVisibilityChange}
     >
-      <TrayButton shape="round" onClick={handleTrayButtonClick}>
+      <TrayButton shape="round">
         <EmailIcon />
       </TrayButton>
     </StyledPopover>
