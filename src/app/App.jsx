@@ -23,6 +23,7 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
     font-size: 16px;
+    color: ${props => props.theme.text.default};
   }
 `;
 
@@ -30,6 +31,9 @@ const StyledContent = styled(Layout.Content)`
   /* Must account for both navbar and footer height */
   min-height: calc(100vh - 4rem - 4rem);
   background-color: #f2fffe;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 function App() {
