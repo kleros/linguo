@@ -189,7 +189,7 @@ function TranslatorSetup({ onClick }) {
       >
         Translator
       </StyledSectionTitle>
-      <NavLink to={r.TRANSLATOR_SETUP}>
+      <NavLink to={r.TRANSLATOR_SETTINGS}>
         <Button fullWidth onClick={onClick}>
           Update your language skills
         </Button>

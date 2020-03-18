@@ -23,6 +23,7 @@
     "@hot-loader/react-dom": "^16.11.0",
     "@kleros/react-components": "^3.10.0",
     "@loadable/component": "^5.12.0",
+    "@rehooks/local-storage": "^2.2.3",
     "antd": "^4.0.2",
     "clsx": "^1.1.0",
     "dayjs": "^1.8.22",
@@ -37,7 +38,6 @@
     "react-is": "^16.13.0",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
-    "shortid": "^2.2.15",
     "styled-components": "^5.0.1"
   },
   "devDependencies": {

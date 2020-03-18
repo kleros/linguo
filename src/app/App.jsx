@@ -1,6 +1,6 @@
 import { hot } from 'react-hot-loader';
 import React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { HashRouter as Router } from 'react-router-dom';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { Layout, Spin } from 'antd';
 import Navbar from '~/components/Navbar';
@@ -29,6 +29,7 @@ const GlobalStyle = createGlobalStyle`
 
 const StyledContent = styled(Layout.Content)`
   /* Must account for both navbar and footer height */
+  height: 100%;
   min-height: calc(100vh - 4rem - 4rem);
   background-color: #f2fffe;
   display: flex;
