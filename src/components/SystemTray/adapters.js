@@ -78,6 +78,14 @@ const StyledPopover = styled(StylablePopover)`
     padding-left: 0;
     padding-right: 0;
   }
+
+  @media (max-width: 575.98px) {
+    width: 100%;
+
+    .ant-popover-inner {
+      border-radius: 0;
+    }
+  }
 `;
 
 export { StyledPopover as Popover };
