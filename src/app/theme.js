@@ -5,9 +5,11 @@ export default {
   },
   primary: {
     default: '#0043C5',
+    dark: '#00308D',
   },
   secondary: {
     default: '#00AAFF',
+    light: '#3DBEFF',
   },
   warning: {
     default: '#FF9900',
