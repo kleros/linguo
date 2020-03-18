@@ -17,11 +17,25 @@ const sizeStyles = {
   large: css`
     font-size: ${props => props.theme.fontSize.xl};
     line-height: 1.5;
-    min-height: 3rem;
+    min-height: 4rem;
   `,
 };
 
 const variantStyles = {
+  unstyled: css`
+    && {
+      all: initial;
+      cursor: pointer;
+
+      [disabled],
+      :disabled,
+      [disabled]:hover,
+      :disabled:hover {
+        background: none;
+        cursor: not-allowed;
+      }
+    }
+  `,
   filled: css`
     border: none;
     color: ${props => props.theme.text.inverted};
@@ -129,14 +143,35 @@ const StyledButton = styled(BaseButton)`
     cursor: not-allowed;
   }
 
-  :active,
   :focus,
   :hover {
     box-shadow: 0 0.1875rem 0.375rem ${props => props.theme.shadow.ui};
   }
 
+  :active {
+    box-shadow: none;
+  }
+
   ${props => sizeStyles[props.size]}
   ${props => variantStyles[props.variant]}
+
+  @keyframes kickback {
+    0% {
+      transform: scale(1) translateY(0);
+    }
+
+    40% {
+      transform: scale(0.99) translateY(1px);
+    }
+
+    100% {
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  &&[ant-click-animating-without-extra-node='true'] {
+    animation: 0.25s kickback;
+  }
 
   &&[ant-click-animating-without-extra-node]:after {
     animation: none !important;
@@ -148,7 +183,7 @@ function Button({ variant, size, color, fullWidth, ...props }) {
 }
 
 Button.propTypes = {
-  variant: t.oneOf(['filled', 'outlined']),
+  variant: t.oneOf(['filled', 'outlined', 'unstyled']),
   size: t.oneOf(['small', 'default', 'large']),
   color: t.oneOf(['primary', 'secondary', 'primary-light', 'secondary-dark']),
   fullWidth: t.bool,
