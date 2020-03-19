@@ -109,7 +109,7 @@ export default function Home() {
         <StyledTitle>Welcome!</StyledTitle>
         <StyledRow gutter={[8, 16]}>
           <Col xl={{ span: 10, offset: 2 }} lg={{ span: 11, offset: 1 }} md={{ span: 12, offset: 0 }} xs={24}>
-            <NavLink to={r.TRANSLATION_MAIN}>
+            <NavLink to={r.TRANSLATION_DASHBOARD}>
               <StyledButton fullWidth>
                 <RequestTranslationAvatar />
                 <span className="text">Request a Translation</span>
@@ -117,7 +117,7 @@ export default function Home() {
             </NavLink>
           </Col>
           <Col xl={10} lg={11} md={12} xs={24}>
-            <NavLink to={r.TRANSLATOR_MAIN}>
+            <NavLink to={r.TRANSLATOR_DASHBOARD}>
               <StyledButton fullWidth>
                 <WorkAsATranslatorAvatar />
                 <span className="text">Work as a Translator</span>

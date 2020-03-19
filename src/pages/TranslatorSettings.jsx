@@ -1,10 +1,11 @@
 import React from 'react';
 import t from 'prop-types';
 import produce from 'immer';
-import { useLocalStorage } from '@rehooks/local-storage';
 import styled from 'styled-components';
-import { Layout, Row, Col, Form, Select, Typography, notification } from 'antd';
-import Card from '~/components/Card';
+import { useLocation } from 'react-router-dom';
+import useTranslatorSettings from '~/hooks/useTranslatorSettings';
+import { Row, Col, Form, Select, Typography, Alert, notification } from 'antd';
+import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
 import Button from '~/components/Button';
 import languages from '~/assets/fixtures/languages';
 import getLanguageFlag from '~/components/helpers/getLanguageFlag';
@@ -321,48 +322,9 @@ LanguageSelectionCombobox.defaultProps = {
   onChange: () => {},
 };
 
-const StyledLayout = styled(Layout)`
-  margin: 4rem;
-  max-width: 68rem;
-
-  @media (max-width: 575.98px) {
-    margin: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-  }
-`;
-
-const StyledCard = styled(Card)`
-  &.ant-card {
-    box-shadow: 0 0.375rem 5.625rem ${props => props.theme.shadow.default};
-    width: 100%;
-  }
-
-  .ant-card-head-title {
-    font-size: ${props => props.theme.fontSize.xl};
-    padding: 0;
-  }
-
-  .ant-card-body {
-    padding: 5rem;
-  }
-
+const StyledAlert = styled(Alert)`
   && {
-    @media (max-width: 575.98px) {
-      flex: auto;
-      box-shadow: none;
-      border-radius: 0;
-
-      .ant-card-head {
-        border-radius: 0;
-      }
-
-      .ant-card-body {
-        padding: 2rem;
-      }
-    }
+    margin-bottom: 1rem;
   }
 `;
 
@@ -382,19 +344,24 @@ const AddIcon = createCustomIcon(_AddIcon);
 
 const InfoIcon = createCustomIcon(_InfoIcon);
 
-const defaultInitialValues = {
-  languages: [
-    {
-      language: undefined,
-      level: undefined,
-    },
-  ],
-};
+const ensureAtLeastOneLanguage = storedValues =>
+  produce(storedValues, draft => {
+    if (draft?.languages.length === 0) {
+      draft.languages.push({
+        language: undefined,
+        level: undefined,
+      });
+    }
+  });
 
 export default function TranslatorSettings() {
+  const location = useLocation();
+  const message = location.state?.message;
+
   const [form] = Form.useForm();
-  const [storedValues, setStoredValues] = useLocalStorage('translatorSettings', defaultInitialValues);
-  const [values, setValues] = React.useState(storedValues);
+
+  const [storedValues, setStoredValues] = useTranslatorSettings();
+  const [values, setValues] = React.useState(ensureAtLeastOneLanguage(storedValues));
 
   const handleFinish = React.useCallback(
     values => {
@@ -471,30 +438,29 @@ export default function TranslatorSettings() {
   );
 
   return (
-    <StyledLayout>
-      <StyledCard title="Set your language skills">
-        <Form form={form} initialValues={values} onValuesChange={handleValuesChange} onFinish={handleFinish}>
-          <Form.List name="languages">{renderItems}</Form.List>
+    <SingleCardLayout title="Set your language skills">
+      {message && <StyledAlert closable showIcon icon={<InfoIcon />} message={message} type="info" />}
+      <Form form={form} initialValues={values} onValuesChange={handleValuesChange} onFinish={handleFinish}>
+        <Form.List name="languages">{renderItems}</Form.List>
 
-          <StyledDisclaimer>
-            <InfoIcon /> You can update your language level or add more languages anytime on settings.
-          </StyledDisclaimer>
+        <StyledDisclaimer>
+          <InfoIcon /> You can update your language level or add more languages anytime on settings.
+        </StyledDisclaimer>
 
-          <Row gutter={16} justify="space-between">
-            <Col lg={6} md={8} sm={10} xs={12}>
-              <Button fullWidth htmlType="reset" variant="outlined">
-                Return
-              </Button>
-            </Col>
+        <Row gutter={16} justify="space-between">
+          <Col lg={6} md={8} sm={10} xs={12}>
+            <Button fullWidth htmlType="reset" variant="outlined">
+              Return
+            </Button>
+          </Col>
 
-            <Col lg={6} md={8} sm={10} xs={12}>
-              <Button fullWidth htmlType="submit">
-                Save
-              </Button>
-            </Col>
-          </Row>
-        </Form>
-      </StyledCard>
-    </StyledLayout>
+          <Col lg={6} md={8} sm={10} xs={12}>
+            <Button fullWidth htmlType="submit">
+              Save
+            </Button>
+          </Col>
+        </Row>
+      </Form>
+    </SingleCardLayout>
   );
 }

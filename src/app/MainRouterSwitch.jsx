@@ -15,8 +15,10 @@ const StyledSpin = styled(Spin)`
 const fallback = <StyledSpin tip="Loading contents of the page" />;
 
 const Home = loadable(() => import('~/pages/Home'), { fallback });
-const TranslatorMain = loadable(() => import('~/pages/TranslatorMain'), { fallback });
+const TranslatorDashboard = loadable(() => import('~/pages/TranslatorDashboard'), { fallback });
 const TranslatorSettings = loadable(() => import('~/pages/TranslatorSettings'), { fallback });
+const TranslationDashboard = loadable(() => import('~/pages/TranslationDashboard'), { fallback });
+const TranslationCreation = loadable(() => import('~/pages/TranslationCreation'), { fallback });
 
 function MainRouterSwitch() {
   return (
@@ -24,11 +26,17 @@ function MainRouterSwitch() {
       <Route exact path={r.HOME}>
         <Home />
       </Route>
-      <Route exact path={r.TRANSLATOR_MAIN}>
-        <TranslatorMain />
+      <Route exact path={r.TRANSLATOR_DASHBOARD}>
+        <TranslatorDashboard />
       </Route>
       <Route exact path={r.TRANSLATOR_SETTINGS}>
         <TranslatorSettings />
+      </Route>
+      <Route exact path={r.TRANSLATION_DASHBOARD}>
+        <TranslationDashboard />
+      </Route>
+      <Route exact path={r.TRANSLATION_CREATION}>
+        <TranslationCreation />
       </Route>
     </Switch>
   );

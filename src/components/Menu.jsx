@@ -6,10 +6,10 @@ import * as r from '~/app/routes';
 
 const MenuItems = [
   <Menu.Item key="request-translation">
-    <NavLink to={r.TRANSLATION_MAIN}>Request Translation</NavLink>
+    <NavLink to={r.TRANSLATION_DASHBOARD}>Request a Translation</NavLink>
   </Menu.Item>,
   <Menu.Item key="work-as-translator">
-    <NavLink to={r.TRANSLATOR_MAIN}>Work as a Translator</NavLink>
+    <NavLink to={r.TRANSLATOR_DASHBOARD}>Work as a Translator</NavLink>
   </Menu.Item>,
 ];
 
@@ -84,10 +84,10 @@ export function MainMenu() {
   return (
     <StyledMainMenu mode="horizontal" theme="dark">
       <Menu.Item>
-        <NavLink to={r.TRANSLATION_MAIN}>Request Translation</NavLink>
+        <NavLink to={r.TRANSLATION_DASHBOARD}>Request a Translation</NavLink>
       </Menu.Item>
       <Menu.Item>
-        <NavLink to={r.TRANSLATOR_MAIN}>Work as a Translator</NavLink>
+        <NavLink to={r.TRANSLATOR_DASHBOARD}>Work as a Translator</NavLink>
       </Menu.Item>
     </StyledMainMenu>
   );
