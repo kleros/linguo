@@ -11,7 +11,7 @@ const drizzleOptions = {
     block: true,
     fallback: {
       type: 'ws',
-      url: '',
+      url: `wss://kovan.infura.io/ws/v3/${process.env.INFURA_API_KEY}`,
     },
   },
 };

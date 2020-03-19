@@ -1,22 +1,17 @@
 import { hot } from 'react-hot-loader';
 import React from 'react';
+import t from 'prop-types';
 import { HashRouter as Router } from 'react-router-dom';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
-import { Layout, Spin } from 'antd';
+import { Layout } from 'antd';
+import Web3 from 'web3';
+import { Web3ReactProvider, useWeb3React } from '@web3-react/core';
+import { useInactiveListener, useEagerConnect } from '~/adapters/web3React';
 import Navbar from '~/components/Navbar';
 import Footer from '~/components/Footer';
 import { DrawerMenu } from '~/components/Menu';
-import { DrizzleProvider, Initializer } from '~/adapters/drizzle';
 import MainRouterSwitch from './MainRouterSwitch';
-import drizzle from './setupDrizzle';
 import theme from './theme';
-
-const StyledSpin = styled(Spin)`
-  left: 50%;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-`;
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -28,8 +23,8 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const StyledContent = styled(Layout.Content)`
-  /* Must account for both navbar and footer height */
   height: 100%;
+  /* Must account for both navbar and footer height */
   min-height: calc(100vh - 4rem - 4rem);
   background-color: #f2fffe;
   display: flex;
@@ -37,14 +32,35 @@ const StyledContent = styled(Layout.Content)`
   align-items: center;
 `;
 
+function getLibrary(provider) {
+  return new Web3(provider);
+}
+
+function Web3ReactWrapper({ children }) {
+  const { connector } = useWeb3React();
+
+  const [activatingConnector, setActivatingConnector] = React.useState();
+  React.useEffect(() => {
+    if (activatingConnector && activatingConnector === connector) {
+      setActivatingConnector(undefined);
+    }
+  }, [activatingConnector, connector]);
+
+  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
+  const triedEager = useEagerConnect();
+  useInactiveListener(!triedEager || !!activatingConnector);
+
+  return children;
+}
+
+Web3ReactWrapper.propTypes = {
+  children: t.node,
+};
+
 function App() {
   return (
-    <DrizzleProvider drizzle={drizzle}>
-      <Initializer
-        error="There was an error."
-        loadingContractsAndAccounts={<StyledSpin tip="Reading information about your Web3 account and contracts" />}
-        loadingWeb3={<StyledSpin tip="Connecting to your Web3 provider" />}
-      >
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <Web3ReactWrapper>
         <ThemeProvider theme={theme}>
           <GlobalStyle />
           <Router>
@@ -60,8 +76,8 @@ function App() {
             </Layout>
           </Router>
         </ThemeProvider>
-      </Initializer>
-    </DrizzleProvider>
+      </Web3ReactWrapper>
+    </Web3ReactProvider>
   );
 }
 
