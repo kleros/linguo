@@ -1,12 +1,14 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import useTranslatorSettings from '~/hooks/useTranslatorSettings';
+import { useSettings, TRANSLATOR } from '~/app/settings';
 import * as r from '~/app/routes';
 
 export default function TranslatorMain() {
-  const [{ languages }] = useTranslatorSettings();
+  const [{ languages }] = useSettings(TRANSLATOR.key, TRANSLATOR.initialValue);
 
-  return languages.length === 0 ? (
+  return languages?.length > 0 ? (
+    <div>Translator Dashboard</div>
+  ) : (
     <Redirect
       to={{
         pathname: r.TRANSLATOR_SETTINGS,
@@ -15,7 +17,5 @@ export default function TranslatorMain() {
         },
       }}
     />
-  ) : (
-    <div>Translator Dashboard</div>
   );
 }

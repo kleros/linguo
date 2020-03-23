@@ -2,8 +2,8 @@ import React from 'react';
 import t from 'prop-types';
 import produce from 'immer';
 import styled from 'styled-components';
-import { useLocation } from 'react-router-dom';
-import useTranslatorSettings from '~/hooks/useTranslatorSettings';
+import { useLocation, useHistory } from 'react-router-dom';
+import { useSettings, TRANSLATOR } from '~/app/settings';
 import { Row, Col, Form, Select, Typography, Alert, notification } from 'antd';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
 import Button from '~/components/Button';
@@ -360,7 +360,7 @@ export default function TranslatorSettings() {
 
   const [form] = Form.useForm();
 
-  const [storedValues, setStoredValues] = useTranslatorSettings();
+  const [storedValues, setStoredValues] = useSettings(TRANSLATOR.key, TRANSLATOR.initialValue);
   const [values, setValues] = React.useState(ensureAtLeastOneLanguage(storedValues));
 
   const handleFinish = React.useCallback(
@@ -396,52 +396,54 @@ export default function TranslatorSettings() {
 
   const totalLanguagesReached = languages.length === values.languages.length;
 
-  const renderItems = React.useCallback(
-    (fields, { add, remove }) => {
-      return (
-        <>
-          {fields.map((field, index) => {
-            return (
-              <LanguageSelectionCombobox
-                key={field.key}
-                name={field.name}
-                selectedValues={values.languages}
-                value={values.languages[field.name]}
-                onChange={handleLanguageChange}
-                remove={remove}
-              />
-            );
-          })}
-
-          <Form.Item>
-            <Row gutter={16}>
-              <Col md={12} xs={24}>
-                <StyledJumboButton
-                  fullWidth
-                  size="large"
-                  variant="outlined"
-                  icon={<AddIcon />}
-                  disabled={totalLanguagesReached}
-                  onClick={() => {
-                    add();
-                  }}
-                >
-                  New Language
-                </StyledJumboButton>
-              </Col>
-            </Row>
-          </Form.Item>
-        </>
-      );
-    },
-    [handleLanguageChange, totalLanguagesReached, values.languages]
-  );
+  const history = useHistory();
+  const handleReturnClick = React.useCallback(() => {
+    history.goBack();
+  }, [history]);
 
   return (
     <SingleCardLayout title="Set your language skills">
       {message && <StyledAlert closable showIcon icon={<InfoIcon />} message={message} type="info" />}
       <Form form={form} initialValues={values} onValuesChange={handleValuesChange} onFinish={handleFinish}>
-        <Form.List name="languages">{renderItems}</Form.List>
+        <Form.List name="languages">
+          {(fields, { add, remove }) => {
+            return (
+              <>
+                {fields.map((field, index) => {
+                  return (
+                    <LanguageSelectionCombobox
+                      key={field.key}
+                      name={field.name}
+                      selectedValues={values.languages}
+                      value={values.languages[field.name]}
+                      onChange={handleLanguageChange}
+                      remove={remove}
+                    />
+                  );
+                })}
+
+                <Form.Item>
+                  <Row gutter={16}>
+                    <Col md={12} xs={24}>
+                      <StyledJumboButton
+                        fullWidth
+                        size="large"
+                        variant="outlined"
+                        icon={<AddIcon />}
+                        disabled={totalLanguagesReached}
+                        onClick={() => {
+                          add();
+                        }}
+                      >
+                        New Language
+                      </StyledJumboButton>
+                    </Col>
+                  </Row>
+                </Form.Item>
+              </>
+            );
+          }}
+        </Form.List>
 
         <StyledDisclaimer>
           <InfoIcon /> You can update your language level or add more languages anytime on settings.
@@ -449,7 +451,7 @@ export default function TranslatorSettings() {
 
         <Row gutter={16} justify="space-between">
           <Col lg={6} md={8} sm={10} xs={12}>
-            <Button fullWidth htmlType="reset" variant="outlined">
+            <Button fullWidth htmlType="button" variant="outlined" onClick={handleReturnClick}>
               Return
             </Button>
           </Col>

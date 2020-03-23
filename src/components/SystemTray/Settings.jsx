@@ -5,8 +5,8 @@ import { useWeb3React } from '@web3-react/core';
 import { NavLink } from 'react-router-dom';
 import { Row, Col, Typography, Divider, Badge, Alert } from 'antd';
 import { getErrorMessage } from '~/adapters/web3React';
-import useWeb3ProviderSettings from '~/hooks/useWeb3ProviderSettings';
 import { createCustomIcon } from '~/adapters/antd';
+import { useSettings, WEB3_PROVIDER } from '~/app/settings';
 import * as r from '~/app/routes';
 import { injected } from '~/app/connectors';
 import Button from '~/components/Button';
@@ -16,22 +16,22 @@ import { Popover, Button as TrayButton, Icon } from './adapters';
 
 function WalletConnectionButton() {
   const { active, activate, deactivate, setError } = useWeb3React();
-  const [providerSettings, saveSettings] = useWeb3ProviderSettings();
+  const [providerSettings, saveProviderSettings] = useSettings(WEB3_PROVIDER.key, WEB3_PROVIDER.initialValue);
 
   const handleToggleConnection = React.useCallback(async () => {
     if (active) {
       deactivate();
-      saveSettings({ allowEagerConnection: false });
+      saveProviderSettings({ allowEagerConnection: false });
     } else {
       try {
         await activate(injected, undefined, true);
-        saveSettings({ allowEagerConnection: true });
+        saveProviderSettings({ allowEagerConnection: true });
       } catch (err) {
         setError(err);
-        saveSettings({ allowEagerConnection: false });
+        saveProviderSettings({ allowEagerConnection: false });
       }
     }
-  }, [active, deactivate, activate, setError, saveSettings]);
+  }, [active, deactivate, activate, setError, saveProviderSettings]);
 
   React.useEffect(() => {
     if (!active && providerSettings.allowEagerConnection) {
