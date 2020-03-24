@@ -7,6 +7,7 @@ import { Layout } from 'antd';
 import Web3 from 'web3';
 import { Web3ReactProvider, useWeb3React } from '@web3-react/core';
 import { useInactiveListener, useEagerConnect } from '~/adapters/web3React';
+import { network } from '~/app/connectors';
 import Navbar from '~/components/Navbar';
 import Footer from '~/components/Footer';
 import { DrawerMenu } from '~/components/Menu';
@@ -37,18 +38,24 @@ function getLibrary(provider) {
 }
 
 function Web3ReactWrapper({ children }) {
-  const { connector } = useWeb3React();
+  const { connector, activate, deactivate } = useWeb3React();
 
   const [activatingConnector, setActivatingConnector] = React.useState();
+
   React.useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
       setActivatingConnector(undefined);
     }
   }, [activatingConnector, connector]);
 
-  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
   const triedEager = useEagerConnect();
   useInactiveListener(!triedEager || !!activatingConnector);
+
+  React.useEffect(() => {
+    activate(network);
+
+    return () => deactivate();
+  }, [activate, deactivate]);
 
   return children;
 }

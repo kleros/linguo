@@ -16,7 +16,7 @@ const MenuItems = [
 const StyledLayoutSider = styled(Layout.Sider)`
   height: 100%;
   position: fixed;
-  z-index: 2000;
+  z-index: 500;
 
   @media (min-width: 768px) {
     display: none;

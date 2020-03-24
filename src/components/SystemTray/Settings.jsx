@@ -6,46 +6,36 @@ import { NavLink } from 'react-router-dom';
 import { Row, Col, Typography, Divider, Badge, Alert } from 'antd';
 import { getErrorMessage } from '~/adapters/web3React';
 import { createCustomIcon } from '~/adapters/antd';
-import { useSettings, WEB3_PROVIDER } from '~/app/settings';
 import * as r from '~/app/routes';
-import { injected } from '~/app/connectors';
 import Button from '~/components/Button';
 import WalletInformation from '~/components/WalletInformation';
+import WalletConnectionModal from '~/components/WalletConnectionModal';
 import _SettingsIcon from '~/assets/images/icon-settings.svg';
 import { Popover, Button as TrayButton, Icon } from './adapters';
 
 function WalletConnectionButton() {
-  const { active, activate, deactivate, setError } = useWeb3React();
-  const [providerSettings, saveProviderSettings] = useSettings(WEB3_PROVIDER.key, WEB3_PROVIDER.initialValue);
+  const { active, account, deactivate } = useWeb3React();
+  const isConnectedToWallet = active && account;
 
-  const handleToggleConnection = React.useCallback(async () => {
-    if (active) {
-      deactivate();
-      saveProviderSettings({ allowEagerConnection: false });
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const handleButtonClick = () => {
+    if (!isConnectedToWallet) {
+      setModalVisible(true);
     } else {
-      try {
-        await activate(injected, undefined, true);
-        saveProviderSettings({ allowEagerConnection: true });
-      } catch (err) {
-        setError(err);
-        saveProviderSettings({ allowEagerConnection: false });
-      }
+      deactivate();
     }
-  }, [active, deactivate, activate, setError, saveProviderSettings]);
+  };
 
-  React.useEffect(() => {
-    if (!active && providerSettings.allowEagerConnection) {
-      activate(injected);
-    }
-  }, [active, activate, providerSettings.allowEagerConnection]);
-
-  const badgeColor = active ? 'green' : 'red';
-  const connectionButtonText = active ? 'Disconnect' : 'Connect to wallet';
+  const badgeColor = isConnectedToWallet ? 'green' : 'red';
+  const connectionButtonText = isConnectedToWallet ? 'Disconnect' : 'Connect to wallet';
 
   return (
-    <Button variant="outlined" size="small" onClick={handleToggleConnection}>
-      <Badge color={badgeColor} /> {connectionButtonText}
-    </Button>
+    <>
+      <Button variant="outlined" size="small" onClick={handleButtonClick}>
+        <Badge color={badgeColor} /> {connectionButtonText}
+      </Button>
+      <WalletConnectionModal visible={modalVisible} setVisible={setModalVisible} />
+    </>
   );
 }
 
