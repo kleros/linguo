@@ -51,7 +51,7 @@ function Web3ReactWrapper({ children }) {
 
   useInactiveListener(!!activatingConnector);
 
-  const [{ allowEagerConnection, connectorName }] = useSettings(WEB3_PROVIDER.key, WEB3_PROVIDER.initialValue);
+  const [{ allowEagerConnection, connectorName }] = useSettings(WEB3_PROVIDER);
 
   React.useEffect(() => {
     const savedConnector = connectorsByName[connectorName];

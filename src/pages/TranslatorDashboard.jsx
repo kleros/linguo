@@ -4,7 +4,7 @@ import { useSettings, TRANSLATOR } from '~/app/settings';
 import * as r from '~/app/routes';
 
 export default function TranslatorMain() {
-  const [{ languages }] = useSettings(TRANSLATOR.key, TRANSLATOR.initialValue);
+  const [{ languages }] = useSettings(TRANSLATOR);
 
   return languages?.length > 0 ? (
     <div>Translator Dashboard</div>

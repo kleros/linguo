@@ -360,7 +360,7 @@ export default function TranslatorSettings() {
 
   const [form] = Form.useForm();
 
-  const [storedValues, setStoredValues] = useSettings(TRANSLATOR.key, TRANSLATOR.initialValue);
+  const [storedValues, setStoredValues] = useSettings(TRANSLATOR);
   const [values, setValues] = React.useState(ensureAtLeastOneLanguage(storedValues));
 
   const handleFinish = React.useCallback(
@@ -409,7 +409,7 @@ export default function TranslatorSettings() {
           {(fields, { add, remove }) => {
             return (
               <>
-                {fields.map((field, index) => {
+                {fields.map(field => {
                   return (
                     <LanguageSelectionCombobox
                       key={field.key}

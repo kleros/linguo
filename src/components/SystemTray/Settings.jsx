@@ -19,7 +19,7 @@ function WalletConnectionButton() {
   const { active, account, deactivate } = web3React;
   const isConnectedToWallet = active && account;
 
-  const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER.key, WEB3_PROVIDER.initialValue);
+  const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER);
 
   const [modalVisible, setModalVisible] = React.useState(false);
 

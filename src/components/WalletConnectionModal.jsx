@@ -61,7 +61,7 @@ function WalletConnectionModal({ visible, setVisible }) {
   const { activate } = useWeb3React();
   const [error, setError] = React.useState(null);
 
-  const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER.key, WEB3_PROVIDER.initialValue);
+  const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER);
 
   const handleCancel = () => {
     setVisible(false);
