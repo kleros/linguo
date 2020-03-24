@@ -37,6 +37,13 @@
     }
   },
   "rules": {
+    "no-unused-vars": [
+      "error",
+      {
+        "varsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)",
+        "argsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)"
+      }
+    ],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "security/detect-object-injection": "off",

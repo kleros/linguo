@@ -5,11 +5,13 @@ import { FortmaticConnector } from '~/adapters/web3-react/FortmaticConnector';
 export const injected = new InjectedConnector({
   supportedChainIds: [1, 42],
 });
+injected.name = 'injected';
 
 export const fortmatic = new FortmaticConnector({
   apiKey: process.env.FORTMATIC_API_KEY,
   chainId: 42,
 });
+fortmatic.name = 'fortmatic';
 
 export const network = new NetworkConnector({
   urls: {
@@ -19,3 +21,12 @@ export const network = new NetworkConnector({
   defaultChainId: 42,
   pollingInterval: 3000,
 });
+network.name = 'network';
+
+export const connectorsByName = [injected, fortmatic, network].reduce(
+  (acc, current) =>
+    Object.assign(acc, {
+      [current.name]: current,
+    }),
+  {}
+);

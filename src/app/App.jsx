@@ -6,12 +6,13 @@ import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { Layout } from 'antd';
 import Web3 from 'web3';
 import { Web3ReactProvider, useWeb3React } from '@web3-react/core';
-import { useInactiveListener, useEagerConnect } from '~/adapters/web3React';
-import { network } from '~/app/connectors';
+import { useInactiveListener } from '~/adapters/web3React';
 import Navbar from '~/components/Navbar';
 import Footer from '~/components/Footer';
 import { DrawerMenu } from '~/components/Menu';
 import MainRouterSwitch from './MainRouterSwitch';
+import { useSettings, WEB3_PROVIDER } from './settings';
+import { connectorsByName } from './connectors';
 import theme from './theme';
 
 const GlobalStyle = createGlobalStyle`
@@ -38,7 +39,7 @@ function getLibrary(provider) {
 }
 
 function Web3ReactWrapper({ children }) {
-  const { connector, activate, deactivate } = useWeb3React();
+  const { connector, activate } = useWeb3React();
 
   const [activatingConnector, setActivatingConnector] = React.useState();
 
@@ -48,14 +49,16 @@ function Web3ReactWrapper({ children }) {
     }
   }, [activatingConnector, connector]);
 
-  const triedEager = useEagerConnect();
-  useInactiveListener(!triedEager || !!activatingConnector);
+  useInactiveListener(!!activatingConnector);
+
+  const [{ allowEagerConnection, connectorName }] = useSettings(WEB3_PROVIDER.key, WEB3_PROVIDER.initialValue);
 
   React.useEffect(() => {
-    activate(network);
-
-    return () => deactivate();
-  }, [activate, deactivate]);
+    const savedConnector = connectorsByName[connectorName];
+    if (allowEagerConnection && connectorName && savedConnector) {
+      activate(savedConnector);
+    }
+  }, [allowEagerConnection, connectorName, activate]);
 
   return children;
 }

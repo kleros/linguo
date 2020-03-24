@@ -6,6 +6,7 @@ import { NavLink } from 'react-router-dom';
 import { Row, Col, Typography, Divider, Badge, Alert } from 'antd';
 import { getErrorMessage } from '~/adapters/web3React';
 import { createCustomIcon } from '~/adapters/antd';
+import { useSettings, WEB3_PROVIDER } from '~/app/settings';
 import * as r from '~/app/routes';
 import Button from '~/components/Button';
 import WalletInformation from '~/components/WalletInformation';
@@ -14,15 +15,23 @@ import _SettingsIcon from '~/assets/images/icon-settings.svg';
 import { Popover, Button as TrayButton, Icon } from './adapters';
 
 function WalletConnectionButton() {
-  const { active, account, deactivate } = useWeb3React();
+  const web3React = useWeb3React();
+  const { active, account, deactivate } = web3React;
   const isConnectedToWallet = active && account;
 
+  const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER.key, WEB3_PROVIDER.initialValue);
+
   const [modalVisible, setModalVisible] = React.useState(false);
-  const handleButtonClick = () => {
+
+  const handleButtonClick = async () => {
     if (!isConnectedToWallet) {
       setModalVisible(true);
     } else {
       deactivate();
+      setWeb3ProviderSettings({
+        allowEagerConnection: false,
+        connectorName: undefined,
+      });
     }
   };
 

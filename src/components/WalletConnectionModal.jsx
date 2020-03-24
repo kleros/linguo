@@ -2,8 +2,10 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { useWeb3React } from '@web3-react/core';
-import { Row, Col, Divider, Typography } from 'antd';
+import { Row, Col, Divider, Typography, Alert } from 'antd';
+import { getErrorMessage } from '~/adapters/web3React';
 import { injected, fortmatic } from '~/app/connectors';
+import { useSettings, WEB3_PROVIDER } from '~/app/settings';
 import Button from '~/components/Button';
 import Modal from '~/components/Modal';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
@@ -33,45 +35,71 @@ const StyledHelperText = styled(Typography.Text)`
   }
 `;
 
-const createHandleActivation = (connector, { activate, setError, setVisible }) => async () => {
+const StyledAlert = styled(Alert)`
+  margin-bottom: 2rem;
+`;
+
+const StyledDivider = styled(Divider)`
+  background: none;
+`;
+
+const createHandleActivation = (connector, { activate, setError, setVisible, setWeb3ProviderSettings }) => async () => {
   try {
-    await activate(connector, setError, true);
+    setError(null);
+    await activate(connector, undefined, true);
+    setWeb3ProviderSettings({
+      allowEagerConnection: true,
+      connectorName: connector.name,
+    });
     setVisible(false);
-  } catch {}
+  } catch (err) {
+    setError(err);
+  }
 };
 
 function WalletConnectionModal({ visible, setVisible }) {
-  const { activate, setError } = useWeb3React();
+  const { activate } = useWeb3React();
+  const [error, setError] = React.useState(null);
 
-  const handleMetamaskConnect = createHandleActivation(injected, {
+  const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER.key, WEB3_PROVIDER.initialValue);
+
+  const handleCancel = () => {
+    setVisible(false);
+    setError(null);
+  };
+
+  const handleMetamaskActivation = createHandleActivation(injected, {
     activate,
     setError,
     setVisible,
+    setWeb3ProviderSettings,
   });
 
-  const handleFortmaticConnect = createHandleActivation(fortmatic, {
+  const handleFortmaticActivation = createHandleActivation(fortmatic, {
     activate,
     setError,
     setVisible,
+    setWeb3ProviderSettings,
   });
 
   return (
-    <Modal centered visible={visible} onCancel={() => setVisible(false)} title="Connect to a Wallet" footer={null}>
+    <Modal centered visible={visible} onCancel={handleCancel} title="Connect to a Wallet" footer={null}>
+      {error && <StyledAlert type="error" message={getErrorMessage(error)} />}
       <Row gutter={[16, 16]} align="center">
         <Col sm={8} xs={12}>
-          <StyledWalletButton fullWidth variant="outlined" onClick={handleMetamaskConnect}>
+          <StyledWalletButton fullWidth variant="outlined" onClick={handleMetamaskActivation}>
             <MetamaskLogo className="logo" />
             <span className="description">Metamask</span>
           </StyledWalletButton>
         </Col>
         <Col sm={8} xs={12}>
-          <StyledWalletButton fullWidth variant="outlined" onClick={handleFortmaticConnect}>
+          <StyledWalletButton fullWidth variant="outlined" onClick={handleFortmaticActivation}>
             <FortmaticLogo className="logo" />
             <span className="description">Fortmatic</span>
           </StyledWalletButton>
         </Col>
       </Row>
-      <Divider />
+      <StyledDivider />
       <StyledHelperText>
         Don&rsquo;t know what an ethereum wallet is?{' '}
         <a href="https://ethereum.org/wallets/" target="_blank" rel="noreferrer noopener">
@@ -86,6 +114,10 @@ function WalletConnectionModal({ visible, setVisible }) {
 WalletConnectionModal.propTypes = {
   visible: t.bool.isRequired,
   setVisible: t.func.isRequired,
+};
+
+WalletConnectionModal.defaultProps = {
+  onActivate: () => {},
 };
 
 export default WalletConnectionModal;
