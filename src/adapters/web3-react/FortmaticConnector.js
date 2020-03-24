@@ -7,10 +7,6 @@ const chainIdToNetwork = {
   42: 'kovan',
 };
 
-/**
- * TODO: find the issue which is preventing the original @web3-react/fortmatic-connector
- * to use dynamic imports properly with parcel.
- */
 export class FortmaticConnector extends AbstractConnector {
   constructor({ apiKey, chainId }) {
     super({ supportedChainIds: [chainId] });
@@ -21,8 +17,20 @@ export class FortmaticConnector extends AbstractConnector {
 
   async activate() {
     if (!this.fortmatic) {
-      const Fortmatic = await import('fortmatic');
-      console.log(Fortmatic);
+      /**
+       * TODO: investigate this.
+       *
+       * Fortmatic is distributed only as CommonJS module.
+       * Looks like parcel deals with this different than webpack when using
+       * dynamic import on CommonJS modules. Instead of transforming the CJS
+       * module into an ES module and putting the export into the `default`
+       * key, it simply resolves the promise with the export itself.
+       *
+       * However, I'm not able to reproduce this behavior outside this repo.
+       */
+      let Fortmatic = await import('fortmatic');
+      Fortmatic = Fortmatic.default || Fortmatic;
+
       this.fortmatic = new Fortmatic(
         this.apiKey,
         this.chainId === 1 || this.chainId === 4 ? undefined : chainIdToNetwork[this.chainId]
