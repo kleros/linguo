@@ -2,15 +2,14 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { useWeb3React } from '@web3-react/core';
-import { Modal, Row, Col, Divider, Typography } from 'antd';
+import { Row, Col, Divider, Typography } from 'antd';
 import { injected, fortmatic } from '~/app/connectors';
 import Button from '~/components/Button';
+import Modal from '~/components/Modal';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
 import FortmaticLogo from '~/assets/images/logo-fortmatic.svg';
 
-const StyledModal = styled(Modal)``;
-
-const StyledButton = styled(Button)`
+const StyledWalletButton = styled(Button)`
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
@@ -57,25 +56,19 @@ function WalletConnectionModal({ visible, setVisible }) {
   });
 
   return (
-    <StyledModal
-      centered
-      visible={visible}
-      onCancel={() => setVisible(false)}
-      title="Connect to a Wallet"
-      footer={null}
-    >
+    <Modal centered visible={visible} onCancel={() => setVisible(false)} title="Connect to a Wallet" footer={null}>
       <Row gutter={[16, 16]} align="center">
         <Col sm={8} xs={12}>
-          <StyledButton fullWidth variant="outlined" onClick={handleMetamaskConnect}>
+          <StyledWalletButton fullWidth variant="outlined" onClick={handleMetamaskConnect}>
             <MetamaskLogo className="logo" />
             <span className="description">Metamask</span>
-          </StyledButton>
+          </StyledWalletButton>
         </Col>
         <Col sm={8} xs={12}>
-          <StyledButton fullWidth variant="outlined" onClick={handleFortmaticConnect}>
+          <StyledWalletButton fullWidth variant="outlined" onClick={handleFortmaticConnect}>
             <FortmaticLogo className="logo" />
             <span className="description">Fortmatic</span>
-          </StyledButton>
+          </StyledWalletButton>
         </Col>
       </Row>
       <Divider />
@@ -86,7 +79,7 @@ function WalletConnectionModal({ visible, setVisible }) {
         </a>
         .
       </StyledHelperText>
-    </StyledModal>
+    </Modal>
   );
 }
 

@@ -9,6 +9,7 @@ const StyledButton = styled(Button)`
   width: 1.5rem;
   height: 1.5rem;
   padding: 0.125rem;
+  transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
 
   :hover,
   :active,
