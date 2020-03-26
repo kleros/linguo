@@ -4,127 +4,15 @@ import produce from 'immer';
 import styled from 'styled-components';
 import { useLocation, useHistory } from 'react-router-dom';
 import { useSettings, TRANSLATOR } from '~/app/settings';
-import { Row, Col, Form, Select, Typography, Alert, notification } from 'antd';
+import { Row, Col, Form, Typography, Alert, notification } from 'antd';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
 import Button from '~/components/Button';
+import { LanguageSelect, LevelSelect } from '~/components/LanguageSelect';
 import languages from '~/assets/fixtures/languages';
-import getLanguageFlag from '~/components/helpers/getLanguageFlag';
 import { createCustomIcon } from '~/adapters/antd';
 import _RemoveIcon from '~/assets/images/icon-remove.svg';
 import _AddIcon from '~/assets/images/icon-add.svg';
 import _InfoIcon from '~/assets/images/icon-info.svg';
-
-const StyledBaseSelect = styled(Select)`
-  &&& {
-    height: 5.75rem;
-    color: ${props => props.theme.text.inverted};
-
-    &.ant-select-single.ant-select-open .ant-select-selection-item {
-      opacity: 0.75;
-    }
-
-    .ant-select-arrow {
-      color: ${props => props.theme.text.inverted};
-      right: 2rem;
-      margin-top: -0.825rem;
-      width: 1.5rem;
-      height: 1.5rem;
-
-      .anticon,
-      .anticon svg {
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    .ant-select-selector {
-      height: 100%;
-      padding: 0 2rem;
-      border-radius: 0.75rem;
-      border-width: 0.3125rem !important;
-      border-color: ${props => props.theme.border.default};
-
-      .ant-select-selection-search-input {
-        height: 100%;
-        padding: 0 1rem 0 1rem;
-        font-size: ${props => props.theme.fontSize.xl};
-        font-weight: 400;
-      }
-
-      .ant-select-selection-placeholder,
-      .ant-select-selection-item {
-        display: flex;
-        align-items: center;
-        font-size: ${props => props.theme.fontSize.xl};
-        font-weight: 400;
-        color: ${props => props.theme.text.inverted};
-      }
-
-      .ant-select-selection-placeholder {
-        opacity: 0.75;
-      }
-    }
-  }
-`;
-
-const StyledLanguageSelect = styled(StyledBaseSelect)`
-  &&& {
-    .ant-select-selector {
-      background: linear-gradient(
-        118.61deg,
-        ${props => props.theme.primary.default} 42.83%,
-        ${props => props.theme.primary.dark} 89.23%
-      );
-
-      .ant-select-selection-item {
-        .flag {
-          flex: 1.5rem 0 0;
-        }
-
-        .text {
-          flex: 1;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      }
-    }
-
-    .ant-select-item-option-content {
-      display: flex;
-      align-items: center;
-    }
-  }
-`;
-
-const StyledLevelSelect = styled(StyledBaseSelect)`
-  &&& {
-    .ant-select-selector {
-      background: linear-gradient(
-        118.61deg,
-        ${props => props.theme.secondary.default} 42.83%,
-        ${props => props.theme.secondary.light} 89.23%
-      );
-    }
-  }
-`;
-
-const StyledLanguageDropdown = styled.div`
-  .ant-select-item-option-content {
-    display: flex;
-    align-items: center;
-  }
-`;
-
-const StyledFlagContainer = styled.span`
-  width: 1.5rem;
-  height: 1.5rem;
-  margin-right: 1rem;
-
-  svg {
-    display: block;
-    width: 100%;
-  }
-`;
 
 const StyledIconButton = styled(Button)`
   && {
@@ -193,7 +81,7 @@ function LanguageSelectionCombobox({ value, selectedValues, onChange, name, remo
 
     return !isSelectedSomewhere || isSelectedHere;
   });
-  const availableLabels = levelsByLanguage[value.language] || emptyLevels;
+  const availableLevels = levelsByLanguage[value.language] || emptyLevels;
 
   const removeButtton = (
     <div
@@ -225,27 +113,15 @@ function LanguageSelectionCombobox({ value, selectedValues, onChange, name, remo
             },
           ]}
         >
-          <StyledLanguageSelect
+          <LanguageSelect
             size="large"
             showSearch
             placeholder="Select a language..."
             optionFilterProp="description"
             onChange={handleChangeLanguage}
             value={value.language}
-            dropdownRender={menu => <StyledLanguageDropdown>{menu}</StyledLanguageDropdown>}
-          >
-            {availableLanguages.map(({ code, name }) => {
-              const Flag = getLanguageFlag(code);
-              return (
-                <Select.Option key={code} value={code} description={name}>
-                  <StyledFlagContainer className="flag">
-                    <Flag />
-                  </StyledFlagContainer>
-                  <span className="text">{name}</span>
-                </Select.Option>
-              );
-            })}
-          </StyledLanguageSelect>
+            options={availableLanguages}
+          />
         </StyledFormItem>
       </Col>
       <Col
@@ -270,21 +146,14 @@ function LanguageSelectionCombobox({ value, selectedValues, onChange, name, remo
             },
           ]}
         >
-          <StyledLevelSelect
+          <LevelSelect
             size="large"
             placeholder="Select a level..."
             value={value.level}
             onChange={handleChangeLevel}
-            disabled={availableLabels.length === 0}
-          >
-            {availableLabels.map(({ code, name }) => {
-              return (
-                <Select.Option key={code} value={code} description={name}>
-                  {name}
-                </Select.Option>
-              );
-            })}
-          </StyledLevelSelect>
+            disabled={availableLevels.length === 0}
+            options={availableLevels}
+          />
         </StyledFormItem>
       </Col>
 
