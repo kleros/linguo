@@ -107,18 +107,18 @@ const StyledBalanceAlert = styled(Alert)`
   width: 100%;
 `;
 
-const getBalance = async ({ library, account }, { signal }) => {
+async function getBalance({ library, account }) {
   if (!account) {
     throw new Error('Invalid account');
   }
 
   const balance = await library.eth.getBalance(account);
   return library.utils.fromWei(balance, 'ether');
-};
+}
 
-const shouldUpdateBalance = (current, prev) => {
+function shouldUpdateBalance(current, prev) {
   return current.account !== prev.account || current.chainId !== prev.chainId;
-};
+}
 
 function EthBalance({ decimals }) {
   const { account, library, chainId } = useWeb3React();
