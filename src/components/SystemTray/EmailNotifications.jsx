@@ -93,7 +93,7 @@ function EmailNotifications() {
     setVisible(visible);
   }, []);
 
-  const handleFormSubmit = React.useCallback(visible => {
+  const handleFormSubmit = React.useCallback(() => {
     setVisible(false);
   }, []);
 
