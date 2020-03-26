@@ -1,0 +1,29 @@
+{
+  "costEffective": {
+    "value": "costEffective",
+    "name": "Cost Effective",
+    "description": [
+      "A basic traduction will be expected. The conveyed meaning must be the similar but it is acceptable to lose nuances. Occasional typos and translation errors are acceptable.",
+      "Those tasks are shown to translators self-declaring a level B2+."
+    ],
+    "requiredLevel": "B2"
+  },
+  "standard": {
+    "value": "standard",
+    "name": "Standard",
+    "description": [
+      "To the standard level of a translation. The meaning must be almost identical. Occasional typos are acceptable.",
+      "Those tasks are shown to translators self-declaring a level C1+."
+    ],
+    "requiredLevel": "C1"
+  },
+  "perfect": {
+    "value": "perfect",
+    "name": "Perfect",
+    "description": [
+      "The highest translation quality. The meaning must be almost identical and the translator must work to correctly reflect the style and nuance of the original text. Translators are expected to have their text reviewed before submission. A single typo is enough to reject a text with a perfect expected quality.",
+      "Those tasks are shown to translators self-declaring a level C2."
+    ],
+    "requiredLevel": "C2"
+  }
+}
