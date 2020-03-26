@@ -1,2 +1,2 @@
 export { default as createCustomIcon } from './createCustomIcon';
-export { default as StylablePopover } from './StylablePopover';
+export { default as Popover } from './Popover';

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Button, Badge } from 'antd';
 import Icon from '@ant-design/icons';
-import { StylablePopover } from '~/adapters/antd';
+import { Popover } from '~/adapters/antd';
 
 const StyledButton = styled(Button)`
   background: transparent;
@@ -54,7 +54,7 @@ const StyledIcon = styled(Icon)`
 
 export { StyledIcon as Icon };
 
-const StyledPopover = styled(StylablePopover)`
+const StyledPopover = styled(Popover)`
   z-index: 300;
   .ant-popover-arrow {
     background: ${props => props.theme.background.light};
