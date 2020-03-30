@@ -35,6 +35,7 @@
     "dayjs": "^1.8.22",
     "fortmatic": "^1.0.0",
     "immer": "^5.3.6",
+    "ipfs-http-client": "^42.0.0",
     "normalize.css": "^8.0.1",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",

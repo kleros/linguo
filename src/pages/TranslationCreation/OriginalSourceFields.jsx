@@ -1,8 +1,8 @@
 import React from 'react';
+import t from 'prop-types';
 import styled from 'styled-components';
-import { Form, Row, Col, Input, Upload, message } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-import Button from '~/components/Button';
+import { Form, Row, Col, Input, message } from 'antd';
+import SingleFileUpload, { validator as singleFileUploadValidator } from '~/components/SingleFileUpload';
 
 const StyledMiddleCol = styled(Col)`
   display: flex;
@@ -31,25 +31,33 @@ const normalizeFile = e => {
   return e && e.fileList;
 };
 
-function beforeUpload(file) {
-  const isPdf = file.type === 'application/pdf';
+const beforeUpload = file => {
+  // do something...
+  const isLt100M = file.size / 1024 / 1024 < 100;
 
-  if (!isPdf) {
-    message.error('You can only upload a PDF file!');
+  if (!isLt100M) {
+    message.error('File must smaller than 100 MB!');
   }
 
-  const isLt10M = file.size / 1024 / 1024 < 10;
-  if (!isLt10M) {
-    message.error('File must smaller than 10MB!');
+  return isLt100M;
+};
+
+async function uploadValidator(rule, value) {
+  if (!value || value.length === 0) {
+    return '';
   }
-  return isPdf && isLt10M;
+
+  return singleFileUploadValidator(value);
 }
 
-async function handleUpload(...args) {
-  console.log(args);
-}
+function OriginalSourceFields({ setFieldsValue }) {
+  const handleOriginalTextFileChange = React.useCallback(
+    ({ fileList }) => {
+      setFieldsValue({ originalTextFile: [...fileList] });
+    },
+    [setFieldsValue]
+  );
 
-function OriginalSourceFields() {
   return (
     <Col span={24}>
       <Form.Item label="Source of the original text for context (optional)">
@@ -76,14 +84,10 @@ function OriginalSourceFields() {
               name="originalTextFile"
               valuePropName="fileList"
               getValueFromEvent={normalizeFile}
-              extra="Only PDF files up to 10 MB"
+              extra="Single file up to 100 MB"
+              rules={[{ validator: uploadValidator }]}
             >
-              <Upload accept="application/pdf" beforeUpload={beforeUpload} customRequest={handleUpload}>
-                <Button variant="outlined">
-                  <UploadOutlined />
-                  Upload a File
-                </Button>
-              </Upload>
+              <SingleFileUpload beforeUpload={beforeUpload} onChange={handleOriginalTextFileChange} />
             </StyledFormItem>
           </Col>
         </Row>
@@ -91,5 +95,9 @@ function OriginalSourceFields() {
     </Col>
   );
 }
+
+OriginalSourceFields.propTypes = {
+  setFieldsValue: t.func.isRequired,
+};
 
 export default OriginalSourceFields;

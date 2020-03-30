@@ -61,7 +61,7 @@ function TranslationCreation() {
           <TextField />
         </Row>
         <Row gutter={rowGutter}>
-          <OriginalSourceFields />
+          <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
         </Row>
         <Row gutter={rowGutter} justify="end">
           <Col>
