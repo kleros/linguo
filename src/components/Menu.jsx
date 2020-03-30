@@ -34,9 +34,16 @@ const StyledLayoutSider = styled(Layout.Sider)`
     }
 
     .ant-layout-sider-zero-width-trigger {
-      right: -50px;
       top: 12px;
-      background-color: ${props => props.theme.secondary.default};
+      right: -36px;
+      background-color: ${props => props.theme.primary.default};
+    }
+
+    &.ant-layout-sider-collapsed {
+      .ant-layout-sider-zero-width-trigger {
+        right: -50px;
+        background-color: ${props => props.theme.secondary.default};
+      }
     }
   }
 `;
