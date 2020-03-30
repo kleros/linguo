@@ -20,7 +20,17 @@ const StyledMiddleCol = styled(Col)`
 
 const StyledFormItem = styled(Form.Item)`
   && {
-    margin-bottom: -2rem;
+    @media (min-width: 768px) {
+      margin-bottom: -2rem;
+    }
+  }
+`;
+
+const StyledWrapperFormItem = styled(Form.Item)`
+  && {
+    @media (max-width: 767.98px) {
+      margin-bottom: -1rem;
+    }
   }
 `;
 
@@ -60,7 +70,7 @@ function OriginalSourceFields({ setFieldsValue }) {
 
   return (
     <Col span={24}>
-      <Form.Item label="Source of the original text for context (optional)">
+      <StyledWrapperFormItem label="Source of the original text for context (optional)">
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={24} md={14}>
             <StyledFormItem
@@ -91,7 +101,7 @@ function OriginalSourceFields({ setFieldsValue }) {
             </StyledFormItem>
           </Col>
         </Row>
-      </Form.Item>
+      </StyledWrapperFormItem>
     </Col>
   );
 }
