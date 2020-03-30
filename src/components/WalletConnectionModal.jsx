@@ -43,18 +43,13 @@ const StyledDivider = styled(Divider)`
   background: none;
 `;
 
-const createHandleActivation = (connector, { activate, setError, setVisible, setWeb3ProviderSettings }) => async () => {
-  try {
-    setError(null);
-    await activate(connector, undefined, true);
-    setWeb3ProviderSettings({
-      allowEagerConnection: true,
-      connectorName: connector.name,
-    });
-    setVisible(false);
-  } catch (err) {
-    setError(err);
-  }
+const createHandleActivation = (connector, { activate, setVisible, setWeb3ProviderSettings }) => async () => {
+  activate(connector);
+  setWeb3ProviderSettings({
+    allowEagerConnection: true,
+    connectorName: connector.name,
+  });
+  setVisible(false);
 };
 
 function WalletConnectionModal({ visible, setVisible }) {

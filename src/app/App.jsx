@@ -5,14 +5,15 @@ import { HashRouter as Router } from 'react-router-dom';
 import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { Layout } from 'antd';
 import Web3 from 'web3';
-import { Web3ReactProvider, useWeb3React } from '@web3-react/core';
-import { useInactiveListener } from '~/adapters/web3React';
+import { Web3ReactProvider } from '@web3-react/core';
+import { useWeb3React, useEagerConnection, useInactiveListener } from '~/app/web3React';
 import Navbar from '~/components/Navbar';
 import Footer from '~/components/Footer';
 import { DrawerMenu } from '~/components/Menu';
 import MainRouterSwitch from './MainRouterSwitch';
 import { useSettings, WEB3_PROVIDER } from './settings';
 import { connectorsByName } from './connectors';
+import { AppContextProvider } from './AppContext';
 import theme from './theme';
 
 const GlobalStyle = createGlobalStyle`
@@ -39,26 +40,12 @@ function getLibrary(provider) {
 }
 
 function Web3ReactWrapper({ children }) {
-  const { connector, activate } = useWeb3React();
-
-  const [activatingConnector, setActivatingConnector] = React.useState();
-
-  React.useEffect(() => {
-    if (activatingConnector && activatingConnector === connector) {
-      setActivatingConnector(undefined);
-    }
-  }, [activatingConnector, connector]);
-
-  useInactiveListener(!!activatingConnector);
-
   const [{ allowEagerConnection, connectorName }] = useSettings(WEB3_PROVIDER);
+  const savedConnector = connectorsByName[connectorName];
+  useEagerConnection({ skip: !allowEagerConnection, connector: savedConnector });
 
-  React.useEffect(() => {
-    const savedConnector = connectorsByName[connectorName];
-    if (allowEagerConnection && connectorName && savedConnector) {
-      activate(savedConnector);
-    }
-  }, [allowEagerConnection, connectorName, activate]);
+  const { activatingConnector } = useWeb3React();
+  useInactiveListener(!!activatingConnector);
 
   return children;
 }
@@ -69,25 +56,27 @@ Web3ReactWrapper.propTypes = {
 
 function App() {
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <Web3ReactWrapper>
+    <AppContextProvider>
+      <Web3ReactProvider getLibrary={getLibrary}>
         <ThemeProvider theme={theme}>
-          <GlobalStyle />
-          <Router>
-            <Layout>
-              <DrawerMenu />
+          <Web3ReactWrapper>
+            <GlobalStyle />
+            <Router>
               <Layout>
-                <Navbar />
-                <StyledContent>
-                  <MainRouterSwitch />
-                </StyledContent>
-                <Footer />
+                <DrawerMenu />
+                <Layout>
+                  <Navbar />
+                  <StyledContent>
+                    <MainRouterSwitch />
+                  </StyledContent>
+                  <Footer />
+                </Layout>
               </Layout>
-            </Layout>
-          </Router>
+            </Router>
+          </Web3ReactWrapper>
         </ThemeProvider>
-      </Web3ReactWrapper>
-    </Web3ReactProvider>
+      </Web3ReactProvider>
+    </AppContextProvider>
   );
 }
 

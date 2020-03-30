@@ -7,7 +7,7 @@ const chainIdToNetwork = {
   42: 'kovan',
 };
 
-export class FortmaticConnector extends AbstractConnector {
+export default class FortmaticConnector extends AbstractConnector {
   constructor({ apiKey, chainId }) {
     super({ supportedChainIds: [chainId] });
 

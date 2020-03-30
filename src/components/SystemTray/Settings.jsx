@@ -1,10 +1,10 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { useWeb3React } from '@web3-react/core';
 import { NavLink } from 'react-router-dom';
 import { Row, Col, Typography, Divider, Badge, Alert } from 'antd';
 import { getErrorMessage } from '~/adapters/web3React';
+import { useWeb3React } from '~/app/web3React';
 import { createCustomIcon } from '~/adapters/antd';
 import { useSettings, WEB3_PROVIDER } from '~/app/settings';
 import * as r from '~/app/routes';

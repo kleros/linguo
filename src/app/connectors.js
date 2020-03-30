@@ -1,6 +1,6 @@
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
-import { FortmaticConnector } from '~/adapters/web3-react/FortmaticConnector';
+import { FortmaticConnector } from '~/adapters/web3React/connectors';
 
 export const injected = new InjectedConnector({
   supportedChainIds: [1, 42],
