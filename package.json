@@ -1,20 +1,26 @@
 {
   "name": "@kleros/linguo",
   "version": "0.1.0",
-  "description": "The Linguo user interface.",
-  "main": "dist/index.js",
-  "repository": "https://github.com/kleros/linguo",
-  "author": "Kleros",
-  "license": "MIT",
   "private": false,
+  "description": "The Linguo user interface.",
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "dapp",
+    "linguo",
+    "translation"
+  ],
+  "repository": "https://github.com/kleros/linguo",
+  "license": "MIT",
+  "author": "Kleros",
   "type": "module",
-  "keywords": ["blockchain", "ethereum", "dapp", "linguo", "translation"],
+  "main": "dist/index.js",
   "scripts": {
-    "clean": "rm -rf .cache dist",
     "build": "parcel build src/index.html",
-    "start": "parcel src/index.html",
+    "clean": "rm -rf .cache dist",
+    "lint:css": "stylelint 'src/**/*.js{,x}'",
     "lint:js": "eslint src/",
-    "lint:css": "stylelint 'src/**/*.js{,x}'"
+    "start": "parcel src/index.html"
   },
   "dependencies": {
     "@ant-design/icons": "^4.0.2",
@@ -89,8 +95,9 @@
     "postcss-custom-media": "^7.0.8",
     "postcss-modules": "^1.5.0",
     "postcss-preset-env": "^6.7.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.0.2",
     "prettier-config-standard": "^1.0.1",
+    "prettier-plugin-packagejson": "^2.1.2",
     "stylelint": "^13.2.1",
     "stylelint-config-recommended": "^3.0.0",
     "stylelint-config-styled-components": "^0.1.1",
