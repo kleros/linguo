@@ -44,7 +44,7 @@ export default {
   },
   hexToRgba: (hexColor, alpha) => {
     let hexValues = hexColor.replace('#', '');
-    const isShorthand = hexColor.length === 3;
+    const isShorthand = hexValues.length === 3;
 
     if (isShorthand) {
       /* Convert #000 to #000000 */
