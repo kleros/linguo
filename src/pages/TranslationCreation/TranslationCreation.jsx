@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Alert } from 'antd';
+import { getErrorMessage } from '~/adapters/web3React';
 import { useWeb3React } from '~/app/web3React';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
 import WalletConnectionModal from '~/components/WalletConnectionModal';
@@ -32,9 +33,12 @@ const StyledContentWrapper = styled.div`
 `;
 
 function TranslationCreation() {
-  const { account, activatingConnector } = useWeb3React();
+  const { account, activatingConnector, error } = useWeb3React();
   const [modalVisible, setModalVisible] = React.useState(false);
-  const alertVisible = !account && !activatingConnector;
+
+  const walletAlertVisible = !account && !activatingConnector;
+  const formBlocked = !account;
+  const errorAlertVisible = !!error;
 
   const handleOpenModalClick = evt => {
     evt.preventDefault();
@@ -43,7 +47,8 @@ function TranslationCreation() {
 
   return (
     <SingleCardLayout title="New Translation">
-      {alertVisible ? (
+      {errorAlertVisible ? <StyledAlert type="error" message={getErrorMessage(error)} /> : null}
+      {walletAlertVisible ? (
         <>
           <StyledAlert
             type="warning"
@@ -69,10 +74,10 @@ function TranslationCreation() {
         </>
       ) : null}
       <StyledOverlayWrapper>
-        <StyledContentWrapper disabled={alertVisible}>
+        <StyledContentWrapper disabled={formBlocked}>
           <TranslationCreationForm />
         </StyledContentWrapper>
-        <StyledOverlay visible={alertVisible} />
+        <StyledOverlay visible={formBlocked} />
       </StyledOverlayWrapper>
     </SingleCardLayout>
   );

@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import { Upload, Tooltip } from 'antd';
 import { UploadOutlined, LoadingOutlined } from '@ant-design/icons';
-import ipfs, { generateUrl } from '~/api/ipfs';
+import ipfs from '~/app/ipfs';
 import Button from '~/components/Button';
 
 export async function validator(fileList) {
@@ -47,7 +47,7 @@ const uploadStateMachine = {
     },
     errored: {
       on: {
-        '': 'idle',
+        RESET: 'idle',
       },
     },
   },
@@ -60,10 +60,6 @@ function uploadStateReducer(state, action) {
 function SingleFileUpload({ beforeUpload, onChange }) {
   const [state, send] = React.useReducer(uploadStateReducer, uploadStateMachine.initial);
 
-  const isUploadButtonDisabled = state !== 'idle';
-  const icon = state === 'pending' ? <LoadingOutlined /> : <UploadOutlined />;
-  const uploadButtonTitle = isUploadButtonDisabled ? 'Remove the uploaded file to be able to add another one' : '';
-
   const handleRemove = React.useCallback(() => {
     send('RESET');
   }, [send]);
@@ -72,38 +68,40 @@ function SingleFileUpload({ beforeUpload, onChange }) {
     async ({ file, onError, onProgress, onSuccess }) => {
       try {
         send('START');
-        const source = ipfs.add(file, {
-          progress: bytesRead => {
-            const percent = (bytesRead / file.size) * 100;
+        const result = await ipfs.publish(file.name, await file.arrayBuffer(), {
+          onProgress: bytesProcessed => {
+            const percent = (bytesProcessed / file.size) * 100;
             onProgress({ percent }, file);
           },
         });
 
-        for await (const result of source) {
-          onSuccess(
-            {
-              status: 'done',
-              url: generateUrl(result.path),
-              ...result,
-            },
-            file
-          );
-        }
+        onSuccess(
+          {
+            status: 'done',
+            url: ipfs.generateUrl(result.path),
+            ...result,
+          },
+          file
+        );
         send('SUCCESS');
       } catch (err) {
-        onError(err, { status: 'error' }, file);
+        onError(err, { status: 'error', message: err.message }, file);
         send('ERROR', { error: err });
       }
     },
     [send]
   );
 
+  const isUploadButtonDisabled = state !== 'idle';
+  const uploadButtonTooltip = isUploadButtonDisabled ? 'Remove the uploaded file to be able to add another one' : '';
+  const uploadButtonIcon = state === 'pending' ? <LoadingOutlined /> : <UploadOutlined />;
+
   return (
     <Upload beforeUpload={beforeUpload} onChange={onChange} onRemove={handleRemove} customRequest={customRequest}>
-      <Tooltip title={uploadButtonTitle}>
+      <Tooltip title={uploadButtonTooltip}>
         <span>
           <Button variant="outlined" disabled={isUploadButtonDisabled}>
-            {icon}
+            {uploadButtonIcon}
             Upload a File
           </Button>
         </span>
