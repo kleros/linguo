@@ -42,7 +42,7 @@ export default function createClient({ hostAddress }) {
     }
 
     return {
-      path: `${containingDir.hash}${uploadedFile.path}`,
+      path: `/ipfs${containingDir.hash}${uploadedFile.path}`,
       hash: uploadedFile.hash,
     };
   }
@@ -54,7 +54,12 @@ export default function createClient({ hostAddress }) {
    * @return {string} - The full URL.
    */
   function generateUrl(path) {
-    return `${hostAddress}/ipfs/${path}`;
+    // Removes any trailing slashes
+    const normalizedHostAddress = hostAddress.replace(/\/+$/, '');
+    // Removes any slashes from the beginning as well as the /ipfs/ prefix
+    const normalizedPath = path.replace(/^\/+(ipfs\/)?/, '');
+
+    return `${normalizedHostAddress}/ipfs/${normalizedPath}`;
   }
 
   return { publish, generateUrl };

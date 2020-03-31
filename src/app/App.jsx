@@ -6,14 +6,15 @@ import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { Layout } from 'antd';
 import Web3 from 'web3';
 import { Web3ReactProvider } from '@web3-react/core';
-import { useWeb3React, useEagerConnection, useInactiveListener } from '~/app/web3React';
 import Navbar from '~/components/Navbar';
 import Footer from '~/components/Footer';
 import { DrawerMenu } from '~/components/Menu';
 import MainRouterSwitch from './MainRouterSwitch';
-import { useSettings, WEB3_PROVIDER } from './settings';
-import { connectorsByName } from './connectors';
 import { AppContextProvider } from './AppContext';
+import { useWeb3React, useEagerConnection, useInactiveListener } from './web3React';
+import { useSettings, WEB3_PROVIDER } from './settings';
+import { useSyncArchonProvider } from './archon';
+import { connectorsByName } from './connectors';
 import theme from './theme';
 
 const GlobalStyle = createGlobalStyle`
@@ -39,18 +40,21 @@ function getLibrary(provider) {
   return new Web3(provider);
 }
 
-function Web3ReactWrapper({ children }) {
+function Initializer({ children }) {
   const [{ allowEagerConnection, connectorName }] = useSettings(WEB3_PROVIDER);
   const savedConnector = connectorsByName[connectorName];
   useEagerConnection({ skip: !allowEagerConnection, connector: savedConnector });
 
-  const { activatingConnector } = useWeb3React();
+  const { activatingConnector, library } = useWeb3React();
+
   useInactiveListener(!!activatingConnector);
+
+  useSyncArchonProvider(library);
 
   return children;
 }
 
-Web3ReactWrapper.propTypes = {
+Initializer.propTypes = {
   children: t.node,
 };
 
@@ -59,7 +63,7 @@ function App() {
     <AppContextProvider>
       <Web3ReactProvider getLibrary={getLibrary}>
         <ThemeProvider theme={theme}>
-          <Web3ReactWrapper>
+          <Initializer>
             <GlobalStyle />
             <Router>
               <Layout>
@@ -73,7 +77,7 @@ function App() {
                 </Layout>
               </Layout>
             </Router>
-          </Web3ReactWrapper>
+          </Initializer>
         </ThemeProvider>
       </Web3ReactProvider>
     </AppContextProvider>

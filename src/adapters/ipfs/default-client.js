@@ -46,7 +46,7 @@ export default function createClient({ hostAddress, gatewayAddress = hostAddress
     }
 
     return {
-      path: `/${containingDir.cid}/${uploadedFile.path}`,
+      path: `/ipfs/${containingDir.cid}/${uploadedFile.path}`,
       hash: uploadedFile.cid.toString(),
     };
   }
@@ -58,7 +58,12 @@ export default function createClient({ hostAddress, gatewayAddress = hostAddress
    * @return {string} - The full URL.
    */
   function generateUrl(path) {
-    return `${gatewayAddress}/ipfs/${path}`;
+    // Removes any trailing slashes
+    const normalizedGatewayAddress = gatewayAddress.replace(/\/+$/, '');
+    // Removes any slashes from the beginning as well as the /ipfs/ prefix
+    const normalizedPath = path.replace(/^\/+(ipfs\/)?/, '');
+
+    return `${normalizedGatewayAddress}/ipfs/${normalizedPath}`;
   }
 
   return { publish, generateUrl };

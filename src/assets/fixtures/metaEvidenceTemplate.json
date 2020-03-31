@@ -1,0 +1,19 @@
+{
+  "name": "Linguo translation request parameters",
+  "title": "Review a translation from Linguo",
+  "description": "Someone challenged a translation",
+  "rulingOptions": {
+    "titles": ["Yes, the translation should be accepted", "No, the translation should not be accepted"],
+    "descriptions": [
+      "Select this if you think the translation complies with the required criteria.",
+      "Select this if you think the translation does not comply with the required criteria."
+    ]
+  },
+  "aliases": {},
+  "category": "Translation",
+  "question": "Does the translation comply with the required criteria?",
+  "fileURI": "/ipfs/QmaEn5jpfTQiQCUB5L5HLoQ56Wn1BPS3hFfGt1sDmgUAS5/linguo-translation-quality-policy.pdf",
+  "evidenceDisplayInterfaceURI": "",
+  "evidenceDisplayInterfaceHash": "",
+  "metadata": {}
+}
