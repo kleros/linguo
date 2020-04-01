@@ -24,6 +24,10 @@ const GlobalStyle = createGlobalStyle`
     font-size: 16px;
     color: ${props => props.theme.text.default};
   }
+
+  body > img[src*=fortmatic] {
+    display: none;
+  }
 `;
 
 const StyledContent = styled(Layout.Content)`
