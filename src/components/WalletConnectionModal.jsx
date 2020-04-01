@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { useWeb3React } from '@web3-react/core';
-import { Row, Col, Divider, Typography, Alert } from 'antd';
+import { Row, Col, Divider, Typography, Alert, Spin } from 'antd';
 import { getErrorMessage } from '~/adapters/web3React';
 import { injected, fortmatic } from '~/app/connectors';
 import { useSettings, WEB3_PROVIDER } from '~/app/settings';
@@ -43,24 +43,35 @@ const StyledDivider = styled(Divider)`
   background: none;
 `;
 
-const createHandleActivation = (connector, { activate, setVisible, setWeb3ProviderSettings }) => async () => {
-  activate(connector);
-  setWeb3ProviderSettings({
-    allowEagerConnection: true,
-    connectorName: connector.name,
-  });
-  setVisible(false);
+const createHandleActivation = (
+  connector,
+  { activate, setError, setVisible, setWeb3ProviderSettings, setIsLoading }
+) => async () => {
+  try {
+    setIsLoading(true);
+    await activate(connector, undefined, true);
+    setWeb3ProviderSettings({
+      allowEagerConnection: true,
+      connectorName: connector.name,
+    });
+    setVisible(false);
+  } catch (err) {
+    setError(err);
+  } finally {
+    setIsLoading(false);
+  }
 };
 
-function WalletConnectionModal({ visible, setVisible }) {
-  const { activate } = useWeb3React();
-  const [error, setError] = React.useState(null);
+function WalletConnectionModal({ visible, setVisible, onCancel }) {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const { activate, error, setError } = useWeb3React();
 
   const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER);
 
   const handleCancel = () => {
     setVisible(false);
     setError(null);
+    onCancel();
   };
 
   const handleMetamaskActivation = createHandleActivation(injected, {
@@ -68,6 +79,7 @@ function WalletConnectionModal({ visible, setVisible }) {
     setError,
     setVisible,
     setWeb3ProviderSettings,
+    setIsLoading,
   });
 
   const handleFortmaticActivation = createHandleActivation(fortmatic, {
@@ -75,33 +87,36 @@ function WalletConnectionModal({ visible, setVisible }) {
     setError,
     setVisible,
     setWeb3ProviderSettings,
+    setIsLoading,
   });
 
   return (
-    <Modal centered visible={visible} onCancel={handleCancel} title="Connect to a Wallet" footer={null}>
-      {error && <StyledAlert type="error" message={getErrorMessage(error)} />}
-      <Row gutter={[16, 16]} align="center">
-        <Col sm={8} xs={12}>
-          <StyledWalletButton fullWidth variant="outlined" onClick={handleMetamaskActivation}>
-            <MetamaskLogo className="logo" />
-            <span className="description">Metamask</span>
-          </StyledWalletButton>
-        </Col>
-        <Col sm={8} xs={12}>
-          <StyledWalletButton fullWidth variant="outlined" onClick={handleFortmaticActivation}>
-            <FortmaticLogo className="logo" />
-            <span className="description">Fortmatic</span>
-          </StyledWalletButton>
-        </Col>
-      </Row>
-      <StyledDivider />
-      <StyledHelperText>
-        Don&rsquo;t know what an ethereum wallet is?{' '}
-        <a href="https://ethereum.org/wallets/" target="_blank" rel="noreferrer noopener">
-          Learn more
-        </a>
-        .
-      </StyledHelperText>
+    <Modal centered visible={visible} title="Connect to a Wallet" footer={null} onCancel={handleCancel}>
+      <Spin spinning={isLoading} tip="Connecting...">
+        {error && <StyledAlert type="error" message={getErrorMessage(error)} />}
+        <Row gutter={[16, 16]} align="center">
+          <Col sm={8} xs={12}>
+            <StyledWalletButton fullWidth variant="outlined" onClick={handleMetamaskActivation}>
+              <MetamaskLogo className="logo" />
+              <span className="description">Metamask</span>
+            </StyledWalletButton>
+          </Col>
+          <Col sm={8} xs={12}>
+            <StyledWalletButton fullWidth variant="outlined" onClick={handleFortmaticActivation}>
+              <FortmaticLogo className="logo" />
+              <span className="description">Fortmatic</span>
+            </StyledWalletButton>
+          </Col>
+        </Row>
+        <StyledDivider />
+        <StyledHelperText>
+          Don&rsquo;t know what an ethereum wallet is?{' '}
+          <a href="https://ethereum.org/wallets/" target="_blank" rel="noreferrer noopener">
+            Learn more
+          </a>
+          .
+        </StyledHelperText>
+      </Spin>
     </Modal>
   );
 }
@@ -109,10 +124,11 @@ function WalletConnectionModal({ visible, setVisible }) {
 WalletConnectionModal.propTypes = {
   visible: t.bool.isRequired,
   setVisible: t.func.isRequired,
+  onCancel: t.func,
 };
 
 WalletConnectionModal.defaultProps = {
-  onActivate: () => {},
+  onCancel: () => {},
 };
 
 export default WalletConnectionModal;

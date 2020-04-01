@@ -2,51 +2,16 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
-import { Row, Col, Typography, Divider, Badge, Alert } from 'antd';
+import { Row, Col, Typography, Divider, Alert } from 'antd';
 import { getErrorMessage } from '~/adapters/web3React';
 import { useWeb3React } from '~/app/web3React';
 import { createCustomIcon } from '~/adapters/antd';
-import { useSettings, WEB3_PROVIDER } from '~/app/settings';
 import * as r from '~/app/routes';
 import Button from '~/components/Button';
 import WalletInformation from '~/components/WalletInformation';
-import WalletConnectionModal from '~/components/WalletConnectionModal';
+import WalletConnectionButton from '~/components/WalletConnectionButton';
 import _SettingsIcon from '~/assets/images/icon-settings.svg';
 import { Popover, Button as TrayButton, Icon } from './adapters';
-
-function WalletConnectionButton() {
-  const web3React = useWeb3React();
-  const { active, account, deactivate } = web3React;
-  const isConnectedToWallet = active && account;
-
-  const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER);
-
-  const [modalVisible, setModalVisible] = React.useState(false);
-
-  const handleButtonClick = async () => {
-    if (!isConnectedToWallet) {
-      setModalVisible(true);
-    } else {
-      deactivate();
-      setWeb3ProviderSettings({
-        allowEagerConnection: false,
-        connectorName: undefined,
-      });
-    }
-  };
-
-  const badgeColor = isConnectedToWallet ? 'green' : 'red';
-  const connectionButtonText = isConnectedToWallet ? 'Disconnect' : 'Connect to wallet';
-
-  return (
-    <>
-      <Button variant="outlined" size="small" onClick={handleButtonClick}>
-        <Badge color={badgeColor} /> {connectionButtonText}
-      </Button>
-      <WalletConnectionModal visible={modalVisible} setVisible={setModalVisible} />
-    </>
-  );
-}
 
 const SettingsIcon = createCustomIcon(_SettingsIcon, Icon);
 
@@ -133,7 +98,7 @@ function Settings() {
             `}
           >
             <Col span={18}>
-              <WalletConnectionButton />
+              <WalletConnectionButton variant="outlined" size="small" />
             </Col>
             <Col span={6}>
               <StyledSectionTitle
