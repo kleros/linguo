@@ -7,9 +7,7 @@ const archon = new Archon(undefined, ipfsHostAddress);
 
 export default archon;
 
-export function useSyncArchonProvider(web3) {
-  const provider = web3?.currentProvider;
-
+export function useSyncArchonProvider({ provider }) {
   useEffect(() => {
     if (provider) {
       archon.setProvider(provider);

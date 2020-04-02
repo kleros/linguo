@@ -43,7 +43,7 @@ export default function createHooks({ AppContext, connectors: { injected } = {} 
     }, [shouldAttemptToConnect, activate, connector]);
   }
 
-  function useInactiveListener(suppress = false) {
+  function useInactiveListener({ suppress = false } = {}) {
     const { active, error, activate } = useWeb3React();
 
     useEffect(() => {

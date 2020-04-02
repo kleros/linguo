@@ -11,8 +11,8 @@ import Footer from '~/components/Footer';
 import { DrawerMenu } from '~/components/Menu';
 import MainRouterSwitch from './MainRouterSwitch';
 import { AppContextProvider } from './AppContext';
-import { useWeb3React, useEagerConnection, useInactiveListener } from './web3React';
 import { useSettings, WEB3_PROVIDER } from './settings';
+import { useWeb3React, useEagerConnection, useInactiveListener } from './web3React';
 import { useSyncArchonProvider } from './archon';
 import { connectorsByName } from './connectors';
 import theme from './theme';
@@ -40,10 +40,6 @@ const StyledContent = styled(Layout.Content)`
   align-items: center;
 `;
 
-function getLibrary(provider) {
-  return new Web3(provider);
-}
-
 function Initializer({ children }) {
   const [{ allowEagerConnection, connectorName }] = useSettings(WEB3_PROVIDER);
   const savedConnector = connectorsByName[connectorName];
@@ -51,9 +47,11 @@ function Initializer({ children }) {
 
   const { activatingConnector, library } = useWeb3React();
 
-  useInactiveListener(!!activatingConnector);
+  useInactiveListener({ suppress: !!activatingConnector });
 
-  useSyncArchonProvider(library);
+  const provider = library?.currentProvider;
+
+  useSyncArchonProvider({ provider });
 
   return children;
 }
@@ -61,6 +59,10 @@ function Initializer({ children }) {
 Initializer.propTypes = {
   children: t.node,
 };
+
+function getLibrary(provider) {
+  return new Web3(provider);
+}
 
 function App() {
   return (
