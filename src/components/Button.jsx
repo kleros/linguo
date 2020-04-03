@@ -105,6 +105,13 @@ const variantStyles = {
       background-image: linear-gradient(99.5deg, #f2f2f2 0%, #e6e6e6 100%);
       color: #999;
     }
+
+    &[disabled]::before,
+    &[disabled]::after,
+    &:disabled::before,
+    &:disabled:after {
+      display: none;
+    }
   `,
   outlined: css`
     color: ${props => props.theme.primary.default};

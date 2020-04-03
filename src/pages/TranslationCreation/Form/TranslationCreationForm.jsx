@@ -1,11 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Form, Row, Col, Divider } from 'antd';
-import Button from '~/components/Button';
+import { useHistory } from 'react-router-dom';
+import { Form, Row, Col, Divider, notification } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
 import ipfs from '~/app/ipfs';
+import { useLinguoContract } from '~/api/linguo';
+import useStateMachine from '~/hooks/useStateMachine';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import metaEvidenteTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
+import Button from '~/components/Button';
 import TitleField from './TitleField';
 import DeadlineField from './DeadlineField';
 import PriceDefinitionFields from './PriceDefinitionFields';
@@ -45,9 +50,51 @@ const extractOriginalTextFilePath = originalTextFile => {
   return undefined;
 };
 
+const formStateMachine = {
+  name: 'Translation Creation Form',
+  initial: 'idle',
+  states: {
+    idle: {
+      on: {
+        SUBMIT: 'submitting',
+      },
+    },
+    submitting: {
+      on: {
+        SUCCESS: 'succeeded',
+        ERROR: 'failed',
+      },
+    },
+    succeeded: {
+      on: {
+        RESET: 'idle',
+      },
+    },
+    failed: {
+      on: {
+        RESET: 'idle',
+      },
+    },
+  },
+};
+
 function TranslationCreationForm() {
+  const history = useHistory();
   const [form] = Form.useForm();
-  const { account, library: web3 } = useWeb3React();
+  const [state, send] = useStateMachine(formStateMachine);
+  const { account, library: web3, chainId } = useWeb3React();
+  const linguo = useLinguoContract({ web3, chainId });
+
+  const submitButtonProps =
+    state === 'submitting'
+      ? {
+          icon: <LoadingOutlined />,
+          disabled: true,
+          children: 'Submitting...',
+        }
+      : {
+          children: 'Request the translation',
+        };
 
   const handleFinish = React.useCallback(
     async values => {
@@ -64,20 +111,43 @@ function TranslationCreationForm() {
         metadata,
       };
 
-      console.log(values.deadline);
-
       const uploadedMetaEvidenceFile = await ipfs.publish('linguo-evidence.json', JSON.stringify(metaEvidence));
 
-      console.log('Will create a translation task with the following parameters:', {
-        sender: account,
-        value: web3.utils.toWei(String(values.maxPrice), 'ether'),
-        // deadline is a `dayjs` instance
-        deadline: values.deadline.unix(),
-        minPrice: web3.utils.toWei(String(values.minPrice), 'ether'),
-        metaEvidence: uploadedMetaEvidenceFile.path,
-      });
+      if (linguo.isReady) {
+        send('SUBMIT');
+        try {
+          await linguo.api.createTask({
+            account,
+            // deadline is a `dayjs` instance
+            deadline: values.deadline.unix(),
+            minPrice: web3.utils.toWei(String(values.minPrice), 'ether'),
+            maxPrice: web3.utils.toWei(String(values.maxPrice), 'ether'),
+            metaEvidence: uploadedMetaEvidenceFile.path,
+          });
+          send('SUCCESS');
+          notification.success({
+            placement: 'bottomRight',
+            message: 'Translation submitted!',
+          });
+          history.push(r.TRANSLATION_DASHBOARD);
+        } catch (err) {
+          send('ERROR');
+          notification.error({
+            placement: 'bottomRight',
+            message: 'Failed to submit the translation request!',
+            description: err.cause?.message,
+          });
+        } finally {
+          send('RESET');
+        }
+      } else {
+        notification.error({
+          placement: 'bottomRight',
+          message: 'Not ready to submit the request translation yet!',
+        });
+      }
     },
-    [account, web3]
+    [account, web3, linguo.isReady, linguo.api, send, history]
   );
 
   return (
@@ -107,7 +177,7 @@ function TranslationCreationForm() {
       </Row>
       <Row gutter={rowGutter} justify="end">
         <Col>
-          <Button htmlType="submit">Request the Translation</Button>
+          <Button {...submitButtonProps} htmlType="submit" />
         </Col>
       </Row>
     </StyledForm>
