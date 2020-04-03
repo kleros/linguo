@@ -45,11 +45,11 @@ function Initializer({ children }) {
   const savedConnector = connectorsByName[connectorName];
   useEagerConnection({ skip: !allowEagerConnection, connector: savedConnector });
 
-  const { activatingConnector, library } = useWeb3React();
+  const { activatingConnector, library: web3 } = useWeb3React();
 
   useInactiveListener({ suppress: !!activatingConnector });
 
-  const provider = library?.currentProvider;
+  const provider = web3?.currentProvider;
 
   useSyncArchonProvider({ provider });
 

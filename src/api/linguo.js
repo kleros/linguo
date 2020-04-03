@@ -50,5 +50,39 @@ function createApi({ contract }) {
         throw newError;
       }
     },
+
+    async *watchTaskCreated({ account }) {
+      const results = [];
+      let deferedResolve;
+      let promise = new Promise(resolve => {
+        deferedResolve = resolve;
+      });
+      let done = false;
+
+      contract.events
+        .TaskCreated({
+          filter: {
+            _requester: account,
+          },
+          fromBlock: 17656362,
+        })
+        .on('data', event => {
+          console.log('Got TaskCreated event:', event);
+          deferedResolve();
+          results.push(event.returnValues);
+          promise = new Promise(resolve => {
+            deferedResolve = resolve;
+          });
+        })
+        .on('error', err => {
+          throw err;
+        });
+
+      while (!done) {
+        await promise;
+        const { cancel = false } = (yield* results) || {};
+        done = !cancel;
+      }
+    },
   };
 }
