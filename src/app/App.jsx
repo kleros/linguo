@@ -37,7 +37,7 @@ const StyledContent = styled(Layout.Content)`
   background-color: #f2fffe;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 function Initializer({ children }) {

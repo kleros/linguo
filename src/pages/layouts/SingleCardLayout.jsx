@@ -7,6 +7,7 @@ import Card from '~/components/Card';
 const StyledLayout = styled(Layout)`
   margin: 4rem;
   max-width: 68rem;
+  background: none;
 
   @media (max-width: 575.98px) {
     margin: 0;

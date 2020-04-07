@@ -5,11 +5,9 @@ import { Form, Row, Col, Divider, notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
-import ipfs from '~/app/ipfs';
 import { useLinguoContract } from '~/api/linguo';
 import useStateMachine from '~/hooks/useStateMachine';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
-import metaEvidenteTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import Button from '~/components/Button';
 import TitleField from './TitleField';
 import DeadlineField from './DeadlineField';
@@ -36,18 +34,6 @@ const rowGutter = [16, 16];
 
 const initialValues = {
   expectedQuality: translationQualityTiers.standard.value,
-};
-
-const extractOriginalTextFilePath = originalTextFile => {
-  if (originalTextFile?.length > 0) {
-    const { status, path } = originalTextFile[0].response || {};
-
-    if (status === 'done' && !!path) {
-      return path;
-    }
-  }
-
-  return undefined;
 };
 
 const formStateMachine = {
@@ -97,32 +83,17 @@ function TranslationCreationForm() {
         };
 
   const handleFinish = React.useCallback(
-    async values => {
-      const metadata = {
-        ...values,
-        originalTextFile: extractOriginalTextFilePath(values.originalTextFile),
-      };
-
-      const metaEvidence = {
-        ...metaEvidenteTemplate,
-        aliases: {
-          [account]: 'Requester',
-        },
-        metadata,
-      };
-
-      const uploadedMetaEvidenceFile = await ipfs.publish('linguo-evidence.json', JSON.stringify(metaEvidence));
-
+    async ({ deadline, minPrice, maxPrice, ...rest }) => {
       if (linguo.isReady) {
         send('SUBMIT');
         try {
           await linguo.api.createTask({
             account,
             // deadline is a `dayjs` instance
-            deadline: values.deadline.unix(),
-            minPrice: web3.utils.toWei(String(values.minPrice), 'ether'),
-            maxPrice: web3.utils.toWei(String(values.maxPrice), 'ether'),
-            metaEvidence: uploadedMetaEvidenceFile.path,
+            deadline: deadline.unix(),
+            minPrice: web3.utils.toWei(String(minPrice), 'ether'),
+            maxPrice: web3.utils.toWei(String(maxPrice), 'ether'),
+            ...rest,
           });
           send('SUCCESS');
           notification.success({

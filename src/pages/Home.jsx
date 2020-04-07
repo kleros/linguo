@@ -109,7 +109,7 @@ export default function Home() {
         <StyledTitle>Welcome!</StyledTitle>
         <StyledRow gutter={[8, 16]}>
           <Col xl={{ span: 10, offset: 2 }} lg={{ span: 11, offset: 1 }} md={{ span: 12, offset: 0 }} xs={24}>
-            <NavLink to={r.TRANSLATION_DASHBOARD}>
+            <NavLink to={r.TRANSLATION_CREATION}>
               <StyledButton fullWidth>
                 <RequestTranslationAvatar />
                 <span className="text">Request a Translation</span>
