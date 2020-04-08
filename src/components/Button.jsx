@@ -58,12 +58,17 @@ const variantStyles = {
       display: block;
       position: absolute;
       opacity: 1;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
       z-index: 1;
       transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
+      /*
+       * There's some visual glitching under certain conditions
+       * that are fixed by making the pseudo-elements slightly
+       * bigger than the button itself.
+       */
+      top: -1px;
+      right: -1px;
+      bottom: -1px;
+      left: -1px;
     }
 
     ::before {
