@@ -1,10 +1,13 @@
 import dayjs from 'dayjs';
+import Web3 from 'web3';
 import ipfs from '~/app/ipfs';
 import metaEvidenteTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import createError from '~/utils/createError';
 import { normalize } from './entities/Task';
 import getFilter from './filters';
 import getComparator from './sorting';
+
+const { toWei } = Web3.utils;
 
 const extractOriginalTextFilePath = originalTextFile => {
   if (originalTextFile?.length > 0) {
@@ -59,7 +62,7 @@ const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   }
 };
 
-export default function createApi({ contract, toWei }) {
+export default function createApi({ contract }) {
   async function createTask({ account, deadline, minPrice, maxPrice, ...rest }) {
     minPrice = toWei(String(minPrice), 'ether');
     maxPrice = toWei(String(maxPrice), 'ether');

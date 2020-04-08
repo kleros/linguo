@@ -20,7 +20,6 @@ export function useLinguoContract({ web3, chainId }) {
           error: undefined,
           contract,
           api: createApi({
-            toWei: web3.utils.toWei,
             contract,
           }),
         });
