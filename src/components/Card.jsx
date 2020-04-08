@@ -1,31 +1,79 @@
+import React from 'react';
+import t from 'prop-types';
+import clsx from 'clsx';
 import styled from 'styled-components';
-import { Card } from 'antd';
 
-const StyledCard = styled(Card)`
-  &.ant-card {
-    border: none;
-    border-radius: 0.625rem;
-    box-shadow: 0 0.375rem 2rem ${props => props.theme.shadow.default};
-    font-size: 1rem;
-    color: ${props => props.theme.text.default};
-  }
+const StyledWrapper = styled.section`
+  display: flex;
+  flex-flow: column nowrap;
+  border: none;
+  border-radius: 0.625rem;
+  box-shadow: 0 0.375rem 2rem ${props => props.theme.shadow.default};
+  font-size: 1rem;
+  color: ${props => props.theme.text.default};
+  background: ${props => props.theme.background.light};
 
-  .ant-card-head {
+  .card-header {
     background-color: ${props => props.theme.primary.default};
     color: ${props => props.theme.text.inverted};
     border: none;
     border-top-left-radius: 0.625rem;
     border-top-right-radius: 0.625rem;
+    flex: 3.75rem 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 1.5rem;
   }
 
-  .ant-card-head-wrapper {
-    height: 3.75rem;
-  }
-
-  .ant-card-head-title {
+  .card-header-title {
     text-align: center;
-    font-size: ${props => props.theme.fontSize.lg};
+    font-size: ${props => props.theme.fontSize.md};
+    color: ${props => props.theme.text.inverted};
+    width: 100%;
+    margin: 0;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    flex: 1;
+  }
+
+  .card-footer {
+    margin-top: auto;
+    padding: 1.5rem;
+    background-color: ${props => props.theme.background.default};
+    border-bottom-left-radius: 0.625rem;
+    border-bottom-right-radius: 0.625rem;
   }
 `;
 
-export { StyledCard as default };
+function Card({ title, titleLevel, footer, children, className }) {
+  const TitleTag = `h${titleLevel}`;
+  return (
+    <StyledWrapper className={clsx('card', className)}>
+      <header className="card-header">
+        <TitleTag className="card-header-title">{title}</TitleTag>
+      </header>
+      <main className="card-body">{children}</main>
+      {footer && <footer className="card-footer">{footer}</footer>}
+    </StyledWrapper>
+  );
+}
+
+Card.propTypes = {
+  title: t.node.isRequired,
+  titleLevel: t.oneOf([1, 2, 3, 4, 5, 6]),
+  footer: t.node,
+  children: t.node,
+  className: t.node,
+};
+
+Card.defaultProps = {
+  titleLevel: 1,
+  footer: null,
+  children: null,
+  className: '',
+};
+
+export default Card;

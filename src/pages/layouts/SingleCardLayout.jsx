@@ -19,17 +19,17 @@ const StyledLayout = styled(Layout)`
 `;
 
 const StyledCard = styled(Card)`
-  &.ant-card {
+  &.card {
     box-shadow: 0 0.375rem 5.625rem ${props => props.theme.shadow.default};
     width: 100%;
   }
 
-  .ant-card-head-title {
+  .card-header-title {
     font-size: ${props => props.theme.fontSize.xl};
     padding: 0;
   }
 
-  .ant-card-body {
+  .card-body {
     padding: 5rem;
   }
 
@@ -39,11 +39,11 @@ const StyledCard = styled(Card)`
       box-shadow: none;
       border-radius: 0;
 
-      .ant-card-head {
+      .card-head {
         border-radius: 0;
       }
 
-      .ant-card-body {
+      .card-body {
         padding: 2rem;
       }
     }
