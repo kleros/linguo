@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Layout, Typography, Row, Col } from 'antd';
 import Button from '~/components/Button';
 import LinguoAvatar from '~/assets/images/avatar-linguo-bot.svg';
@@ -109,20 +109,20 @@ export default function Home() {
         <StyledTitle>Welcome!</StyledTitle>
         <StyledRow gutter={[8, 16]}>
           <Col xl={{ span: 10, offset: 2 }} lg={{ span: 11, offset: 1 }} md={{ span: 12, offset: 0 }} xs={24}>
-            <NavLink to={r.TRANSLATION_CREATION}>
+            <Link to={r.TRANSLATION_DASHBOARD}>
               <StyledButton fullWidth>
                 <RequestTranslationAvatar />
                 <span className="text">Request a Translation</span>
               </StyledButton>
-            </NavLink>
+            </Link>
           </Col>
           <Col xl={10} lg={11} md={12} xs={24}>
-            <NavLink to={r.TRANSLATOR_DASHBOARD}>
+            <Link to={r.TRANSLATOR_DASHBOARD}>
               <StyledButton fullWidth>
                 <WorkAsATranslatorAvatar />
                 <span className="text">Work as a Translator</span>
               </StyledButton>
-            </NavLink>
+            </Link>
           </Col>
         </StyledRow>
       </StyledLayoutContent>

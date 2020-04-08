@@ -1,7 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Row, Col, Typography, Divider, Alert } from 'antd';
 import { getErrorMessage } from '~/adapters/web3React';
 import { useWeb3React } from '~/app/web3React';
@@ -47,11 +47,11 @@ function TranslatorSetup({ onClick }) {
       >
         Translator
       </StyledSectionTitle>
-      <NavLink to={r.TRANSLATOR_SETTINGS}>
+      <Link to={r.TRANSLATOR_SETTINGS}>
         <Button fullWidth onClick={onClick}>
           Update your language skills
         </Button>
-      </NavLink>
+      </Link>
     </StyledSection>
   );
 }
