@@ -1,11 +1,9 @@
 import React from 'react';
 import { Row, Col } from 'antd';
-import Card from '~/components/Card';
 import { useWeb3React } from '~/app/web3React';
 import { useLinguoContract } from '~/api/linguo';
-import RemainingTaskTime from '~/components/RemainingTaskTime';
 import MultiCardLayout from '../layouts/MultiCardLayout';
-import CardTitle from './CardTitle';
+import TaskCard from './TaskCard';
 
 function TranslationDashboard() {
   const { library: web3, chainId, account } = useWeb3React();
@@ -26,17 +24,10 @@ function TranslationDashboard() {
   return (
     <MultiCardLayout>
       <Row gutter={[30, 30]}>
-        {tasks.map(({ ID, status, lastInteraction, submissionTimeout, sourceLanguage, targetLanguage, ...rest }) => {
-          console.log({ ID, status, lastInteraction, submissionTimeout, sourceLanguage, targetLanguage, ...rest });
+        {tasks.map(task => {
           return (
-            <Col key={ID} xs={24} sm={24} md={16} lg={8}>
-              <Card title={<CardTitle sourceLanguage={sourceLanguage} targetLanguage={targetLanguage} />}>
-                <RemainingTaskTime
-                  status={status}
-                  lastInteraction={lastInteraction}
-                  submissionTimeout={submissionTimeout}
-                />
-              </Card>
+            <Col key={task.ID} xs={24} sm={24} md={16} lg={8}>
+              <TaskCard {...task} />
             </Col>
           );
         })}

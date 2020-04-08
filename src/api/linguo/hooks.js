@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Linguo } from '@kleros/contract-deployments';
-import useInterval from '~/hooks/useInterval';
-import { calculateRemainingSubmitTimeInSeconds } from './entities/Task';
 import createApi from './createApi';
 
 export function useLinguoContract({ web3, chainId }) {
@@ -22,7 +20,6 @@ export function useLinguoContract({ web3, chainId }) {
           error: undefined,
           contract,
           api: createApi({
-            BigNumber: web3.utils.BN,
             toWei: web3.utils.toWei,
             contract,
           }),
@@ -39,36 +36,4 @@ export function useLinguoContract({ web3, chainId }) {
   }, [web3, chainId]);
 
   return state;
-}
-
-export function useTimeoutCountdown(
-  { status, lastInteraction, submissionTimeout } = {},
-  { updateIntervalMs = 1000 } = {}
-) {
-  const [remainingTimeInSeconds, setRemainingTimeInSeconds] = useState(0);
-
-  const actualUpdateIntervalMs =
-    typeof updateIntervalMs === 'function' ? updateIntervalMs(remainingTimeInSeconds) : Number(updateIntervalMs);
-
-  const { stop } = useInterval(
-    () => {
-      const remainingTime = calculateRemainingSubmitTimeInSeconds({
-        status,
-        lastInteraction,
-        submissionTimeout,
-      });
-
-      setRemainingTimeInSeconds(remainingTime);
-      if (remainingTime === 0) {
-        stop();
-      }
-    },
-    actualUpdateIntervalMs,
-    {
-      autoStart: true,
-      runImmediately: true,
-    }
-  );
-
-  return remainingTimeInSeconds;
 }

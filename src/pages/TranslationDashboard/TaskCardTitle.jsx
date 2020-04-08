@@ -63,7 +63,7 @@ const getShortLanguageName = code => {
   return name.replace(/ ?\(\w*\)$/, '');
 };
 
-function CardTitle({ sourceLanguage, targetLanguage }) {
+function TaskCardTitle({ sourceLanguage, targetLanguage }) {
   const SourceLanguageFlag = getLanguageFlag(sourceLanguage);
   const TargetLanguageFlag = getLanguageFlag(targetLanguage);
 
@@ -82,9 +82,9 @@ function CardTitle({ sourceLanguage, targetLanguage }) {
   );
 }
 
-CardTitle.propTypes = {
+TaskCardTitle.propTypes = {
   sourceLanguage: t.string.isRequired,
   targetLanguage: t.string.isRequired,
 };
 
-export default CardTitle;
+export default TaskCardTitle;

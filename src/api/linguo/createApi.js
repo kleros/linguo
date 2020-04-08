@@ -2,12 +2,9 @@ import dayjs from 'dayjs';
 import ipfs from '~/app/ipfs';
 import metaEvidenteTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import createError from '~/utils/createError';
-import {
-  calculateRemainingReviewTimeInSeconds,
-  calculateRemainingSubmitTimeInSeconds,
-  isAborted,
-} from './entities/Task';
-import TaskStatus from './entities/TaskStatus';
+import { normalize } from './entities/Task';
+import getFilter from './filters';
+import getComparator from './sorting';
 
 const extractOriginalTextFilePath = originalTextFile => {
   if (originalTextFile?.length > 0) {
@@ -62,7 +59,7 @@ const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   }
 };
 
-export default function createApi({ contract, toWei, BigNumber }) {
+export default function createApi({ contract, toWei }) {
   async function createTask({ account, deadline, minPrice, maxPrice, ...rest }) {
     minPrice = toWei(String(minPrice), 'ether');
     maxPrice = toWei(String(maxPrice), 'ether');
@@ -90,12 +87,21 @@ export default function createApi({ contract, toWei, BigNumber }) {
 
   async function getTaskById(ID) {
     try {
-      const [task, currentPrice, reviewTimeout, metaEvidenceEvents, translationSubmittedEvents] = await Promise.all([
+      const [
+        task,
+        reviewTimeout,
+        metaEvidenceEvents,
+        taskCreatedEvents,
+        translationSubmittedEvents,
+      ] = await Promise.all([
         contract.methods.tasks(ID).call(),
-        contract.methods.getTaskPrice(ID).call(),
-        contract.methods.reviewTimeout(),
+        contract.methods.reviewTimeout().call(),
         contract.getPastEvents('MetaEvidence', {
           filter: { _metaEvidenceID: ID },
+          fromBlock: 0,
+        }),
+        contract.getPastEvents('TaskCreated', {
+          filter: { _taskID: ID },
           fromBlock: 0,
         }),
         contract.getPastEvents('TranslationSubmitted', {
@@ -104,97 +110,22 @@ export default function createApi({ contract, toWei, BigNumber }) {
         }),
       ]);
 
-      const { minPrice, maxPrice, requester, disputeID } = task;
-      const status = Number(task.status);
-      const lastInteraction = dayjs.unix(Number(task.lastInteraction));
-      const submissionTimeout = Number(task.submissionTimeout);
-
       const { metadata } = await fetchMetaEvidenceFromEvents({ ID, events: metaEvidenceEvents });
-      const { title, sourceLanguage, targetLanguage, expectedQuality, text } = metadata;
-      const deadline = dayjs(task.deadline);
-      const textLength = text.split(/\s+/g).length;
-      const currentPricePerWord = new BigNumber(currentPrice).div(new BigNumber(String(textLength))).toString();
 
-      const aborted = isAborted({ status, lastInteraction, submissionTimeout, translationSubmittedEvents });
-
-      return {
-        ID: Number(ID),
-        disputeID,
-        requester,
-        currentPrice,
-        currentPricePerWord,
-        minPrice,
-        maxPrice,
-        status,
-        lastInteraction,
-        submissionTimeout,
+      return normalize({
+        ID,
         reviewTimeout,
-        title,
-        deadline,
-        sourceLanguage,
-        targetLanguage,
-        expectedQuality,
-        text,
-        textLength,
-        aborted,
-      };
+        task,
+        metadata,
+        lifecyleEvents: {
+          TaskCreated: taskCreatedEvents,
+          TranslationSubmitted: translationSubmittedEvents,
+        },
+      });
     } catch (err) {
       return { ID, error: err };
     }
   }
-
-  const createSorting = (descriptor = {}) => (a, b) =>
-    Object.entries(descriptor).reduce((acc, [prop, signOrComparator]) => {
-      const hasDefinedSortOrder = acc !== 0;
-      return hasDefinedSortOrder
-        ? acc
-        : typeof signOrComparator === 'number'
-        ? signOrComparator * (b[prop] - a[prop])
-        : signOrComparator(a, b);
-    }, 0);
-
-  const filterMap = {
-    all: () => true,
-    open: ({ status, aborted }) => !aborted && status === TaskStatus.Created,
-    inProgress: ({ status }) => status === TaskStatus.Assigned,
-    inReview: ({ status }) => status === TaskStatus.AwaitingReview,
-    inDispute: ({ status }) => status === TaskStatus.DisputeCreated,
-    finished: ({ status, aborted }) => !aborted && status === TaskStatus.Resolved,
-    aborted: ({ aborted }) => !!aborted,
-  };
-
-  const sortingMap = {
-    all: {
-      aborted: -1,
-      remainingSubmitTime: (a, b) =>
-        calculateRemainingSubmitTimeInSeconds(a) - calculateRemainingSubmitTimeInSeconds(b),
-      ID: -1,
-    },
-    open: {
-      currentPricePerWord: -1,
-      ID: -1,
-    },
-    inProgress: {
-      remainingSubmitTime: (a, b) =>
-        calculateRemainingSubmitTimeInSeconds(b) - calculateRemainingSubmitTimeInSeconds(a),
-      ID: -1,
-    },
-    inReview: {
-      remainingReviewTime: (a, b) =>
-        calculateRemainingReviewTimeInSeconds(b) - calculateRemainingReviewTimeInSeconds(a),
-      ID: -1,
-    },
-    inDispute: {
-      disputeID: -1,
-    },
-    finished: {
-      ID: -1,
-    },
-    aborted: {
-      lastInteraction: -1,
-      ID: 1,
-    },
-  };
 
   async function getOwnTasks(account, { filter = 'all' } = {}) {
     const events = await contract.getPastEvents('TaskCreated', {
@@ -204,7 +135,7 @@ export default function createApi({ contract, toWei, BigNumber }) {
 
     const tasks = await Promise.all(events.map(event => getTaskById(event.returnValues._taskID)));
 
-    return tasks.filter(filterMap[filter]).sort(createSorting(sortingMap[filter]));
+    return tasks.filter(getFilter(filter)).sort(getComparator(filter));
   }
 
   return {
