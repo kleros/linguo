@@ -17,7 +17,7 @@ const StyledCardTitle = styled.span`
   }
 
   .item {
-    flex: 1;
+    flex: 1 0;
     display: flex;
     align-items: center;
 
@@ -28,6 +28,9 @@ const StyledCardTitle = styled.span`
     }
 
     .text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       flex: 1;
       order: 1;
       text-align: left;

@@ -1,6 +1,7 @@
 export default {
   text: {
     default: '#000000',
+    light: '#4A4A4A',
     inverted: '#FFFFFF',
   },
   primary: {

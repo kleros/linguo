@@ -1,9 +1,14 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Row, Col } from 'antd';
 import { useWeb3React } from '~/app/web3React';
 import { useLinguoContract } from '~/api/linguo';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskCard from './TaskCard';
+
+const StyledRow = styled(Row)`
+  align-items: stretch;
+`;
 
 function TranslationDashboard() {
   const { library: web3, chainId, account } = useWeb3React();
@@ -23,15 +28,15 @@ function TranslationDashboard() {
 
   return (
     <MultiCardLayout>
-      <Row gutter={[30, 30]}>
+      <StyledRow gutter={[30, 30]}>
         {tasks.map(task => {
           return (
-            <Col key={task.ID} xs={24} sm={24} md={16} lg={8}>
+            <Col key={task.ID} xs={24} sm={24} md={12} lg={8}>
               <TaskCard {...task} />
             </Col>
           );
         })}
-      </Row>
+      </StyledRow>
     </MultiCardLayout>
   );
 }
