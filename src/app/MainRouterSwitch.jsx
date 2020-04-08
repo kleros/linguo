@@ -19,6 +19,7 @@ const TranslatorDashboard = loadable(() => import('~/pages/TranslatorDashboard')
 const TranslatorSettings = loadable(() => import('~/pages/TranslatorSettings'), { fallback });
 const TranslationDashboard = loadable(() => import('~/pages/TranslationDashboard'), { fallback });
 const TranslationCreation = loadable(() => import('~/pages/TranslationCreation'), { fallback });
+const TranslationTaskDetails = loadable(() => import('~/pages/TranslationTaskDetails'), { fallback });
 
 function MainRouterSwitch() {
   return (
@@ -32,11 +33,14 @@ function MainRouterSwitch() {
       <Route exact path={r.TRANSLATOR_SETTINGS}>
         <TranslatorSettings />
       </Route>
+      <Route exact path={r.TRANSLATION_CREATION}>
+        <TranslationCreation />
+      </Route>
       <Route exact path={r.TRANSLATION_DASHBOARD}>
         <TranslationDashboard />
       </Route>
-      <Route exact path={r.TRANSLATION_CREATION}>
-        <TranslationCreation />
+      <Route exact path={r.TRANSLATION_TASK_DETAILS}>
+        <TranslationTaskDetails />
       </Route>
     </Switch>
   );
