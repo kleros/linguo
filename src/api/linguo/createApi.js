@@ -21,7 +21,7 @@ const extractOriginalTextFilePath = originalTextFile => {
   return undefined;
 };
 
-const createMetaEvidence = async ({ originalTextFile, account, ...rest }) => {
+const publishMetaEvidence = async ({ originalTextFile, account, ...rest }) => {
   const metadata = {
     ...rest,
     originalTextFile: extractOriginalTextFilePath(originalTextFile),
@@ -41,7 +41,7 @@ const createMetaEvidence = async ({ originalTextFile, account, ...rest }) => {
 };
 
 const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
-  // There should be one and only one event;
+  // There should be one and only one event
   const [event] = events;
   if (!event) {
     throw new Error(`No evidence found for task ${ID}`);
@@ -68,7 +68,7 @@ export default function createApi({ contract }) {
     maxPrice = toWei(String(maxPrice), 'ether');
     deadline = dayjs(deadline).unix();
 
-    const metaEvidence = await createMetaEvidence({
+    const metaEvidence = await publishMetaEvidence({
       account,
       deadline,
       minPrice,

@@ -95,12 +95,12 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents })
         });
   }, {});
 
-  data.textLength = (data.text || '').split(/\s+/g).length;
+  data.wordCount = (data.text || '').split(/\s+/g).length;
   data.currentPrice = getCurrentPrice(data);
   data.currentPricePerWord =
-    data.textLength > 0
+    data.wordCount > 0
       ? toBN(data.currentPrice)
-          .div(toBN(String(data.textLength)))
+          .div(toBN(String(data.wordCount)))
           .toString()
       : +Infinity;
 
