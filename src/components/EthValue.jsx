@@ -1,6 +1,7 @@
-import React from 'react';
 import t from 'prop-types';
-import { useWeb3React } from '~/app/web3React';
+import Web3 from 'web3';
+
+const { fromWei } = Web3.utils;
 
 const Units = {
   noether: 'noether',
@@ -64,34 +65,34 @@ const unitToSuffixMap = {
   },
 };
 
-function EthValue({ amount, unit, suffixType }) {
-  const { active, library: web3 } = useWeb3React();
-  const isReady = active && !!web3;
+function EthValue({ amount, decimals, unit, suffixType, render }) {
+  const nf = new Intl.NumberFormat('en-US', {
+    style: 'decimal',
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
 
-  if (!isReady) {
-    return null;
-  }
+  const value = nf.format(Number(fromWei(amount, unit)));
+  const suffix = unitToSuffixMap[unit][suffixType];
 
-  const value = web3.eth.utils.fromWei(amount, unit);
-  const unitSuffix = unitToSuffixMap[unit][suffixType];
-  const suffix = unitSuffix ? ` ${unitSuffix}` : '';
-
-  return (
-    <>
-      `${value}${suffix}`
-    </>
-  );
+  return render({ value, suffix });
 }
+
+const defaultRender = ({ value, suffix }) => `${value} ${suffix}`.trim();
 
 EthValue.propTypes = {
   amount: t.oneOfType([t.string, t.number]).isRequired,
-  unit: t.oneOf[Object.values(Units)],
+  decimals: t.number,
+  unit: t.oneOf(Object.values(Units)),
   suffixType: t.oneOf(['none', 'short', 'long']),
+  render: t.func,
 };
 
 EthValue.defaultProps = {
+  decimals: 2,
   unit: Units.ether,
   suffixType: 'none',
+  render: defaultRender,
 };
 
 EthValue.Units = Units;
