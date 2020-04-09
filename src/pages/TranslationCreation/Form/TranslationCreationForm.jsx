@@ -64,6 +64,18 @@ const formStateMachine = {
   },
 };
 
+const extractOriginalTextFilePath = originalTextFile => {
+  if (originalTextFile?.length > 0) {
+    const { status, path } = originalTextFile[0].response || {};
+
+    if (status === 'done' && !!path) {
+      return path;
+    }
+  }
+
+  return undefined;
+};
+
 function TranslationCreationForm() {
   const history = useHistory();
   const [form] = Form.useForm();
@@ -83,16 +95,13 @@ function TranslationCreationForm() {
         };
 
   const handleFinish = React.useCallback(
-    async ({ deadline, minPrice, maxPrice, ...rest }) => {
+    async ({ originalTextFile, ...rest }) => {
       if (linguo.isReady) {
         send('SUBMIT');
         try {
           await linguo.api.createTask({
             account,
-            // deadline is a `dayjs` instance
-            deadline: deadline.unix(),
-            minPrice: web3.utils.toWei(String(minPrice), 'ether'),
-            maxPrice: web3.utils.toWei(String(maxPrice), 'ether'),
+            originalTextFile: extractOriginalTextFilePath(originalTextFile),
             ...rest,
           });
           send('SUCCESS');
@@ -118,7 +127,7 @@ function TranslationCreationForm() {
         });
       }
     },
-    [account, web3, linguo.isReady, linguo.api, send, history]
+    [account, linguo.isReady, linguo.api, send, history]
   );
 
   return (

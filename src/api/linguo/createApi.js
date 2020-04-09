@@ -9,24 +9,7 @@ import getComparator from './sorting';
 
 const { toWei } = Web3.utils;
 
-const extractOriginalTextFilePath = originalTextFile => {
-  if (originalTextFile?.length > 0) {
-    const { status, path } = originalTextFile[0].response || {};
-
-    if (status === 'done' && !!path) {
-      return path;
-    }
-  }
-
-  return undefined;
-};
-
-const publishMetaEvidence = async ({ originalTextFile, account, ...rest }) => {
-  const metadata = {
-    ...rest,
-    originalTextFile: extractOriginalTextFilePath(originalTextFile),
-  };
-
+export const publishMetaEvidence = async ({ account, ...metadata }) => {
   const metaEvidence = {
     ...metaEvidenteTemplate,
     aliases: {
@@ -40,7 +23,7 @@ const publishMetaEvidence = async ({ originalTextFile, account, ...rest }) => {
   return path;
 };
 
-const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
+export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   // There should be one and only one event
   const [event] = events;
   if (!event) {
