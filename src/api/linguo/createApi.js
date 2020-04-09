@@ -46,7 +46,7 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
 };
 
 export default function createApi({ contract }) {
-  async function createTask({ account, deadline, minPrice, maxPrice, ...rest }) {
+  async function createTask({ account, deadline, minPrice, maxPrice, ...rest }, { gas, gasPrice } = {}) {
     minPrice = toWei(String(minPrice), 'ether');
     maxPrice = toWei(String(maxPrice), 'ether');
     deadline = dayjs(deadline).unix();
@@ -60,11 +60,16 @@ export default function createApi({ contract }) {
     });
 
     try {
-      const receipt = await contract.methods.createTask(deadline, minPrice, metaEvidence).send({
+      const contractCall = contract.methods.createTask(deadline, minPrice, metaEvidence);
+
+      const txn = contractCall.send({
         from: account,
         value: maxPrice,
+        gas,
+        gasPrice,
       });
 
+      const receipt = await txn;
       return receipt;
     } catch (err) {
       throw createError('Failed to create the translation task', { cause: err });
