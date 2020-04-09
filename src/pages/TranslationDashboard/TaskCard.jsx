@@ -68,6 +68,31 @@ const StyledTaskTitle = styled(Typography.Title)`
   }
 `;
 
+function PriceDisplay({ amount, formattedValue, suffix }) {
+  return (
+    <Tooltip title={<EthValue amount={amount} unit="ether" decimals={18} suffixType="short" />}>
+      <span
+        css={`
+          cursor: help;
+        `}
+      >
+        {`${formattedValue} ${suffix}`.trim()}
+      </span>
+    </Tooltip>
+  );
+}
+
+PriceDisplay.propTypes = {
+  amount: t.any.isRequired,
+  value: t.any.isRequired,
+  formattedValue: t.number.isRequired,
+  suffix: t.string,
+};
+
+PriceDisplay.defaultProps = {
+  suffix: '',
+};
+
 const nf = new Intl.NumberFormat('en-US', {
   style: 'decimal',
   maximumFractionDigits: 0,
@@ -99,7 +124,7 @@ function TaskCard({
   const taskInfo = [
     {
       title: 'Price per word',
-      content: <EthValue amount={currentPricePerWord} suffixType="short" />,
+      content: <EthValue amount={currentPricePerWord} suffixType="short" render={PriceDisplay} />,
     },
     {
       title: 'Number of words',
@@ -107,7 +132,7 @@ function TaskCard({
     },
     {
       title: 'Total Price',
-      content: <EthValue amount={currentPrice} suffixType="short" />,
+      content: <EthValue amount={currentPrice} suffixType="short" render={PriceDisplay} />,
     },
     {
       title: name,
@@ -134,10 +159,14 @@ function TaskCard({
         </Row>
       }
     >
-      <Tooltip title={title} placement="topLeft" mouseEnterDelay={0.5}>
+      <Tooltip title={title} placement="top" mouseEnterDelay={0.5} arrowPointAtCenter>
         {/* The wrapping div fixes an issue with styled compnents not
             properly performing ref forwarding for function components. */}
-        <div>
+        <div
+          css={`
+            cursor: help;
+          `}
+        >
           <StyledTaskTitle level={3}>{title}</StyledTaskTitle>
         </div>
       </Tooltip>

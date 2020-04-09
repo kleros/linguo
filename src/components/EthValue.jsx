@@ -1,68 +1,52 @@
 import t from 'prop-types';
 import Web3 from 'web3';
 
-const { fromWei } = Web3.utils;
+const { fromWei, toWei, toBN } = Web3.utils;
 
-const Units = {
-  noether: 'noether',
-  wei: 'wei',
-  kwei: 'kwei',
-  babbage: 'babbage',
-  femtoether: 'femtoether',
-  mwei: 'mwei',
-  lovelace: 'lovelace',
-  picoether: 'picoether',
-  gwei: 'gwei',
-  shannon: 'shannon',
-  nanoether: 'nanoether',
-  nano: 'nano',
-  szabo: 'szabo',
-  microether: 'microether',
-  micro: 'micro',
-  finney: 'finney',
-  milliether: 'milliether',
-  milli: 'milli',
-  ether: 'ether',
-  kether: 'kether',
-  grand: 'grand',
-  mether: 'mether',
-  gether: 'gether',
-  tether: 'tether',
+/**
+ * ATTENTION: Order declared here is important to the mechanism
+ * of `getBestDisplayUnit`, because it iterates through this array
+ * in order looking for the best match to display a given amount.
+ */
+const availableUnitInfoList = [
+  { unit: 'ether', suffix: { short: 'ETH', long: 'Ether' } },
+  { unit: 'milli', suffix: { short: 'mETH', long: 'mEther' } },
+  { unit: 'micro', suffix: { short: 'μETH', long: 'μEther' } },
+  { unit: 'gwei', suffix: { short: 'GWei', long: 'GWei' } },
+  { unit: 'mwei', suffix: { short: 'MWei', long: 'MWei' } },
+  { unit: 'kwei', suffix: { short: 'kWei', long: 'kWei' } },
+  { unit: 'wei', suffix: { short: 'Wei', long: 'Wei' } },
+];
+
+const indexedAvailableUnitInfo = availableUnitInfoList.reduce(
+  (acc, info) => Object.assign(acc, { [info.unit]: info }),
+  {}
+);
+
+/**
+ * Check if it's possible to display a given `amount` of Wei
+ * transforming it to `unit` with up to `decimals` fraction digits.
+ *
+ * @param {object} params The params
+ * @param {string|BN} params.amount The amount of Wei
+ * @param {'ether'|'milli'|'micro'|'gwei'|'mwei'|'kwei'|'wei'} params.unit The unit for display
+ * @param {number} decimals The number of fractional digits.
+ */
+const canDisplay = ({ amount, unit, decimals }) => {
+  const denominator = toBN(toWei('1', unit));
+  const numerator = toBN(amount).mul(toBN(String(Math.pow(10, decimals))));
+
+  return numerator.div(denominator).gt(toBN('0'));
 };
 
-const unitToSuffixMap = {
-  wei: {
-    short: 'Wei',
-    long: 'Wei',
-  },
-  kwei: {
-    short: 'kWei',
-    long: 'kWei',
-  },
-  mwei: {
-    short: 'MWei',
-    long: 'MWei',
-  },
-  gwei: {
-    short: 'GWei',
-    long: 'GWei',
-  },
-  micro: {
-    short: 'μETH',
-    long: 'μEther',
-  },
-  milli: {
-    short: 'mETH',
-    long: 'mEther',
-  },
-  milliether: {
-    short: 'mETH',
-    long: 'mEther',
-  },
-  ether: {
-    short: 'ETH',
-    long: 'Ether',
-  },
+const getBestDisplayUnit = ({ amount, decimals }) => {
+  return availableUnitInfoList.reduce((bestFit, alternative) => {
+    if (bestFit.unit || !canDisplay({ amount, decimals, unit: alternative.unit })) {
+      return bestFit;
+    }
+
+    return alternative;
+  }, {});
 };
 
 function EthValue({ amount, decimals, unit, suffixType, render }) {
@@ -72,29 +56,29 @@ function EthValue({ amount, decimals, unit, suffixType, render }) {
     maximumFractionDigits: decimals,
   });
 
-  const value = nf.format(Number(fromWei(amount, unit)));
-  const suffix = unitToSuffixMap[unit][suffixType];
+  const unitInfo = indexedAvailableUnitInfo[unit] || getBestDisplayUnit({ amount, decimals });
 
-  return render({ value, suffix });
+  const value = fromWei(amount, unitInfo.unit);
+  const formattedValue = nf.format(Number(value));
+
+  return render({ amount, value, formattedValue, suffix: unitInfo.suffix[suffixType] || '' });
 }
 
-const defaultRender = ({ value, suffix }) => `${value} ${suffix}`.trim();
+const defaultRender = ({ formattedValue, suffix }) => `${formattedValue} ${suffix}`.trim();
 
 EthValue.propTypes = {
   amount: t.oneOfType([t.string, t.number]).isRequired,
   decimals: t.number,
-  unit: t.oneOf(Object.values(Units)),
+  unit: t.oneOf(['auto', ...Object.keys(indexedAvailableUnitInfo)]),
   suffixType: t.oneOf(['none', 'short', 'long']),
   render: t.func,
 };
 
 EthValue.defaultProps = {
   decimals: 2,
-  unit: Units.ether,
   suffixType: 'none',
   render: defaultRender,
+  unit: 'auto',
 };
-
-EthValue.Units = Units;
 
 export default EthValue;

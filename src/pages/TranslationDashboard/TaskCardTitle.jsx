@@ -63,7 +63,7 @@ const indexedLanguages = languages.reduce(
 const getShortLanguageName = code => {
   const { name = '<Unknown>' } = indexedLanguages[code] || {};
 
-  return name.replace(/ ?\(\w*\)$/, '');
+  return name.replace(/ ?\([\w\s]*\)$/, '');
 };
 
 function TaskCardTitle({ sourceLanguage, targetLanguage }) {
