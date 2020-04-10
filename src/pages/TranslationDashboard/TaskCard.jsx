@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Typography, Row, Col, Tooltip } from 'antd';
 import * as r from '~/app/routes';
-import { Task } from '~/api/linguo';
+import { Task, TaskStatus } from '~/api/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Button from '~/components/Button';
 import Card from '~/components/Card';
@@ -13,45 +13,6 @@ import RemainingTime from '~/components/RemainingTime';
 import EthValue from '~/components/EthValue';
 import TaskCardTitle from './TaskCardTitle';
 import TaskInfoGrid from './TaskInfoGrid';
-
-const StyledTaskDeadline = styled.div`
-  text-align: center;
-  font-weight: 700;
-  line-height: 1.33;
-
-  &.ending-soon {
-    color: ${props => props.theme.danger.default};
-  }
-
-  .title {
-    font-size: ${props => props.theme.fontSize.sm};
-    margin-bottom: -0.25rem;
-  }
-
-  .value {
-    font-size: ${props => props.theme.fontSize.lg};
-  }
-`;
-
-function TaskDeadline({ formattedValue, endingSoon, className }) {
-  return (
-    <StyledTaskDeadline className={clsx({ 'ending-soon': endingSoon }, className)}>
-      <div className="title">Deadline</div>
-      <div className="value">{formattedValue}</div>
-    </StyledTaskDeadline>
-  );
-}
-
-TaskDeadline.propTypes = {
-  formattedValue: t.node.isRequired,
-  endingSoon: t.bool,
-  className: t.string,
-};
-
-TaskDeadline.defaultProps = {
-  endingSoon: false,
-  className: '',
-};
 
 const StyledCard = styled(Card)`
   height: 100%;
@@ -100,6 +61,62 @@ const nf = new Intl.NumberFormat('en-US', {
   useGrouping: true,
 });
 
+const StyledTaskDeadline = styled.div`
+  text-align: center;
+  font-weight: 700;
+  line-height: 1.33;
+
+  &.ending-soon {
+    color: ${props => props.theme.danger.default};
+  }
+
+  .title {
+    font-size: ${props => props.theme.fontSize.sm};
+    margin-bottom: -0.25rem;
+  }
+
+  .value {
+    font-size: ${props => props.theme.fontSize.lg};
+  }
+`;
+
+function CurrentTimeout({ status, lastInteraction, submissionTimeout, reviewTimeout }) {
+  let currentTimeout;
+
+  if ([TaskStatus.Created, TaskStatus.Assigned].includes(status)) {
+    currentTimeout = Task.remainingTimeForSubmission({
+      status,
+      lastInteraction,
+      submissionTimeout,
+    });
+  } else if (TaskStatus.AwaitingReview === status) {
+    currentTimeout = Task.remainingTimeForReview({
+      status,
+      lastInteraction,
+      reviewTimeout,
+    });
+  }
+
+  return currentTimeout !== undefined ? (
+    <RemainingTime
+      initialValueSeconds={currentTimeout}
+      render={({ formattedValue, endingSoon, className }) => (
+        <StyledTaskDeadline className={clsx({ 'ending-soon': endingSoon }, className)}>
+          <div className="title">Deadline</div>
+          <div className="value">{formattedValue}</div>
+        </StyledTaskDeadline>
+      )}
+    />
+  ) : null;
+}
+
+CurrentTimeout.propTypes = {
+  status: t.number.isRequired,
+  lastInteraction: t.instanceOf(Date).isRequired,
+  submissionTimeout: t.number.isRequired,
+  reviewTimeout: t.number.isRequired,
+};
+
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
 function TaskCard({
@@ -110,17 +127,12 @@ function TaskCard({
   targetLanguage,
   lastInteraction,
   submissionTimeout,
+  reviewTimeout,
   wordCount,
   currentPrice,
   currentPricePerWord,
   expectedQuality,
 }) {
-  const remainingTimeForSubmission = Task.remainingTimeForSubmission({
-    status,
-    lastInteraction,
-    submissionTimeout,
-  });
-
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
   const taskInfo = [
     {
@@ -148,7 +160,12 @@ function TaskCard({
       footer={
         <Row gutter={30} align="middle">
           <Col span={12}>
-            <RemainingTime initialValueSeconds={remainingTimeForSubmission} render={TaskDeadline} />
+            <CurrentTimeout
+              status={status}
+              lastInteraction={lastInteraction}
+              submissionTimeout={submissionTimeout}
+              reviewTimeout={reviewTimeout}
+            />
           </Col>
           <Col span={12}>
             <Link to={getTaskDetailsRoute({ id: ID })}>
@@ -184,6 +201,7 @@ TaskCard.propTypes = {
   targetLanguage: t.string.isRequired,
   lastInteraction: t.any.isRequired,
   submissionTimeout: t.number.isRequired,
+  reviewTimeout: t.number.isRequired,
   wordCount: t.number.isRequired,
   currentPrice: t.any.isRequired,
   currentPricePerWord: t.any.isRequired,
