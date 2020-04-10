@@ -1,42 +1,61 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Row, Col } from 'antd';
 import { useWeb3React } from '~/app/web3React';
 import { useLinguoContract } from '~/api/linguo';
+import MissingWalletWarning from '~/components/MissingWalletWarning';
 import MultiCardLayout from '../layouts/MultiCardLayout';
-import TaskCard from './TaskCard';
+import TaskCardList from './TaskCardList';
 
-const StyledRow = styled(Row)`
-  align-items: stretch;
-`;
+function useAsyncState(getState, initialValue) {
+  const [state, setState] = React.useState({
+    data: initialValue,
+    isLoading: false,
+    error: '',
+  });
+
+  const fetch = React.useCallback(async () => {
+    setState(tasks => ({
+      ...tasks,
+      isLoading: true,
+    }));
+    try {
+      setState({
+        data: await getState(),
+        isLoading: false,
+        error: '',
+      });
+    } catch (err) {
+      setState({
+        data: initialValue,
+        isLoading: false,
+        error: err.message,
+      });
+    }
+  }, [initialValue, getState]);
+
+  return [state, fetch];
+}
+
+const emptyTaskList = [];
 
 function TranslationDashboard() {
   const { library: web3, chainId, account } = useWeb3React();
   const linguo = useLinguoContract({ web3, chainId });
 
-  const [tasks, setTasks] = React.useState([]);
-
-  const fetchTasks = React.useCallback(async () => {
-    setTasks(await linguo.api.getOwnTasks(account));
-  }, [linguo.api, account]);
+  const [tasks, fetchTasks] = useAsyncState(
+    React.useCallback(() => linguo.api.getOwnTasks(account), [linguo.api, account]),
+    emptyTaskList
+  );
 
   React.useEffect(() => {
-    if (linguo.isReady) {
+    if (linguo.isReady && account) {
       fetchTasks();
     }
-  }, [linguo.isReady, fetchTasks]);
+  }, [linguo.isReady, account, fetchTasks]);
 
   return (
     <MultiCardLayout>
-      <StyledRow gutter={[32, { xs: 0, sm: 32 }]}>
-        {tasks.map(task => {
-          return (
-            <Col key={task.ID} xs={24} sm={24} md={12} lg={8}>
-              <TaskCard {...task} />
-            </Col>
-          );
-        })}
-      </StyledRow>
+      <MissingWalletWarning message="To view your requested translation tasks you need an Ethereum wallet." />
+      {account && <TaskCardList {...tasks} />}
     </MultiCardLayout>
   );
 }
