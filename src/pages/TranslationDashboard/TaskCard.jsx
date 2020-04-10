@@ -7,59 +7,13 @@ import { Typography, Row, Col, Tooltip } from 'antd';
 import * as r from '~/app/routes';
 import { Task, TaskStatus } from '~/api/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
+import useSelfUpdatingState from '~/hooks/useSelfUpdatingState';
 import Button from '~/components/Button';
 import Card from '~/components/Card';
 import RemainingTime from '~/components/RemainingTime';
-import EthValue from '~/components/EthValue';
 import TaskCardTitle from './TaskCardTitle';
 import TaskInfoGrid from './TaskInfoGrid';
-
-const StyledCard = styled(Card)`
-  height: 100%;
-`;
-
-const StyledTaskTitle = styled(Typography.Title)`
-  && {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: ${props => props.theme.text.light};
-    font-size: ${props => props.theme.fontSize.md};
-    font-weight: 500;
-    margin-bottom: 1rem;
-  }
-`;
-
-function PriceDisplay({ amount, formattedValue, suffix }) {
-  return (
-    <Tooltip title={<EthValue amount={amount} unit="ether" decimals={18} suffixType="short" />}>
-      <span
-        css={`
-          cursor: help;
-        `}
-      >
-        {`${formattedValue} ${suffix}`.trim()}
-      </span>
-    </Tooltip>
-  );
-}
-
-PriceDisplay.propTypes = {
-  amount: t.any.isRequired,
-  value: t.any.isRequired,
-  formattedValue: t.number.isRequired,
-  suffix: t.string,
-};
-
-PriceDisplay.defaultProps = {
-  suffix: '',
-};
-
-const nf = new Intl.NumberFormat('en-US', {
-  style: 'decimal',
-  maximumFractionDigits: 0,
-  useGrouping: true,
-});
+import TaskPrice from './TaskPrice';
 
 const StyledTaskDeadline = styled.div`
   text-align: center;
@@ -80,7 +34,7 @@ const StyledTaskDeadline = styled.div`
   }
 `;
 
-function CurrentTimeout({ status, lastInteraction, submissionTimeout, reviewTimeout }) {
+function TaskDeadline({ status, lastInteraction, submissionTimeout, reviewTimeout, className }) {
   let currentTimeout;
 
   if ([TaskStatus.Created, TaskStatus.Assigned].includes(status)) {
@@ -100,7 +54,7 @@ function CurrentTimeout({ status, lastInteraction, submissionTimeout, reviewTime
   return currentTimeout !== undefined ? (
     <RemainingTime
       initialValueSeconds={currentTimeout}
-      render={({ formattedValue, endingSoon, className }) => (
+      render={({ formattedValue, endingSoon }) => (
         <StyledTaskDeadline className={clsx({ 'ending-soon': endingSoon }, className)}>
           <div className="title">Deadline</div>
           <div className="value">{formattedValue}</div>
@@ -110,34 +64,75 @@ function CurrentTimeout({ status, lastInteraction, submissionTimeout, reviewTime
   ) : null;
 }
 
-CurrentTimeout.propTypes = {
+TaskDeadline.propTypes = {
   status: t.number.isRequired,
   lastInteraction: t.instanceOf(Date).isRequired,
   submissionTimeout: t.number.isRequired,
   reviewTimeout: t.number.isRequired,
+  className: t.string,
 };
+
+TaskDeadline.defaultProps = {
+  className: '',
+};
+
+const StyledCard = styled(Card)`
+  height: 100%;
+`;
+
+const StyledTaskTitle = styled(Typography.Title)`
+  && {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: ${props => props.theme.text.light};
+    font-size: ${props => props.theme.fontSize.md};
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+`;
+
+const nf = new Intl.NumberFormat('en-US', {
+  style: 'decimal',
+  maximumFractionDigits: 0,
+  useGrouping: true,
+});
 
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
+const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
+
 function TaskCard({
   ID,
-  title,
   status,
+  title,
+  minPrice,
+  maxPrice,
+  acceptedPrice,
   sourceLanguage,
   targetLanguage,
   lastInteraction,
   submissionTimeout,
   reviewTimeout,
   wordCount,
-  currentPrice,
-  currentPricePerWord,
   expectedQuality,
 }) {
+  const currentPrice = useSelfUpdatingState({
+    updateIntervalMs: _1_MINUTE_IN_MILISECONDS,
+    getState: () =>
+      acceptedPrice || Task.currentPrice({ status, minPrice, maxPrice, lastInteraction, submissionTimeout }),
+    stopWhen: ({ currentPrice }) => !!acceptedPrice || currentPrice === maxPrice,
+  });
+  const currentPricePerWord = Task.currentPricePerWord({
+    currentPrice: currentPrice,
+    wordCount,
+  });
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
+
   const taskInfo = [
     {
       title: 'Price per word',
-      content: <EthValue amount={currentPricePerWord} suffixType="short" render={PriceDisplay} />,
+      content: <TaskPrice showTooltip value={currentPricePerWord} />,
     },
     {
       title: 'Number of words',
@@ -145,7 +140,7 @@ function TaskCard({
     },
     {
       title: 'Total Price',
-      content: <EthValue amount={currentPrice} suffixType="short" render={PriceDisplay} />,
+      content: <TaskPrice showTooltip showFootnoteMark value={currentPrice} />,
     },
     {
       title: name,
@@ -160,7 +155,7 @@ function TaskCard({
       footer={
         <Row gutter={30} align="middle">
           <Col span={12}>
-            <CurrentTimeout
+            <TaskDeadline
               status={status}
               lastInteraction={lastInteraction}
               submissionTimeout={submissionTimeout}
@@ -195,19 +190,22 @@ function TaskCard({
 
 TaskCard.propTypes = {
   ID: t.number.isRequired,
-  title: t.string.isRequired,
   status: t.number.isRequired,
+  title: t.string.isRequired,
+  minPrice: t.any.isRequired,
+  maxPrice: t.any.isRequired,
+  acceptedPrice: t.string,
   sourceLanguage: t.string.isRequired,
   targetLanguage: t.string.isRequired,
   lastInteraction: t.any.isRequired,
   submissionTimeout: t.number.isRequired,
   reviewTimeout: t.number.isRequired,
   wordCount: t.number.isRequired,
-  currentPrice: t.any.isRequired,
-  currentPricePerWord: t.any.isRequired,
   expectedQuality: t.string.isRequired,
 };
 
-TaskCard.defaultProps = {};
+TaskCard.defaultProps = {
+  acceptedPrice: '',
+};
 
 export default TaskCard;

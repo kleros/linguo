@@ -49,7 +49,7 @@ const getBestDisplayUnit = ({ amount, decimals }) => {
   }, {});
 };
 
-function EthValue({ amount, decimals, unit, suffixType, render }) {
+function EthValue({ amount, decimals, unit, suffixType, render, className }) {
   const nf = new Intl.NumberFormat('en-US', {
     style: 'decimal',
     minimumFractionDigits: decimals,
@@ -61,7 +61,7 @@ function EthValue({ amount, decimals, unit, suffixType, render }) {
   const value = fromWei(amount, unitInfo.unit);
   const formattedValue = nf.format(Number(value));
 
-  return render({ amount, value, formattedValue, suffix: unitInfo.suffix[suffixType] || '' });
+  return render({ amount, value, formattedValue, suffix: unitInfo.suffix[suffixType] || '', className });
 }
 
 const defaultRender = ({ formattedValue, suffix }) => `${formattedValue} ${suffix}`.trim();
@@ -72,6 +72,7 @@ EthValue.propTypes = {
   unit: t.oneOf(['auto', ...Object.keys(indexedAvailableUnitInfo)]),
   suffixType: t.oneOf(['none', 'short', 'long']),
   render: t.func,
+  className: t.string,
 };
 
 EthValue.defaultProps = {
@@ -79,6 +80,7 @@ EthValue.defaultProps = {
   suffixType: 'none',
   render: defaultRender,
   unit: 'auto',
+  className: '',
 };
 
 export default EthValue;

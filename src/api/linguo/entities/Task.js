@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import TaskStatus from './TaskStatus';
 import Web3 from 'web3';
 
-const { toBN } = Web3.utils;
+const { toBN, BN } = Web3.utils;
 
 const normalizeEventPropsFnMap = {
   TaskCreated: {
@@ -96,38 +96,56 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents })
   }, {});
 
   data.wordCount = (data.text || '').split(/\s+/g).length;
-  data.currentPrice = getCurrentPrice(data);
-  data.currentPricePerWord =
-    data.wordCount > 0
-      ? toBN(data.currentPrice)
-          .div(toBN(String(data.wordCount)))
-          .toString()
-      : +Infinity;
 
   data.lifecyleEvents = extractEventsReturnValues(lifecyleEvents);
 
   return data;
 };
 
-export const getCurrentPrice = ({ status, minPrice, maxPrice, lastInteraction, submissionTimeout }) => {
+/**
+ * Calculates the current price of a given task.
+ *
+ * @param {object} task The Task object
+ * @param {TaskStatus} task.status The task status
+ * @param {string|number|BN} task.minPrice The task minimum price
+ * @param {string|number|BN} task.maxPrice The task maximum price
+ * @param {string|Date} task.lastInteraction The task last interaction date
+ * @param {number} task.submissionTimeout The task submission timeout in seconds
+ * @return {string} The price per word of the task if `wordCount` greater than `0`; otherwise returns `currentPrice`
+ */
+export const currentPrice = ({ status, minPrice, maxPrice, lastInteraction, submissionTimeout }) => {
   let timeSinceLastInteraction = dayjs().diff(dayjs(lastInteraction), 'second');
   if (status !== TaskStatus.Created || timeSinceLastInteraction > submissionTimeout) {
     return '0';
   }
 
-  minPrice = toBN(minPrice);
-  maxPrice = toBN(maxPrice);
-  timeSinceLastInteraction = toBN(timeSinceLastInteraction);
-  submissionTimeout = toBN(submissionTimeout);
+  minPrice = toBN(String(minPrice));
+  maxPrice = toBN(String(maxPrice));
+  timeSinceLastInteraction = toBN(String(timeSinceLastInteraction));
+  submissionTimeout = toBN(String(submissionTimeout));
 
-  return minPrice.add(maxPrice.sub(minPrice).mul(timeSinceLastInteraction).div(submissionTimeout)).toString();
+  const currentPrice = minPrice.add(maxPrice.sub(minPrice).mul(timeSinceLastInteraction).div(submissionTimeout));
+
+  return String(BN.min(currentPrice, maxPrice));
+};
+
+/**
+ * Calculates the current price per word of a given task.
+ *
+ * @param {object} task The Task object
+ * @param {string|number|BN} task.currentPrice The task current price
+ * @param {number} task.wordCount The task word count
+ * @return {string} The price per word of the task if `wordCount` greater than `0`. Otherwise, returns `currentPrice`
+ */
+export const currentPricePerWord = ({ currentPrice, wordCount }) => {
+  return String(wordCount > 0 ? toBN(String(currentPrice)).div(toBN(String(wordCount))) : currentPrice);
 };
 
 /**
  * Calculates the remaining submission time for a given task.
  *
  * @param {object} task The Task object
- * @param {number} task.status The task status
+ * @param {TaskStatus} task.status The task status
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
  * @param {number} task.submissionTimeout The task submission timeout value in seconds
  * @param {object} options The options object
@@ -152,7 +170,7 @@ export const remainingTimeForSubmission = (
  * Calculates the remaining review time for a given task.
  *
  * @param {object} task The Task object
- * @param {number} task.status The task status
+ * @param {TaskStatus} task.status The task status
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
  * @param {number} task.reviewTimeout The task review timeout value in seconds
  * @param {object} options The options object
@@ -175,7 +193,7 @@ export const remainingTimeForReview = ({ status, lastInteraction, reviewTimeout 
  * or if the assigned translator did not send the translation within the specified prediod.
  *
  * @param {object} task The Task object
- * @param {number} task.status The task status
+ * @param {TaskStatus} task.status The task status
  * @param {Date|number|dayjs} task.submissionTimeout The task last interaction value
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
  * @param {number} task.reviewTimeout The task review timeout value in seconds

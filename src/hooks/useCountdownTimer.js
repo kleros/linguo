@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import useInterval from '~/hooks/useInterval';
+import useInterval from './useInterval';
 
 export default function useCountdownTimer({ seconds = 0, updateIntervalMs = 1000 } = {}) {
   const [remainingTime, setRemainingTime] = useState(seconds);

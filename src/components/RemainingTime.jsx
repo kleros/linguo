@@ -2,15 +2,15 @@ import t from 'prop-types';
 import dayjs from 'dayjs';
 import useCountdownTimer from '~/hooks/useCountdownTimer';
 
-const _1_SECOND_IN_MILISSECONDS = 1000;
-const _5_MINUTES_IN_MILISSECONDS = 5 * 60 * 1000;
+const _1_SECOND_IN_MILISECONDS = 1000;
+const _5_MINUTES_IN_MILISECONDS = 5 * 60 * 1000;
 const _1_DAY_IN_SECONDS = 24 * 60 * 60;
 
 function RemainingTime({ initialValueSeconds, render }) {
   const remainingTime = useCountdownTimer({
     seconds: initialValueSeconds,
     updateIntervalMs: remainingTimeInSeconds =>
-      remainingTimeInSeconds < _1_DAY_IN_SECONDS ? _1_SECOND_IN_MILISSECONDS : _5_MINUTES_IN_MILISSECONDS,
+      remainingTimeInSeconds < _1_DAY_IN_SECONDS ? _1_SECOND_IN_MILISECONDS : _5_MINUTES_IN_MILISECONDS,
   });
 
   const formattedValue =
