@@ -65,6 +65,7 @@ const StyledTaskTitle = styled(Typography.Title)`
     color: ${props => props.theme.text.light};
     font-size: ${props => props.theme.fontSize.md};
     font-weight: 500;
+    margin-bottom: 1rem;
   }
 `;
 

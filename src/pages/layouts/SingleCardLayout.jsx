@@ -39,10 +39,13 @@ const StyledCard = styled(Card)`
       box-shadow: none;
       border-radius: 0;
 
-      .card-head {
+      &.card,
+      .card-footer,
+      .card-header {
         border-radius: 0;
       }
 
+      .card-footer,
       .card-body {
         padding: 2rem;
       }

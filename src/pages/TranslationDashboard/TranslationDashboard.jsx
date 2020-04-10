@@ -28,7 +28,7 @@ function TranslationDashboard() {
 
   return (
     <MultiCardLayout>
-      <StyledRow gutter={[30, 30]}>
+      <StyledRow gutter={[32, { xs: 0, sm: 32 }]}>
         {tasks.map(task => {
           return (
             <Col key={task.ID} xs={24} sm={24} md={12} lg={8}>

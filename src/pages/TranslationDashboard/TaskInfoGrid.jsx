@@ -4,6 +4,10 @@ import styled from 'styled-components';
 import { Typography, Row, Col } from 'antd';
 
 const StyledCell = styled(Col)`
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   width: 50%;
   padding: 1.25rem 0.75rem;
