@@ -2,10 +2,11 @@ import React from 'react';
 import t from 'prop-types';
 import produce from 'immer';
 import styled from 'styled-components';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { useSettings, TRANSLATOR } from '~/app/settings';
-import { Row, Col, Form, Typography, Alert, notification } from 'antd';
+import { Row, Col, Form, Typography, notification } from 'antd';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
+import WithRouteMessage from '~/components/WithRouteMessage';
 import Button from '~/components/Button';
 import { LanguageSelect, LevelSelect } from '~/components/LanguageSelect';
 import languages from '~/assets/fixtures/languages';
@@ -191,12 +192,6 @@ LanguageSelectionCombobox.defaultProps = {
   onChange: () => {},
 };
 
-const StyledAlert = styled(Alert)`
-  && {
-    margin-bottom: 1rem;
-  }
-`;
-
 const StyledJumboButton = styled(Button)`
   height: 5.75rem;
   border-radius: 0.75rem;
@@ -224,9 +219,6 @@ const ensureAtLeastOneLanguage = storedValues =>
   });
 
 export default function TranslatorSettings() {
-  const location = useLocation();
-  const message = location.state?.message;
-
   const [form] = Form.useForm();
 
   const [storedValues, setStoredValues] = useSettings(TRANSLATOR);
@@ -272,66 +264,67 @@ export default function TranslatorSettings() {
 
   return (
     <SingleCardLayout title="Set your language skills">
-      {message && <StyledAlert closable showIcon icon={<InfoIcon />} message={message} type="info" />}
-      <Form form={form} initialValues={values} onValuesChange={handleValuesChange} onFinish={handleFinish}>
-        <Form.List name="languages">
-          {(fields, { add, remove }) => {
-            return (
-              <>
-                {fields.map(field => {
-                  return (
-                    <LanguageSelectionCombobox
-                      key={field.key}
-                      name={field.name}
-                      selectedValues={values.languages}
-                      value={values.languages[field.name]}
-                      onChange={handleLanguageChange}
-                      remove={remove}
-                    />
-                  );
-                })}
+      <WithRouteMessage>
+        <Form form={form} initialValues={values} onValuesChange={handleValuesChange} onFinish={handleFinish}>
+          <Form.List name="languages">
+            {(fields, { add, remove }) => {
+              return (
+                <>
+                  {fields.map(field => {
+                    return (
+                      <LanguageSelectionCombobox
+                        key={field.key}
+                        name={field.name}
+                        selectedValues={values.languages}
+                        value={values.languages[field.name]}
+                        onChange={handleLanguageChange}
+                        remove={remove}
+                      />
+                    );
+                  })}
 
-                <Form.Item>
-                  <Row gutter={16}>
-                    <Col md={12} xs={24}>
-                      <StyledJumboButton
-                        fullWidth
-                        size="large"
-                        variant="outlined"
-                        icon={<AddIcon />}
-                        disabled={totalLanguagesReached}
-                        onClick={() => {
-                          add();
-                        }}
-                      >
-                        New Language
-                      </StyledJumboButton>
-                    </Col>
-                  </Row>
-                </Form.Item>
-              </>
-            );
-          }}
-        </Form.List>
+                  <Form.Item>
+                    <Row gutter={16}>
+                      <Col md={12} xs={24}>
+                        <StyledJumboButton
+                          fullWidth
+                          size="large"
+                          variant="outlined"
+                          icon={<AddIcon />}
+                          disabled={totalLanguagesReached}
+                          onClick={() => {
+                            add();
+                          }}
+                        >
+                          New Language
+                        </StyledJumboButton>
+                      </Col>
+                    </Row>
+                  </Form.Item>
+                </>
+              );
+            }}
+          </Form.List>
 
-        <StyledDisclaimer>
-          <InfoIcon /> You can update your language level or add more languages anytime on settings.
-        </StyledDisclaimer>
+          <StyledDisclaimer>
+            <InfoIcon /> You can update your language level or add more languages anytime on settings.
+          </StyledDisclaimer>
 
-        <Row gutter={16} justify="space-between">
-          <Col lg={6} md={8} sm={10} xs={12}>
-            <Button fullWidth htmlType="button" variant="outlined" onClick={handleReturnClick}>
-              Return
-            </Button>
-          </Col>
+          <Row gutter={16} justify="space-between">
+            <Col lg={6} md={8} sm={10} xs={12}>
+              <Button fullWidth htmlType="button" variant="outlined" onClick={handleReturnClick}>
+                Return
+              </Button>
+            </Col>
 
-          <Col lg={6} md={8} sm={10} xs={12}>
-            <Button fullWidth htmlType="submit">
-              Save
-            </Button>
-          </Col>
-        </Row>
-      </Form>
+            <Col lg={6} md={8} sm={10} xs={12}>
+              <Button fullWidth htmlType="submit">
+                Save
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </WithRouteMessage>
     </SingleCardLayout>
   );
 }

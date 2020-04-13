@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useWeb3React } from '~/app/web3React';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
 import RequiredWalletGateway from '~/components/RequiredWalletGateway';
+import WithRouteMessage from '~/components/WithRouteMessage';
 import TranslationCreationForm from './Form';
 
 const StyledOverlayWrapper = styled.div`
@@ -41,13 +42,15 @@ function TranslationCreation() {
 
   return (
     <SingleCardLayout title="New Translation">
-      <RequiredWalletGateway
-        message="To request a translation you need an Ethereum wallet."
-        missing={form}
-        error={form}
-      >
-        {form}
-      </RequiredWalletGateway>
+      <WithRouteMessage>
+        <RequiredWalletGateway
+          message="To request a translation you need an Ethereum wallet."
+          missing={form}
+          error={form}
+        >
+          {form}
+        </RequiredWalletGateway>
+      </WithRouteMessage>
     </SingleCardLayout>
   );
 }
