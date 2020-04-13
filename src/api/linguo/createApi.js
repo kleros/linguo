@@ -4,8 +4,6 @@ import ipfs from '~/app/ipfs';
 import metaEvidenteTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import createError from '~/utils/createError';
 import { normalize } from './entities/Task';
-import getFilter from './filters';
-import getComparator from './sorting';
 
 const { toWei } = Web3.utils;
 
@@ -118,7 +116,7 @@ export default function createApi({ contract }) {
     }
   }
 
-  async function getOwnTasks(account, { filter = 'all' } = {}) {
+  async function getOwnTasks(account) {
     const events = await contract.getPastEvents('TaskCreated', {
       filter: { _requester: account },
       fromBlock: 0,
@@ -126,7 +124,7 @@ export default function createApi({ contract }) {
 
     const tasks = await Promise.all(events.map(event => getTaskById(event.returnValues._taskID)));
 
-    return tasks.filter(getFilter(filter)).sort(getComparator(filter));
+    return tasks;
   }
 
   return {

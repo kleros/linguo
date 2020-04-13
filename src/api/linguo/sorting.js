@@ -1,4 +1,17 @@
-import { remainingTimeForReview, remainingTimeForSubmission, isAborted } from './entities/Task';
+import {
+  remainingTimeForReview,
+  remainingTimeForSubmission,
+  isIncomplete,
+  currentPrice,
+  currentPricePerWord,
+} from './entities/Task';
+import Web3 from 'web3';
+
+const { toBN } = Web3.utils;
+
+const sortBNAscending = (a, b) => (a.gt(b) ? 1 : b.gt(a) ? -1 : 0);
+
+const sortBNDescending = (a, b) => -1 * sortBNAscending(a, b);
 
 function createComparator(descriptor = {}) {
   const customSorting = (a, b) =>
@@ -16,12 +29,18 @@ function createComparator(descriptor = {}) {
 
 const comparatorMap = {
   all: {
-    aborted: (a, b) => isAborted(a) - isAborted(b),
+    incomplete: (a, b) => isIncomplete(a) - isIncomplete(b),
     remainingTimeForSubmission: (a, b) => remainingTimeForSubmission(a) - remainingTimeForSubmission(b),
     ID: -1,
   },
   open: {
-    currentPricePerWord: -1,
+    currentPricePerWord: (a, b) => {
+      return sortBNDescending(
+        toBN(currentPricePerWord({ ...a, currentPrice: currentPrice(a) })),
+        toBN(currentPricePerWord({ ...b, currentPrice: currentPrice(b) }))
+      );
+    },
+
     ID: -1,
   },
   inProgress: {
@@ -38,7 +57,7 @@ const comparatorMap = {
   finished: {
     ID: -1,
   },
-  aborted: {
+  incomplete: {
     lastInteraction: -1,
     ID: 1,
   },
@@ -55,7 +74,7 @@ const comparatorMap = {
 /**
  * Get a filter predicate function based on a predefined name.
  *
- * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'aborted'} filterName The name of the filter
+ * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} filterName The name of the filter
  * @return TaskComparator a filter predicated function to be used with Array#filter.
  */
 export default function getComparator(filterName) {

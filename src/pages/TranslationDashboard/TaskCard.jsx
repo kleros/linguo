@@ -127,6 +127,7 @@ function TaskCard({
     currentPrice: currentPrice,
     wordCount,
   });
+  const isPending = Task.isPending({ status });
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
 
   const taskInfo = [
@@ -140,7 +141,7 @@ function TaskCard({
     },
     {
       title: 'Total Price',
-      content: <TaskPrice showTooltip showFootnoteMark value={currentPrice} />,
+      content: <TaskPrice showTooltip showFootnoteMark={isPending} value={currentPrice} />,
     },
     {
       title: name,

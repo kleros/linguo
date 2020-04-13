@@ -47,6 +47,7 @@
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "security/detect-object-injection": "off",
+    "security/detect-non-literal-fs-filename": "off",
     "import/extensions": [
       "error",
       "ignorePackages",

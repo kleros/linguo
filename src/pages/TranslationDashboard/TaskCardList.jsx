@@ -5,7 +5,7 @@ import { Redirect } from 'react-router-dom';
 import { Row, Col, Typography, Spin, Alert } from 'antd';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
-import { useLinguo } from '~/api/linguo';
+import { useLinguo, filters, getFilter, getComparator } from '~/api/linguo';
 import TaskCard from './TaskCard';
 
 const StyledSpin = styled(Spin)`
@@ -20,6 +20,12 @@ const StyledSpin = styled(Spin)`
 const StyledRow = styled(Row)`
   // make cards in the same row to have the same height
   align-items: stretch;
+`;
+
+const StyledFootnote = styled(Typography.Paragraph)`
+  @media (max-width: 575.98px) {
+    padding: 1rem;
+  }
 `;
 
 function useAsyncState(getState, initialValue) {
@@ -68,7 +74,11 @@ function useAsyncState(getState, initialValue) {
 
 const emptyTaskList = [];
 
-function TaskCardList() {
+const sort = (data, comparator) => [...data].sort(comparator);
+const filter = (data, predicate) => data.filter(predicate);
+
+function TaskCardList({ filterName }) {
+  // TODO: add display for empty list
   const { library: web3, chainId, account } = useWeb3React();
   const { api } = useLinguo({ web3, chainId });
 
@@ -76,6 +86,13 @@ function TaskCardList() {
     React.useCallback(async () => api.getOwnTasks(account), [api, account]),
     emptyTaskList
   );
+
+  const sortedData = React.useMemo(() => sort(filter(data, getFilter(filterName)), getComparator(filterName)), [
+    data,
+    filterName,
+  ]);
+
+  const showFootnote = [filters.open, filters.inProgress].includes(filterName) && sortedData.length > 0;
 
   return isSuccess && data.length === 0 ? (
     <Redirect
@@ -90,7 +107,7 @@ function TaskCardList() {
     <StyledSpin tip="Loading the translations tasks you created..." spinning={isLoading}>
       {isError && <Alert type="error" message={error} />}
       <StyledRow gutter={[32, { xs: 0, sm: 32 }]}>
-        {data.map(task => {
+        {sortedData.map(task => {
           return (
             <Col key={task.ID} xs={24} sm={24} md={12} lg={8}>
               <TaskCard {...task} />
@@ -98,24 +115,21 @@ function TaskCardList() {
           );
         })}
       </StyledRow>
-      {data.length > 0 && (
-        <Typography.Text>
+      {showFootnote && (
+        <StyledFootnote>
           <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
-        </Typography.Text>
+        </StyledFootnote>
       )}
     </StyledSpin>
   );
 }
 
 TaskCardList.propTypes = {
-  isLoading: t.bool.isRequired,
-  data: t.arrayOf(t.object),
-  error: t.string,
+  filterName: t.oneOf(Object.keys(filters)),
 };
 
 TaskCardList.defaultProps = {
-  isLoading: false,
-  data: [],
+  filterName: 'open',
 };
 
 export default TaskCardList;

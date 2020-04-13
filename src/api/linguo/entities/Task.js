@@ -189,7 +189,7 @@ export const remainingTimeForReview = ({ status, lastInteraction, reviewTimeout 
 };
 
 /**
- * Returns if a task was aborted either by not having any interaction from a translator,
+ * Returns if a task was incomplete either by not having any interaction from a translator,
  * or if the assigned translator did not send the translation within the specified prediod.
  *
  * @param {object} task The Task object
@@ -197,9 +197,9 @@ export const remainingTimeForReview = ({ status, lastInteraction, reviewTimeout 
  * @param {Date|number|dayjs} task.submissionTimeout The task last interaction value
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
  * @param {number} task.reviewTimeout The task review timeout value in seconds
- * @return {boolean} Whether the translation task was aborted or not
+ * @return {boolean} Whether the translation task was incomplete or not
  */
-export const isAborted = ({ status, lastInteraction, submissionTimeout, lifecyleEvents }) => {
+export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifecyleEvents }) => {
   if (status === TaskStatus.Resolved) {
     return lifecyleEvents.TranslationSubmitted.length === 0;
   }
@@ -209,4 +209,15 @@ export const isAborted = ({ status, lastInteraction, submissionTimeout, lifecyle
   }
 
   return false;
+};
+
+/**
+ * Returns if a transltion task is still pending.
+ *
+ * @param {object} task The Task object
+ * @param {TaskStatus} task.status The task status
+ * @return {boolean} Whether the translation task is pending or not
+ */
+export const isPending = ({ status }) => {
+  return [TaskStatus.Created, TaskStatus.Assigned].includes(status);
 };

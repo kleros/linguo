@@ -1,13 +1,14 @@
 import TaskStatus from './entities/TaskStatus';
+import { isIncomplete } from './entities/Task';
 
 const filterMap = {
   all: () => true,
-  open: ({ status, aborted }) => !aborted && status === TaskStatus.Created,
+  open: task => !isIncomplete(task) && task.status === TaskStatus.Created,
   inProgress: ({ status }) => status === TaskStatus.Assigned,
   inReview: ({ status }) => status === TaskStatus.AwaitingReview,
   inDispute: ({ status }) => status === TaskStatus.DisputeCreated,
-  finished: ({ status, aborted }) => !aborted && status === TaskStatus.Resolved,
-  aborted: ({ aborted }) => !!aborted,
+  finished: ({ status, incomplete }) => !incomplete && status === TaskStatus.Resolved,
+  incomplete: task => isIncomplete(task),
 };
 
 /**
@@ -20,10 +21,20 @@ const filterMap = {
 /**
  * Get a filter predicate function based on a predefined name.
  *
- * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'aborted'} name The name of the filter
+ * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} name The name of the filter
  * @return TaskFilterPredicate a filter predicated function to be used with Array#filter.
  */
 export default function getFilter(name) {
   const filter = filterMap[name];
   return filter || filterMap.all;
 }
+
+export const filters = Object.freeze(
+  Object.keys(filterMap).reduce(
+    (acc, key) =>
+      Object.assign(acc, {
+        [key]: key,
+      }),
+    {}
+  )
+);
