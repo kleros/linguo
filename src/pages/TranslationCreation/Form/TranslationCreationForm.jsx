@@ -5,7 +5,7 @@ import { Form, Row, Col, Divider, notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
-import { useLinguoContract } from '~/api/linguo';
+import { useLinguo } from '~/api/linguo';
 import useStateMachine from '~/hooks/useStateMachine';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Button from '~/components/Button';
@@ -29,6 +29,18 @@ const StyledForm = styled(Form)`
 const StyledDivider = styled(Divider)`
   background: none;
 `;
+
+const extractOriginalTextFilePath = originalTextFile => {
+  if (originalTextFile?.length > 0) {
+    const { status, path } = originalTextFile[0].response || {};
+
+    if (status === 'done' && !!path) {
+      return path;
+    }
+  }
+
+  return undefined;
+};
 
 const rowGutter = [16, 16];
 
@@ -64,24 +76,12 @@ const formStateMachine = {
   },
 };
 
-const extractOriginalTextFilePath = originalTextFile => {
-  if (originalTextFile?.length > 0) {
-    const { status, path } = originalTextFile[0].response || {};
-
-    if (status === 'done' && !!path) {
-      return path;
-    }
-  }
-
-  return undefined;
-};
-
 function TranslationCreationForm() {
   const history = useHistory();
   const [form] = Form.useForm();
   const [state, send] = useStateMachine(formStateMachine);
   const { account, library: web3, chainId } = useWeb3React();
-  const linguo = useLinguoContract({ web3, chainId });
+  const linguo = useLinguo({ web3, chainId });
 
   const submitButtonProps =
     state === 'submitting'
@@ -96,38 +96,39 @@ function TranslationCreationForm() {
 
   const handleFinish = React.useCallback(
     async ({ originalTextFile, ...rest }) => {
-      if (linguo.isReady) {
-        send('SUBMIT');
-        try {
-          await linguo.api.createTask({
-            account,
-            originalTextFile: extractOriginalTextFilePath(originalTextFile),
-            ...rest,
-          });
-          send('SUCCESS');
-          notification.success({
-            placement: 'bottomRight',
-            message: 'Translation submitted!',
-          });
-          history.push(r.TRANSLATION_DASHBOARD);
-        } catch (err) {
-          send('ERROR');
-          notification.error({
-            placement: 'bottomRight',
-            message: 'Failed to submit the translation request!',
-            description: err.cause?.message,
-          });
-        } finally {
-          send('RESET');
-        }
-      } else {
+      if (linguo.error) {
         notification.error({
           placement: 'bottomRight',
-          message: 'Not ready to submit the request translation yet!',
+          message: linguo.error.message || 'Not ready to submit the request translation yet!',
         });
+        return;
+      }
+
+      send('SUBMIT');
+      try {
+        await linguo.api.createTask({
+          account,
+          originalTextFile: extractOriginalTextFilePath(originalTextFile),
+          ...rest,
+        });
+        send('SUCCESS');
+        notification.success({
+          placement: 'bottomRight',
+          message: 'Translation submitted!',
+        });
+        history.push(r.TRANSLATION_DASHBOARD);
+      } catch (err) {
+        send('ERROR');
+        notification.error({
+          placement: 'bottomRight',
+          message: 'Failed to submit the translation request!',
+          description: err.cause?.message,
+        });
+      } finally {
+        send('RESET');
       }
     },
-    [account, linguo.isReady, linguo.api, send, history]
+    [account, linguo.error, linguo.api, send, history]
   );
 
   return (
