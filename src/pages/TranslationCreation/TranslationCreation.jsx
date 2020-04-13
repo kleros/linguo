@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useWeb3React } from '~/app/web3React';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
-import MissingWalletWarning from '~/components/MissingWalletWarning';
+import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import TranslationCreationForm from './Form';
 
 const StyledOverlayWrapper = styled.div`
@@ -30,15 +30,24 @@ function TranslationCreation() {
   const { account } = useWeb3React();
   const formBlocked = !account;
 
+  const form = (
+    <StyledOverlayWrapper>
+      <StyledContentWrapper disabled={formBlocked}>
+        <TranslationCreationForm />
+      </StyledContentWrapper>
+      <StyledOverlay visible={formBlocked} />
+    </StyledOverlayWrapper>
+  );
+
   return (
     <SingleCardLayout title="New Translation">
-      <MissingWalletWarning message="To request a translation you need an Ethereum wallet." />
-      <StyledOverlayWrapper>
-        <StyledContentWrapper disabled={formBlocked}>
-          <TranslationCreationForm />
-        </StyledContentWrapper>
-        <StyledOverlay visible={formBlocked} />
-      </StyledOverlayWrapper>
+      <RequiredWalletGateway
+        message="To request a translation you need an Ethereum wallet."
+        missing={form}
+        error={form}
+      >
+        {form}
+      </RequiredWalletGateway>
     </SingleCardLayout>
   );
 }
