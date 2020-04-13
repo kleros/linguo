@@ -40,13 +40,18 @@ const canDisplay = ({ amount, unit, decimals }) => {
 };
 
 const getBestDisplayUnit = ({ amount, decimals }) => {
-  return availableUnitInfoList.reduce((bestFit, alternative) => {
-    if (bestFit.unit || !canDisplay({ amount, decimals, unit: alternative.unit })) {
-      return bestFit;
-    }
+  const { bestFit } = availableUnitInfoList.reduce(
+    ({ found, bestFit }, alternative) => {
+      if (found || !canDisplay({ amount, decimals, unit: alternative.unit })) {
+        return { found, bestFit };
+      }
 
-    return alternative;
-  }, {});
+      return { found: true, bestFit: alternative };
+    },
+    { found: false }
+  );
+
+  return bestFit || indexedAvailableUnitInfo.ether;
 };
 
 function EthValue({ amount, decimals, unit, suffixType, render, className }) {
