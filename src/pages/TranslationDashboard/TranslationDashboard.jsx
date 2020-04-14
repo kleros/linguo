@@ -10,7 +10,7 @@ import RadioButton from '~/components/RadioButton';
 import { createCustomIcon } from '~/adapters/antd';
 import _AddIcon from '~/assets/images/icon-add.svg';
 import MultiCardLayout from '../layouts/MultiCardLayout';
-import TaskCardList from './TaskCardList';
+import TaskListFetcher from './TaskListFetcher';
 
 const StyledControls = styled.div`
   display: flex;
@@ -87,13 +87,28 @@ const StyledRadioButton = styled(RadioButton)`
       :nth-child(-n + 3) {
         border-bottom-width: 0;
       }
+
+      :first-child {
+        border-top-left-radius: 0.25rem;
+      }
+
+      :last-child {
+        border-bottom-right-radius: 0.25rem;
+      }
+
+      :nth-last-child(3) {
+        border-bottom-left-radius: 0.25rem;
+      }
+      :nth-child(3) {
+        border-top-right-radius: 0.25rem;
+      }
     }
   }
 `;
 
 const StyledDivider = styled(Divider)`
   background: ${props => props.theme.primary.default};
-  margin: 2.5rem 0 4rem;
+  margin: 2.5rem 0;
 
   @media (max-width: 575.98px) {
     background: none;
@@ -159,7 +174,7 @@ function TranslationDashboard() {
       </StyledControls>
       <StyledDivider />
       <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
-        <TaskCardList filterName={filterName} />
+        <TaskListFetcher filterName={filterName} />
       </RequiredWalletGateway>
     </MultiCardLayout>
   );

@@ -30,25 +30,34 @@ function createComparator(descriptor = {}) {
 const comparatorMap = {
   all: {
     incomplete: (a, b) => isIncomplete(a) - isIncomplete(b),
-    remainingTimeForSubmission: (a, b) => remainingTimeForSubmission(a) - remainingTimeForSubmission(b),
+    remainingTimeForSubmissionDesc: (a, b) => {
+      const currentDate = new Date();
+      return -1 * (remainingTimeForSubmission(b, { currentDate }) - remainingTimeForSubmission(a, { currentDate }));
+    },
     ID: -1,
   },
   open: {
-    currentPricePerWord: (a, b) => {
+    currentPricePerWordDesc: (a, b) => {
+      const currentDate = new Date();
       return sortBNDescending(
-        toBN(currentPricePerWord({ ...a, currentPrice: currentPrice(a) })),
-        toBN(currentPricePerWord({ ...b, currentPrice: currentPrice(b) }))
+        toBN(currentPricePerWord({ ...a, currentPrice: currentPrice(a, { currentDate }) })),
+        toBN(currentPricePerWord({ ...b, currentPrice: currentPrice(b, { currentDate }) }))
       );
     },
-
     ID: -1,
   },
   inProgress: {
-    remainingTimeForSubmission: (a, b) => remainingTimeForSubmission(b) - remainingTimeForSubmission(a),
+    remainingTimeForSubmissionDesc: (a, b) => {
+      const currentDate = new Date();
+      return -1 * (remainingTimeForSubmission(b, { currentDate }) - remainingTimeForSubmission(a, { currentDate }));
+    },
     ID: -1,
   },
   inReview: {
-    remainingTimeForReview: (a, b) => remainingTimeForReview(b) - remainingTimeForReview(a),
+    remainingTimeForReviewDesc: (a, b) => {
+      const currentDate = new Date();
+      return -1 * (remainingTimeForReview(b, { currentDate }) - remainingTimeForReview(a, { currentDate }));
+    },
     ID: -1,
   },
   inDispute: {

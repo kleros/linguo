@@ -7,7 +7,7 @@ const filterMap = {
   inProgress: ({ status }) => status === TaskStatus.Assigned,
   inReview: ({ status }) => status === TaskStatus.AwaitingReview,
   inDispute: ({ status }) => status === TaskStatus.DisputeCreated,
-  finished: ({ status, incomplete }) => !incomplete && status === TaskStatus.Resolved,
+  finished: task => !isIncomplete(task) && task.status === TaskStatus.Resolved,
   incomplete: task => isIncomplete(task),
 };
 

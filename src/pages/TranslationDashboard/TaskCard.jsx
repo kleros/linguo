@@ -34,21 +34,14 @@ const StyledTaskDeadline = styled.div`
   }
 `;
 
-function TaskDeadline({ status, lastInteraction, submissionTimeout, reviewTimeout, className }) {
+function TaskDeadline({ className, ...task }) {
   let currentTimeout;
+  const currentDate = new Date();
 
-  if ([TaskStatus.Created, TaskStatus.Assigned].includes(status)) {
-    currentTimeout = Task.remainingTimeForSubmission({
-      status,
-      lastInteraction,
-      submissionTimeout,
-    });
-  } else if (TaskStatus.AwaitingReview === status) {
-    currentTimeout = Task.remainingTimeForReview({
-      status,
-      lastInteraction,
-      reviewTimeout,
-    });
+  if ([TaskStatus.Created, TaskStatus.Assigned].includes(task.status)) {
+    currentTimeout = Task.remainingTimeForSubmission(task, { currentDate });
+  } else if (TaskStatus.AwaitingReview === task.status) {
+    currentTimeout = Task.remainingTimeForReview(task, { currentDate });
   }
 
   return currentTimeout !== undefined ? (
@@ -102,32 +95,31 @@ const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
 const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
 
-function TaskCard({
-  ID,
-  status,
-  title,
-  minPrice,
-  maxPrice,
-  acceptedPrice,
-  sourceLanguage,
-  targetLanguage,
-  lastInteraction,
-  submissionTimeout,
-  reviewTimeout,
-  wordCount,
-  expectedQuality,
-}) {
-  const currentPrice = useSelfUpdatingState({
-    updateIntervalMs: _1_MINUTE_IN_MILISECONDS,
-    getState: () =>
-      acceptedPrice || Task.currentPrice({ status, minPrice, maxPrice, lastInteraction, submissionTimeout }),
-    stopWhen: ({ currentPrice }) => !!acceptedPrice || currentPrice === maxPrice,
-  });
-  const currentPricePerWord = Task.currentPricePerWord({
-    currentPrice: currentPrice,
+function TaskCard(task) {
+  const {
+    ID,
+    status,
+    title,
+    maxPrice,
+    assignedPrice,
+    sourceLanguage,
+    targetLanguage,
     wordCount,
+    expectedQuality,
+  } = task;
+
+  const { currentPrice, currentPricePerWord } = useSelfUpdatingState({
+    updateIntervalMs: _1_MINUTE_IN_MILISECONDS,
+    getState: () => {
+      const currentDate = new Date();
+      return {
+        currentPrice: Task.currentPrice(task, { currentDate }),
+        currentPricePerWord: Task.currentPricePerWord(task, { currentDate }),
+      };
+    },
+    stopWhen: ({ currentPrice }) => !!assignedPrice || currentPrice === maxPrice,
   });
-  const isPending = Task.isPending({ status });
+
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
 
   const taskInfo = [
@@ -141,7 +133,7 @@ function TaskCard({
     },
     {
       title: 'Total Price',
-      content: <TaskPrice showTooltip showFootnoteMark={isPending} value={currentPrice} />,
+      content: <TaskPrice showTooltip showFootnoteMark={status === TaskStatus.Open} value={currentPrice} />,
     },
     {
       title: name,
@@ -156,12 +148,7 @@ function TaskCard({
       footer={
         <Row gutter={30} align="middle">
           <Col span={12}>
-            <TaskDeadline
-              status={status}
-              lastInteraction={lastInteraction}
-              submissionTimeout={submissionTimeout}
-              reviewTimeout={reviewTimeout}
-            />
+            <TaskDeadline {...task} />
           </Col>
           <Col span={12}>
             <Link to={getTaskDetailsRoute({ id: ID })}>
@@ -195,7 +182,7 @@ TaskCard.propTypes = {
   title: t.string.isRequired,
   minPrice: t.any.isRequired,
   maxPrice: t.any.isRequired,
-  acceptedPrice: t.string,
+  assignedPrice: t.string,
   sourceLanguage: t.string.isRequired,
   targetLanguage: t.string.isRequired,
   lastInteraction: t.any.isRequired,
@@ -203,10 +190,6 @@ TaskCard.propTypes = {
   reviewTimeout: t.number.isRequired,
   wordCount: t.number.isRequired,
   expectedQuality: t.string.isRequired,
-};
-
-TaskCard.defaultProps = {
-  acceptedPrice: '',
 };
 
 export default TaskCard;

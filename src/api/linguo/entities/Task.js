@@ -9,6 +9,10 @@ const normalizeEventPropsFnMap = {
     _taskID: Number,
     _timestamp: _timestamp => dayjs.unix(_timestamp).toDate(),
   },
+  TaskAssigned: {
+    _taskID: Number,
+    _timestamp: _timestamp => dayjs.unix(_timestamp).toDate(),
+  },
   TranslationSubmitted: {
     _taskID: Number,
     _timestamp: _timestamp => dayjs.unix(_timestamp).toDate(),
@@ -42,6 +46,8 @@ const extractEventsReturnValues = lifecyleEvents =>
     {}
   );
 
+const ETH_ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
+
 const normalizePropsFnMap = {
   ID: Number,
   status: Number,
@@ -50,7 +56,10 @@ const normalizePropsFnMap = {
   lastInteraction: lastInteraction => dayjs.unix(lastInteraction).toDate(),
   // Deadline is stored in metadata JSON as a ISO-8601 date.
   deadline: deadline => dayjs(deadline).toDate(),
-  parties: ([_ignored, translator, challenger]) => ({ translator, challenger }),
+  parties: ([_ignored, translator, challenger]) => ({
+    translator: translator === ETH_ADDRESS_ZERO ? undefined : translator,
+    challenger: challenger === ETH_ADDRESS_ZERO ? undefined : challenger,
+  }),
   disputeID: Number,
   ruling: Number,
 };
@@ -80,7 +89,7 @@ const normalizePropsFnMap = {
  * @return {object} The normalized Task object
  */
 
-export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents }) => {
+export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents } = {}) => {
   const data = Object.entries({
     ID,
     ...metadata,
@@ -99,6 +108,8 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents })
 
   data.lifecyleEvents = extractEventsReturnValues(lifecyleEvents);
 
+  data.assignedPrice = data.lifecyleEvents.TaskAssigned?.[0]?._price;
+
   return data;
 };
 
@@ -107,14 +118,24 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents })
  *
  * @param {object} task The Task object
  * @param {TaskStatus} task.status The task status
+ * @param {string|number|BN = undefined} task.assignedPrice The task assigned price
  * @param {string|number|BN} task.minPrice The task minimum price
  * @param {string|number|BN} task.maxPrice The task maximum price
  * @param {string|Date} task.lastInteraction The task last interaction date
  * @param {number} task.submissionTimeout The task submission timeout in seconds
+ * @param {object={}} options The options object
+ * @param {string|Date = new Date()} currentDate The current date.
  * @return {string} The price per word of the task if `wordCount` greater than `0`; otherwise returns `currentPrice`
  */
-export const currentPrice = ({ status, minPrice, maxPrice, lastInteraction, submissionTimeout }) => {
-  let timeSinceLastInteraction = dayjs().diff(dayjs(lastInteraction), 'second');
+export const currentPrice = (
+  { status, assignedPrice, minPrice, maxPrice, lastInteraction, submissionTimeout } = {},
+  { currentDate = new Date() } = {}
+) => {
+  if (assignedPrice !== undefined || assignedPrice === '') {
+    return assignedPrice;
+  }
+
+  let timeSinceLastInteraction = dayjs(currentDate).diff(dayjs(lastInteraction), 'second');
   if (status !== TaskStatus.Created || timeSinceLastInteraction > submissionTimeout) {
     return '0';
   }
@@ -133,12 +154,26 @@ export const currentPrice = ({ status, minPrice, maxPrice, lastInteraction, subm
  * Calculates the current price per word of a given task.
  *
  * @param {object} task The Task object
- * @param {string|number|BN} task.currentPrice The task current price
+ * @param {TaskStatus} task.status The task status
+ * @param {string|number|BN = undefined} task.assignedPrice The task assigned price
+ * @param {string|number|BN} task.minPrice The task minimum price
+ * @param {string|number|BN} task.maxPrice The task maximum price
+ * @param {string|Date} task.lastInteraction The task last interaction date
+ * @param {number} task.submissionTimeout The task submission timeout in seconds
  * @param {number} task.wordCount The task word count
+ * @param {object={}} options The options object
+ * @param {string|Date = new Date()} currentDate The current date.
  * @return {string} The price per word of the task if `wordCount` greater than `0`. Otherwise, returns `currentPrice`
  */
-export const currentPricePerWord = ({ currentPrice, wordCount }) => {
-  return String(wordCount > 0 ? toBN(String(currentPrice)).div(toBN(String(wordCount))) : currentPrice);
+export const currentPricePerWord = (
+  { status, assignedPrice, minPrice, maxPrice, lastInteraction, submissionTimeout, wordCount } = {},
+  { currentDate = new Date() } = {}
+) => {
+  const currentPriceValue = currentPrice(
+    { status, assignedPrice, minPrice, maxPrice, lastInteraction, submissionTimeout, wordCount },
+    { currentDate }
+  );
+  return String(wordCount > 0 ? toBN(currentPriceValue).div(toBN(String(wordCount))) : currentPrice);
 };
 
 /**
@@ -150,18 +185,19 @@ export const currentPricePerWord = ({ currentPrice, wordCount }) => {
  * @param {number} task.submissionTimeout The task submission timeout value in seconds
  * @param {object} options The options object
  * @param {'milissecond'|'second'|'minute'|'hour'|'day'|'month'|'year'} options.unit The time resolution to calculate the difference
+ * @param {string|Date = new Date()} currentDate The current date.
  * @return {number} The remaining time for submission in the specified `unit`
  */
 export const remainingTimeForSubmission = (
   { status, lastInteraction, submissionTimeout } = {},
-  { unit = 'second' } = {}
+  { unit = 'second', currentDate = new Date() } = {}
 ) => {
-  if (TaskStatus.Created !== status) {
+  if (![TaskStatus.Created, TaskStatus.Assigned].includes(status)) {
     return 0;
   }
 
   const realDeadline = dayjs(lastInteraction).add(submissionTimeout, 'second');
-  const remainingTimeout = realDeadline.diff(dayjs(), unit);
+  const remainingTimeout = realDeadline.diff(dayjs(currentDate), unit);
 
   return remainingTimeout > 0 ? remainingTimeout : 0;
 };
@@ -175,15 +211,19 @@ export const remainingTimeForSubmission = (
  * @param {number} task.reviewTimeout The task review timeout value in seconds
  * @param {object} options The options object
  * @param {'milissecond'|'second'|'minute'|'hour'|'day'|'month'|'year'} options.unit The time resolution to calculate the difference
+ * @param {string|Date = new Date()} currentDate The current date.
  * @return {number} The remaining time for review in the specified `unit`
  */
-export const remainingTimeForReview = ({ status, lastInteraction, reviewTimeout } = {}, { unit = 'second' } = {}) => {
+export const remainingTimeForReview = (
+  { status, lastInteraction, reviewTimeout } = {},
+  { unit = 'second', currentDate = new Date() } = {}
+) => {
   if (TaskStatus.AwaitingReview !== status) {
     return 0;
   }
 
   const realDeadline = dayjs(lastInteraction).add(reviewTimeout, 'second');
-  const remainingTimeout = realDeadline.diff(dayjs(), unit);
+  const remainingTimeout = realDeadline.diff(dayjs(currentDate), unit);
 
   return remainingTimeout > 0 ? remainingTimeout : 0;
 };
@@ -199,9 +239,9 @@ export const remainingTimeForReview = ({ status, lastInteraction, reviewTimeout 
  * @param {number} task.reviewTimeout The task review timeout value in seconds
  * @return {boolean} Whether the translation task was incomplete or not
  */
-export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifecyleEvents }) => {
+export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifecyleEvents } = {}) => {
   if (status === TaskStatus.Resolved) {
-    return lifecyleEvents.TranslationSubmitted.length === 0;
+    return lifecyleEvents?.TranslationSubmitted?.length === 0;
   }
 
   if ([TaskStatus.Created, TaskStatus.Assigned].includes(status)) {
@@ -218,6 +258,6 @@ export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifec
  * @param {TaskStatus} task.status The task status
  * @return {boolean} Whether the translation task is pending or not
  */
-export const isPending = ({ status }) => {
+export const isPending = ({ status } = {}) => {
   return [TaskStatus.Created, TaskStatus.Assigned].includes(status);
 };

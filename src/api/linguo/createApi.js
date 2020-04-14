@@ -77,14 +77,19 @@ export default function createApi({ contract }) {
   async function getTaskById(ID) {
     try {
       const [
-        task,
         reviewTimeout,
+        task,
+        taskParties,
         metaEvidenceEvents,
         taskCreatedEvents,
+        taskAssignedEvents,
         translationSubmittedEvents,
+        translationChallengedEvents,
+        taskResolvedEvents,
       ] = await Promise.all([
-        contract.methods.tasks(ID).call(),
         contract.methods.reviewTimeout().call(),
+        contract.methods.tasks(ID).call(),
+        contract.methods.getTaskParties(ID).call(),
         contract.getPastEvents('MetaEvidence', {
           filter: { _metaEvidenceID: ID },
           fromBlock: 0,
@@ -93,7 +98,19 @@ export default function createApi({ contract }) {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
+        contract.getPastEvents('TaskAssigned', {
+          filter: { _taskID: ID },
+          fromBlock: 0,
+        }),
         contract.getPastEvents('TranslationSubmitted', {
+          filter: { _taskID: ID },
+          fromBlock: 0,
+        }),
+        contract.getPastEvents('TranslationChallenged', {
+          filter: { _taskID: ID },
+          fromBlock: 0,
+        }),
+        contract.getPastEvents('TaskResolved', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
@@ -104,14 +121,18 @@ export default function createApi({ contract }) {
       return normalize({
         ID,
         reviewTimeout,
-        task,
+        task: { ...task, parties: taskParties },
         metadata,
         lifecyleEvents: {
           TaskCreated: taskCreatedEvents,
+          TaskAssigned: taskAssignedEvents,
           TranslationSubmitted: translationSubmittedEvents,
+          TranslationChallenged: translationChallengedEvents,
+          TaskResolved: taskResolvedEvents,
         },
       });
     } catch (err) {
+      console.log(err);
       return { ID, error: err };
     }
   }
