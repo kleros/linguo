@@ -66,14 +66,15 @@ MissingWalletAlert.defaultProps = {
 };
 
 function RequiredWalletGateway({ message, children, missing, error, render, renderMissing, renderError }) {
-  const { active, account } = useWeb3React();
+  const { active, account, activatingConnector } = useWeb3React();
   const hasAccount = active && !!account;
+  const hasActivatingConnector = !!activatingConnector;
 
   const missingWalletWarning = <MissingWalletAlert message={message} missing={missing} renderMissing={renderMissing} />;
 
   return (
     <RequiredWeb3Gateway missing={missingWalletWarning} error={error} renderError={renderError}>
-      {hasAccount ? children || render({ account }) : missingWalletWarning}
+      {hasAccount ? children || render({ account }) : !hasActivatingConnector ? missingWalletWarning : null}
     </RequiredWeb3Gateway>
   );
 }
