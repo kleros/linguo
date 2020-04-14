@@ -8,9 +8,9 @@ import { useWeb3React } from '~/app/web3React';
 import { createCustomIcon } from '~/adapters/antd';
 import * as r from '~/app/routes';
 import Button from '~/components/Button';
-import WalletInformation from '~/components/WalletInformation';
 import WalletConnectionButton from '~/components/WalletConnectionButton';
 import _SettingsIcon from '~/assets/images/icon-settings.svg';
+import WalletInformation from './WalletInformation';
 import { Popover, Button as TrayButton, Icon } from './adapters';
 
 const SettingsIcon = createCustomIcon(_SettingsIcon, Icon);
