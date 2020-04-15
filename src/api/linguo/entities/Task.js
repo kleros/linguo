@@ -76,7 +76,7 @@ const normalizePropsFnMap = {
  * this contract, so we can safely convert the returned `uint` string representation
  * to a native JS `number`.
  *
- * @param {object} taskParts The Task object parts
+ * @param {object} taskParts The task object parts
  * @param {string|number} taskParts.ID The Task ID
  * @param {string|number} taskParts.reviewTimeout The Task review timeout in seconds
  * @param {object} taskParts.task The Task data from the contract
@@ -86,7 +86,7 @@ const normalizePropsFnMap = {
  * @param {object[]} taskParts.lyfecicleEvents.TranslationSubmitted The TranslationSubmitted events from the contract
  * @param {object[]} taskParts.lyfecicleEvents.TranslationChallenged The TranslationChallenged events from the contract
  * @param {object[]} taskParts.lyfecicleEvents.TaskResolved The TaskResolved events from the contract
- * @return {object} The normalized Task object
+ * @return {object} The normalized task object
  */
 
 export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents } = {}) => {
@@ -104,7 +104,7 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents } 
         });
   }, {});
 
-  data.wordCount = (data.text || '').split(/\s+/g).length;
+  data.wordCount = wordCount({ text: data.text });
 
   data.lifecyleEvents = extractEventsReturnValues(lifecyleEvents);
 
@@ -114,9 +114,21 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents } 
 };
 
 /**
+ * Calculates the word count for a given task.
+ *
+ * @param {object} task The task object
+ * @param {string} task.text The task text
+ * @return {number} The number of words in a task text
+ */
+export const wordCount = ({ text } = {}) => {
+  const trimmedText = (text || '').trim();
+  return trimmedText === '' ? 0 : trimmedText.split(/[\s\n]+/).length;
+};
+
+/**
  * Calculates the current price of a given task.
  *
- * @param {object} task The Task object
+ * @param {object} task The task object
  * @param {TaskStatus} task.status The task status
  * @param {string|number|BN = undefined} task.assignedPrice The task assigned price
  * @param {string|number|BN} task.minPrice The task minimum price
@@ -153,7 +165,7 @@ export const currentPrice = (
 /**
  * Calculates the current price per word of a given task.
  *
- * @param {object} task The Task object
+ * @param {object} task The task object
  * @param {TaskStatus} task.status The task status
  * @param {string|number|BN = undefined} task.assignedPrice The task assigned price
  * @param {string|number|BN} task.minPrice The task minimum price
@@ -179,7 +191,7 @@ export const currentPricePerWord = (
 /**
  * Calculates the remaining submission time for a given task.
  *
- * @param {object} task The Task object
+ * @param {object} task The task object
  * @param {TaskStatus} task.status The task status
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
  * @param {number} task.submissionTimeout The task submission timeout value in seconds
@@ -205,7 +217,7 @@ export const remainingTimeForSubmission = (
 /**
  * Calculates the remaining review time for a given task.
  *
- * @param {object} task The Task object
+ * @param {object} task The task object
  * @param {TaskStatus} task.status The task status
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
  * @param {number} task.reviewTimeout The task review timeout value in seconds
@@ -232,7 +244,7 @@ export const remainingTimeForReview = (
  * Returns if a task was incomplete either by not having any interaction from a translator,
  * or if the assigned translator did not send the translation within the specified prediod.
  *
- * @param {object} task The Task object
+ * @param {object} task The task object
  * @param {TaskStatus} task.status The task status
  * @param {Date|number|dayjs} task.submissionTimeout The task last interaction value
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
@@ -254,7 +266,7 @@ export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifec
 /**
  * Returns if a transltion task is still pending.
  *
- * @param {object} task The Task object
+ * @param {object} task The task object
  * @param {TaskStatus} task.status The task status
  * @return {boolean} Whether the translation task is pending or not
  */

@@ -1,12 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Form, Col, Input } from 'antd';
-
-const nf = new Intl.NumberFormat('en-US', {
-  style: 'decimal',
-  useGrouping: true,
-  maximumFractionalDigits: 0,
-});
+import FormattedNumber from '~/components/FormattedNumber';
+import { Task } from '~/api/linguo';
 
 const StyledFormItem = styled(Form.Item)`
   .ant-form-item-required {
@@ -18,16 +14,14 @@ const StyledFormItem = styled(Form.Item)`
   }
 `;
 
+const pluralize = (quantity, { single, many }) => (quantity === 1 ? single : many);
+
 function TextField() {
   const [wordCount, setWordCount] = React.useState('');
 
   const handleChange = evt => {
     const { value } = evt.target;
-
-    const currentCount = value.trim() ? value.trim().split(/\s+/).length : 0;
-    const suffix = currentCount === 1 ? 'word' : 'words';
-
-    setWordCount(currentCount > 0 ? `${nf.format(currentCount)} ${suffix}` : '');
+    setWordCount(Task.wordCount({ text: value }));
   };
 
   return (
@@ -36,7 +30,14 @@ function TextField() {
         label={
           <>
             <span>Text to be translated (paste it here)</span>
-            <span className="word-count">{wordCount}</span>
+            <span className="word-count">
+              {wordCount > 0 ? (
+                <>
+                  <FormattedNumber value={wordCount} />
+                  <span>{' ' + pluralize(wordCount, { single: 'word', many: 'words' })}</span>
+                </>
+              ) : null}
+            </span>
           </>
         }
         name="text"
