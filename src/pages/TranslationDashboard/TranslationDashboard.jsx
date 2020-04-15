@@ -11,6 +11,7 @@ import { createCustomIcon } from '~/adapters/antd';
 import _AddIcon from '~/assets/images/icon-add.svg';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListFetcher from './TaskListFetcher';
+import useFilter from './useFilter';
 
 const StyledControls = styled.div`
   display: flex;
@@ -146,11 +147,15 @@ const buttons = [
 ];
 
 function TranslationDashboard() {
-  const [filterName, setFilterName] = React.useState(filters.open);
-  const handleChangeFilterName = React.useCallback(e => {
-    const { value } = e.target;
-    setFilterName(value);
-  }, []);
+  const [filter, setFilter] = useFilter();
+
+  const handleFilterChange = React.useCallback(
+    e => {
+      const { value } = e.target;
+      setFilter(value);
+    },
+    [setFilter]
+  );
 
   return (
     <MultiCardLayout>
@@ -163,7 +168,7 @@ function TranslationDashboard() {
           </Link>
         </div>
         <div className="filters">
-          <StyledRadioGroup onChange={handleChangeFilterName} defaultValue={filterName}>
+          <StyledRadioGroup onChange={handleFilterChange} value={filter}>
             {buttons.map(({ value, text }) => (
               <StyledRadioButton key={value} value={value}>
                 {text}
@@ -174,7 +179,7 @@ function TranslationDashboard() {
       </StyledControls>
       <StyledDivider />
       <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
-        <TaskListFetcher filterName={filterName} />
+        <TaskListFetcher />
       </RequiredWalletGateway>
     </MultiCardLayout>
   );

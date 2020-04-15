@@ -1,8 +1,8 @@
 import React from 'react';
-import t from 'prop-types';
 import styled from 'styled-components';
 import { Redirect } from 'react-router-dom';
 import { Spin, Alert } from 'antd';
+import { useQuery } from '~/adapters/reactRouterDom';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
 import useAsyncState from '~/hooks/useAsyncState';
@@ -10,6 +10,7 @@ import { useLinguo, filters, getFilter, getComparator } from '~/api/linguo';
 import { createCustomIcon } from '~/adapters/antd';
 import _InfoIcon from '~/assets/images/icon-info.svg';
 import TaskList from './TaskList';
+import useFilter from './useFilter';
 
 const StyledSpin = styled(Spin)`
   &&.ant-spin {
@@ -42,26 +43,35 @@ const filterDescriptionMap = {
 
 const emptyTaskList = [];
 
-function TaskListFetcher({ filterName }) {
+function TaskListFetcher() {
   const { library: web3, chainId, account } = useWeb3React();
   const linguo = useLinguo({ web3, chainId });
 
-  const [{ data, error, isLoading, isSuccess }] = useAsyncState(
-    React.useCallback(async () => linguo.api.getOwnTasks(account), [linguo.api, account]),
+  const [{ data, error, isLoading, isSuccess }, fetch] = useAsyncState(
+    React.useCallback(async () => linguo.api.getOwnTasks({ account }), [linguo.api, account]),
     emptyTaskList,
     { runImmediately: true }
   );
 
   const shouldRedirect = isSuccess && data.length === 0;
-
   const showError = !!(linguo.error || error);
   const errorMessage = linguo.error?.message || error?.message;
+
+  const [filterName, setFilter] = useFilter();
+
+  const { refresh = false } = useQuery();
+  React.useEffect(() => {
+    if (refresh) {
+      fetch().finally(() => {
+        setFilter(filterName);
+      });
+    }
+  }, [refresh, fetch, setFilter, filterName]);
 
   const displayableData = React.useMemo(() => sort(filter(data, getFilter(filterName)), getComparator(filterName)), [
     data,
     filterName,
   ]);
-
   const showFootnote = [filters.open].includes(filterName) && displayableData.length > 0;
   const showFilterDescription = displayableData.length > 0;
 
@@ -82,9 +92,5 @@ function TaskListFetcher({ filterName }) {
     </StyledSpin>
   );
 }
-
-TaskListFetcher.propTypes = {
-  filterName: t.oneOf(Object.keys(filters)),
-};
 
 export default TaskListFetcher;

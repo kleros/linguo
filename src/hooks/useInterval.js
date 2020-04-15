@@ -46,8 +46,6 @@ export default function useInterval(fn, intervalDuration, { autoStart = true, ru
       start();
     }
 
-    if (!isRunning) return;
-
     return () => internalStop();
   }, [autoStart, isExternallyStopped, isRunning, start, internalStop]);
 

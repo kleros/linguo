@@ -106,11 +106,16 @@ function TranslationCreationForm() {
 
       send('SUBMIT');
       try {
-        await linguo.api.createTask({
-          account,
-          originalTextFile: extractOriginalTextFilePath(originalTextFile),
-          ...rest,
-        });
+        await linguo.api.createTask(
+          {
+            account,
+            originalTextFile: extractOriginalTextFilePath(originalTextFile),
+            ...rest,
+          },
+          {
+            from: account,
+          }
+        );
         send('SUCCESS');
         notification.success({
           placement: 'bottomRight',

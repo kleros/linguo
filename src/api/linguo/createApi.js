@@ -44,7 +44,10 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
 };
 
 export default function createApi({ contract }) {
-  async function createTask({ account, deadline, minPrice, maxPrice, ...rest }, { gas, gasPrice } = {}) {
+  async function createTask(
+    { account, deadline, minPrice, maxPrice, ...rest },
+    { from = account, gas, gasPrice } = {}
+  ) {
     minPrice = toWei(String(minPrice), 'ether');
     maxPrice = toWei(String(maxPrice), 'ether');
     deadline = dayjs(deadline).unix();
@@ -61,10 +64,10 @@ export default function createApi({ contract }) {
       const contractCall = contract.methods.createTask(deadline, minPrice, metaEvidence);
 
       const txn = contractCall.send({
-        from: account,
-        value: maxPrice,
+        from,
         gas,
         gasPrice,
+        value: maxPrice,
       });
 
       const receipt = await txn;
@@ -74,7 +77,7 @@ export default function createApi({ contract }) {
     }
   }
 
-  async function getTaskById(ID) {
+  async function getTaskById({ ID }) {
     try {
       const [
         reviewTimeout,
@@ -137,20 +140,34 @@ export default function createApi({ contract }) {
     }
   }
 
-  async function getOwnTasks(account) {
+  async function getOwnTasks({ account }) {
     const events = await contract.getPastEvents('TaskCreated', {
       filter: { _requester: account },
       fromBlock: 0,
     });
 
-    const tasks = await Promise.all(events.map(event => getTaskById(event.returnValues._taskID)));
+    const tasks = await Promise.all(events.map(event => getTaskById({ ID: event.returnValues._taskID })));
 
     return tasks;
+  }
+
+  async function requestReimbursement({ ID }, { from, gas, gasPrice } = {}) {
+    const contractCall = contract.methods.reimburseRequester(ID);
+
+    const txn = contractCall.send({
+      from,
+      gas,
+      gasPrice,
+    });
+
+    const receipt = await txn;
+    return receipt;
   }
 
   return {
     createTask,
     getOwnTasks,
     getTaskById,
+    requestReimbursement,
   };
 }

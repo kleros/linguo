@@ -4,7 +4,7 @@ import { isIncomplete } from './entities/Task';
 const filterMap = {
   all: () => true,
   open: task => !isIncomplete(task) && task.status === TaskStatus.Created,
-  inProgress: ({ status }) => status === TaskStatus.Assigned,
+  inProgress: task => !isIncomplete(task) && task.status === TaskStatus.Assigned,
   inReview: ({ status }) => status === TaskStatus.AwaitingReview,
   inDispute: ({ status }) => status === TaskStatus.DisputeCreated,
   finished: task => !isIncomplete(task) && task.status === TaskStatus.Resolved,
