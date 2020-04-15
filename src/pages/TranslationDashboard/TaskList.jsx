@@ -17,6 +17,7 @@ const StyledReponsiveText = styled(Typography.Paragraph)`
 
 const StyledFootnote = styled(StyledReponsiveText)`
   && {
+    margin: 0;
     font-size: ${props => props.theme.fontSize.sm};
 
     @media (max-width: 575.98px) {

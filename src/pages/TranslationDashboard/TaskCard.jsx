@@ -11,6 +11,7 @@ import useSelfUpdatingState from '~/hooks/useSelfUpdatingState';
 import Button from '~/components/Button';
 import Card from '~/components/Card';
 import RemainingTime from '~/components/RemainingTime';
+import FormattedNumber from '~/components/FormattedNumber';
 import TaskCardTitle from './TaskCardTitle';
 import TaskInfoGrid from './TaskInfoGrid';
 import TaskPrice from './TaskPrice';
@@ -85,12 +86,6 @@ const StyledTaskTitle = styled(Typography.Title)`
   }
 `;
 
-const nf = new Intl.NumberFormat('en-US', {
-  style: 'decimal',
-  maximumFractionDigits: 0,
-  useGrouping: true,
-});
-
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
 const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
@@ -129,7 +124,7 @@ function TaskCard(task) {
     },
     {
       title: 'Number of words',
-      content: nf.format(wordCount),
+      content: <FormattedNumber value={wordCount} />,
     },
     {
       title: 'Total Price',

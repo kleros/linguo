@@ -1,5 +1,7 @@
+import React from 'react';
 import t from 'prop-types';
 import Web3 from 'web3';
+import FormattedNumber from './FormattedNumber';
 
 const { fromWei, toWei, toBN } = Web3.utils;
 
@@ -54,19 +56,20 @@ const getBestDisplayUnit = ({ amount, decimals }) => {
   return bestFit || indexedAvailableUnitInfo.ether;
 };
 
-function EthValue({ amount, decimals, unit, suffixType, render, className }) {
-  const nf = new Intl.NumberFormat('en-US', {
-    style: 'decimal',
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-
+function EthValue({ amount, decimals, unit, suffixType, render }) {
   const unitInfo = indexedAvailableUnitInfo[unit] || getBestDisplayUnit({ amount, decimals });
 
-  const value = fromWei(amount, unitInfo.unit);
-  const formattedValue = nf.format(Number(value));
+  const value = Number(fromWei(amount, unitInfo.unit));
 
-  return render({ amount, value, formattedValue, suffix: unitInfo.suffix[suffixType] || '', className });
+  return (
+    <FormattedNumber
+      value={value}
+      decimals={decimals}
+      render={({ formattedValue }) =>
+        render({ amount, value, formattedValue, suffix: unitInfo.suffix[suffixType] || '' })
+      }
+    />
+  );
 }
 
 const defaultRender = ({ formattedValue, suffix }) => `${formattedValue} ${suffix}`.trim();
@@ -77,7 +80,6 @@ EthValue.propTypes = {
   unit: t.oneOf(['auto', ...Object.keys(indexedAvailableUnitInfo)]),
   suffixType: t.oneOf(['none', 'short', 'long']),
   render: t.func,
-  className: t.string,
 };
 
 EthValue.defaultProps = {
@@ -85,7 +87,6 @@ EthValue.defaultProps = {
   suffixType: 'none',
   render: defaultRender,
   unit: 'auto',
-  className: '',
 };
 
 export default EthValue;
