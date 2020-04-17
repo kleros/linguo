@@ -76,7 +76,7 @@ const formStateMachine = {
   },
 };
 
-function TranslationCreationForm() {
+function TranslationRequestForm() {
   const history = useHistory();
   const [form] = Form.useForm();
   const [state, send] = useStateMachine(formStateMachine);
@@ -170,4 +170,4 @@ function TranslationCreationForm() {
   );
 }
 
-export default TranslationCreationForm;
+export default TranslationRequestForm;

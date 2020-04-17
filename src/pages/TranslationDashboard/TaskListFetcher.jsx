@@ -75,7 +75,7 @@ function TaskListFetcher() {
   return shouldRedirect ? (
     <Redirect
       to={{
-        pathname: r.TRANSLATION_CREATION,
+        pathname: r.TRANSLATION_REQUEST,
         state: {
           message: 'You have no tranlsation requests yet! You can create one here.',
         },

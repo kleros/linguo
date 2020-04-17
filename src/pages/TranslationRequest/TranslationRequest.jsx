@@ -4,7 +4,7 @@ import { useWeb3React } from '~/app/web3React';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
 import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import WithRouteMessage from '~/components/WithRouteMessage';
-import TranslationCreationForm from './Form';
+import TranslationRequestForm from './TranslationRequestForm';
 
 const StyledOverlayWrapper = styled.div`
   position: relative;
@@ -27,14 +27,14 @@ const StyledContentWrapper = styled.div`
   filter: ${props => (props.disabled ? 'blur(1px)' : 'none')};
 `;
 
-function TranslationCreation() {
+function TranslationRequest() {
   const { account } = useWeb3React();
   const formBlocked = !account;
 
   const form = (
     <StyledOverlayWrapper>
       <StyledContentWrapper disabled={formBlocked}>
-        <TranslationCreationForm />
+        <TranslationRequestForm />
       </StyledContentWrapper>
       <StyledOverlay visible={formBlocked} />
     </StyledOverlayWrapper>
@@ -55,4 +55,4 @@ function TranslationCreation() {
   );
 }
 
-export default TranslationCreation;
+export default TranslationRequest;

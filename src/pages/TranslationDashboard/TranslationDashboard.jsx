@@ -158,7 +158,7 @@ function TranslationDashboard() {
     <MultiCardLayout>
       <StyledControls>
         <div className="actions">
-          <Link to={r.TRANSLATION_CREATION}>
+          <Link to={r.TRANSLATION_REQUEST}>
             <Button variant="filled" icon={<AddIcon />}>
               New Translation
             </Button>
