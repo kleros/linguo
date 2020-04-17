@@ -7,6 +7,7 @@ import _CheckIcon from '~/assets/images/icon-check.svg';
 import _SettingsIcon from '~/assets/images/icon-settings.svg';
 import _InfoIcon from '~/assets/images/icon-info.svg';
 import _AddIcon from '~/assets/images/icon-add.svg';
+import _CalendarIcon from '~/assets/images/icon-calendar.svg';
 
 export const RemoveIcon = createCustomIcon(_RemoveIcon);
 export const EmailIcon = createCustomIcon(_EmailIcon);
@@ -16,3 +17,4 @@ export const CheckIcon = createCustomIcon(_CheckIcon);
 export const SettingsIcon = createCustomIcon(_SettingsIcon);
 export const InfoIcon = createCustomIcon(_InfoIcon);
 export const AddIcon = createCustomIcon(_AddIcon);
+export const CalendarIcon = createCustomIcon(_CalendarIcon);

@@ -135,8 +135,7 @@ export default function createApi({ contract }) {
         },
       });
     } catch (err) {
-      console.log(err);
-      return { ID, error: err };
+      throw createError(new Error(`Failed to fetch task with ID ${ID}`), { cause: err });
     }
   }
 
