@@ -54,8 +54,7 @@ const normalizePropsFnMap = {
   submissionTimeout: Number,
   reviewTimeout: Number,
   lastInteraction: lastInteraction => dayjs.unix(lastInteraction).toDate(),
-  // Deadline is stored in metadata JSON as a ISO-8601 date.
-  deadline: deadline => dayjs(deadline).toDate(),
+  deadline: deadline => dayjs.unix(deadline).toDate(),
   parties: ([_ignored, translator, challenger]) => ({
     translator: translator === ETH_ADDRESS_ZERO ? undefined : translator,
     challenger: challenger === ETH_ADDRESS_ZERO ? undefined : challenger,
