@@ -7,8 +7,7 @@ import * as r from '~/app/routes';
 import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import Button from '~/components/Button';
 import RadioButton from '~/components/RadioButton';
-import { createCustomIcon } from '~/adapters/antd';
-import _AddIcon from '~/assets/images/icon-add.svg';
+import { AddIcon } from '~/components/icons';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListFetcher from './TaskListFetcher';
 import useFilter from './useFilter';
@@ -116,8 +115,6 @@ const StyledDivider = styled(Divider)`
     margin: 0 0 1rem;
   }
 `;
-
-const AddIcon = createCustomIcon(_AddIcon);
 
 const buttons = [
   {

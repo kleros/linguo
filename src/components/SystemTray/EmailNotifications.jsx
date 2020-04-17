@@ -3,9 +3,8 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Form, Checkbox, Input, Row, notification } from 'antd';
 import Button from '~/components/Button';
-import { createCustomIcon } from '~/adapters/antd';
-import _EmailIcon from '~/assets/images/icon-email.svg';
-import { Popover, Button as TrayButton, Icon } from './adapters';
+import { EmailIcon } from '~/components/icons';
+import { Popover, Button as TrayButton, withToolbarStylesIcon } from './adapters';
 
 const StyledForm = styled(Form)`
   padding-top: 1rem;
@@ -84,7 +83,7 @@ const StyledPopover = styled(Popover)`
   width: 24rem;
 `;
 
-const EmailIcon = createCustomIcon(_EmailIcon, Icon);
+const StyledEmailIcon = withToolbarStylesIcon(EmailIcon);
 
 function EmailNotifications() {
   const [visible, setVisible] = React.useState(false);
@@ -108,7 +107,7 @@ function EmailNotifications() {
       onVisibleChange={handleVisibilityChange}
     >
       <TrayButton shape="round">
-        <EmailIcon />
+        <StyledEmailIcon />
       </TrayButton>
     </StyledPopover>
   );

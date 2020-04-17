@@ -3,12 +3,9 @@ import t from 'prop-types';
 import styled, { css } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { List } from 'antd';
-import { createCustomIcon } from '~/adapters/antd';
 import TimeAgo from '~/components/TimeAgo';
-import _NotificationIcon from '~/assets/images/icon-notification.svg';
-import _DisputeIcon from '~/assets/images/icon-dispute.svg';
-import _CheckIcon from '~/assets/images/icon-check.svg';
-import { Popover, Button, Badge, Icon } from './adapters';
+import { NotificationIcon, DisputeIcon, CheckIcon } from '~/components/icons';
+import { Popover, Button, Badge, withToolbarStylesIcon } from './adapters';
 
 const notificationFixtures = [
   {
@@ -54,22 +51,25 @@ const typeToColor = (theme, type) => {
 
 const itemIconStyles = css`
   background-color: ${props => typeToColor(props.theme, props.type)};
+  color: ${props => props.theme.text.inverted};
   border-radius: 100%;
-  padding: 0.375rem;
-  width: 1.75rem;
-  height: 1.75rem;
-  fill: white;
+
+  svg {
+    padding: 0.375rem;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
 `;
 
-const BellItemIcon = styled(_NotificationIcon)`
+const BellItemIcon = styled(NotificationIcon)`
   ${itemIconStyles}
 `;
 
-const DisputeItemIcon = styled(_DisputeIcon)`
+const DisputeItemIcon = styled(DisputeIcon)`
   ${itemIconStyles}
 `;
 
-const CheckOutlinedIcon = styled(_CheckIcon)`
+const CheckOutlinedIcon = styled(CheckIcon)`
   ${itemIconStyles}
 `;
 
@@ -154,9 +154,9 @@ const StyledList = styled(List)`
   }
 `;
 
-const NotificationIcon = createCustomIcon(_NotificationIcon, Icon);
-
 const locale = { emptyText: 'Wow. Such empty.' };
+
+const StyledNotificationIcon = withToolbarStylesIcon(NotificationIcon);
 
 function Notifications() {
   const notifications = notificationFixtures;
@@ -173,7 +173,7 @@ function Notifications() {
     >
       <Badge count={notifications.length}>
         <Button shape="round">
-          <NotificationIcon />
+          <StyledNotificationIcon />
         </Button>
       </Badge>
     </StyledPopover>

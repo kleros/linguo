@@ -54,6 +54,17 @@ const StyledIcon = styled(Icon)`
 
 export { StyledIcon as Icon };
 
+export const withToolbarStylesIcon = IconComponent => styled(IconComponent)`
+  width: 1.25rem;
+  height: 1.25rem;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    fill: ${props => props.theme.text.inverted};
+  }
+`;
+
 const StyledPopover = styled(Popover)`
   z-index: 300;
   .ant-popover-arrow {

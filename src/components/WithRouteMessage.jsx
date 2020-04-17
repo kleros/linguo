@@ -3,16 +3,13 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import { Alert } from 'antd';
-import { createCustomIcon } from '~/adapters/antd';
-import _InfoIcon from '~/assets/images/icon-info.svg';
+import { InfoIcon } from '~/components/icons';
 
 const StyledAlert = styled(Alert)`
   && {
     margin-bottom: 1rem;
   }
 `;
-
-const InfoIcon = createCustomIcon(_InfoIcon);
 
 const iconMap = {
   info: <InfoIcon />,

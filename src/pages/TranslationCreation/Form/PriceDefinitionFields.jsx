@@ -1,10 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Form, Col, InputNumber, Typography } from 'antd';
-import { createCustomIcon } from '~/adapters/antd';
-import _InfoIcon from '~/assets/images/icon-info.svg';
-
-const InfoIcon = createCustomIcon(_InfoIcon);
+import { InfoIcon } from '~/components/icons';
 
 const StyledDisclaimerText = styled(Typography.Text)`
   display: block;

@@ -2,10 +2,9 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Modal as BaseModal } from 'antd';
-import { createCustomIcon } from '~/adapters/antd';
-import _RemoveIcon from '~/assets/images/icon-remove.svg';
+import { RemoveIcon } from '~/components/icons';
 
-const StyledRemoveIcon = styled(createCustomIcon(_RemoveIcon))`
+const StyledRemoveIcon = styled(RemoveIcon)`
   width: 1.75rem;
   height: 1.75rem;
 

@@ -7,8 +7,7 @@ import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
 import useAsyncState from '~/hooks/useAsyncState';
 import { useLinguo, filters, getFilter, getComparator } from '~/api/linguo';
-import { createCustomIcon } from '~/adapters/antd';
-import _InfoIcon from '~/assets/images/icon-info.svg';
+import { InfoIcon } from '~/components/icons';
 import TaskList from './TaskList';
 import useFilter from './useFilter';
 
@@ -27,8 +26,6 @@ const StyledAlert = styled(Alert)`
 
 const sort = (data, comparator) => [...data].sort(comparator);
 const filter = (data, predicate) => data.filter(predicate);
-
-const InfoIcon = createCustomIcon(_InfoIcon);
 
 const filterDescriptionMap = {
   [filters.incomplete]: (

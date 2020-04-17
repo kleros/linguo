@@ -5,15 +5,12 @@ import { Link } from 'react-router-dom';
 import { Row, Col, Typography, Divider, Alert } from 'antd';
 import { getErrorMessage } from '~/adapters/web3React';
 import { useWeb3React } from '~/app/web3React';
-import { createCustomIcon } from '~/adapters/antd';
 import * as r from '~/app/routes';
+import { SettingsIcon } from '~/components/icons';
 import Button from '~/components/Button';
 import WalletConnectionButton from '~/components/WalletConnectionButton';
-import _SettingsIcon from '~/assets/images/icon-settings.svg';
 import WalletInformation from './WalletInformation';
-import { Popover, Button as TrayButton, Icon } from './adapters';
-
-const SettingsIcon = createCustomIcon(_SettingsIcon, Icon);
+import { Popover, Button as TrayButton, withToolbarStylesIcon } from './adapters';
 
 const StyledSection = styled.section`
   margin: 1rem 0;
@@ -71,6 +68,8 @@ const StyledPopover = styled(Popover)`
 const StyledDivider = styled(Divider)`
   background-color: ${props => props.theme.background.light};
 `;
+
+const StyledSettingsIcon = withToolbarStylesIcon(SettingsIcon);
 
 function Settings() {
   const { error } = useWeb3React();
@@ -136,7 +135,7 @@ function Settings() {
       onVisibleChange={handleVisibilityChange}
     >
       <TrayButton shape="round">
-        <SettingsIcon />
+        <StyledSettingsIcon />
       </TrayButton>
     </StyledPopover>
   );

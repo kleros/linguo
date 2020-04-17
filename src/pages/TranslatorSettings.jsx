@@ -7,13 +7,10 @@ import { useSettings, TRANSLATOR } from '~/app/settings';
 import { Row, Col, Form, Typography, notification } from 'antd';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
 import WithRouteMessage from '~/components/WithRouteMessage';
+import { InfoIcon, AddIcon, RemoveIcon } from '~/components/icons';
 import Button from '~/components/Button';
 import { LanguageSelect, LevelSelect } from '~/components/LanguageSelect';
 import languages from '~/assets/fixtures/languages';
-import { createCustomIcon } from '~/adapters/antd';
-import _RemoveIcon from '~/assets/images/icon-remove.svg';
-import _AddIcon from '~/assets/images/icon-add.svg';
-import _InfoIcon from '~/assets/images/icon-info.svg';
 
 const StyledIconButton = styled(Button)`
   && {
@@ -44,8 +41,6 @@ const StyledFormItem = styled(Form.Item)`
     }
   }
 `;
-
-const RemoveIcon = createCustomIcon(_RemoveIcon);
 
 const emptyLevels = [];
 
@@ -203,10 +198,6 @@ const StyledDisclaimer = styled(Typography.Text)`
   color: ${props => props.theme.text.default};
   font-weight: 400;
 `;
-
-const AddIcon = createCustomIcon(_AddIcon);
-
-const InfoIcon = createCustomIcon(_InfoIcon);
 
 const ensureAtLeastOneLanguage = storedValues =>
   produce(storedValues, draft => {
