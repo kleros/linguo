@@ -7,6 +7,7 @@ import Card from '~/components/Card';
 const StyledLayout = styled(Layout)`
   margin: 4rem;
   max-width: 68rem;
+  min-width: 0;
   background: none;
 
   @media (max-width: 575.98px) {
@@ -34,6 +35,13 @@ const StyledCard = styled(Card)`
   }
 
   && {
+    @media (max-width: 767.98px) {
+      .card-footer,
+      .card-body {
+        padding: 3rem;
+      }
+    }
+
     @media (max-width: 575.98px) {
       flex: auto;
       box-shadow: none;

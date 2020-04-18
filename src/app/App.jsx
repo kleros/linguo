@@ -19,6 +19,8 @@ import theme from './theme';
 
 const GlobalStyle = createGlobalStyle`
   body {
+    min-width: 24rem;
+    overflow: auto;
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
     font-size: 16px;

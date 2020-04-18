@@ -17,7 +17,7 @@ function isBeforeToday(current) {
 function DeadlineField() {
   return (
     <>
-      <Col md={24} lg={12}>
+      <Col xs={24} sm={24} md={24} lg={12}>
         <Form.Item
           label="Deadline"
           name="deadline"
