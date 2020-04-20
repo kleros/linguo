@@ -67,8 +67,9 @@ const comparatorMap = {
     ID: -1,
   },
   incomplete: {
+    status: -1,
     lastInteraction: -1,
-    ID: 1,
+    ID: -1,
   },
 };
 
