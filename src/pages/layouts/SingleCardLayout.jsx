@@ -9,6 +9,8 @@ const StyledLayout = styled(Layout)`
   max-width: 68rem;
   min-width: 0;
   background: none;
+  // Makes the card to ocuppy all parent's height
+  align-self: stretch;
 
   @media (max-width: 575.98px) {
     margin: 0;
@@ -20,6 +22,10 @@ const StyledLayout = styled(Layout)`
 `;
 
 const StyledCard = styled(Card)`
+  && {
+    min-height: 100%;
+  }
+
   &.card {
     box-shadow: 0 0.375rem 5.625rem ${props => props.theme.shadow.default};
     width: 100%;
