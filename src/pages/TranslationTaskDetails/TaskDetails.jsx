@@ -12,11 +12,11 @@ import Spacer from '~/components/Spacer';
 import FormattedDate from '~/components/FormattedDate';
 import FormattedNumber from '~/components/FormattedNumber';
 import TranslationQualityDefinition from '~/components/TranslationQualityDefinition';
-import Button from '~/components/Button';
 import TaskInfoGrid from './TaskInfoGrid';
 import TaskPrice from './TaskPrice';
 import OriginalTextAttachments from './OriginalTextAttachments';
 import TaskStatusDescription from './TaskStatusDescription';
+import DownloadTextButton from './DownloadTextButton';
 
 const StyledTaskTitle = styled(Typography.Title)`
   && {
@@ -146,21 +146,6 @@ LanguageInfo.propTypes = {
   language: t.string.isRequired,
 };
 
-const JumboButton = styled(Button)`
-  font-size: ${p => p.theme.fontSize.xxl};
-  height: 6rem;
-  border-radius: 0.75rem;
-  padding: 0 2rem;
-  border: 5px solid ${p => p.theme.border.default};
-
-  &.ant-btn {
-    :hover,
-    :focus {
-      border-color: ${p => p.theme.border.default};
-    }
-  }
-`;
-
 const StyledOriginalTextAttachments = styled(OriginalTextAttachments)`
   text-align: center;
 `;
@@ -267,7 +252,7 @@ function TaskDetails(task) {
       <Spacer span={2} />
       <Row justify="center">
         <Col>
-          <JumboButton>Download the Translation Text</JumboButton>
+          <DownloadTextButton {...task} />
         </Col>
       </Row>
       <Spacer span={2} />

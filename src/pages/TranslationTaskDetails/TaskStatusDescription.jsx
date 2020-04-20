@@ -85,7 +85,7 @@ function TaskStatusDescription(task) {
 }
 
 TaskStatusDescription.propTypes = {
-  status: t.oneOf(Object.values(TaskStatusDescription)).isRequired,
+  status: t.oneOf(Object.values(TaskStatus)).isRequired,
 };
 
 export default TaskStatusDescription;
