@@ -34,7 +34,7 @@ const GridCellTitle = styled(Typography.Title)`
 const GridCellContent = styled(Typography.Paragraph)`
   && {
     color: ${props => props.theme.text.light};
-    font-size: ${props => props.theme.fontSize.lg};
+    font-size: ${props => props.theme.fontSize.xl};
     font-weight: 500;
     margin-bottom: 0;
   }

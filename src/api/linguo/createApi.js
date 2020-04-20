@@ -7,6 +7,10 @@ import { normalize } from './entities/Task';
 
 const { toWei } = Web3.utils;
 
+export const getFileUrl = path => {
+  return ipfs.generateUrl(path);
+};
+
 export const publishMetaEvidence = async ({ account, ...metadata }) => {
   const metaEvidence = {
     ...metaEvidenteTemplate,
@@ -33,7 +37,7 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
     throw new Error(`No evidence found for task ${ID}`);
   }
 
-  const url = ipfs.generateUrl(path);
+  const url = getFileUrl(path);
 
   try {
     const response = await fetch(url);

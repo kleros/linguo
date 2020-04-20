@@ -28,7 +28,7 @@ const StyledReactBlockies = styled(ReactBlockies)`
 `;
 
 const StyledText = styled(Typography.Text)`
-  font-size: ${props => props.theme.fontSize.lg};
+  font-size: ${props => props.theme.fontSize.xl};
   margin-left: 1rem;
   color: inherit;
 `;

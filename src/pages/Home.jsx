@@ -55,7 +55,7 @@ const StyledRow = styled(Row)`
 const StyledTitle = styled(Typography.Title)`
   && {
     color: ${props => props.theme.secondary.default};
-    font-size: ${props => props.theme.fontSize.xl};
+    font-size: ${props => props.theme.fontSize.xxl};
     font-weight: 500;
     text-align: center;
     margin-bottom: 2rem;
@@ -70,7 +70,7 @@ const StyledButton = styled(Button)`
     height: 100%;
     border: 0.625rem solid ${props => props.theme.border.default};
     border-radius: 1.325rem;
-    font-size: ${props => props.theme.fontSize.lg};
+    font-size: ${props => props.theme.fontSize.xl};
     padding: 1rem;
 
     ::after,

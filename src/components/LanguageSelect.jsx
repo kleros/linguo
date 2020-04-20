@@ -37,7 +37,7 @@ const StyledBaseSelect = styled(Select)`
       .ant-select-selection-search-input {
         height: 100%;
         padding: 0 1rem 0 1rem;
-        font-size: ${props => props.theme.fontSize.xl};
+        font-size: ${props => props.theme.fontSize.xxl};
         font-weight: 400;
       }
 
@@ -45,7 +45,7 @@ const StyledBaseSelect = styled(Select)`
       .ant-select-selection-item {
         display: flex;
         align-items: center;
-        font-size: ${props => props.theme.fontSize.xl};
+        font-size: ${props => props.theme.fontSize.xxl};
         font-weight: 400;
         color: ${props => props.theme.text.inverted};
       }

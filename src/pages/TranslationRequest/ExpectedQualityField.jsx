@@ -1,7 +1,8 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Form, Radio, Row, Col, Typography, Tag } from 'antd';
+import { Form, Radio, Row, Col } from 'antd';
+import TranslationQualityDefinition from '~/components//TranslationQualityDefinition';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 
 const StyledFormItem = styled(Form.Item)`
@@ -24,7 +25,7 @@ const StyledRadioButton = styled(Radio.Button)`
       align-items: center;
       text-align: center;
       height: 5.75rem;
-      font-size: ${props => props.theme.fontSize.xl};
+      font-size: ${props => props.theme.fontSize.xxl};
       font-weight: 400;
       border-radius: 0.75rem;
       color: ${props => props.theme.primary.default};
@@ -87,74 +88,10 @@ const StyledRadioButton = styled(Radio.Button)`
   }
 `;
 
-const StyledDefinitionWrapper = styled.div`
-  margin-top: -1rem;
-  padding: 1.5rem 2.5rem;
-  background-color: ${props => props.theme.background.default};
-  border-radius: 0.75rem;
-`;
-
-const StyledDefinitionTitle = styled(Typography.Title)`
-  && {
-    font-size: ${props => props.theme.fontSize.xl};
-    font-weight: 400;
-    color: ${props => props.theme.primary.default};
-  }
-`;
-
-const StyledDefinitionText = styled(Typography.Text)`
-  && {
-    font-size: ${props => props.theme.fontSize.sm};
-    font-weight: 400;
-    color: ${props => props.theme.text.default};
-    display: block;
-
-    & + & {
-      margin-top: 1rem;
-    }
-  }
-`;
-
-const StyledLevelTag = styled(Tag)`
-  margin-left: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: none;
-  user-select: none;
-  width: 10rem;
-  height: 6.5rem;
-  font-size: 3rem;
-  color: ${props => props.theme.text.inverted};
-  background: linear-gradient(
-    117.04deg,
-    ${props => props.theme.secondary.default} 37.47%,
-    ${props => props.theme.secondary.light} 94.76%
-  );
-  border: none;
-  border-radius: 0.75rem;
-
-  :hover {
-    opacity: 1;
-  }
-`;
-
 const tierDefinitionMap = Object.entries(translationQualityTiers).reduce(
   (acc, [key, tier]) =>
     Object.assign(acc, {
-      [key]: (
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={24} md={16}>
-            <StyledDefinitionTitle>{tier.name}</StyledDefinitionTitle>
-            {tier.description.map((paragraph, index) => (
-              <StyledDefinitionText key={index}>{paragraph}</StyledDefinitionText>
-            ))}
-          </Col>
-          <Col xs={24} sm={24} md={8}>
-            <StyledLevelTag>{tier.requiredLevel}</StyledLevelTag>
-          </Col>
-        </Row>
-      ),
+      [key]: <TranslationQualityDefinition tierValue={tier.value} />,
     }),
   {}
 );
@@ -189,7 +126,7 @@ function ExpectedQualityField({ initialValue }) {
           </Row>
         </Radio.Group>
       </StyledFormItem>
-      <StyledDefinitionWrapper>{tierDefinitionMap[expectedQuality]}</StyledDefinitionWrapper>
+      {tierDefinitionMap[expectedQuality]}
     </Col>
   );
 }

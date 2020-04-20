@@ -1,29 +1,60 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Typography } from 'antd';
+import { Row, Col, Typography } from 'antd';
 import { Task, TaskStatus } from '~/api/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
 import getLanguageFlag from '~/components/helpers/getLanguageFlag';
 import useSelfUpdatingState from '~/hooks/useSelfUpdatingState';
 import { CalendarIcon } from '~/components/icons';
+import Spacer from '~/components/Spacer';
 import FormattedDate from '~/components/FormattedDate';
 import FormattedNumber from '~/components/FormattedNumber';
+import TranslationQualityDefinition from '~/components/TranslationQualityDefinition';
+import Button from '~/components/Button';
 import TaskInfoGrid from './TaskInfoGrid';
 import TaskPrice from './TaskPrice';
+import OriginalTextAttachments from './OriginalTextAttachments';
+import TaskStatusDescription from './TaskStatusDescription';
 
-const StyledTitle = styled(Typography.Title)`
+const StyledTaskTitle = styled(Typography.Title)`
   && {
-    font-size: ${props => props.theme.fontSize.xl};
+    font-size: ${props => props.theme.fontSize.xxl};
     text-align: center;
   }
 `;
 
-const StyledDeadline = styled(Typography.Paragraph)`
+const StyledDefinitionList = styled.dl`
+  display: block;
+  margin: 0;
+`;
+
+const StyledDefinitionTerm = styled.dt`
+  font-size: ${p => p.theme.fontSize.lg};
+  margin-bottom: 1rem;
+`;
+
+const StyledDefinitionDescription = styled.dd`
+  font-size: inherit;
+`;
+
+const StyledDeadline = styled(StyledDefinitionList)`
   && {
     font-size: ${props => props.theme.fontSize.sm};
+    font-weight: 400;
     text-align: center;
+
+    ${StyledDefinitionTerm} {
+      font-size: inherit;
+      font-weight: inherit;
+      margin: 0;
+    }
+
+    ${StyledDefinitionTerm},
+    ${StyledDefinitionDescription} {
+      display: inline;
+    }
   }
 `;
 
@@ -34,7 +65,7 @@ const StyledFootnote = styled(Typography.Paragraph)`
   }
 `;
 
-const StyledLanguageInfoRow = styled.div`
+const StyledLanguageInfo = styled(StyledDefinitionList)`
   text-align: center;
   display: flex;
   justify-content: center;
@@ -71,7 +102,7 @@ const StyledLanguageDisplay = styled.div`
     ${p => p.theme.primary.dark} 89.37%
   );
   color: ${p => p.theme.text.inverted};
-  font-size: ${p => p.theme.fontSize.xl};
+  font-size: ${p => p.theme.fontSize.xxl};
 
   display: flex;
   justify-content: center;
@@ -88,6 +119,12 @@ const StyledLanguageDisplay = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+`;
+
+const StyledExpectedQuality = styled(StyledDefinitionList)`
+  ${StyledDefinitionTerm} {
+    text-align: center;
   }
 `;
 
@@ -109,6 +146,25 @@ LanguageInfo.propTypes = {
   language: t.string.isRequired,
 };
 
+const JumboButton = styled(Button)`
+  font-size: ${p => p.theme.fontSize.xxl};
+  height: 6rem;
+  border-radius: 0.75rem;
+  padding: 0 2rem;
+  border: 5px solid ${p => p.theme.border.default};
+
+  &.ant-btn {
+    :hover,
+    :focus {
+      border-color: ${p => p.theme.border.default};
+    }
+  }
+`;
+
+const StyledOriginalTextAttachments = styled(OriginalTextAttachments)`
+  text-align: center;
+`;
+
 const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
 
 function TaskDetails(task) {
@@ -122,6 +178,8 @@ function TaskDetails(task) {
     wordCount,
     sourceLanguage,
     targetLanguage,
+    originalTextUrl,
+    originalTextFile,
   } = task;
 
   const { currentPrice, currentPricePerWord } = useSelfUpdatingState({
@@ -165,28 +223,57 @@ function TaskDetails(task) {
         margin-top: -2rem;
       `}
     >
-      <StyledTitle level={2}>{title}</StyledTitle>
+      <StyledTaskTitle level={2}>{title}</StyledTaskTitle>
       <StyledDeadline>
-        <CalendarIcon />
-        <span> Translation Deadline: </span>
-        <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
+        <StyledDefinitionTerm>
+          <CalendarIcon /> Translation Deadline:{' '}
+        </StyledDefinitionTerm>
+        <StyledDefinitionDescription>
+          <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
+        </StyledDefinitionDescription>
       </StyledDeadline>
+      <Spacer span={3} />
       <TaskInfoGrid data={taskInfo} />
       {showFootnote && (
-        <StyledFootnote>
-          <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
-        </StyledFootnote>
+        <>
+          <Spacer baseSize="xs" />
+          <StyledFootnote>
+            <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
+          </StyledFootnote>
+        </>
       )}
-      <StyledLanguageInfoRow>
+      <Spacer span={3} />
+      <StyledLanguageInfo>
         <div className="col source">
-          <p className="col-title">Source Language</p>
-          <LanguageInfo language={sourceLanguage} />
+          <StyledDefinitionTerm>Source Language</StyledDefinitionTerm>
+          <StyledDefinitionDescription>
+            <LanguageInfo language={sourceLanguage} />
+          </StyledDefinitionDescription>
         </div>
         <div className="col target">
-          <p className="col-title">Target Language</p>
-          <LanguageInfo language={targetLanguage} />
+          <StyledDefinitionTerm>Target Language</StyledDefinitionTerm>
+          <StyledDefinitionDescription>
+            <LanguageInfo language={targetLanguage} />
+          </StyledDefinitionDescription>
         </div>
-      </StyledLanguageInfoRow>
+      </StyledLanguageInfo>
+      <Spacer span={2} />
+      <StyledExpectedQuality>
+        <StyledDefinitionTerm>Expected Quality</StyledDefinitionTerm>
+        <StyledDefinitionDescription>
+          <TranslationQualityDefinition tierValue={expectedQuality} />
+        </StyledDefinitionDescription>
+      </StyledExpectedQuality>
+      <Spacer span={2} />
+      <Row justify="center">
+        <Col>
+          <JumboButton>Download the Translation Text</JumboButton>
+        </Col>
+      </Row>
+      <Spacer span={2} />
+      <StyledOriginalTextAttachments originalTextUrl={originalTextUrl} originalTextFile={originalTextFile} />
+      <Spacer span={2} />
+      <TaskStatusDescription {...task} />
     </div>
   );
 }

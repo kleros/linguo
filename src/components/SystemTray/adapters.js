@@ -81,7 +81,7 @@ const StyledPopover = styled(Popover)`
   .ant-popover-title {
     color: ${props => props.theme.primary.default};
     border-bottom: 1px solid ${props => props.theme.secondary.default};
-    font-size: ${props => props.theme.fontSize.lg};
+    font-size: ${props => props.theme.fontSize.xl};
     text-align: center;
     padding: 0 0 0.5rem;
   }

@@ -26,7 +26,7 @@ const StyledCard = styled(Card)`
   }
 
   .card-header-title {
-    font-size: ${props => props.theme.fontSize.xl};
+    font-size: ${props => props.theme.fontSize.xxl};
     padding: 0;
   }
 

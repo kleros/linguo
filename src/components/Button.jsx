@@ -15,7 +15,7 @@ const sizeStyles = {
     min-height: 2.5rem;
   `,
   large: css`
-    font-size: ${props => props.theme.fontSize.xl};
+    font-size: ${props => props.theme.fontSize.xxl};
     line-height: 1.5;
     min-height: 4rem;
   `,
@@ -60,6 +60,7 @@ const variantStyles = {
       opacity: 1;
       z-index: 1;
       transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
+      border-radius: 0;
       /*
        * There's some visual glitching under certain conditions
        * that are fixed by making the pseudo-elements slightly

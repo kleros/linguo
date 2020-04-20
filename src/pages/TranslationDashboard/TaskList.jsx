@@ -28,7 +28,7 @@ const StyledFootnote = styled(StyledReponsiveText)`
 
 const StyledEmptyListText = styled(StyledReponsiveText)`
   && {
-    font-size: ${props => props.theme.fontSize.lg};
+    font-size: ${props => props.theme.fontSize.xl};
     text-align: center;
     margin: 2rem 0;
   }
