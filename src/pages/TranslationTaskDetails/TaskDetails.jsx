@@ -20,7 +20,7 @@ import DownloadTextButton from './DownloadTextButton';
 
 const StyledTaskTitle = styled(Typography.Title)`
   && {
-    font-size: ${props => props.theme.fontSize.xxl};
+    font-size: ${p => p.theme.fontSize.xxl};
     text-align: center;
   }
 `;
@@ -41,7 +41,7 @@ const StyledDefinitionDescription = styled.dd`
 
 const StyledDeadline = styled(StyledDefinitionList)`
   && {
-    font-size: ${props => props.theme.fontSize.sm};
+    font-size: ${p => p.theme.fontSize.sm};
     font-weight: 400;
     text-align: center;
 
@@ -61,7 +61,7 @@ const StyledDeadline = styled(StyledDefinitionList)`
 const StyledFootnote = styled(Typography.Paragraph)`
   && {
     margin: 0;
-    font-size: ${props => props.theme.fontSize.sm};
+    font-size: ${p => p.theme.fontSize.sm};
   }
 `;
 
@@ -95,13 +95,13 @@ const StyledLanguageInfo = styled(StyledDefinitionList)`
 const StyledLanguageDisplay = styled.div`
   padding: 1.5rem;
   border-radius: 0.75rem;
-  border: 5px solid ${p => p.theme.border.default};
+  border: 5px solid ${p => p.theme.color.border.default};
   background-image: linear-gradient(
     122.98deg,
-    ${p => p.theme.primary.default} 40.84%,
-    ${p => p.theme.primary.dark} 89.37%
+    ${p => p.theme.color.primary.default} 40.84%,
+    ${p => p.theme.color.primary.dark} 89.37%
   );
-  color: ${p => p.theme.text.inverted};
+  color: ${p => p.theme.color.text.inverted};
   font-size: ${p => p.theme.fontSize.xxl};
 
   display: flex;

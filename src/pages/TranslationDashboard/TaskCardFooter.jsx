@@ -61,7 +61,7 @@ const StyledTaskDeadline = styled.div`
   line-height: 1.33;
 
   &.ending-soon {
-    color: ${props => props.theme.danger.default};
+    color: ${props => props.theme.color.danger.default};
   }
 
   .title {
@@ -85,7 +85,7 @@ const StyledCallToAction = styled.div`
   .text {
     font-size: ${props => props.theme.fontSize.xs};
     font-weight: 400;
-    color: ${props => props.theme.text.light};
+    color: ${props => props.theme.color.text.light};
   }
 `;
 

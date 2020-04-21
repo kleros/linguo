@@ -12,8 +12,8 @@ const StyledHeader = styled(Layout.Header)`
   padding: 0 1.5rem;
   background-image: linear-gradient(
     92.54deg,
-    ${({ theme }) => theme.secondary.default} 0%,
-    ${({ theme }) => theme.primary.default} 100%
+    ${({ theme }) => theme.color.secondary.default} 0%,
+    ${({ theme }) => theme.color.primary.default} 100%
   );
 
   .ant-row,

@@ -5,7 +5,7 @@ import { InfoIcon } from '~/components/icons';
 
 const StyledDisclaimerText = styled(Typography.Text)`
   display: block;
-  color: ${props => props.theme.text.default};
+  color: ${props => props.theme.color.text.default};
   font-size: ${props => props.theme.fontSize.small};
   font-weight: 400;
 `;

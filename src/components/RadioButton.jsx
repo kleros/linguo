@@ -11,10 +11,10 @@ export default styled(Radio.Button)`
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: ${props => props.theme.fontSize.xs};
-    color: ${props => props.theme.primary.default};
-    border: 1px solid ${props => props.theme.primary.default};
+    color: ${props => props.theme.color.primary.default};
+    border: 1px solid ${props => props.theme.color.primary.default};
     border-radius: 1rem;
-    background-color: ${props => props.theme.background.light};
+    background-color: ${props => props.theme.color.background.light};
     fill: currentColor;
     transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
 
@@ -26,13 +26,13 @@ export default styled(Radio.Button)`
     :active,
     :focus,
     :hover {
-      color: ${props => props.theme.primary.default};
-      background-color: ${props => props.theme.background.default};
+      color: ${props => props.theme.color.primary.default};
+      background-color: ${props => props.theme.color.background.default};
       border-color: currentColor;
     }
 
     &.ant-radio-button-wrapper-checked:not([class*=' ant-radio-button-wrapper-disabled']).ant-radio-button-wrapper:first-child {
-      border-color: ${props => props.theme.primary.default};
+      border-color: ${props => props.theme.color.primary.default};
     }
 
     &.ant-radio-button-wrapper-disabled,
@@ -43,9 +43,9 @@ export default styled(Radio.Button)`
     }
 
     &.ant-radio-button-wrapper-checked {
-      color: ${props => props.theme.text.inverted};
-      background-color: ${props => props.theme.primary.default};
-      border-color: ${props => props.theme.primary.default};
+      color: ${props => props.theme.color.text.inverted};
+      background-color: ${props => props.theme.color.primary.default};
+      border-color: ${props => props.theme.color.primary.default};
     }
 
     &.ant-radio-button-wrapper-checked.ant-radio-button-wrapper-disabled,

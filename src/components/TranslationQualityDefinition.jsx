@@ -6,7 +6,7 @@ import translationQualityTiers from '../assets/fixtures/translationQualityTiers.
 
 const StyledWrapper = styled.div`
   padding: 1.5rem 2.5rem;
-  background-color: ${props => props.theme.background.default};
+  background-color: ${props => props.theme.color.background.default};
   border-radius: 0.75rem;
 `;
 
@@ -14,7 +14,7 @@ const StyledTitle = styled(Typography.Title)`
   && {
     font-size: ${props => props.theme.fontSize.xxl};
     font-weight: 500;
-    color: ${props => props.theme.primary.default};
+    color: ${props => props.theme.color.primary.default};
   }
 `;
 
@@ -22,7 +22,7 @@ const StyledDescription = styled(Typography.Paragraph)`
   && {
     font-size: ${props => props.theme.fontSize.sm};
     font-weight: 400;
-    color: ${props => props.theme.text.default};
+    color: ${props => props.theme.color.text.default};
     margin: 0;
 
     & + & {
@@ -41,11 +41,11 @@ const StyledLevelTag = styled(Tag)`
   width: 10rem;
   height: 6.5rem;
   font-size: 3rem;
-  color: ${props => props.theme.text.inverted};
+  color: ${props => props.theme.color.text.inverted};
   background: linear-gradient(
     117.04deg,
-    ${props => props.theme.secondary.default} 37.47%,
-    ${props => props.theme.secondary.light} 94.76%
+    ${props => props.theme.color.secondary.default} 37.47%,
+    ${props => props.theme.color.secondary.light} 94.76%
   );
   border: none;
   border-radius: 0.75rem;

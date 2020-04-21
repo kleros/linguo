@@ -8,12 +8,12 @@ const JumboButton = styled(Button)`
   height: 6rem;
   border-radius: 0.75rem;
   padding: 0 2rem;
-  border: 5px solid ${p => p.theme.border.default};
+  border: 5px solid ${p => p.theme.color.border.default};
 
   &.ant-btn {
     :hover,
     :focus {
-      border-color: ${p => p.theme.border.default};
+      border-color: ${p => p.theme.color.border.default};
     }
   }
 `;

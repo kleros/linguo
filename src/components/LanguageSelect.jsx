@@ -7,14 +7,14 @@ import getLanguageFlag from '~/components/helpers/getLanguageFlag';
 const StyledBaseSelect = styled(Select)`
   &&& {
     height: 5.75rem;
-    color: ${props => props.theme.text.inverted};
+    color: ${props => props.theme.color.text.inverted};
 
     &.ant-select-single.ant-select-open .ant-select-selection-item {
       opacity: 0.75;
     }
 
     .ant-select-arrow {
-      color: ${props => props.theme.text.inverted};
+      color: ${props => props.theme.color.text.inverted};
       right: 2rem;
       margin-top: -0.825rem;
       width: 1.5rem;
@@ -32,7 +32,7 @@ const StyledBaseSelect = styled(Select)`
       padding: 0 2rem;
       border-radius: 0.75rem;
       border-width: 0.3125rem !important;
-      border-color: ${props => props.theme.border.default};
+      border-color: ${props => props.theme.color.border.default};
 
       .ant-select-selection-search-input {
         height: 100%;
@@ -47,7 +47,7 @@ const StyledBaseSelect = styled(Select)`
         align-items: center;
         font-size: ${props => props.theme.fontSize.xxl};
         font-weight: 400;
-        color: ${props => props.theme.text.inverted};
+        color: ${props => props.theme.color.text.inverted};
       }
 
       .ant-select-selection-placeholder {
@@ -62,8 +62,8 @@ const StyledLanguageSelect = styled(StyledBaseSelect)`
     .ant-select-selector {
       background: linear-gradient(
         118.61deg,
-        ${props => props.theme.primary.default} 42.83%,
-        ${props => props.theme.primary.dark} 89.23%
+        ${props => props.theme.color.primary.default} 42.83%,
+        ${props => props.theme.color.primary.dark} 89.23%
       );
 
       .ant-select-selection-item {
@@ -91,8 +91,8 @@ const StyledLevelSelect = styled(StyledBaseSelect)`
     .ant-select-selector {
       background: linear-gradient(
         118.61deg,
-        ${props => props.theme.secondary.default} 42.83%,
-        ${props => props.theme.secondary.light} 89.23%
+        ${props => props.theme.color.secondary.default} 42.83%,
+        ${props => props.theme.color.secondary.light} 89.23%
       );
     }
   }

@@ -41,8 +41,8 @@ const StyledSwapButton = styled(Button)`
   && {
     width: 2rem;
     height: 2rem;
-    background: ${props => props.theme.border.default};
-    color: ${props => props.theme.primary.default};
+    background: ${props => props.theme.color.border.default};
+    color: ${props => props.theme.color.primary.default};
     border-radius: 100%;
     padding: 0.25rem;
 

@@ -1,40 +1,43 @@
 export default {
-  text: {
-    default: '#000000',
-    light: '#4A4A4A',
-    inverted: '#FFFFFF',
-  },
-  primary: {
-    default: '#0043C5',
-    dark: '#00308D',
-  },
-  secondary: {
-    default: '#00AAFF',
-    light: '#3DBEFF',
-  },
-  warning: {
-    default: '#FF9900',
-  },
-  danger: {
-    default: '#F60C36',
-  },
-  link: {
-    default: '#0043C5',
-    inverted: '#FFFFFF',
-  },
-  background: {
-    default: '#F2FFFE',
-    light: '#FFFFFF',
-  },
-  shadow: {
-    default: 'rgba(24, 0, 255, 0.5)',
-    ui: 'rgba(0, 67, 197, 0.5);',
-  },
-  glow: {
-    default: 'rgba(255, 255, 255, 0.5)',
-  },
-  border: {
-    default: '#CDDEFF',
+  color: {
+    text: {
+      default: '#000000',
+      light: '#4A4A4A',
+      inverted: '#FFFFFF',
+    },
+    primary: {
+      default: '#0043C5',
+      dark: '#00308D',
+    },
+    secondary: {
+      default: '#00AAFF',
+      light: '#3DBEFF',
+    },
+    warning: {
+      default: '#FF9900',
+    },
+    danger: {
+      default: '#F60C36',
+    },
+    background: {
+      default: '#F2FFFE',
+      light: '#FFFFFF',
+    },
+    link: {
+      default: '#0043C5',
+      highlight: '#00AAFF',
+      inverted: '#FFFFFF',
+    },
+    shadow: {
+      default: 'rgba(24, 0, 255, 0.5)',
+      ui: 'rgba(0, 67, 197, 0.5);',
+    },
+    glow: {
+      default: 'rgba(255, 255, 255, 0.5)',
+    },
+    border: {
+      default: '#CDDEFF',
+    },
   },
   fontSize: {
     xxl: '1.5rem',

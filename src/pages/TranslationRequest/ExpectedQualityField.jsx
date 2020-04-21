@@ -28,20 +28,20 @@ const StyledRadioButton = styled(Radio.Button)`
       font-size: ${props => props.theme.fontSize.xxl};
       font-weight: 400;
       border-radius: 0.75rem;
-      color: ${props => props.theme.primary.default};
-      border-color: ${props => props.theme.primary.default};
-      background-color: ${props => props.theme.background.light};
+      color: ${props => props.theme.color.primary.default};
+      border-color: ${props => props.theme.color.primary.default};
+      background-color: ${props => props.theme.color.background.light};
       transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
 
       :hover,
       :focus,
       :active {
-        background: ${props => props.theme.background.default};
+        background: ${props => props.theme.color.background.default};
       }
 
       :focus,
       :hover {
-        box-shadow: 0 0.1875rem 0.375rem ${props => props.theme.shadow.ui};
+        box-shadow: 0 0.1875rem 0.375rem ${props => props.theme.color.shadow.ui};
       }
 
       @keyframes kickback {
@@ -65,23 +65,23 @@ const StyledRadioButton = styled(Radio.Button)`
     }
 
     &.ant-radio-button-wrapper-checked {
-      color: ${props => props.theme.text.inverted};
-      border: 0.3125rem solid ${props => props.theme.border.default};
-      background-color: ${props => props.theme.primary.default};
+      color: ${props => props.theme.color.text.inverted};
+      border: 0.3125rem solid ${props => props.theme.color.border.default};
+      background-color: ${props => props.theme.color.primary.default};
       background-image: linear-gradient(
         118.61deg,
-        ${props => props.theme.primary.default} 42.83%,
-        ${props => props.theme.primary.dark} 89.23%
+        ${props => props.theme.color.primary.default} 42.83%,
+        ${props => props.theme.color.primary.dark} 89.23%
       );
 
       :hover,
       :focus,
       :active {
-        background-color: ${props => props.theme.primary.default};
+        background-color: ${props => props.theme.color.primary.default};
         background-image: linear-gradient(
           118.61deg,
-          ${props => props.theme.primary.default} 42.83%,
-          ${props => props.theme.primary.dark} 89.23%
+          ${props => props.theme.color.primary.default} 42.83%,
+          ${props => props.theme.color.primary.dark} 89.23%
         );
       }
     }

@@ -12,8 +12,8 @@ const StyledLayout = styled(Layout)`
   margin: 4rem;
   padding: 1rem 4rem 4rem;
   max-width: 68rem;
-  background-color: ${props => props.theme.background.light};
-  box-shadow: 0 0.375rem 5.625rem ${props => props.theme.shadow.default};
+  background-color: ${props => props.theme.color.background.light};
+  box-shadow: 0 0.375rem 5.625rem ${props => props.theme.color.shadow.default};
   border-radius: 0.75rem;
 
   @media (max-width: 575.98px) {
@@ -32,7 +32,7 @@ const StyledPageHeader = styled.div`
     content: '';
     display: block;
     width: 100%;
-    border-bottom: 1px solid ${props => props.theme.secondary.default};
+    border-bottom: 1px solid ${props => props.theme.color.secondary.default};
     position: absolute;
     z-index: 0;
     top: 5.25rem;
@@ -54,7 +54,7 @@ const StyledRow = styled(Row)`
 
 const StyledTitle = styled(Typography.Title)`
   && {
-    color: ${props => props.theme.secondary.default};
+    color: ${props => props.theme.color.secondary.default};
     font-size: ${props => props.theme.fontSize.xxl};
     font-weight: 500;
     text-align: center;
@@ -68,7 +68,7 @@ const StyledButton = styled(Button)`
     flex-direction: column;
     align-items: center;
     height: 100%;
-    border: 0.625rem solid ${props => props.theme.border.default};
+    border: 0.625rem solid ${props => props.theme.color.border.default};
     border-radius: 1.325rem;
     font-size: ${props => props.theme.fontSize.xl};
     padding: 1rem;
@@ -81,7 +81,7 @@ const StyledButton = styled(Button)`
     :hover,
     :active,
     :focus {
-      border: 0.625rem solid ${props => props.theme.border.default};
+      border: 0.625rem solid ${props => props.theme.color.border.default};
     }
 
     svg {

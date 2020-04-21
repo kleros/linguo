@@ -8,14 +8,14 @@ const StyledWrapper = styled.section`
   flex-flow: column nowrap;
   border: none;
   border-radius: 0.625rem;
-  box-shadow: 0 0.375rem 2rem ${props => props.theme.shadow.default};
+  box-shadow: 0 0.375rem 2rem ${props => props.theme.color.shadow.default};
   font-size: 1rem;
-  color: ${props => props.theme.text.default};
-  background: ${props => props.theme.background.light};
+  color: ${props => props.theme.color.text.default};
+  background: ${props => props.theme.color.background.light};
 
   .card-header {
-    background-color: ${props => props.theme.primary.default};
-    color: ${props => props.theme.text.inverted};
+    background-color: ${props => props.theme.color.primary.default};
+    color: ${props => props.theme.color.text.inverted};
     border: none;
     border-top-left-radius: 0.625rem;
     border-top-right-radius: 0.625rem;
@@ -29,7 +29,7 @@ const StyledWrapper = styled.section`
   .card-header-title {
     text-align: center;
     font-size: ${props => props.theme.fontSize.md};
-    color: ${props => props.theme.text.inverted};
+    color: ${props => props.theme.color.text.inverted};
     width: 100%;
     margin: 0;
   }
@@ -42,7 +42,7 @@ const StyledWrapper = styled.section`
   .card-footer {
     margin-top: auto;
     padding: 1.5rem;
-    background-color: ${props => props.theme.background.default};
+    background-color: ${props => props.theme.color.background.default};
     border-bottom-left-radius: 0.625rem;
     border-bottom-right-radius: 0.625rem;
   }

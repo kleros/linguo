@@ -16,7 +16,7 @@ const StyledButton = styled(Button)`
   :focus {
     background: transparent;
     border: none;
-    filter: drop-shadow(0 0 2px ${({ theme }) => theme.glow.default});
+    filter: drop-shadow(0 0 2px ${({ theme }) => theme.color.glow.default});
   }
 `;
 
@@ -48,7 +48,7 @@ const StyledIcon = styled(Icon)`
   svg {
     width: 100%;
     height: 100%;
-    fill: ${props => props.theme.text.inverted};
+    fill: ${props => props.theme.color.text.inverted};
   }
 `;
 
@@ -61,26 +61,26 @@ export const withToolbarStylesIcon = IconComponent => styled(IconComponent)`
   svg {
     width: 100%;
     height: 100%;
-    fill: ${props => props.theme.text.inverted};
+    fill: ${props => props.theme.color.text.inverted};
   }
 `;
 
 const StyledPopover = styled(Popover)`
   z-index: 300;
   .ant-popover-arrow {
-    background: ${props => props.theme.background.light};
+    background: ${props => props.theme.color.background.light};
     transform: scale(1.5) rotate(45deg);
   }
 
   .ant-popover-inner {
     border-radius: 0.75rem;
     padding: 1rem 2rem;
-    box-shadow: 0 3px 6px -4px ${props => props.theme.shadow.default};
+    box-shadow: 0 3px 6px -4px ${props => props.theme.color.shadow.default};
   }
 
   .ant-popover-title {
-    color: ${props => props.theme.primary.default};
-    border-bottom: 1px solid ${props => props.theme.secondary.default};
+    color: ${props => props.theme.color.primary.default};
+    border-bottom: 1px solid ${props => props.theme.color.secondary.default};
     font-size: ${props => props.theme.fontSize.xl};
     text-align: center;
     padding: 0 0 0.5rem;

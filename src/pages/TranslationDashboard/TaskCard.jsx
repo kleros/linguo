@@ -21,7 +21,7 @@ const StyledTaskTitle = styled(Typography.Title)`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: ${props => props.theme.text.light};
+    color: ${props => props.theme.color.text.light};
     font-size: ${props => props.theme.fontSize.md};
     font-weight: 500;
     margin-bottom: 1rem;

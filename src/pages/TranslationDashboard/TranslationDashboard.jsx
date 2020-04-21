@@ -107,7 +107,7 @@ const StyledRadioButton = styled(RadioButton)`
 `;
 
 const StyledDivider = styled(Divider)`
-  background: ${props => props.theme.primary.default};
+  background: ${props => props.theme.color.primary.default};
   margin: 2.5rem 0;
 
   @media (max-width: 575.98px) {

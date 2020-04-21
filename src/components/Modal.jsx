@@ -22,12 +22,12 @@ const StyledModal = styled(BaseModal)`
     }
 
     .ant-modal-header {
-      background-color: ${props => props.theme.primary.default};
+      background-color: ${props => props.theme.color.primary.default};
     }
 
     .ant-modal-title,
     .ant-modal-close {
-      color: ${props => props.theme.text.inverted};
+      color: ${props => props.theme.color.text.inverted};
     }
 
     .ant-modal-close-x {
@@ -37,7 +37,7 @@ const StyledModal = styled(BaseModal)`
       transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
 
       :hover {
-        filter: drop-shadow(0 0 2px ${({ theme }) => theme.glow.default});
+        filter: drop-shadow(0 0 2px ${({ theme }) => theme.color.glow.default});
       }
     }
   }

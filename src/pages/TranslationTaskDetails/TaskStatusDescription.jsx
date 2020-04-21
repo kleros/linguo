@@ -7,7 +7,7 @@ import { useWeb3React } from '~/app/web3React';
 import TaskCreatedAvatar from '~/assets/images/avatar-task-created.svg';
 
 const StyledWrapper = styled.div`
-  border: 1px solid ${p => p.theme.primary.default};
+  border: 1px solid ${p => p.theme.color.primary.default};
   border-radius: 0.75rem;
   padding: 1.5rem 2.5rem;
 `;
@@ -16,7 +16,7 @@ const StyledTitle = styled(Typography.Title)`
   && {
     font-size: ${props => props.theme.fontSize.xxl};
     font-weight: 500;
-    color: ${props => props.theme.primary.default};
+    color: ${props => props.theme.color.primary.default};
   }
 `;
 
@@ -24,7 +24,7 @@ const StyledDescription = styled(Typography.Paragraph)`
   && {
     font-size: ${props => props.theme.fontSize.sm};
     font-weight: 400;
-    color: ${props => props.theme.text.default};
+    color: ${props => props.theme.color.text.default};
     margin: 0;
 
     & + & {

@@ -31,7 +31,7 @@ const StyledHelperText = styled(Typography.Text)`
   && {
     display: block;
     text-align: center;
-    color: ${props => props.theme.text.default};
+    color: ${props => props.theme.color.text.default};
   }
 `;
 

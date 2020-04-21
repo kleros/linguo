@@ -27,7 +27,7 @@ const StyledCard = styled(Card)`
   }
 
   &.card {
-    box-shadow: 0 0.375rem 5.625rem ${props => props.theme.shadow.default};
+    box-shadow: 0 0.375rem 5.625rem ${props => props.theme.color.shadow.default};
     width: 100%;
   }
 

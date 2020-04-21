@@ -195,7 +195,7 @@ const StyledJumboButton = styled(Button)`
 const StyledDisclaimer = styled(Typography.Text)`
   display: block;
   margin: 4rem 0 2rem;
-  color: ${props => props.theme.text.default};
+  color: ${props => props.theme.color.text.default};
   font-weight: 400;
 `;
 

@@ -16,10 +16,6 @@ const StyledListItem = styled.li`
   & + & {
     margin-top: 0.25rem;
   }
-
-  > a {
-    font-weight: 400;
-  }
 `;
 
 function OriginalTextAttachments({ originalTextUrl, originalTextFile, className }) {
@@ -27,14 +23,14 @@ function OriginalTextAttachments({ originalTextUrl, originalTextFile, className 
     <StyledList className={className}>
       {originalTextUrl ? (
         <StyledListItem>
-          <a href={originalTextUrl} target="_blank" rel="noopener noreferrer">
+          <a href={originalTextUrl} target="_blank" rel="noopener noreferrer external">
             <LinkOutlined /> Source of the original text
           </a>
         </StyledListItem>
       ) : null}
       {originalTextFile ? (
         <StyledListItem>
-          <a href={getFileUrl(originalTextFile)} target="_blank" rel="noopener noreferrer">
+          <a href={getFileUrl(originalTextFile)} target="_blank" rel="noopener noreferrer external">
             <PaperClipOutlined /> File of the original text
           </a>
         </StyledListItem>

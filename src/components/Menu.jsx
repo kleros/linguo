@@ -23,7 +23,7 @@ const StyledLayoutSider = styled(Layout.Sider)`
   }
 
   &.ant-layout-sider {
-    background-color: ${props => props.theme.primary.default};
+    background-color: ${props => props.theme.color.primary.default};
 
     .ant-menu-dark {
       background-color: transparent;
@@ -36,13 +36,13 @@ const StyledLayoutSider = styled(Layout.Sider)`
     .ant-layout-sider-zero-width-trigger {
       top: 12px;
       right: -36px;
-      background-color: ${props => props.theme.primary.default};
+      background-color: ${props => props.theme.color.primary.default};
     }
 
     &.ant-layout-sider-collapsed {
       .ant-layout-sider-zero-width-trigger {
         right: -50px;
-        background-color: ${props => props.theme.secondary.default};
+        background-color: ${props => props.theme.color.secondary.default};
       }
     }
   }

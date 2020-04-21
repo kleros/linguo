@@ -22,7 +22,7 @@ const StyledSection = styled.section`
 
 const StyledSectionTitle = styled(Typography.Title)`
   && {
-    color: ${props => props.theme.text.default};
+    color: ${props => props.theme.color.text.default};
     font-size: 0.875rem;
     line-height: 0.875rem;
     font-weight: 400;
@@ -66,7 +66,7 @@ const StyledPopover = styled(Popover)`
 `;
 
 const StyledDivider = styled(Divider)`
-  background-color: ${props => props.theme.background.light};
+  background-color: ${props => props.theme.color.background.light};
 `;
 
 const StyledSettingsIcon = withToolbarStylesIcon(SettingsIcon);
