@@ -5,7 +5,7 @@ import metaEvidenteTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import createError from '~/utils/createError';
 import { normalize } from './entities/Task';
 
-const { toWei } = Web3.utils;
+const { toWei, toBN } = Web3.utils;
 
 export const getFileUrl = path => {
   return ipfs.generateUrl(path);
@@ -167,10 +167,20 @@ export default function createApi({ contract }) {
     return receipt;
   }
 
+  async function getTranslatorDeposit({ ID }) {
+    /**
+     * Adds 10% to the actual required deposit to take time until mining into consideration
+     */
+    const deposit = toBN(await contract.methods.getDepositValue(ID).call());
+    const additionalMargin = toBN('10');
+    return String(deposit.add(deposit.mul(additionalMargin).div(toBN('100'))));
+  }
+
   return {
     createTask,
     getOwnTasks,
     getTaskById,
+    getTranslatorDeposit,
     requestReimbursement,
   };
 }
