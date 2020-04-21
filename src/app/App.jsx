@@ -24,11 +24,24 @@ const GlobalStyle = createGlobalStyle`
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
     font-size: 16px;
-    color: ${props => props.theme.text.default};
+    color: ${props => props.theme.color.text.default};
   }
 
   body > img[src*=fortmatic] {
     display: none;
+  }
+
+  a {
+    color: ${p => p.theme.color.link.default};
+    transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
+  }
+
+  a:hover,
+  a:active,
+  a:focus {
+    color: ${p => p.theme.color.link.highlight};
+    text-decoration: underline;
+    text-decoration-skip-ink: auto;
   }
 `;
 
@@ -36,7 +49,7 @@ const StyledContent = styled(Layout.Content)`
   height: 100%;
   /* Must account for both navbar and footer height */
   min-height: calc(100vh - 4rem - 4rem);
-  background-color: #f2fffe;
+  background-color: ${p => p.theme.color.background.default};
   display: flex;
   justify-content: center;
   align-items: flex-start;
