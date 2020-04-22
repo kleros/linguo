@@ -1,10 +1,17 @@
 import { useContext, useEffect, useCallback } from 'react';
 import { useWeb3React as useOriginalWeb3React } from '@web3-react/core';
 
-export default function createHooks({ AppContext, connectors: { injected } = {} } = {}) {
+export default function createHooks({ AppContext, connectors: { injected, network } = {} } = {}) {
   if (!injected) {
     throw new Error(`
-      The 'inected' connector is required.
+      The 'injected' connector is required.
+      Please check the call to 'createHooks' from ~/adapters/web3React module
+    `);
+  }
+
+  if (!network) {
+    throw new Error(`
+      The 'network' connector is required.
       Please check the call to 'createHooks' from ~/adapters/web3React module
     `);
   }
@@ -14,11 +21,13 @@ export default function createHooks({ AppContext, connectors: { injected } = {} 
     const [{ activatingConnector }, patchState] = useContext(AppContext);
 
     const activate = useCallback(
-      (connector, onError, throwErrors = false) => {
+      async (connector, onError, throwErrors = false) => {
         patchState({ activatingConnector: connector });
-        return web3React.activate(connector, onError, throwErrors).finally(() => {
+        try {
+          return await web3React.activate(connector, onError, throwErrors);
+        } finally {
           patchState({ activatingConnector: undefined });
-        });
+        }
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       []
@@ -27,14 +36,25 @@ export default function createHooks({ AppContext, connectors: { injected } = {} 
     return { ...web3React, activate, activatingConnector };
   }
 
-  function useEagerConnection({ skip = false, connector } = {}) {
+  function useDefaultConnection() {
+    const { active, activate } = useWeb3React();
+    useEffect(() => {
+      if (!active) {
+        activate(network);
+      }
+    }, [activate, active]);
+  }
+
+  function useEagerWalletConnection({ skip = false, connector } = {}) {
     const { activate, connector: currentConnector, error } = useWeb3React();
     const [{ activatingConnector }] = useContext(AppContext);
 
     const hasActivatingConnector = !!activatingConnector;
     const hasConnector = !!currentConnector;
+    const hasWallet = !(activatingConnector === network || currentConnector === network);
+    const shouldIgnoreCurrentConnection = (hasActivatingConnector || hasConnector) && hasWallet;
 
-    const shouldAttemptToConnect = !error && !hasConnector && !hasActivatingConnector && !skip && connector;
+    const shouldAttemptToConnect = !error && !skip && !shouldIgnoreCurrentConnection && connector !== network;
 
     useEffect(() => {
       if (shouldAttemptToConnect) {
@@ -44,7 +64,10 @@ export default function createHooks({ AppContext, connectors: { injected } = {} 
   }
 
   function useInactiveListener({ suppress = false } = {}) {
-    const { active, error, activate } = useWeb3React();
+    const { active, activatingConnector, error, activate } = useWeb3React();
+
+    const hasActivatingConnector = !!activatingConnector;
+    suppress = suppress || hasActivatingConnector;
 
     useEffect(() => {
       const { ethereum } = window;
@@ -89,5 +112,5 @@ export default function createHooks({ AppContext, connectors: { injected } = {} 
     });
   }
 
-  return { useWeb3React, useEagerConnection, useInactiveListener };
+  return { useWeb3React, useDefaultConnection, useEagerWalletConnection, useInactiveListener };
 }

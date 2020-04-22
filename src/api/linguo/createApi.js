@@ -139,6 +139,7 @@ export default function createApi({ contract }) {
         },
       });
     } catch (err) {
+      console.error(err);
       throw createError(new Error(`Failed to fetch task with ID ${ID}`), { cause: err });
     }
   }
@@ -149,7 +150,17 @@ export default function createApi({ contract }) {
       fromBlock: 0,
     });
 
-    const tasks = await Promise.all(events.map(event => getTaskById({ ID: event.returnValues._taskID })));
+    const tasks = await Promise.all(
+      events.map(async event => {
+        const ID = event.returnValues._taskID;
+
+        try {
+          return await getTaskById({ ID });
+        } catch (err) {
+          return { ID, err };
+        }
+      })
+    );
 
     return tasks;
   }

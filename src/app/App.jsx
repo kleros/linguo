@@ -12,8 +12,7 @@ import { DrawerMenu } from '~/components/Menu';
 import MainRouterSwitch from './MainRouterSwitch';
 import { AppContextProvider } from './AppContext';
 import { useSettings, WEB3_PROVIDER } from './settings';
-import { useWeb3React, useEagerConnection, useInactiveListener } from './web3React';
-import { useSyncArchonProvider } from './archon';
+import { useDefaultConnection, useEagerWalletConnection, useInactiveListener } from './web3React';
 import { connectorsByName } from './connectors';
 import theme from './theme';
 
@@ -56,17 +55,15 @@ const StyledContent = styled(Layout.Content)`
 `;
 
 function Initializer({ children }) {
+  // Always connect to the network (Infura) provider by default
+  useDefaultConnection();
+
   const [{ allowEagerConnection, connectorName }] = useSettings(WEB3_PROVIDER);
   const savedConnector = connectorsByName[connectorName];
-  useEagerConnection({ skip: !allowEagerConnection, connector: savedConnector });
+  // Always connect to the network (Infura) provider by default
+  useEagerWalletConnection({ skip: !allowEagerConnection, connector: savedConnector });
 
-  const { activatingConnector, library: web3 } = useWeb3React();
-
-  useInactiveListener({ suppress: !!activatingConnector });
-
-  const provider = web3?.currentProvider;
-
-  useSyncArchonProvider({ provider });
+  useInactiveListener();
 
   return children;
 }

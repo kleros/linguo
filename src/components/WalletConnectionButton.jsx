@@ -59,9 +59,13 @@ function WalletConnectionButton(props) {
     if (error) {
       send('ABORT');
     }
-    const isConnectedToWallet = !!(active && account);
-    if (isConnectedToWallet) {
+
+    const isConnected = active;
+    const hasWallet = !!(isConnected && account);
+    if (hasWallet) {
       send('SUCCESS');
+    } else if (isConnected) {
+      send('ABORT');
     }
   }, [active, account, error, activatingConnector]);
 
