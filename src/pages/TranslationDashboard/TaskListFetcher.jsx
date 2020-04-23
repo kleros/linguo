@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Redirect } from 'react-router-dom';
 import { Spin, Alert } from 'antd';
-import { useQuery } from '~/adapters/reactRouterDom';
+import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
 import useAsyncState from '~/hooks/useAsyncState';
@@ -51,20 +51,13 @@ function TaskListFetcher() {
     { runImmediately: true }
   );
 
+  useRefreshEffectOnce(fetch);
+
   const shouldRedirect = isSuccess && data.length === 0;
   const showError = !!(linguo.error || error);
   const errorMessage = linguo.error?.message || error?.message;
 
-  const [filterName, setFilter] = useFilter();
-
-  const { refresh = false } = useQuery();
-  React.useEffect(() => {
-    if (refresh) {
-      fetch().finally(() => {
-        setFilter(filterName);
-      });
-    }
-  }, [refresh, fetch, setFilter, filterName]);
+  const [filterName] = useFilter();
 
   const displayableData = React.useMemo(() => sort(filter(data, getFilter(filterName)), getComparator(filterName)), [
     data,

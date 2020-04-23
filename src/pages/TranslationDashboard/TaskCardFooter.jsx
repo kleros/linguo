@@ -5,35 +5,36 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Row, Col } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
+import { useImperativeRefresh } from '~/adapters/reactRouterDom';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
-import { filters, Task, TaskStatus } from '~/api/linguo';
+import { Task, TaskStatus } from '~/api/linguo';
 import { useLinguo } from '~/app/linguo';
 import wrapWithNotification from '~/utils/wrapWithNotification';
 import Button from '~/components/Button';
 import RemainingTime from '~/components/RemainingTime';
-import useFilter from './useFilter';
 
 const withNotification = wrapWithNotification({
   successMessage: 'Reimbursement requested with success!',
   errorMessage: 'Failed to request the reimbursement!',
 });
 
+// TODO: see if we can merge this with TaskInteractionButton
 function RequestReimbursementButton({ ID, ...props }) {
   const { account } = useWeb3React();
   const linguo = useLinguo();
 
   const [isLoading, setIsLoading] = React.useState(false);
-  const [_, setFilter] = useFilter();
+  const refresh = useImperativeRefresh();
 
   const handleClick = React.useCallback(
     withNotification(async () => {
       setIsLoading(true);
       try {
         await linguo.api.requestReimbursement({ ID }, { from: account });
-        setFilter(filters.incomplete, { refresh: true });
       } finally {
         setIsLoading(false);
+        refresh();
       }
     }, [linguo.api, ID, account])
   );
