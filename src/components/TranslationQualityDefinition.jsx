@@ -5,7 +5,7 @@ import { Row, Col, Typography, Tag } from 'antd';
 import translationQualityTiers from '../assets/fixtures/translationQualityTiers.json';
 
 const StyledWrapper = styled.div`
-  padding: 1.5rem 2.5rem;
+  padding: 2rem;
   background-color: ${props => props.theme.color.background.default};
   border-radius: 0.75rem;
 `;

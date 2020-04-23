@@ -26,7 +26,7 @@ const createReducer = (machine, { warnOnError, throwOnError }) => (state, event)
     }
   }
 
-  return machine.states[state].on[event] || state;
+  return machine.states[state].on[event] ?? state;
 };
 
 export default function useStateMachine(

@@ -21,6 +21,8 @@ const sizeStyles = {
   `,
 };
 
+const StyledButtonContent = styled.span``;
+
 const variantStyles = {
   unstyled: css`
     && {
@@ -98,7 +100,7 @@ const variantStyles = {
       transform: translateX(100%);
     }
 
-    > * {
+    > ${StyledButtonContent} {
       position: relative;
       z-index: 2;
       line-height: inherit;
@@ -191,8 +193,12 @@ const StyledButton = styled(BaseButton)`
   }
 `;
 
-function Button({ variant, size, color, fullWidth, ...props }) {
-  return <StyledButton {...props} variant={variant} size={size} color={color} block={fullWidth} />;
+function Button({ variant, size, color, fullWidth, children, ...props }) {
+  return (
+    <StyledButton {...props} variant={variant} size={size} color={color} block={fullWidth}>
+      <StyledButtonContent>{children}</StyledButtonContent>
+    </StyledButton>
+  );
 }
 
 Button.propTypes = {
@@ -200,6 +206,7 @@ Button.propTypes = {
   size: t.oneOf(['small', 'default', 'large']),
   color: t.oneOf(['primary', 'secondary', 'primary-light', 'secondary-dark']),
   fullWidth: t.bool,
+  children: t.node,
 };
 
 Button.defaultProps = {
@@ -207,6 +214,7 @@ Button.defaultProps = {
   size: 'default',
   color: 'primary',
   fullWidth: false,
+  children: null,
 };
 
 export default Button;

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
+import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
 import { Spin, Alert } from 'antd';
 import { useLinguo } from '~/app/linguo';
 import useAsyncState from '~/hooks/useAsyncState';
@@ -21,24 +22,22 @@ const StyledAlert = styled(Alert)`
   }
 `;
 
-const emptyTask = {};
 function TaskDetailsFetcher() {
   const { id } = useParams();
   const linguo = useLinguo();
 
-  const [{ data, error, isLoading, isSuccess }] = useAsyncState(
+  const [{ data, error, isLoading }, fetch] = useAsyncState(
     React.useCallback(async () => linguo.api.getTaskById({ ID: id }), [linguo.api, id]),
-    emptyTask,
+    undefined,
     { runImmediately: true }
   );
 
+  useRefreshEffectOnce(fetch);
+
   return (
     <StyledSpin tip="Loading the translation tasks details" spinning={isLoading}>
-      {error ? (
-        <StyledAlert type="error" message={`Details for task ${id} could not be loaded.`} />
-      ) : isSuccess ? (
-        <TaskDetails {...data} />
-      ) : null}
+      {error && <StyledAlert type="error" message={`Details for task ${id} could not be loaded.`} />}
+      {data && <TaskDetails {...data} />}
     </StyledSpin>
   );
 }

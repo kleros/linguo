@@ -2,18 +2,22 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Row, Col, Typography } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 import { TaskStatus, Task, TaskParty } from '~/api/linguo';
 import { useWeb3React } from '~/app/web3React';
 import TaskCreatedAvatar from '~/assets/images/avatar-task-created.svg';
+import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
+import RequiredWalletGateway from '~/components/RequiredWalletGateway';
+import ContentBlocker from '~/components/ContentBlocker';
+import Spacer from '~/components/Spacer';
 import TaskDeadline from './TaskDeadline';
 import TaskAssignmentDeposit from './TaskAssignmentDeposit';
-import Button from '~/components/Button';
-import Spacer from '~/components/Spacer';
+import TaskInteractionButton from './TaskInteractionButton';
 
 const StyledWrapper = styled.div`
   border: 1px solid ${p => p.theme.color.primary.default};
   border-radius: 0.75rem;
-  padding: 1.5rem 2.5rem;
+  padding: 2rem;
 `;
 
 const StyledTitle = styled(Typography.Title)`
@@ -83,7 +87,7 @@ const getContent = (task, party) => {
       renderAction: function IncompleteAction() {
         return (
           <StyledAvatarWrapper>
-            <TaskCreatedAvatar />
+            <TaskIgnoredAvatar />
           </StyledAvatarWrapper>
         );
       },
@@ -118,7 +122,20 @@ const getContent = (task, party) => {
             <StyledActionWrapper>
               <TaskDeadline {...task} />
               <Spacer />
-              <Button fullWidth>Translate it</Button>
+              <TaskInteractionButton
+                ID={task.ID}
+                interaction="assign"
+                content={{
+                  idle: 'Translate it',
+                  pending: (
+                    <>
+                      <LoadingOutlined /> Sending...
+                    </>
+                  ),
+                  succeeded: 'Done!',
+                }}
+                ButtonProps={{ fullWidth: true }}
+              />
               <Spacer />
               <TaskAssignmentDeposit {...task} />
             </StyledActionWrapper>
@@ -128,7 +145,7 @@ const getContent = (task, party) => {
     },
   };
 
-  return contentByStatusAndParty[task.status][party] || { title: '', description: [], renderAction: () => null };
+  return contentByStatusAndParty[task.status]?.[party] ?? { title: '', description: [], renderAction: () => null };
 };
 
 function TaskStatusDescription(task) {
@@ -138,20 +155,38 @@ function TaskStatusDescription(task) {
   const party = getCurrentParty({ account, requester, ...parties });
   const { title, description, renderAction } = getContent(task, party);
 
+  const contentBlocked = !account;
+  const content = (
+    <ContentBlocker blocked={contentBlocked}>
+      <StyledWrapper>
+        <Row
+          gutter={[32, 32]}
+          css={`
+            margin-bottom: -16px !important;
+          `}
+        >
+          <Col xs={24} sm={24} md={16}>
+            <StyledTitle>{title}</StyledTitle>
+            {description.map((paragraph, index) => (
+              <StyledDescription key={index}>{paragraph}</StyledDescription>
+            ))}
+          </Col>
+          <Col xs={24} sm={24} md={8}>
+            {renderAction()}
+          </Col>
+        </Row>
+      </StyledWrapper>
+    </ContentBlocker>
+  );
+
   return (
-    <StyledWrapper>
-      <Row gutter={[32, 32]}>
-        <Col xs={24} sm={24} md={16}>
-          <StyledTitle>{title}</StyledTitle>
-          {description.map((paragraph, index) => (
-            <StyledDescription key={index}>{paragraph}</StyledDescription>
-          ))}
-        </Col>
-        <Col xs={24} sm={24} md={8}>
-          {renderAction()}
-        </Col>
-      </Row>
-    </StyledWrapper>
+    <RequiredWalletGateway
+      message="To interact with this task you need an Ethereum wallet."
+      error={content}
+      missing={content}
+    >
+      {content}
+    </RequiredWalletGateway>
   );
 }
 

@@ -166,19 +166,6 @@ export default function createApi({ contract }) {
     return tasks;
   }
 
-  async function requestReimbursement({ ID }, { from, gas, gasPrice } = {}) {
-    const contractCall = contract.methods.reimburseRequester(ID);
-
-    const txn = contractCall.send({
-      from,
-      gas,
-      gasPrice,
-    });
-
-    const receipt = await txn;
-    return receipt;
-  }
-
   async function getTranslatorDeposit({ ID }) {
     /**
      * Adds 10% to the actual required deposit to take time until mining into consideration
@@ -188,12 +175,37 @@ export default function createApi({ contract }) {
     return String(deposit.add(deposit.mul(additionalMargin).div(toBN('100'))));
   }
 
+  async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
+    const value = await getTranslatorDeposit({ ID });
+    const txn = contract.methods.assignTask(ID).send({
+      from,
+      value,
+      gas,
+      gasPrice,
+    });
+
+    const receipt = await txn;
+    return receipt;
+  }
+
+  async function requestReimbursement({ ID }, { from, gas, gasPrice } = {}) {
+    const txn = contract.methods.reimburseRequester(ID).send({
+      from,
+      gas,
+      gasPrice,
+    });
+
+    const receipt = await txn;
+    return receipt;
+  }
+
   return {
     id: ++id,
     createTask,
     getOwnTasks,
     getTaskById,
     getTranslatorDeposit,
+    assignTask,
     requestReimbursement,
   };
 }
