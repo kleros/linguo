@@ -1,14 +1,14 @@
 import React from 'react';
-import RequiredWeb3Gateway from '~/components/RequiredWeb3Gateway';
+import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
 import SingleCardLayout from '../layouts/SingleCardLayout';
 import TaskDetailsFetcher from './TaskDetailsFetcher';
 
 function TranslationTaskDetails() {
   return (
     <SingleCardLayout title="Translation Task Details">
-      <RequiredWeb3Gateway>
+      <LinguoApiReadyGateway>
         <TaskDetailsFetcher />
-      </RequiredWeb3Gateway>
+      </LinguoApiReadyGateway>
     </SingleCardLayout>
   );
 }

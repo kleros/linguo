@@ -5,7 +5,7 @@ import { Form, Row, Col, Divider, notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
-import { useLinguo } from '~/api/linguo';
+import { useLinguo } from '~/app/linguo';
 import useStateMachine from '~/hooks/useStateMachine';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Button from '~/components/Button';
@@ -80,8 +80,8 @@ function TranslationRequestForm() {
   const history = useHistory();
   const [form] = Form.useForm();
   const [state, send] = useStateMachine(formStateMachine);
-  const { account, library: web3, chainId } = useWeb3React();
-  const linguo = useLinguo({ web3, chainId });
+  const { account } = useWeb3React();
+  const linguo = useLinguo();
 
   const submitButtonProps =
     state === 'submitting'

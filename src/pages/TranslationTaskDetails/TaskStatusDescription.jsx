@@ -128,7 +128,7 @@ const getContent = (task, party) => {
     },
   };
 
-  return contentByStatusAndParty[task.status][party] || { title: '', description: [] };
+  return contentByStatusAndParty[task.status][party] || { title: '', description: [], renderAction: () => null };
 };
 
 function TaskStatusDescription(task) {

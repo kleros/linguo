@@ -12,6 +12,7 @@ import { DrawerMenu } from '~/components/Menu';
 import MainRouterSwitch from './MainRouterSwitch';
 import { AppContextProvider } from './AppContext';
 import { useSettings, WEB3_PROVIDER } from './settings';
+import { useCreateLinguoApiInstance } from './linguo';
 import { useDefaultConnection, useEagerWalletConnection, useInactiveListener } from './web3React';
 import { connectorsByName } from './connectors';
 import theme from './theme';
@@ -64,6 +65,9 @@ function Initializer({ children }) {
   useEagerWalletConnection({ skip: !allowEagerConnection, connector: savedConnector });
 
   useInactiveListener();
+
+  // Initialize Linguo API only once globally
+  useCreateLinguoApiInstance();
 
   return children;
 }

@@ -47,6 +47,7 @@ export default {
     sm: '0.875rem',
     xs: '0.75rem',
   },
+  debug: 'outline: 2px solid red',
   hexToRgba: (hexColor, alpha) => {
     let hexValues = hexColor.replace('#', '');
     const isShorthand = hexValues.length === 3;
@@ -64,5 +65,4 @@ export default {
 
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   },
-  debug: 'outline: 2px solid red',
 };

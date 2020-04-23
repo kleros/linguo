@@ -4,6 +4,7 @@ import { Radio, Divider } from 'antd';
 import { Link } from 'react-router-dom';
 import { filters } from '~/api/linguo';
 import * as r from '~/app/routes';
+import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
 import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import Button from '~/components/Button';
 import RadioButton from '~/components/RadioButton';
@@ -175,9 +176,11 @@ function TranslationDashboard() {
         </div>
       </StyledControls>
       <StyledDivider />
-      <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
-        <TaskListFetcher />
-      </RequiredWalletGateway>
+      <LinguoApiReadyGateway>
+        <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
+          <TaskListFetcher />
+        </RequiredWalletGateway>
+      </LinguoApiReadyGateway>
     </MultiCardLayout>
   );
 }

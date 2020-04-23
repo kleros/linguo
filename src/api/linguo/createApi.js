@@ -25,6 +25,7 @@ export const publishMetaEvidence = async ({ account, ...metadata }) => {
   return path;
 };
 
+let id = 0;
 export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   // There should be one and only one event
   const [event] = events;
@@ -188,6 +189,7 @@ export default function createApi({ contract }) {
   }
 
   return {
+    id: ++id,
     createTask,
     getOwnTasks,
     getTaskById,

@@ -7,7 +7,8 @@ import { Row, Col } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
-import { useLinguo, filters, Task, TaskStatus } from '~/api/linguo';
+import { filters, Task, TaskStatus } from '~/api/linguo';
+import { useLinguo } from '~/app/linguo';
 import wrapWithNotification from '~/utils/wrapWithNotification';
 import Button from '~/components/Button';
 import RemainingTime from '~/components/RemainingTime';
@@ -19,8 +20,8 @@ const withNotification = wrapWithNotification({
 });
 
 function RequestReimbursementButton({ ID, ...props }) {
-  const { library: web3, chainId, account } = useWeb3React();
-  const linguo = useLinguo({ web3, chainId });
+  const { account } = useWeb3React();
+  const linguo = useLinguo();
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [_, setFilter] = useFilter();

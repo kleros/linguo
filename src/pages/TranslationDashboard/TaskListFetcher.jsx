@@ -6,7 +6,8 @@ import { useQuery } from '~/adapters/reactRouterDom';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
 import useAsyncState from '~/hooks/useAsyncState';
-import { useLinguo, filters, getFilter, getComparator } from '~/api/linguo';
+import { filters, getFilter, getComparator } from '~/api/linguo';
+import { useLinguo } from '~/app/linguo';
 import { InfoIcon } from '~/components/icons';
 import TaskList from './TaskList';
 import useFilter from './useFilter';
@@ -41,8 +42,8 @@ const filterDescriptionMap = {
 const emptyTaskList = [];
 
 function TaskListFetcher() {
-  const { library: web3, chainId, account } = useWeb3React();
-  const linguo = useLinguo({ web3, chainId });
+  const { account } = useWeb3React();
+  const linguo = useLinguo();
 
   const [{ data, error, isLoading, isSuccess }, fetch] = useAsyncState(
     React.useCallback(async () => linguo.api.getOwnTasks({ account }), [linguo.api, account]),

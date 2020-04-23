@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useWeb3React } from '~/app/web3React';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
+import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
 import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import WithRouteMessage from '~/components/WithRouteMessage';
 import TranslationRequestForm from './TranslationRequestForm';
@@ -42,15 +43,17 @@ function TranslationRequest() {
 
   return (
     <SingleCardLayout title="New Translation">
-      <WithRouteMessage>
-        <RequiredWalletGateway
-          message="To request a translation you need an Ethereum wallet."
-          missing={form}
-          error={form}
-        >
-          {form}
-        </RequiredWalletGateway>
-      </WithRouteMessage>
+      <LinguoApiReadyGateway>
+        <WithRouteMessage>
+          <RequiredWalletGateway
+            message="To request a translation you need an Ethereum wallet."
+            missing={form}
+            error={form}
+          >
+            {form}
+          </RequiredWalletGateway>
+        </WithRouteMessage>
+      </LinguoApiReadyGateway>
     </SingleCardLayout>
   );
 }

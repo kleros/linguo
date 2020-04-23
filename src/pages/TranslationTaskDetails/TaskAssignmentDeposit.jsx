@@ -2,8 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
-import { useWeb3React } from '~/app/web3React';
-import { useLinguo } from '~/api/linguo';
+import { useLinguo } from '~/app/linguo';
 import useAsyncState from '~/hooks/useAsyncState';
 import EthValue from '~/components/EthValue';
 
@@ -22,8 +21,7 @@ const StyledLoadingMessage = styled.span`
 
 function TaskAssignmentDeposit(task) {
   const { ID } = task;
-  const { chainId, library: web3 } = useWeb3React();
-  const linguo = useLinguo({ chainId, web3 });
+  const linguo = useLinguo();
 
   const [{ data, error, isLoading, isError, isSuccess }] = useAsyncState(
     React.useCallback(async () => linguo.api.getTranslatorDeposit({ ID }), [linguo.api, ID]),

@@ -1,8 +1,8 @@
 import { createHooks } from '~/adapters/web3React';
-import { injected, network, fortmatic } from '~/app/connectors';
-import AppContext from '~/app/AppContext';
+import { injected, network, fortmatic } from './connectors';
+import AppContext from './AppContext';
 
-const { useWeb3React, useDefaultConnection, useEagerWalletConnection, useInactiveListener } = createHooks({
+export const { useWeb3React, useDefaultConnection, useEagerWalletConnection, useInactiveListener } = createHooks({
   AppContext,
   connectors: {
     injected,
@@ -10,5 +10,3 @@ const { useWeb3React, useDefaultConnection, useEagerWalletConnection, useInactiv
     fortmatic,
   },
 });
-
-export { useWeb3React, useDefaultConnection, useEagerWalletConnection, useInactiveListener };
