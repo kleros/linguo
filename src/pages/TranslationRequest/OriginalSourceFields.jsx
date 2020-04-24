@@ -97,7 +97,11 @@ function OriginalSourceFields({ setFieldsValue }) {
               extra="Single file up to 100 MB"
               rules={[{ validator: uploadValidator }]}
             >
-              <SingleFileUpload beforeUpload={beforeUpload} onChange={handleOriginalTextFileChange} />
+              <SingleFileUpload
+                beforeUpload={beforeUpload}
+                onChange={handleOriginalTextFileChange}
+                buttonProps={{ variant: 'outlined' }}
+              />
             </StyledFormItem>
           </Col>
         </Row>

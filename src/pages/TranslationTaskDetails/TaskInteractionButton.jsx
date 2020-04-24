@@ -40,12 +40,12 @@ const interactionToApiMethodMap = {
 };
 
 const withNotification = wrapWithNotification({
-  errorMessage: 'Failed to submit the transation',
+  errorMessage: 'Failed to submit the transaction',
   successMessage: 'Transaction submitted sucessfuly',
   duration: 10,
 });
 
-function TaskInteractionButton({ ID, interaction, content, ButtonProps }) {
+function TaskInteractionButton({ ID, interaction, content, buttonProps }) {
   const refresh = useImperativeRefresh();
 
   const apiMethod = interactionToApiMethodMap[interaction];
@@ -75,7 +75,7 @@ function TaskInteractionButton({ ID, interaction, content, ButtonProps }) {
   );
 
   return (
-    <Button {...ButtonProps} disabled={disabled} onClick={handleClick}>
+    <Button {...buttonProps} disabled={disabled} onClick={handleClick}>
       {content[state]}
     </Button>
   );
@@ -89,11 +89,11 @@ TaskInteractionButton.propTypes = {
     pending: t.node.isRequired,
     succeeded: t.node.isRequired,
   }).isRequired,
-  ButtonProps: t.object,
+  buttonProps: t.object,
 };
 
 TaskInteractionButton.defaultProps = {
-  ButtonProps: {},
+  buttonProps: {},
 };
 
 export default TaskInteractionButton;

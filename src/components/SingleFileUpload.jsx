@@ -1,9 +1,10 @@
 import React from 'react';
 import t from 'prop-types';
 import { Upload, Tooltip } from 'antd';
-import { UploadOutlined, LoadingOutlined } from '@ant-design/icons';
+import { UploadOutlined, LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import ipfs from '~/app/ipfs';
 import Button from '~/components/Button';
+import useStateMachine from '~/hooks/useStateMachine';
 
 export async function validator(fileList) {
   const { status, path } = fileList?.[fileList.length - 1]?.response || {};
@@ -32,10 +33,12 @@ const uploadStateMachine = {
     idle: {
       on: {
         START: 'pending',
+        ERROR: 'errored',
       },
     },
     pending: {
       on: {
+        RESET: 'idle',
         SUCCESS: 'succeeded',
         ERROR: 'errored',
       },
@@ -53,12 +56,23 @@ const uploadStateMachine = {
   },
 };
 
-function uploadStateReducer(state, action) {
-  return uploadStateMachine.states[state]?.on?.[action] || state;
-}
+function SingleFileUpload({ beforeUpload, onChange, buttonContent, buttonProps }) {
+  const [state, send] = useStateMachine(uploadStateMachine);
 
-function SingleFileUpload({ beforeUpload, onChange }) {
-  const [state, send] = React.useReducer(uploadStateReducer, uploadStateMachine.initial);
+  const disabled = state !== 'idle';
+  const tooltip = disabled ? 'Remove the file from the list to be able to add another one' : '';
+
+  const handleBeforeUpload = React.useCallback(
+    file => {
+      const valid = beforeUpload(file);
+      if (!valid) {
+        send('ERROR');
+      }
+
+      return valid;
+    },
+    [beforeUpload, send]
+  );
 
   const handleRemove = React.useCallback(() => {
     send('RESET');
@@ -92,17 +106,12 @@ function SingleFileUpload({ beforeUpload, onChange }) {
     [send]
   );
 
-  const isUploadButtonDisabled = state !== 'idle';
-  const uploadButtonTooltip = isUploadButtonDisabled ? 'Remove the uploaded file to be able to add another one' : '';
-  const uploadButtonIcon = state === 'pending' ? <LoadingOutlined /> : <UploadOutlined />;
-
   return (
-    <Upload beforeUpload={beforeUpload} onChange={onChange} onRemove={handleRemove} customRequest={customRequest}>
-      <Tooltip title={uploadButtonTooltip}>
+    <Upload beforeUpload={handleBeforeUpload} onChange={onChange} onRemove={handleRemove} customRequest={customRequest}>
+      <Tooltip title={tooltip}>
         <span>
-          <Button variant="outlined" disabled={isUploadButtonDisabled}>
-            {uploadButtonIcon}
-            Upload a File
+          <Button {...buttonProps} disabled={disabled}>
+            {buttonContent[state]}
           </Button>
         </span>
       </Tooltip>
@@ -113,11 +122,41 @@ function SingleFileUpload({ beforeUpload, onChange }) {
 SingleFileUpload.propTypes = {
   beforeUpload: t.func,
   onChange: t.func,
+  buttonContent: t.shape({
+    idle: t.node.isRequired,
+    pending: t.node.isRequired,
+    succeeded: t.node.isRequired,
+    errored: t.node.isRequired,
+  }),
+  buttonProps: t.object,
 };
 
 SingleFileUpload.defaultProps = {
   beforeUpload: () => true,
-  onChange: t.func,
+  onChange: () => {},
+  buttonContent: {
+    idle: (
+      <>
+        <UploadOutlined /> Upload a File
+      </>
+    ),
+    pending: (
+      <>
+        <LoadingOutlined /> Uploading...
+      </>
+    ),
+    succeeded: (
+      <>
+        <CheckCircleOutlined /> Done!
+      </>
+    ),
+    errored: (
+      <>
+        <CloseCircleOutlined /> Failed!
+      </>
+    ),
+  },
+  buttonProps: {},
 };
 
 export default SingleFileUpload;

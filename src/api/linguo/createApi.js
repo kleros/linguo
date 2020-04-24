@@ -188,6 +188,17 @@ export default function createApi({ contract }) {
     return receipt;
   }
 
+  async function submitTranslation({ ID, text }, { from, gas, gasPrice } = {}) {
+    const txn = contract.methods.submitTranslation(ID, text).send({
+      from,
+      gas,
+      gasPrice,
+    });
+
+    const receipt = await txn;
+    return receipt;
+  }
+
   async function requestReimbursement({ ID }, { from, gas, gasPrice } = {}) {
     const txn = contract.methods.reimburseRequester(ID).send({
       from,
@@ -206,6 +217,7 @@ export default function createApi({ contract }) {
     getTaskById,
     getTranslatorDeposit,
     assignTask,
+    submitTranslation,
     requestReimbursement,
   };
 }
