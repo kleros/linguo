@@ -12,18 +12,21 @@ import MetamaskLogo from '~/assets/images/logo-metamask.svg';
 import FortmaticLogo from '~/assets/images/logo-fortmatic.svg';
 
 const StyledWalletButton = styled(Button)`
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: center;
-  padding: 1rem;
+  border-radius: 0.75rem;
+  > span {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    padding: 1rem;
 
-  .logo {
-    width: 60%;
-    height: auto;
-  }
+    .logo {
+      width: 60%;
+      height: auto;
+    }
 
-  .description {
-    margin-top: 1rem;
+    .description {
+      margin-top: 1rem;
+    }
   }
 `;
 
