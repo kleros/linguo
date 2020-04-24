@@ -100,7 +100,7 @@ const variantStyles = {
       transform: translateX(100%);
     }
 
-    > ${StyledButtonContent} {
+    > * {
       position: relative;
       z-index: 2;
       line-height: inherit;
