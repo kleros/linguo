@@ -26,13 +26,12 @@ function TaskDetailsFetcher() {
   const { id } = useParams();
   const linguo = useLinguo();
 
-  const [{ data, error, isLoading }, fetch] = useAsyncState(
+  const [{ data, error, isLoading }, refetch] = useAsyncState(
     React.useCallback(async () => linguo.api.getTaskById({ ID: id }), [linguo.api, id]),
-    undefined,
-    { runImmediately: true }
+    undefined
   );
 
-  useRefreshEffectOnce(fetch);
+  useRefreshEffectOnce(refetch);
 
   return (
     <StyledSpin tip="Loading the translation tasks details" spinning={isLoading}>

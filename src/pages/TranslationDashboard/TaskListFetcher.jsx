@@ -18,6 +18,8 @@ const StyledSpin = styled(Spin)`
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    margin-left: -1rem;
+    margin-right: -1rem;
   }
 `;
 
@@ -45,13 +47,12 @@ function TaskListFetcher() {
   const { account } = useWeb3React();
   const linguo = useLinguo();
 
-  const [{ data, error, isLoading, isSuccess }, fetch] = useAsyncState(
+  const [{ data, error, isLoading, isSuccess }, refetch] = useAsyncState(
     React.useCallback(async () => linguo.api.getOwnTasks({ account }), [linguo.api, account]),
-    emptyTaskList,
-    { runImmediately: true }
+    emptyTaskList
   );
 
-  useRefreshEffectOnce(fetch);
+  useRefreshEffectOnce(refetch);
 
   const shouldRedirect = isSuccess && data.length === 0;
   const showError = !!(linguo.error || error);
@@ -76,7 +77,11 @@ function TaskListFetcher() {
       }}
     />
   ) : (
-    <StyledSpin tip="Loading the translations tasks you created..." spinning={isLoading}>
+    <StyledSpin
+      tip="Loading the translations tasks you created..."
+      spinning={isLoading}
+      wrapperClassName="foooo"
+    >
       {showError && <StyledAlert type="error" message={errorMessage} />}
       {showFilterDescription && filterDescriptionMap[filterName]}
       <TaskList data={displayableData} showFootnote={showFootnote} />

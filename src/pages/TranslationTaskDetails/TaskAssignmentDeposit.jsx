@@ -25,8 +25,7 @@ function TaskAssignmentDeposit(task) {
 
   const [{ data, error, isLoading, isError, isSuccess }] = useAsyncState(
     React.useCallback(async () => linguo.api.getTranslatorDeposit({ ID }), [linguo.api, ID]),
-    '0',
-    { runImmediately: true }
+    '0'
   );
 
   return (

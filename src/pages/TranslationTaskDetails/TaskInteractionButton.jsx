@@ -35,6 +35,8 @@ const TaskInteraction = {
 
 const interactionToApiMethodMap = {
   [TaskInteraction.Assign]: 'assignTask',
+  [TaskInteraction.Challenge]: 'challengeTranslation',
+  [TaskInteraction.Accept]: 'acceptTranslation',
 };
 
 const withNotification = wrapWithNotification({
@@ -61,12 +63,12 @@ function TaskInteractionButton({ ID, interaction, content, ButtonProps }) {
         dispatch('START');
         const result = await linguo.api[apiMethod]({ ID }, { from: account });
         dispatch('SUCCESS');
+        refresh();
         return result;
       } catch (err) {
         dispatch('ERROR');
         throw err;
       } finally {
-        refresh();
       }
     }),
     [dispatch, linguo.api, apiMethod, ID, account, history, location]

@@ -1,38 +1,46 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export default function useAsyncState(getState, initialValue, { runImmediately = false } = {}) {
+export default function useAsyncState(getState, initialValue) {
   const [state, setState] = useState({
     tag: 'idle',
     data: initialValue,
     error: null,
   });
 
-  const fetch = useCallback(async () => {
-    setState(tasks => ({
-      ...tasks,
-      tag: 'loading',
-      error: null,
-    }));
-    try {
-      setState({
-        tag: 'succeeded',
-        data: await getState(),
-        error: null,
-      });
-    } catch (err) {
-      setState({
-        tag: 'errored',
-        data: initialValue,
-        error: err,
-      });
-    }
-  }, [initialValue, getState]);
+  const [rerenderControl, setRerenderControl] = useState();
+
+  const refetch = useCallback(() => {
+    setRerenderControl(1 + Math.random());
+  }, []);
 
   useEffect(() => {
-    if (runImmediately) {
-      fetch();
-    }
-  }, [runImmediately, fetch]);
+    let cancelled = false;
+
+    const doFetch = async () => {
+      setState(state => ({
+        ...state,
+        tag: 'loading',
+        error: null,
+      }));
+
+      try {
+        const data = await getState();
+        if (!cancelled) {
+          setState({ tag: 'succeeded', data, error: null });
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setState({ tag: 'errored', data: initialValue, error: err });
+        }
+      }
+    };
+
+    doFetch();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getState, initialValue, rerenderControl]);
 
   const { data, error } = state;
 
@@ -45,6 +53,6 @@ export default function useAsyncState(getState, initialValue, { runImmediately =
       isSuccess: state.tag === 'succeeded',
       isError: state.tag === 'errored',
     },
-    fetch,
+    refetch,
   ];
 }
