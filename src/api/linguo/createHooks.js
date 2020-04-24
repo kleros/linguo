@@ -65,10 +65,7 @@ export default function createHooks({ AppContext, useWeb3React }) {
     const [_ignored, patchContext] = useContext(AppContext);
     const { library: web3, chainId } = useWeb3React();
 
-    // React only to changes in chainId
-    // TODO: check if there is no problem doing so
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const apiInstance = useMemo(() => createApiInstance({ web3, chainId }), [chainId]);
+    const apiInstance = useMemo(() => createApiInstance({ web3, chainId }), [web3, chainId]);
 
     useEffect(() => {
       patchContext({
