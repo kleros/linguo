@@ -44,7 +44,7 @@ const StyledControls = styled.div`
   }
 
   @media (max-width: 575.98px) {
-    padding: 1rem;
+    padding: 1.5rem;
   }
 `;
 
@@ -144,6 +144,12 @@ const buttons = [
   },
 ];
 
+const StyledContentWrapper = styled.div`
+  @media (max-width: 575.98px) {
+    padding: 0 1.5rem;
+  }
+`;
+
 function TranslationDashboard() {
   const [filter, setFilter] = useFilter();
 
@@ -177,9 +183,11 @@ function TranslationDashboard() {
       </StyledControls>
       <StyledDivider />
       <LinguoApiReadyGateway>
-        <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
-          <TaskListFetcher />
-        </RequiredWalletGateway>
+        <StyledContentWrapper>
+          <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
+            <TaskListFetcher />
+          </RequiredWalletGateway>
+        </StyledContentWrapper>
       </LinguoApiReadyGateway>
     </MultiCardLayout>
   );

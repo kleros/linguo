@@ -13,7 +13,9 @@ import TaskInfoGrid from './TaskInfoGrid';
 import TaskPrice from './TaskPrice';
 
 const StyledCard = styled(Card)`
-  height: 100%;
+  && {
+    height: 100%;
+  }
 `;
 
 const StyledTaskTitle = styled(Typography.Title)`

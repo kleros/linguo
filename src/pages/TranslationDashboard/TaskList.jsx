@@ -4,18 +4,18 @@ import styled from 'styled-components';
 import { Row, Col, Typography } from 'antd';
 import TaskCard from './TaskCard';
 
+const StyledListWrapper = styled.div`
+  @media (max-width: 575.98px) {
+    margin: 0 -1.5rem;
+  }
+`;
+
 const StyledRow = styled(Row)`
   // make cards in the same row to have the same height
   align-items: stretch;
 `;
 
-const StyledReponsiveText = styled(Typography.Paragraph)`
-  @media (max-width: 575.98px) {
-    padding: 0 1rem;
-  }
-`;
-
-const StyledFootnote = styled(StyledReponsiveText)`
+const StyledFootnote = styled(Typography.Paragraph)`
   && {
     margin: 0;
     font-size: ${props => props.theme.fontSize.sm};
@@ -26,7 +26,7 @@ const StyledFootnote = styled(StyledReponsiveText)`
   }
 `;
 
-const StyledEmptyListText = styled(StyledReponsiveText)`
+const StyledEmptyListText = styled(Typography.Paragraph)`
   && {
     font-size: ${props => props.theme.fontSize.xl};
     text-align: center;
@@ -34,7 +34,7 @@ const StyledEmptyListText = styled(StyledReponsiveText)`
   }
 `;
 
-const StyledTaskCountText = styled(StyledReponsiveText)`
+const StyledTaskCountText = styled(Typography.Paragraph)`
   && {
     font-size: ${props => props.theme.fontSize.sm};
     text-align: right;
@@ -52,15 +52,22 @@ function TaskList({ data, showFootnote }) {
       <StyledTaskCountText>
         Total of {data.length} {pluralize(data.length, { single: 'task', many: 'tasks' })}
       </StyledTaskCountText>
-      <StyledRow gutter={[32, { xs: 0, sm: 32 }]}>
-        {data.map(task => {
-          return (
-            <Col key={task.ID} xs={24} sm={24} md={12} lg={8}>
-              <TaskCard {...task} />
-            </Col>
-          );
-        })}
-      </StyledRow>
+      <StyledListWrapper>
+        <StyledRow
+          gutter={[
+            { xs: 0, sm: 32 },
+            { xs: 16, sm: 32 },
+          ]}
+        >
+          {data.map(task => {
+            return (
+              <Col key={task.ID} xs={24} sm={24} md={12} lg={8}>
+                <TaskCard {...task} />
+              </Col>
+            );
+          })}
+        </StyledRow>
+      </StyledListWrapper>
       {showFootnote && (
         <StyledFootnote>
           <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.

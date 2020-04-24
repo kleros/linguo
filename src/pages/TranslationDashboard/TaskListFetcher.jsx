@@ -18,8 +18,6 @@ const StyledSpin = styled(Spin)`
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    margin-left: -1rem;
-    margin-right: -1rem;
   }
 `;
 
@@ -77,11 +75,7 @@ function TaskListFetcher() {
       }}
     />
   ) : (
-    <StyledSpin
-      tip="Loading the translations tasks you created..."
-      spinning={isLoading}
-      wrapperClassName="foooo"
-    >
+    <StyledSpin tip="Loading the translations tasks you created..." spinning={isLoading}>
       {showError && <StyledAlert type="error" message={errorMessage} />}
       {showFilterDescription && filterDescriptionMap[filterName]}
       <TaskList data={displayableData} showFootnote={showFootnote} />

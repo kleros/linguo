@@ -34,11 +34,12 @@ const StyledLayout = styled(Layout)`
 
       .card-footer,
       .card-body {
-        padding: 2rem;
+        padding: 1.5rem;
       }
+
       .card-header {
-        padding-left: 2rem;
-        padding-right: 2rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
       }
     }
   }
