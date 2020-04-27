@@ -64,10 +64,6 @@ const StyledTitle = styled(Typography.Title)`
 
 const StyledButton = styled(Button)`
   && {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
     border: 0.625rem solid ${props => props.theme.color.border.default};
     border-radius: 1.325rem;
     font-size: ${props => props.theme.fontSize.xl};
@@ -84,17 +80,24 @@ const StyledButton = styled(Button)`
       border: 0.625rem solid ${props => props.theme.color.border.default};
     }
 
-    svg {
-      width: 8rem;
-      margin-bottom: 1rem;
-    }
+    > span {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
 
-    .text {
-      margin-bottom: 1rem;
-      padding: 0 2rem;
-      word-break: normal;
-      white-space: normal;
-      max-width: 12rem;
+      svg {
+        width: 8rem;
+        margin-bottom: 1rem;
+      }
+
+      .text {
+        margin-bottom: 1rem;
+        padding: 0 2rem;
+        word-break: normal;
+        white-space: normal;
+        max-width: 12rem;
+      }
     }
   }
 `;
