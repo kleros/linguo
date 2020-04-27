@@ -14,7 +14,7 @@ import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import ContentBlocker from '~/components/ContentBlocker';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
 import TaskDeadline from './TaskDeadline';
-import TaskAssignmentDeposit from './TaskAssignmentDeposit';
+import TaskAssignmentDepositFetcher from './TaskAssignmentDepositFetcher';
 import TaskInteractionButton from './TaskInteractionButton';
 import TranslationUploadButton from './TranslationUploadButton';
 
@@ -149,7 +149,7 @@ const getContent = (task, party) => {
                 buttonProps={{ fullWidth: true }}
               />
               <Spacer />
-              <TaskAssignmentDeposit {...task} />
+              <TaskAssignmentDepositFetcher {...task} />
             </StyledActionWrapper>
           );
         },

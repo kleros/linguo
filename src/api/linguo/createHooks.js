@@ -1,4 +1,5 @@
 import { useContext, useEffect, useMemo } from 'react';
+import useSWR from 'swr';
 import { Linguo } from '@kleros/contract-deployments';
 import createError from '~/utils/createError';
 import createApi from './createApi';
@@ -91,5 +92,31 @@ export default function createHooks({ AppContext, useWeb3React }) {
     return linguo ?? defaultValue;
   }
 
-  return { useCreateLinguoApiInstance, useLinguo };
+  const createFetcher = api => (method, ...args) => api[method](...args);
+
+  function useCacheCall(
+    [method, ...args],
+    { suspense = false, initialData = undefined, refreshInterval = 0, shouldRetryOnError = true } = {}
+  ) {
+    const { api } = useLinguo();
+    const { data, error, isValidating, mutate } = useSWR([method, ...args], createFetcher(api), {
+      suspense,
+      initialData,
+      refreshInterval,
+      shouldRetryOnError,
+    });
+
+    return [
+      {
+        data,
+        error,
+        isLoading: isValidating,
+        isError: !!error,
+        isSuccess: !isValidating && !error,
+      },
+      mutate,
+    ];
+  }
+
+  return { useCreateLinguoApiInstance, useLinguo, useCacheCall };
 }

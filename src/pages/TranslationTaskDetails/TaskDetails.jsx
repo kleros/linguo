@@ -255,7 +255,7 @@ function TaskDetails(task) {
           <DownloadTextButton {...task} />
         </Col>
       </Row>
-      <Spacer span={2} />
+      <Spacer span={1} />
       <StyledOriginalTextAttachments originalTextUrl={originalTextUrl} originalTextFile={originalTextFile} />
       <Spacer span={2} />
       <TaskStatusDescription {...task} />

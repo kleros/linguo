@@ -30,12 +30,12 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   // There should be one and only one event
   const [event] = events;
   if (!event) {
-    throw new Error(`No evidence found for task ${ID}`);
+    throw new Error(`No MetaEvidence event found for task ${ID}`);
   }
 
   const { _evidence: path } = event.returnValues;
   if (!path) {
-    throw new Error(`No evidence found for task ${ID}`);
+    throw new Error(`No evidence file found for task ${ID}`);
   }
 
   const url = getFileUrl(path);
@@ -82,7 +82,7 @@ export default function createApi({ contract }) {
     }
   }
 
-  async function getTaskById({ ID }) {
+  async function getTaskById(ID) {
     try {
       const [
         reviewTimeout,
@@ -145,7 +145,7 @@ export default function createApi({ contract }) {
     }
   }
 
-  async function getOwnTasks({ account }) {
+  async function getOwnTasks(account) {
     const events = await contract.getPastEvents('TaskCreated', {
       filter: { _requester: account },
       fromBlock: 0,
@@ -156,7 +156,7 @@ export default function createApi({ contract }) {
         const ID = event.returnValues._taskID;
 
         try {
-          return await getTaskById({ ID });
+          return await getTaskById(ID);
         } catch (err) {
           return { ID, err };
         }
@@ -166,7 +166,7 @@ export default function createApi({ contract }) {
     return tasks;
   }
 
-  async function getTranslatorDeposit({ ID }) {
+  async function getTranslatorDeposit(ID) {
     /**
      * Adds 10% to the actual required deposit to take time until mining into consideration
      */
@@ -176,7 +176,7 @@ export default function createApi({ contract }) {
   }
 
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
-    const value = await getTranslatorDeposit({ ID });
+    const value = await getTranslatorDeposit(ID);
     const txn = contract.methods.assignTask(ID).send({
       from,
       value,

@@ -1,48 +1,53 @@
 import React from 'react';
-import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
 import { Spin, Alert } from 'antd';
-import { useLinguo } from '~/app/linguo';
-import useAsyncState from '~/hooks/useAsyncState';
+import { useCacheCall } from '~/app/linguo';
+import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
+import compose from '~/utils/fp/compose';
+import { withSuspense } from '~/adapters/react';
+import { withErrorBoundary } from '~/components/ErrorBoundary';
 import TaskDetails from './TaskDetails';
 
-const StyledSpin = styled(Spin)`
-  &&.ant-spin {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-`;
-
-const StyledAlert = styled(Alert)`
-  && {
-    margin-bottom: 2rem;
-  }
-`;
+const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
 
 function TaskDetailsFetcher() {
   const { id } = useParams();
-  const linguo = useLinguo();
-
-  const [{ data, error, isLoading }, refetch] = useAsyncState(
-    React.useCallback(async () => linguo.api.getTaskById({ ID: id }), [linguo.api, id]),
-    undefined
-  );
+  const [{ data }, refetch] = useCacheCall(['getTaskById', id], {
+    suspense: true,
+    refreshInterval: _1_MINUTE_IN_MILISECONDS,
+  });
 
   useRefreshEffectOnce(refetch);
 
-  return (
-    <StyledSpin tip="Loading the translation tasks details" spinning={isLoading}>
-      {error && <StyledAlert type="error" message={`Details for task ${id} could not be loaded.`} />}
-      {data && <TaskDetails {...data} />}
-    </StyledSpin>
-  );
+  return <TaskDetails {...data} />;
 }
 
-TaskDetailsFetcher.propTypes = {};
+const errorBoundaryEnhancer = withErrorBoundary({
+  renderFallback: function ErrorBoundaryFallback(error) {
+    return <Alert type="error" message={error.message} />;
+  },
+});
 
-TaskDetailsFetcher.defaultProps = {};
+const suspenseEnhancer = withSuspense({
+  fallback: (
+    <Spin
+      spinning
+      tip="Loading the translation tasks details"
+      css={`
+        &&.ant-spin {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+      `}
+    />
+  ),
+});
 
-export default TaskDetailsFetcher;
+/**
+ * ATTENTION: Order is important!
+ * Since composition is evaluated right-to-left, `suspenseEnhancer` should be declared
+ * **AFTER** `errorBoundaryEnhancer`
+ */
+export default compose(errorBoundaryEnhancer, suspenseEnhancer)(TaskDetailsFetcher);
