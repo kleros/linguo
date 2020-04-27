@@ -25,7 +25,6 @@ export const publishMetaEvidence = async ({ account, ...metadata }) => {
   return path;
 };
 
-let id = 0;
 export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   // There should be one and only one event
   const [event] = events;
@@ -48,40 +47,8 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   }
 };
 
+let id = 0;
 export default function createApi({ contract }) {
-  async function createTask(
-    { account, deadline, minPrice, maxPrice, ...rest },
-    { from = account, gas, gasPrice } = {}
-  ) {
-    minPrice = toWei(String(minPrice), 'ether');
-    maxPrice = toWei(String(maxPrice), 'ether');
-    deadline = dayjs(deadline).unix();
-
-    const metaEvidence = await publishMetaEvidence({
-      account,
-      deadline,
-      minPrice,
-      maxPrice,
-      ...rest,
-    });
-
-    try {
-      const contractCall = contract.methods.createTask(deadline, minPrice, metaEvidence);
-
-      const txn = contractCall.send({
-        from,
-        gas,
-        gasPrice,
-        value: maxPrice,
-      });
-
-      const receipt = await txn;
-      return receipt;
-    } catch (err) {
-      throw createError('Failed to create the translation task', { cause: err });
-    }
-  }
-
   async function getTaskById(ID) {
     try {
       const [
@@ -156,7 +123,7 @@ export default function createApi({ contract }) {
         const ID = event.returnValues._taskID;
 
         try {
-          return await getTaskById(ID);
+          return await getTaskById({ ID });
         } catch (err) {
           return { ID, err };
         }
@@ -166,17 +133,113 @@ export default function createApi({ contract }) {
     return tasks;
   }
 
-  async function getTranslatorDeposit(ID) {
-    /**
-     * Adds 10% to the actual required deposit to take time until mining into consideration
-     */
-    const deposit = toBN(await contract.methods.getDepositValue(ID).call());
-    const additionalMargin = toBN('10');
-    return String(deposit.add(deposit.mul(additionalMargin).div(toBN('100'))));
+  /**
+   * The price for a translation task varies linearly with time
+   * from `minPrice` to `maxPrice`, like the following chart:
+   *
+   *     Price A
+   *           ┤
+   *           ┤
+   * maxPrice  ┤- - - - - - - -╭─x
+   *           ┤            ╭──╯ |
+   *           ┤          ╭─╯
+   *           ┤        ╭─╯      |
+   *           ┤     ╭──╯
+   *           ┤   ╭─╯           |
+   *           ┤ ╭─╯
+   * minPrice  ┤x╯               |
+   *           ┤
+   *           ┤                 |
+   *           ┤
+   *           └+────────────────+──────────>
+   *         created       deadline    Time
+   *
+   * This is a plot for the following price function:
+   *
+   *    p(t) = minPrice + (maxPrice - minPrice) * (t - creationTime) / submissionTimeout
+   *
+   * Because of that, the deposit required for the translator at the moment
+   * he sends the transaction might be lower than the required value when
+   * the transaction is mined.
+   *
+   * To cope with that, we try to predict what the deposit will be in Δt amount
+   * of time from now (**with Δt being 1 hour by default.**).
+   *
+   * The actual required deposit depends on current price, but also on
+   * arbitration cost (from the arbitrator contract) and `MULTIPLIER_DIVISOR`
+   * (from linguo contract).
+   *
+   * Since `MULTIPLIER_DIVISOR` is a constant and the arbitration cost is
+   * not expected to change too often, it is safe to adpot a linear function
+   * as a proxy for the deposit. Its slope will the the same as the one from
+   * the price function, which can be found with:
+   *
+   *    s = (maxPrice - minPrice) / submissionTimeout
+   *
+   * So if we get the current required deposit D, we can manage to get a
+   * future value D' with:
+   *
+   *   D' = D + (s * Δt)
+   *
+   * This way we can be sure the deposited value is going to be safe for Δt time.
+   *
+   * Because the `assignTask` method on Linguo contract sends any surplus value
+   * directly back to the sender, this has no impact in the amount the translator
+   * has to lock in order to assign the task to himself if the transaction gets
+   * mined before Δt has passed.
+   */
+  async function getTranslatorDeposit(ID, { timeDeltaInSeconds = 3600 } = {}) {
+    let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
+      contract.methods.getDepositValue(ID).call(),
+      contract.methods.tasks(ID).call(),
+    ]);
+
+    deposit = toBN(deposit);
+    minPrice = toBN(minPrice);
+    maxPrice = toBN(maxPrice);
+    submissionTimeout = toBN(submissionTimeout);
+
+    const slope = maxPrice.sub(minPrice).div(submissionTimeout);
+    const timeDelta = toBN(String(timeDeltaInSeconds));
+
+    return String(deposit.add(slope.mul(timeDelta)));
+  }
+
+  async function createTask(
+    { account, deadline, minPrice, maxPrice, ...rest },
+    { from = account, gas, gasPrice } = {}
+  ) {
+    minPrice = toWei(String(minPrice), 'ether');
+    maxPrice = toWei(String(maxPrice), 'ether');
+    deadline = dayjs(deadline).unix();
+
+    const metaEvidence = await publishMetaEvidence({
+      account,
+      deadline,
+      minPrice,
+      maxPrice,
+      ...rest,
+    });
+
+    try {
+      const contractCall = contract.methods.createTask(deadline, minPrice, metaEvidence);
+
+      const txn = contractCall.send({
+        from,
+        gas,
+        gasPrice,
+        value: maxPrice,
+      });
+
+      const receipt = await txn;
+      return receipt;
+    } catch (err) {
+      throw createError('Failed to create the translation task', { cause: err });
+    }
   }
 
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
-    const value = await getTranslatorDeposit(ID);
+    const value = await getTranslatorDeposit({ ID });
     const txn = contract.methods.assignTask(ID).send({
       from,
       value,
@@ -212,10 +275,10 @@ export default function createApi({ contract }) {
 
   return {
     id: ++id,
-    createTask,
-    getOwnTasks,
     getTaskById,
+    getOwnTasks,
     getTranslatorDeposit,
+    createTask,
     assignTask,
     submitTranslation,
     requestReimbursement,
