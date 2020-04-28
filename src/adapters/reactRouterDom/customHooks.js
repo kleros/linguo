@@ -27,7 +27,6 @@ export function useRefreshEffectOnce(fn) {
 
   useEffect(() => {
     if (_refresh) {
-      console.log('refreshing....');
       fn();
       history.replace({ ...location, search });
     }
