@@ -4,16 +4,16 @@ import { notification } from 'antd';
  * Creates a wrapper for a function call which will show a notification on page
  * depending on the result of that function call.
  *
- * @typedef {(...args: any[]) => Promise<any>} WrappedAsyncFunction
+ * @function
+ *
  *
  * @param {object} config The config object.
  * @param {string|Function} config.errorMessage The error message to show in case of error. If it is a function, the thrown `Error` object is passed as a parameter and it should return a `string`.
  * @param {string|Function} config.successMessage The success message to show in case of success. If it is a function, the value returned by the wrapped function is passed as a parameter and it should return a `string`.
- * @param {'topLeft'|'topRight'|'bottomLeft'|'bottomRight'} [config.placement=bottomRight] The placement of the notification on screen.
+ * @param {'topLeft'|'topRight'|'bottomLeft'|'bottomRight'} [config.placement='bottomRight'] The placement of the notification on screen.
  * @param {number} [config.duration=5000] The duration of the notification in miliseconds.
- * @return {WrappedAsyncFunction} The wrapped function
+ * @return {(fn: Function) => (...args: any[]) => Promise<any> } The wrapped function
  */
-
 const wrapWithNotification = ({
   errorMessage,
   successMessage,
