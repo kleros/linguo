@@ -92,7 +92,14 @@ export default function createHooks({ AppContext, useWeb3React }) {
     return linguo ?? defaultValue;
   }
 
-  const createFetcher = api => (method, ...args) => api[method](...args);
+  const argumentListToApiMethodAdapter = {
+    getTaskById: ([ID]) => ({ ID }),
+    getTaskPrice: ([ID]) => ({ ID }),
+    getTranslatorDeposit: ([ID]) => ({ ID }),
+    getOwnTasks: ([account]) => ({ account }),
+  };
+
+  const createFetcher = api => (method, ...args) => api[method](argumentListToApiMethodAdapter[method](args));
 
   function useCacheCall(
     [method, ...args],

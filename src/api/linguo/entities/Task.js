@@ -4,6 +4,37 @@ import Web3 from 'web3';
 
 const { toBN, BN } = Web3.utils;
 
+/**
+ *
+ * @typedef {Object} Task The task object
+ * @prop {TaskStatus} status The task status
+ * @prop {string} [assignedPrice] The task assigned price
+ * @prop {string} minPrice The task minimum price
+ * @prop {string} maxPrice The task maximum price
+ * @prop {Date} lastInteraction The task last interaction date
+ * @prop {number} submissionTimeout The task submission timeout in seconds
+ * @prop {number} wordCount The task word count
+ */
+
+/**
+ * @typedef {Object} TaskWithDefinedPrice The task params object
+ * @prop {string|number|BN} currentPrice The task minimum price
+ * @prop {number} wordCount The task word count
+ */
+
+/**
+ * @typedef {Object} TaskParts The parts that form a Task object
+ * @prop {string|number} ID The Task ID
+ * @prop {string|number} reviewTimeout The Task review timeout in seconds
+ * @prop {Object} task The Task data from the contract
+ * @prop {Object} metadata The Task metadata from the evidenceMetadata object
+ * @prop {Object} lifecycleEvents The Task lifecycle events
+ * @prop {Object[]} lifecycleEvents.TaskCreated The TaskCreated events from the contract
+ * @prop {Object[]} lifecycleEvents.TranslationSubmitted The TranslationSubmitted events from the contract
+ * @prop {Object[]} lifecycleEvents.TranslationChallenged The TranslationChallenged events from the contract
+ * @prop {Object[]} lifecycleEvents.TaskResolved The TaskResolved events from the contract
+ */
+
 const normalizeEventPropsFnMap = {
   TaskCreated: {
     _taskID: Number,
@@ -27,8 +58,8 @@ const normalizeEventPropsFnMap = {
   },
 };
 
-const extractEventsReturnValues = lifecyleEvents =>
-  Object.entries(lifecyleEvents).reduce(
+const extractEventsReturnValues = lifecycleEvents =>
+  Object.entries(lifecycleEvents).reduce(
     (acc, [eventName, occurrences]) =>
       Object.assign(acc, {
         [eventName]: occurrences.map(({ returnValues }) =>
@@ -75,20 +106,13 @@ const normalizePropsFnMap = {
  * this contract, so we can safely convert the returned `uint` string representation
  * to a native JS `number`.
  *
- * @param {object} taskParts The task object parts
- * @param {string|number} taskParts.ID The Task ID
- * @param {string|number} taskParts.reviewTimeout The Task review timeout in seconds
- * @param {object} taskParts.task The Task data from the contract
- * @param {object} taskParts.metadata The Task metadata from the evidenceMetadata object
- * @param {object} taskParts.lyfecicleEvents The Task lifecycle events
- * @param {object[]} taskParts.lyfecicleEvents.TaskCreated The TaskCreated events from the contract
- * @param {object[]} taskParts.lyfecicleEvents.TranslationSubmitted The TranslationSubmitted events from the contract
- * @param {object[]} taskParts.lyfecicleEvents.TranslationChallenged The TranslationChallenged events from the contract
- * @param {object[]} taskParts.lyfecicleEvents.TaskResolved The TaskResolved events from the contract
- * @return {object} The normalized task object
+ * @function
+ *
+ * @param {TaskParts} taskParts The task object parts
+ * @return {Task} The normalized task object
  */
 
-export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents } = {}) => {
+export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents } = {}) => {
   const data = Object.entries({
     ID,
     ...metadata,
@@ -105,9 +129,9 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents } 
 
   data.wordCount = wordCount({ text: data.text });
 
-  data.lifecyleEvents = extractEventsReturnValues(lifecyleEvents);
+  data.lifecycleEvents = extractEventsReturnValues(lifecycleEvents);
 
-  data.assignedPrice = data.lifecyleEvents.TaskAssigned?.[0]?._price;
+  data.assignedPrice = data.lifecycleEvents.TaskAssigned?.[0]?._price;
 
   return data;
 };
@@ -115,7 +139,9 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecyleEvents } 
 /**
  * Calculates the word count for a given task.
  *
- * @param {object} task The task object
+ * @function
+ *
+ * @param {Object} task The partial task object
  * @param {string} task.text The task text
  * @return {number} The number of words in a task text
  */
@@ -127,22 +153,24 @@ export const wordCount = ({ text } = {}) => {
 /**
  * Calculates the current price of a given task.
  *
- * @param {object} task The task object
+ * @function
+ *
+ * @param {Object} task The partial task object
+ * @param {string|number|BN} task.assignedPrice The task assigned price
  * @param {TaskStatus} task.status The task status
- * @param {string|number|BN = undefined} task.assignedPrice The task assigned price
  * @param {string|number|BN} task.minPrice The task minimum price
  * @param {string|number|BN} task.maxPrice The task maximum price
  * @param {string|Date} task.lastInteraction The task last interaction date
  * @param {number} task.submissionTimeout The task submission timeout in seconds
- * @param {object={}} options The options object
- * @param {string|Date = new Date()} currentDate The current date.
+ * @param {Object} [options={}] The options object
+ * @param {string|Date} options.currentDate The current date.
  * @return {string} The price per word of the task if `wordCount` greater than `0`; otherwise returns `currentPrice`
  */
 export const currentPrice = (
-  { status, assignedPrice, minPrice, maxPrice, lastInteraction, submissionTimeout } = {},
+  { assignedPrice, status, minPrice, maxPrice, lastInteraction, submissionTimeout } = {},
   { currentDate = new Date() } = {}
 ) => {
-  if (assignedPrice !== undefined || assignedPrice === '') {
+  if (![undefined, null, ''].includes(assignedPrice)) {
     return assignedPrice;
   }
 
@@ -164,39 +192,47 @@ export const currentPrice = (
 /**
  * Calculates the current price per word of a given task.
  *
- * @param {object} task The task object
- * @param {TaskStatus} task.status The task status
- * @param {string|number|BN = undefined} task.assignedPrice The task assigned price
- * @param {string|number|BN} task.minPrice The task minimum price
- * @param {string|number|BN} task.maxPrice The task maximum price
- * @param {string|Date} task.lastInteraction The task last interaction date
- * @param {number} task.submissionTimeout The task submission timeout in seconds
- * @param {number} task.wordCount The task word count
- * @param {object={}} options The options object
- * @param {string|Date = new Date()} currentDate The current date.
+ * @function
+ *
+ * @param {Task|TaskWithDefinedPrice} taskOrParams The task object or an object containing the current price and the word count
+ * @param {Object} [options={}] The options object
+ * @param {string|Date} [options.currentDate=new Date()] The current date
  * @return {string} The price per word of the task if `wordCount` greater than `0`. Otherwise, returns `currentPrice`
  */
 export const currentPricePerWord = (
-  { status, assignedPrice, minPrice, maxPrice, lastInteraction, submissionTimeout, wordCount } = {},
+  {
+    currentPrice: currentPriceFromArgs,
+    status,
+    assignedPrice,
+    minPrice,
+    maxPrice,
+    lastInteraction,
+    submissionTimeout,
+    wordCount,
+  } = {},
   { currentDate = new Date() } = {}
 ) => {
-  const currentPriceValue = currentPrice(
-    { status, assignedPrice, minPrice, maxPrice, lastInteraction, submissionTimeout, wordCount },
-    { currentDate }
-  );
+  const currentPriceValue =
+    currentPriceFromArgs ??
+    currentPrice(
+      { status, assignedPrice, minPrice, maxPrice, lastInteraction, submissionTimeout, wordCount },
+      { currentDate }
+    );
   return String(wordCount > 0 ? toBN(currentPriceValue).div(toBN(String(wordCount))) : currentPrice);
 };
 
 /**
  * Calculates the remaining submission time for a given task.
  *
- * @param {object} task The task object
+ * @function
+ *
+ * @param {Object} task The task object
  * @param {TaskStatus} task.status The task status
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
  * @param {number} task.submissionTimeout The task submission timeout value in seconds
- * @param {object} options The options object
- * @param {'milissecond'|'second'|'minute'|'hour'|'day'|'month'|'year'} options.unit The time resolution to calculate the difference
- * @param {string|Date = new Date()} currentDate The current date.
+ * @param {Object} options The options object
+ * @param {'millisecond'|'second'|'minute'|'hour'|'day'|'month'|'year'} options.unit The time resolution to calculate the difference
+ * @param {string|Date} [options.currentDate=new Date()] The current date.
  * @return {number} The remaining time for submission in the specified `unit`
  */
 export const remainingTimeForSubmission = (
@@ -216,13 +252,15 @@ export const remainingTimeForSubmission = (
 /**
  * Calculates the remaining review time for a given task.
  *
- * @param {object} task The task object
+ * @function
+ *
+ * @param {Object} task The task object
  * @param {TaskStatus} task.status The task status
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
  * @param {number} task.reviewTimeout The task review timeout value in seconds
- * @param {object} options The options object
- * @param {'milissecond'|'second'|'minute'|'hour'|'day'|'month'|'year'} options.unit The time resolution to calculate the difference
- * @param {string|Date = new Date()} currentDate The current date.
+ * @param {Object} options The options object
+ * @param {'millisecond'|'second'|'minute'|'hour'|'day'|'month'|'year'} options.unit The time resolution to calculate the difference
+ * @param {string|Date} [options.currentDate=new Date()] The current date.
  * @return {number} The remaining time for review in the specified `unit`
  */
 export const remainingTimeForReview = (
@@ -243,16 +281,18 @@ export const remainingTimeForReview = (
  * Returns if a task was incomplete either by not having any interaction from a translator,
  * or if the assigned translator did not send the translation within the specified prediod.
  *
- * @param {object} task The task object
+ * @function
+ *
+ * @param {Object} task The task object
  * @param {TaskStatus} task.status The task status
  * @param {Date|number|dayjs} task.submissionTimeout The task last interaction value
  * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
  * @param {number} task.reviewTimeout The task review timeout value in seconds
  * @return {boolean} Whether the translation task was incomplete or not
  */
-export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifecyleEvents } = {}) => {
+export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifecycleEvents } = {}) => {
   if (status === TaskStatus.Resolved) {
-    return lifecyleEvents?.TranslationSubmitted?.length === 0;
+    return lifecycleEvents?.TranslationSubmitted?.length === 0;
   }
 
   if ([TaskStatus.Created, TaskStatus.Assigned].includes(status)) {
@@ -265,7 +305,9 @@ export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifec
 /**
  * Returns if a transltion task is still pending.
  *
- * @param {object} task The task object
+ * @function
+ *
+ * @param {Object} task The task object
  * @param {TaskStatus} task.status The task status
  * @return {boolean} Whether the translation task is pending or not
  */

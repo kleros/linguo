@@ -1,27 +1,22 @@
 import { useState } from 'react';
 import useInterval from './useInterval';
 
-export default function useCountdownTimer({ seconds = 0, updateIntervalMs = 1000 } = {}) {
+export default function useCountdownTimer({ seconds = 0, refreshInterval = 1000 } = {}) {
   const [remainingTime, setRemainingTime] = useState(seconds);
 
-  updateIntervalMs =
-    typeof updateIntervalMs === 'function' ? updateIntervalMs(remainingTime) : Number(updateIntervalMs);
-
-  const { stop } = useInterval(
-    () => {
-      if (remainingTime <= 0) {
-        stop();
-        setRemainingTime(0);
-      } else {
-        setRemainingTime(remainingTime => Math.floor(remainingTime - updateIntervalMs / 1000));
-      }
-    },
-    updateIntervalMs,
-    {
-      autoStart: true,
-      runImmediately: false,
+  const updateState = () => {
+    if (remainingTime <= 0) {
+      setRemainingTime(0);
+    } else {
+      setRemainingTime(remainingTime => Math.floor(remainingTime - refreshInterval / 1000));
     }
-  );
+  };
+
+  const shouldStop = remainingTime <= 0;
+  refreshInterval = typeof refreshInterval === 'function' ? refreshInterval(remainingTime) : Number(refreshInterval);
+  const delay = shouldStop ? null : refreshInterval;
+
+  useInterval(updateState, delay);
 
   return remainingTime;
 }

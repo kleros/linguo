@@ -9,7 +9,7 @@ const _1_DAY_IN_SECONDS = 24 * 60 * 60;
 function RemainingTime({ initialValueSeconds, render, showPrefix }) {
   const remainingTime = useCountdownTimer({
     seconds: initialValueSeconds,
-    updateIntervalMs: remainingTimeInSeconds =>
+    refreshInterval: remainingTimeInSeconds =>
       remainingTimeInSeconds < _1_DAY_IN_SECONDS ? _1_SECOND_IN_MILISECONDS : _5_MINUTES_IN_MILISECONDS,
   });
 

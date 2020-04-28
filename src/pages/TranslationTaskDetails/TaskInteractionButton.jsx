@@ -1,6 +1,8 @@
 import React from 'react';
 import t from 'prop-types';
-import { useImperativeRefresh } from '~/adapters/reactRouterDom';
+import { mutate } from 'swr';
+import produce from 'immer';
+import { TaskStatus } from '~/api/linguo';
 import { useLinguo } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import useStateMachine from '~/hooks/useStateMachine';
@@ -39,6 +41,18 @@ const interactionToApiMethodMap = {
   [TaskInteraction.Accept]: 'acceptTranslation',
 };
 
+const interactionToMutationMap = {
+  [TaskInteraction.Assign]: produce(task => {
+    task.status = TaskStatus.Assigned;
+  }),
+  [TaskInteraction.Challenge]: produce(task => {
+    task.status = TaskStatus.DisputeCreated;
+  }),
+  [TaskInteraction.Accept]: produce(task => {
+    task.status = TaskStatus.Finished;
+  }),
+};
+
 const withNotification = wrapWithNotification({
   errorMessage: 'Failed to submit the transaction',
   successMessage: 'Transaction submitted sucessfuly',
@@ -46,9 +60,9 @@ const withNotification = wrapWithNotification({
 });
 
 function TaskInteractionButton({ ID, interaction, content, buttonProps }) {
-  const refresh = useImperativeRefresh();
-
   const apiMethod = interactionToApiMethodMap[interaction];
+  const afterSuccess = interactionToMutationMap[interaction];
+
   const linguo = useLinguo();
   const { account } = useWeb3React();
   const [state, dispatch] = useStateMachine(buttonStateMachine);
@@ -62,8 +76,8 @@ function TaskInteractionButton({ ID, interaction, content, buttonProps }) {
       try {
         dispatch('START');
         const result = await linguo.api[apiMethod]({ ID }, { from: account });
+        await mutate(['getTaskById', ID], mutate(afterSuccess));
         dispatch('SUCCESS');
-        refresh();
         return result;
       } catch (err) {
         dispatch('ERROR');
@@ -95,5 +109,7 @@ TaskInteractionButton.propTypes = {
 TaskInteractionButton.defaultProps = {
   buttonProps: {},
 };
+
+TaskInteractionButton.Interaction = TaskInteraction;
 
 export default TaskInteractionButton;

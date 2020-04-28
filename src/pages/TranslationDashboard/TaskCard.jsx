@@ -2,9 +2,9 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Typography, Tooltip } from 'antd';
+import { useCacheCall } from '~/app/linguo';
 import { Task, TaskStatus } from '~/api/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
-import useSelfUpdatingState from '~/hooks/useSelfUpdatingState';
 import Card from '~/components/Card';
 import FormattedNumber from '~/components/FormattedNumber';
 import TaskCardTitle from './TaskCardTitle';
@@ -30,22 +30,18 @@ const StyledTaskTitle = styled(Typography.Title)`
   }
 `;
 
-const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
+const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
 
 function TaskCard(task) {
-  const { status, title, maxPrice, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality } = task;
+  const { ID, status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality } = task;
 
-  const { currentPrice, currentPricePerWord } = useSelfUpdatingState({
-    updateIntervalMs: _1_MINUTE_IN_MILISECONDS,
-    getState: () => {
-      const currentDate = new Date();
-      return {
-        currentPrice: Task.currentPrice(task, { currentDate }),
-        currentPricePerWord: Task.currentPricePerWord(task, { currentDate }),
-      };
-    },
-    stopWhen: ({ currentPrice }) => !!assignedPrice || currentPrice === maxPrice,
+  const refreshInterval = !!assignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
+  const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', ID], {
+    initialData: Task.currentPrice(task),
+    refreshInterval,
   });
+
+  const currentPricePerWord = Task.currentPricePerWord({ currentPrice, wordCount });
 
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
 

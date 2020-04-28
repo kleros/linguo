@@ -49,7 +49,7 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
 
 let id = 0;
 export default function createApi({ contract }) {
-  async function getTaskById(ID) {
+  async function getTaskById({ ID }) {
     try {
       const [
         reviewTimeout,
@@ -98,7 +98,7 @@ export default function createApi({ contract }) {
         reviewTimeout,
         task: { ...task, parties: taskParties },
         metadata,
-        lifecyleEvents: {
+        lifecycleEvents: {
           TaskCreated: taskCreatedEvents,
           TaskAssigned: taskAssignedEvents,
           TranslationSubmitted: translationSubmittedEvents,
@@ -108,11 +108,11 @@ export default function createApi({ contract }) {
       });
     } catch (err) {
       console.error(err);
-      throw createError(new Error(`Failed to fetch task with ID ${ID}`), { cause: err });
+      throw createError(`Failed to fetch task with ID ${ID}`, { cause: err });
     }
   }
 
-  async function getOwnTasks(account) {
+  async function getOwnTasks({ account }) {
     const events = await contract.getPastEvents('TaskCreated', {
       filter: { _requester: account },
       fromBlock: 0,
@@ -131,6 +131,14 @@ export default function createApi({ contract }) {
     );
 
     return tasks;
+  }
+
+  async function getTaskPrice({ ID }) {
+    try {
+      return await contract.methods.getTaskPrice(ID).call();
+    } catch (err) {
+      throw createError(`Failed to get price for task with ID ${ID}`, { cause: err });
+    }
   }
 
   /**
@@ -188,7 +196,7 @@ export default function createApi({ contract }) {
    * has to lock in order to assign the task to himself if the transaction gets
    * mined before Δt has passed.
    */
-  async function getTranslatorDeposit(ID, { timeDeltaInSeconds = 3600 } = {}) {
+  async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
     let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
       contract.methods.getDepositValue(ID).call(),
       contract.methods.tasks(ID).call(),
@@ -273,14 +281,27 @@ export default function createApi({ contract }) {
     return receipt;
   }
 
+  async function acceptTranslation({ ID }, { from, gas, gasPrice } = {}) {
+    const txn = contract.methods.acceptTranslation(ID).send({
+      from,
+      gas,
+      gasPrice,
+    });
+
+    const receipt = await txn;
+    return receipt;
+  }
+
   return {
     id: ++id,
     getTaskById,
     getOwnTasks,
+    getTaskPrice,
     getTranslatorDeposit,
     createTask,
     assignTask,
     submitTranslation,
     requestReimbursement,
+    acceptTranslation,
   };
 }

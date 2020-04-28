@@ -4,6 +4,9 @@
  * which will be the Translator and the Challenger.
  *
  * This enum is used for UI purposes only.
+ *
+ * @readonly
+ * @enum {string} The task party
  */
 const TaskParty = {
   Requester: 'requester',

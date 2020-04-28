@@ -2,11 +2,11 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Row, Col, Typography } from 'antd';
+import { useCacheCall } from '~/app/linguo';
 import { Task, TaskStatus } from '~/api/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
 import getLanguageFlag from '~/components/helpers/getLanguageFlag';
-import useSelfUpdatingState from '~/hooks/useSelfUpdatingState';
 import { CalendarIcon } from '~/components/icons';
 import Spacer from '~/components/Spacer';
 import FormattedDate from '~/components/FormattedDate';
@@ -150,15 +150,15 @@ const StyledOriginalTextAttachments = styled(OriginalTextAttachments)`
   text-align: center;
 `;
 
-const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
+const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
 
 function TaskDetails(task) {
   const {
+    ID,
     status,
     title,
     deadline,
     assignedPrice,
-    maxPrice,
     expectedQuality,
     wordCount,
     sourceLanguage,
@@ -167,17 +167,13 @@ function TaskDetails(task) {
     originalTextFile,
   } = task;
 
-  const { currentPrice, currentPricePerWord } = useSelfUpdatingState({
-    updateIntervalMs: _1_MINUTE_IN_MILISECONDS,
-    getState: () => {
-      const currentDate = new Date();
-      return {
-        currentPrice: Task.currentPrice(task, { currentDate }),
-        currentPricePerWord: Task.currentPricePerWord(task, { currentDate }),
-      };
-    },
-    stopWhen: ({ currentPrice }) => !!assignedPrice || currentPrice === maxPrice,
+  const refreshInterval = !!assignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
+  const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', ID], {
+    initialData: Task.currentPrice(task),
+    refreshInterval,
   });
+
+  const currentPricePerWord = Task.currentPricePerWord({ currentPrice, wordCount });
 
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
 
@@ -242,14 +238,14 @@ function TaskDetails(task) {
           </StyledDefinitionDescription>
         </div>
       </StyledLanguageInfo>
-      <Spacer span={2} />
+      <Spacer span={3} />
       <StyledExpectedQuality>
         <StyledDefinitionTerm>Expected Quality</StyledDefinitionTerm>
         <StyledDefinitionDescription>
           <TranslationQualityDefinition tierValue={expectedQuality} />
         </StyledDefinitionDescription>
       </StyledExpectedQuality>
-      <Spacer span={2} />
+      <Spacer span={3} />
       <Row justify="center">
         <Col>
           <DownloadTextButton {...task} />
@@ -257,7 +253,7 @@ function TaskDetails(task) {
       </Row>
       <Spacer span={1} />
       <StyledOriginalTextAttachments originalTextUrl={originalTextUrl} originalTextFile={originalTextFile} />
-      <Spacer span={2} />
+      <Spacer span={3} />
       <TaskStatusDescription {...task} />
     </div>
   );

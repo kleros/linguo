@@ -96,7 +96,7 @@ const getContent = (task, party) => {
         party === TaskParty.Requester
           ? ['You can try submitting the same task again.', 'Increasing the payout might help you get it done on time.']
           : [],
-      renderAction: function IncompleteAction() {
+      renderAction() {
         return (
           <StyledIllustrationWrapper>
             <TaskIgnoredAvatar />
@@ -115,7 +115,7 @@ const getContent = (task, party) => {
       [TaskParty.Requester]: {
         title: 'This translation was not assigned yet',
         description: ['You will be informed when this task is assigned to a translator.'],
-        renderAction: function CreatedRequesterAction() {
+        renderAction() {
           return (
             <StyledIllustrationWrapper>
               <TaskCreatedAvatar />
@@ -129,16 +129,16 @@ const getContent = (task, party) => {
           'In order to self-assign this task you need to send a translation deposit. The value will be reimbursed when the task is finished and approved after the review time.',
           'In case your translation is not delivered in time or not approved, it will be used as a compensation to the task requester or challenger.',
         ],
-        renderAction: function CreatedOtherAction() {
+        renderAction() {
           return (
             <StyledActionWrapper>
               <TaskDeadline {...task} />
               <Spacer />
               <TaskInteractionButton
                 ID={task.ID}
-                interaction="assign"
+                interaction={TaskInteractionButton.Interaction.Assign}
                 content={{
-                  idle: 'Translate it',
+                  idle: 'Translate It',
                   pending: (
                     <>
                       <LoadingOutlined /> Sending...
@@ -172,7 +172,7 @@ const getContent = (task, party) => {
           />,
           'During this time you can challenge the translation if you think it does not fulfill the quality requirements.',
         ],
-        renderAction: function CreatedRequesterAction() {
+        renderAction() {
           return (
             <StyledIllustrationWrapper>
               <TaskAssignedAvatar />
@@ -195,7 +195,7 @@ const getContent = (task, party) => {
           />,
           'While in Review List, the translation can be challenged by the task requester or any other translator if they think it does not fulfill the quality requirements.',
         ],
-        renderAction: function CreatedOtherAction() {
+        renderAction() {
           return (
             <StyledActionWrapper>
               <TaskDeadline {...task} />
@@ -222,7 +222,7 @@ const getContent = (task, party) => {
           />,
           'During this time you can challenge the translation if you think it does not fulfill the quality requirements.',
         ],
-        renderAction: function CreatedRequesterAction() {
+        renderAction() {
           return (
             <StyledIllustrationWrapper>
               <TaskAssignedAvatar />
@@ -233,7 +233,74 @@ const getContent = (task, party) => {
     },
     [TaskStatus.AwaitingReview]: {
       [TaskParty.Requester]: {
-        // TODO
+        title: (
+          <TaskDeadline
+            {...task}
+            render={({ value, formattedValue }) =>
+              value > 0 ? (
+                <>
+                  Translation delivered. (In review for <strong>{formattedValue}</strong>)
+                </>
+              ) : (
+                'Review period is over'
+              )
+            }
+          />
+        ),
+
+        description:
+          Task.remainingTimeForReview(task, { currentDate: new Date() }) > 0
+            ? [
+                'During review you can challenge the translation if you think it does not fulfill the quality requirements. To do so, you need to send a challenge deposit.',
+                'If the jurors decide to not approve the translation you receive the escrow deposit back + the challenge deposit back + the deposit of the translator (minus arbitration fees).',
+                'If the translation is approved by the jurors you lose the challenge deposit and the escrow payment goes to the translator.',
+              ]
+            : [
+                'Since no one challenged the translation during the review period, the translator will be automatically paid in a few moments.',
+                'If you want, you can send the payment to the translator right the way.',
+              ],
+        renderAction() {
+          const remainingTime = Task.remainingTimeForReview(task, { currentDate: new Date() });
+
+          return (
+            <StyledActionWrapper>
+              <TaskDeadline {...task} />
+              <Spacer />
+
+              {remainingTime === 0 ? (
+                <TaskInteractionButton
+                  ID={task.ID}
+                  interaction={TaskInteractionButton.Interaction.Accept}
+                  content={{
+                    idle: 'Pay Translator',
+                    pending: (
+                      <>
+                        <LoadingOutlined /> Sending...
+                      </>
+                    ),
+                    succeeded: 'Done!',
+                  }}
+                  buttonProps={{ fullWidth: true }}
+                />
+              ) : (
+                <TaskInteractionButton
+                  ID={task.ID}
+                  interaction={TaskInteractionButton.Interaction.Challenge}
+                  content={{
+                    idle: 'Challenge It',
+                    pending: (
+                      <>
+                        <LoadingOutlined /> Sending...
+                      </>
+                    ),
+                    succeeded: 'Done!',
+                  }}
+                  buttonProps={{ fullWidth: true }}
+                />
+              )}
+            </StyledActionWrapper>
+          );
+        },
       },
       [TaskParty.Translator]: {
         title: (
@@ -253,14 +320,34 @@ const getContent = (task, party) => {
         description:
           Task.remainingTimeForReview(task, { currentDate: new Date() }) > 0
             ? [
-                ' During review time if someone challenge the translation a dispute is open and specialized jurors are drawn to decide the case. ',
-                'If so, you will be asked to deposit the arbitration fee as well. But, if the translation is not challenged, the task is finished and you receive the escrow payment + your translation deposit back.  ',
+                'During review time if someone challenge the translation a dispute is open and specialized jurors are drawn to decide the case. ',
+                'If so, you will be asked to deposit the arbitration fee as well. But, if the translation is not challenged, the task is finished and you receive the escrow payment + your translation deposit back.',
               ]
-            : ['You can claim your escrow payment + your deposit back'],
-        renderAction: function AwaitingReviewTranslatorAction() {
+            : [
+                'Your payment and the deposit you made when assigned to this task will be automatically sent to your wallet in a few moments.',
+                'If you do not want to wait, you can claim your payment + your deposit back now.',
+              ],
+        renderAction() {
           const remainingTime = Task.remainingTimeForReview(task, { currentDate: new Date() });
           return remainingTime === 0 ? (
-            'Claim escrow and deposit'
+            <StyledActionWrapper>
+              <TaskDeadline {...task} />
+              <Spacer />
+              <TaskInteractionButton
+                ID={task.ID}
+                interaction={TaskInteractionButton.Interaction.Accept}
+                content={{
+                  idle: 'Claim Payment',
+                  pending: (
+                    <>
+                      <LoadingOutlined /> Sending...
+                    </>
+                  ),
+                  succeeded: 'Done!',
+                }}
+                buttonProps={{ fullWidth: true }}
+              />
+            </StyledActionWrapper>
           ) : (
             <StyledIllustrationWrapper>
               <TaskAwaitingReviewAvatar />
