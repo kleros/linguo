@@ -10,7 +10,7 @@ export async function validator(fileList) {
   const { status, path } = fileList?.[fileList.length - 1]?.response || {};
 
   /**
-   * TODO: for some reason, antd Upload component is not properly setting
+   * FIXME: for some reason, antd Upload component is not properly setting
    * `status = 'uploading'` when `customRequest` is passed as prop.
    * For now, we assume `status === undefined` is the same as `status === 'uploading'`.
    */
