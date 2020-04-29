@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useInterval from './useInterval';
 
 export default function useCountdownTimer({ seconds = 0, refreshInterval = 1000 } = {}) {
   const [remainingTime, setRemainingTime] = useState(seconds);
+
+  useEffect(() => {
+    setRemainingTime(seconds);
+  }, [seconds]);
 
   const updateState = () => {
     if (remainingTime <= 0) {
