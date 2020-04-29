@@ -42,15 +42,20 @@ const interactionToApiMethodMap = {
 };
 
 const interactionToMutationMap = {
-  [TaskInteraction.Assign]: produce(task => {
-    task.status = TaskStatus.Assigned;
-  }),
-  [TaskInteraction.Challenge]: produce(task => {
-    task.status = TaskStatus.DisputeCreated;
-  }),
-  [TaskInteraction.Accept]: produce(task => {
-    task.status = TaskStatus.Finished;
-  }),
+  [TaskInteraction.Assign]: ({ account }) =>
+    produce(task => {
+      task.status = TaskStatus.Assigned;
+      task.parties.translator = account;
+    }),
+  [TaskInteraction.Challenge]: ({ account }) =>
+    produce(task => {
+      task.status = TaskStatus.DisputeCreated;
+      task.parties.challenger = account;
+    }),
+  [TaskInteraction.Accept]: () =>
+    produce(task => {
+      task.status = TaskStatus.Finished;
+    }),
 };
 
 const withNotification = wrapWithNotification({
@@ -60,12 +65,12 @@ const withNotification = wrapWithNotification({
 });
 
 function TaskInteractionButton({ ID, interaction, content, buttonProps }) {
-  const apiMethod = interactionToApiMethodMap[interaction];
-  const afterSuccess = interactionToMutationMap[interaction];
-
   const linguo = useLinguo();
   const { account } = useWeb3React();
   const [state, dispatch] = useStateMachine(buttonStateMachine);
+
+  const apiMethod = interactionToApiMethodMap[interaction];
+  const updateTaskParams = interactionToMutationMap[interaction]({ account });
 
   const disabled = state !== 'idle';
 
@@ -76,7 +81,7 @@ function TaskInteractionButton({ ID, interaction, content, buttonProps }) {
       try {
         dispatch('START');
         const result = await linguo.api[apiMethod]({ ID }, { from: account });
-        await mutate(['getTaskById', ID], mutate(afterSuccess));
+        await mutate(['getTaskById', ID], updateTaskParams);
         dispatch('SUCCESS');
         return result;
       } catch (err) {

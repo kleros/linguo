@@ -11,8 +11,10 @@ import TaskDetails from './TaskDetails';
 const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
 
 function TaskDetailsFetcher() {
-  const { id } = useParams();
-  const [{ data }, refetch] = useCacheCall(['getTaskById', id], {
+  const params = useParams();
+  const ID = Number(params.id);
+
+  const [{ data }, refetch] = useCacheCall(['getTaskById', ID], {
     suspense: true,
     refreshInterval: _1_MINUTE_IN_MILISECONDS,
   });

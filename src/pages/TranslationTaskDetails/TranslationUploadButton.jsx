@@ -1,9 +1,11 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
+import { mutate } from 'swr';
+import produce from 'immer';
 import { notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { useImperativeRefresh } from '~/adapters/reactRouterDom';
+import { TaskStatus } from '~/api/linguo';
 import { useLinguo } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import SingleFileUpload from '~/components/SingleFileUpload';
@@ -50,8 +52,6 @@ const withNotification = wrapWithNotification({
 });
 
 function TranslationUploadButton({ ID, buttonProps }) {
-  const refresh = useImperativeRefresh();
-
   const linguo = useLinguo();
   const { account } = useWeb3React();
 
@@ -62,12 +62,17 @@ function TranslationUploadButton({ ID, buttonProps }) {
       try {
         setHasPendingTxn(true);
         await linguo.api.submitTranslation({ ID, text }, { from: account });
-        refresh();
+        mutate(
+          ['getTaskById', ID],
+          produce(task => {
+            task.status = TaskStatus.AwaitingReview;
+          })
+        );
       } finally {
         setHasPendingTxn(false);
       }
     }),
-    [linguo.api, refresh]
+    [linguo.api]
   );
 
   const handleChange = React.useCallback(
