@@ -6,6 +6,7 @@ import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
 import compose from '~/utils/fp/compose';
 import { withSuspense } from '~/adapters/react';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
+import { TaskProvider } from './TaskContext';
 import TaskDetails from './TaskDetails';
 
 const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
@@ -21,7 +22,11 @@ function TaskDetailsFetcher() {
 
   useRefreshEffectOnce(refetch);
 
-  return <TaskDetails {...data} />;
+  return (
+    <TaskProvider task={data}>
+      <TaskDetails />
+    </TaskProvider>
+  );
 }
 
 const errorBoundaryEnhancer = withErrorBoundary({

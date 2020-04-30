@@ -7,9 +7,10 @@ import { withSuspense } from '~/adapters/react';
 import { useCacheCall } from '~/app/linguo';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
 import EthValue from '~/components/EthValue';
+import TaskContext from './TaskContext';
 
-function TaskAssignmentDepositFetcher(task) {
-  const { ID } = task;
+function TaskAssignmentDepositFetcher() {
+  const { ID } = React.useContext(TaskContext);
   const [{ data }] = useCacheCall(['getTranslatorDeposit', ID], { suspense: true });
 
   return <TaskAssignmentDeposit amount={data} />;

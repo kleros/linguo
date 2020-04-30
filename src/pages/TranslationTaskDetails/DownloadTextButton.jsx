@@ -2,6 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import Button from '~/components/Button';
+import TaskContext from './TaskContext';
 
 const JumboButton = styled(Button)`
   font-size: ${p => p.theme.fontSize.xxl};
@@ -18,18 +19,24 @@ const JumboButton = styled(Button)`
   }
 `;
 
-function DownloadTextButton({ ID, text }) {
-  const [href, setHref] = React.useState('data:text/plain,');
-
+const useObjectUrlForText = text => {
+  const [url, setUrl] = React.useState('data:text/plain,');
   React.useEffect(() => {
     const blob = new Blob([text], { type: 'text/plain' });
     const dataUrl = URL.createObjectURL(blob);
-    setHref(dataUrl);
+    setUrl(dataUrl);
 
     return () => {
       URL.revokeObjectURL(dataUrl);
     };
   }, [text]);
+
+  return url;
+};
+
+function DownloadTextButton() {
+  const { ID, text } = React.useContext(TaskContext);
+  const href = useObjectUrlForText(text);
 
   return (
     <a href={href} download={`linguo-translation-text-${ID}.txt`}>

@@ -3,7 +3,6 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Row, Col, Typography } from 'antd';
 import { Task, TaskStatus, useCacheCall } from '~/app/linguo';
-
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
 import getLanguageFlag from '~/components/helpers/getLanguageFlag';
@@ -12,6 +11,7 @@ import Spacer from '~/components/Spacer';
 import FormattedDate from '~/components/FormattedDate';
 import FormattedNumber from '~/components/FormattedNumber';
 import TranslationQualityDefinition from '~/components/TranslationQualityDefinition';
+import TaskContext from './TaskContext';
 import TaskInfoGrid from './TaskInfoGrid';
 import TaskPrice from './TaskPrice';
 import OriginalTextAttachments from './OriginalTextAttachments';
@@ -152,7 +152,8 @@ const StyledOriginalTextAttachments = styled(OriginalTextAttachments)`
 
 const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
 
-function TaskDetails(task) {
+function TaskDetails() {
+  const task = React.useContext(TaskContext);
   const {
     ID,
     status,
@@ -248,26 +249,15 @@ function TaskDetails(task) {
       <Spacer span={3} />
       <Row justify="center">
         <Col>
-          <DownloadTextButton {...task} />
+          <DownloadTextButton />
         </Col>
       </Row>
       <Spacer span={1} />
       <StyledOriginalTextAttachments originalTextUrl={originalTextUrl} originalTextFile={originalTextFile} />
       <Spacer span={3} />
-      <TaskStatusDescription {...task} />
+      <TaskStatusDescription />
     </div>
   );
 }
-
-TaskDetails.propTypes = {
-  ID: t.number.isRequired,
-  status: t.oneOf(Object.values(TaskStatus)).isRequired,
-  title: t.string.isRequired,
-  deadline: t.oneOfType([t.string, t.instanceOf(Date)]).isRequired,
-  maxPrice: t.string.isRequired,
-  expectedQuality: t.oneOf(Object.keys(translationQualityTiers)).isRequired,
-  wordCount: t.number.isRequired,
-  assignedPrice: t.string,
-};
 
 export default TaskDetails;

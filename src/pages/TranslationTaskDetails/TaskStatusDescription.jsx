@@ -1,5 +1,4 @@
 import React from 'react';
-import t from 'prop-types';
 import styled from 'styled-components';
 import { Row, Col, Typography } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
@@ -13,16 +12,11 @@ import Spacer from '~/components/Spacer';
 import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import ContentBlocker from '~/components/ContentBlocker';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
+import TaskContext from './TaskContext';
 import TaskDeadline from './TaskDeadline';
 import TaskAssignmentDepositFetcher from './TaskAssignmentDepositFetcher';
 import TaskInteractionButton from './TaskInteractionButton';
 import TranslationUploadButton from './TranslationUploadButton';
-
-const StyledWrapper = styled.div`
-  border: 1px solid ${p => p.theme.color.primary.default};
-  border-radius: 0.75rem;
-  padding: 2rem;
-`;
 
 const StyledTitle = styled(Typography.Title)`
   && {
@@ -132,7 +126,7 @@ const getContent = (task, party) => {
         renderAction() {
           return (
             <StyledActionWrapper>
-              <TaskDeadline {...task} />
+              <TaskDeadline />
               <Spacer />
               <TaskInteractionButton
                 ID={task.ID}
@@ -149,7 +143,7 @@ const getContent = (task, party) => {
                 buttonProps={{ fullWidth: true }}
               />
               <Spacer />
-              <TaskAssignmentDepositFetcher {...task} />
+              <TaskAssignmentDepositFetcher />
             </StyledActionWrapper>
           );
         },
@@ -198,7 +192,7 @@ const getContent = (task, party) => {
         renderAction() {
           return (
             <StyledActionWrapper>
-              <TaskDeadline {...task} />
+              <TaskDeadline />
               <Spacer />
               <TranslationUploadButton ID={task.ID} buttonProps={{ fullWidth: true }} />
               <Spacer />
@@ -234,8 +228,9 @@ const getContent = (task, party) => {
     [TaskStatus.AwaitingReview]: {
       [TaskParty.Requester]: {
         title: (
-          <TaskDeadline
-            {...task}
+          <FormattedRelativeDate
+            value={task.reviewTimeout}
+            unit="second"
             render={({ value, formattedValue }) =>
               value > 0 ? (
                 <>
@@ -264,7 +259,7 @@ const getContent = (task, party) => {
 
           return (
             <StyledActionWrapper>
-              <TaskDeadline {...task} />
+              <TaskDeadline />
               <Spacer />
 
               {remainingTime === 0 ? (
@@ -305,7 +300,6 @@ const getContent = (task, party) => {
       [TaskParty.Translator]: {
         title: (
           <TaskDeadline
-            {...task}
             render={({ value, formattedValue }) =>
               value > 0 ? (
                 <>
@@ -331,7 +325,7 @@ const getContent = (task, party) => {
           const remainingTime = Task.remainingTimeForReview(task, { currentDate: new Date() });
           return remainingTime === 0 ? (
             <StyledActionWrapper>
-              <TaskDeadline {...task} />
+              <TaskDeadline />
               <Spacer />
               <TaskInteractionButton
                 ID={task.ID}
@@ -364,9 +358,16 @@ const getContent = (task, party) => {
   return contentByStatusAndParty[task.status]?.[party] ?? { title: '', description: [], renderAction: () => null };
 };
 
-function TaskStatusDescription(task) {
-  const { account } = useWeb3React();
+const StyledWrapper = styled.div`
+  border: 1px solid ${p => p.theme.color.primary.default};
+  border-radius: 0.75rem;
+  padding: 2rem;
+`;
+
+function TaskStatusDescription() {
+  const task = React.useContext(TaskContext);
   const { requester, parties } = task;
+  const { account } = useWeb3React();
 
   const party = getCurrentParty({ account, requester, ...parties });
   const { title = null, description = [], renderAction = () => null } = getContent(task, party);
@@ -405,9 +406,5 @@ function TaskStatusDescription(task) {
     </RequiredWalletGateway>
   );
 }
-
-TaskStatusDescription.propTypes = {
-  status: t.oneOf(Object.values(TaskStatus)).isRequired,
-};
 
 export default TaskStatusDescription;

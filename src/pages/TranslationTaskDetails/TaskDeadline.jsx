@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { TaskStatus, Task } from '~/app/linguo';
 import RemainingTime from '~/components/RemainingTime';
 import { HourGlassIcon } from '~/components/icons';
+import TaskContext from './TaskContext';
 
 const StyledHourGlassIcon = styled(HourGlassIcon)``;
 
@@ -44,7 +45,8 @@ DefaultTaskDeadlineRender.propTypes = {
   formattedValue: t.string.isRequired,
 };
 
-function TaskDeadline({ showPrefix, render, ...task }) {
+function TaskDeadline({ showPrefix, render }) {
+  const task = React.useContext(TaskContext);
   const currentDate = new Date();
 
   const timeout = Task.isPending(task)
@@ -61,7 +63,6 @@ function TaskDeadline({ showPrefix, render, ...task }) {
 }
 
 TaskDeadline.propTypes = {
-  status: t.oneOf(Object.values(TaskStatus)).isRequired,
   className: t.string,
   showPrefix: t.bool,
   render: t.func,
