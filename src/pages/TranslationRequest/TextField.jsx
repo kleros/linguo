@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Form, Col, Input } from 'antd';
 import FormattedNumber from '~/components/FormattedNumber';
-import { Task } from '~/api/linguo';
+import { Task } from '~/app/linguo';
 
 const StyledFormItem = styled(Form.Item)`
   .ant-form-item-required {

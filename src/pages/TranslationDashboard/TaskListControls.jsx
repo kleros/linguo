@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Radio } from 'antd';
 import { Link } from 'react-router-dom';
-import { filters } from '~/api/linguo';
+import { filters } from '~/app/linguo';
 import * as r from '~/app/routes';
 import Button from '~/components/Button';
 import RadioButton from '~/components/RadioButton';

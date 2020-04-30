@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { LinkOutlined, PaperClipOutlined } from '@ant-design/icons';
-import { getFileUrl } from '~/api/linguo';
+import { getFileUrl } from '~/app/linguo';
 
 const StyledList = styled.ul`
   padding: 0;

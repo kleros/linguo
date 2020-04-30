@@ -2,8 +2,8 @@ import React from 'react';
 import t from 'prop-types';
 import { mutate } from 'swr';
 import produce from 'immer';
-import { TaskStatus } from '~/api/linguo';
-import { useLinguo } from '~/app/linguo';
+import { TaskStatus, useLinguo } from '~/app/linguo';
+
 import { useWeb3React } from '~/app/web3React';
 import useStateMachine from '~/hooks/useStateMachine';
 import wrapWithNotification from '~/utils/wrapWithNotification';
@@ -41,6 +41,7 @@ const interactionToApiMethodMap = {
   [TaskInteraction.Accept]: 'acceptTranslation',
 };
 
+// TODO: move this to Task API
 const interactionToMutationMap = {
   [TaskInteraction.Assign]: ({ account }) =>
     produce(task => {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useQuery } from '~/adapters/reactRouterDom';
-import { filters } from '~/api/linguo';
+import { filters } from '~/app/linguo';
 
 const getActiveFilter = value => {
   if (value === undefined) {

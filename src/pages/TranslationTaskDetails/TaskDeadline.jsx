@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import clsx from 'clsx';
 import styled from 'styled-components';
-import { TaskStatus, Task } from '~/api/linguo';
+import { TaskStatus, Task } from '~/app/linguo';
 import RemainingTime from '~/components/RemainingTime';
 import { HourGlassIcon } from '~/components/icons';
 

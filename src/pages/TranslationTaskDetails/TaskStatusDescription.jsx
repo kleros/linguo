@@ -3,7 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Row, Col, Typography } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { TaskStatus, Task, TaskParty } from '~/api/linguo';
+import { TaskStatus, Task, TaskParty } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import TaskCreatedAvatar from '~/assets/images/avatar-task-created.svg';
 import TaskAssignedAvatar from '~/assets/images/avatar-task-assigned.svg';

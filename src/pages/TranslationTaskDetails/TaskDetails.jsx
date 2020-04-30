@@ -2,8 +2,8 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Row, Col, Typography } from 'antd';
-import { useCacheCall } from '~/app/linguo';
-import { Task, TaskStatus } from '~/api/linguo';
+import { Task, TaskStatus, useCacheCall } from '~/app/linguo';
+
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
 import getLanguageFlag from '~/components/helpers/getLanguageFlag';

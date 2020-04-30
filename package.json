@@ -19,7 +19,7 @@
     "build": "parcel build src/index.html",
     "clean": "rm -rf .cache dist",
     "lint:css": "stylelint 'src/**/*.js{,x}'",
-    "lint:js": "eslint src/",
+    "lint:js": "eslint --ext .js,.jsx src/",
     "start": "parcel src/index.html"
   },
   "dependencies": {
