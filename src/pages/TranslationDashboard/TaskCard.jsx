@@ -34,20 +34,30 @@ const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
 function TaskCard(task) {
   const { ID, status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality } = task;
 
-  const refreshInterval = !!assignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
+  const hasAssignedPrice = assignedPrice !== undefined;
+
+  const refreshInterval = hasAssignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
+  const shouldRevalidate = !hasAssignedPrice;
+
   const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', ID], {
     initialData: Task.currentPrice(task),
+    revalidateOnFocus: shouldRevalidate,
+    revalidateOnReconnect: shouldRevalidate,
     refreshInterval,
   });
+  const actualPrice = assignedPrice ?? currentPrice;
 
-  const currentPricePerWord = Task.currentPricePerWord({ currentPrice, wordCount });
+  const pricePerWord = Task.currentPricePerWord({
+    currentPrice: actualPrice,
+    wordCount,
+  });
 
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
 
   const taskInfo = [
     {
       title: 'Price per word',
-      content: <TaskPrice showTooltip value={currentPricePerWord} />,
+      content: <TaskPrice showTooltip value={pricePerWord} />,
     },
     {
       title: 'Number of words',

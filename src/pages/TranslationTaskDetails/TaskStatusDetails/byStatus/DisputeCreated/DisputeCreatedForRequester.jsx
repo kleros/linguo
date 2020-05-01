@@ -1,8 +1,12 @@
 import React from 'react';
+import TaskContext from '../../../TaskContext';
 import VerticalSplitLayout from '../../layout/VerticalSplit';
 import TaskInDisputeAvatar from '~/assets/images/avatar-task-in-dispute.svg';
 
 function DisputeCreatedForRequester() {
+  const { dispute } = React.useContext(TaskContext);
+  console.log({ dispute });
+
   const props = {
     title: 'The translation is being evaluated by the jurors',
     description: [

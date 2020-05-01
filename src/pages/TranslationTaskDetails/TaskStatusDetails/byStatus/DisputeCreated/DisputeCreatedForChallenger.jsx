@@ -4,7 +4,8 @@ import VerticalSplitLayout from '../../layout/VerticalSplit';
 import TaskInDisputeAvatar from '~/assets/images/avatar-task-in-dispute.svg';
 
 function DisputeCreatedForChallenger() {
-  const { requester, parties } = React.useContext(TaskContext);
+  const { requester, parties, dispute } = React.useContext(TaskContext);
+  console.log({ dispute });
 
   const challengerIsRequester = requester === parties?.challenger;
 

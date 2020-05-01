@@ -48,7 +48,7 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
 };
 
 let id = 0;
-export default function createApi({ contract }) {
+export default function createApi({ linguoContract, arbitratorContract }) {
   async function getTaskById({ ID }) {
     /**
      * For some reason, event filtering breaks when ID is 0.
@@ -69,48 +69,59 @@ export default function createApi({ contract }) {
         translationChallengedEvents,
         taskResolvedEvents,
       ] = await Promise.all([
-        contract.methods.reviewTimeout().call(),
-        contract.methods.tasks(ID).call(),
-        contract.methods.getTaskParties(ID).call(),
-        contract.getPastEvents('MetaEvidence', {
+        linguoContract.methods.reviewTimeout().call(),
+        linguoContract.methods.tasks(ID).call(),
+        linguoContract.methods.getTaskParties(ID).call(),
+        linguoContract.getPastEvents('MetaEvidence', {
           filter: { _metaEvidenceID: ID },
           fromBlock: 0,
         }),
-        contract.getPastEvents('TaskCreated', {
+        linguoContract.getPastEvents('TaskCreated', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        contract.getPastEvents('TaskAssigned', {
+        linguoContract.getPastEvents('TaskAssigned', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        contract.getPastEvents('TranslationSubmitted', {
+        linguoContract.getPastEvents('TranslationSubmitted', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        contract.getPastEvents('TranslationChallenged', {
+        linguoContract.getPastEvents('TranslationChallenged', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        contract.getPastEvents('TaskResolved', {
+        linguoContract.getPastEvents('TaskResolved', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
       ]);
 
-      const { metadata } = await fetchMetaEvidenceFromEvents({ ID, events: metaEvidenceEvents });
+      const [{ metadata }, disputeEvents] = await Promise.all([
+        fetchMetaEvidenceFromEvents({ ID, events: metaEvidenceEvents }),
+        linguoContract.getPastEvents('Dispute', {
+          filter: { _disputeID: task.disputeID },
+          fromBlock: 0,
+        }),
+      ]);
+
+      const disputeStatus =
+        disputeEvents.length > 0 ? await arbitratorContract.methods.disputeStatus(task.disputeID).call() : undefined;
 
       return normalize({
         ID,
         reviewTimeout,
         task: { ...task, parties: taskParties },
         metadata,
+        disputeStatus,
         lifecycleEvents: {
           TaskCreated: taskCreatedEvents,
           TaskAssigned: taskAssignedEvents,
           TranslationSubmitted: translationSubmittedEvents,
           TranslationChallenged: translationChallengedEvents,
           TaskResolved: taskResolvedEvents,
+          Dispute: disputeEvents,
         },
       });
     } catch (err) {
@@ -120,7 +131,7 @@ export default function createApi({ contract }) {
   }
 
   async function getOwnTasks({ account }) {
-    const events = await contract.getPastEvents('TaskCreated', {
+    const events = await linguoContract.getPastEvents('TaskCreated', {
       filter: { _requester: account },
       fromBlock: 0,
     });
@@ -142,7 +153,7 @@ export default function createApi({ contract }) {
 
   async function getTaskPrice({ ID }) {
     try {
-      return await contract.methods.getTaskPrice(ID).call();
+      return await linguoContract.methods.getTaskPrice(ID).call();
     } catch (err) {
       throw createError(`Failed to get price for task with ID ${ID}`, { cause: err });
     }
@@ -205,8 +216,8 @@ export default function createApi({ contract }) {
    */
   async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
     let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
-      contract.methods.getDepositValue(ID).call(),
-      contract.methods.tasks(ID).call(),
+      linguoContract.methods.getDepositValue(ID).call(),
+      linguoContract.methods.tasks(ID).call(),
     ]);
 
     deposit = toBN(deposit);
@@ -221,8 +232,23 @@ export default function createApi({ contract }) {
   }
 
   async function getChallengerDeposit({ ID }) {
-    const deposit = await contract.methods.getChallengeValue(ID).call();
+    const deposit = await linguoContract.methods.getChallengeValue(ID).call();
     return deposit;
+  }
+
+  async function getTaskDisputeStatus({ ID }) {
+    const { disputeID } = await linguoContract.methods.tasks(ID).call();
+    const disputeEvents = await linguoContract.getPastEvents('Dispute', {
+      filter: { _disputeID: disputeID },
+      fromBlock: 0,
+    });
+
+    if (disputeEvents.length === 0) {
+      throw new Error(`There is no dispute for task ${ID}`);
+    }
+
+    const disputeStatus = await arbitratorContract.methods.disputeStatus(disputeID).call();
+    return Number(disputeStatus);
   }
 
   async function createTask(
@@ -242,7 +268,7 @@ export default function createApi({ contract }) {
     });
 
     try {
-      const contractCall = contract.methods.createTask(deadline, minPrice, metaEvidence);
+      const contractCall = linguoContract.methods.createTask(deadline, minPrice, metaEvidence);
 
       const txn = contractCall.send({
         from,
@@ -260,7 +286,7 @@ export default function createApi({ contract }) {
 
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
     const value = await getTranslatorDeposit({ ID });
-    const txn = contract.methods.assignTask(ID).send({
+    const txn = linguoContract.methods.assignTask(ID).send({
       from,
       value,
       gas,
@@ -272,7 +298,7 @@ export default function createApi({ contract }) {
   }
 
   async function submitTranslation({ ID, text }, { from, gas, gasPrice } = {}) {
-    const txn = contract.methods.submitTranslation(ID, text).send({
+    const txn = linguoContract.methods.submitTranslation(ID, text).send({
       from,
       gas,
       gasPrice,
@@ -283,7 +309,7 @@ export default function createApi({ contract }) {
   }
 
   async function reimburseRequester({ ID }, { from, gas, gasPrice } = {}) {
-    const txn = contract.methods.reimburseRequester(ID).send({
+    const txn = linguoContract.methods.reimburseRequester(ID).send({
       from,
       gas,
       gasPrice,
@@ -294,7 +320,7 @@ export default function createApi({ contract }) {
   }
 
   async function acceptTranslation({ ID }, { from, gas, gasPrice } = {}) {
-    const txn = contract.methods.acceptTranslation(ID).send({
+    const txn = linguoContract.methods.acceptTranslation(ID).send({
       from,
       gas,
       gasPrice,
@@ -306,7 +332,7 @@ export default function createApi({ contract }) {
 
   async function challengeTranslation({ ID }, { from, gas, gasPrice } = {}) {
     const value = await getChallengerDeposit({ ID });
-    const txn = contract.methods.challengeTranslation(ID).send({
+    const txn = linguoContract.methods.challengeTranslation(ID).send({
       from,
       value,
       gas,
@@ -324,6 +350,7 @@ export default function createApi({ contract }) {
     getTaskPrice,
     getTranslatorDeposit,
     getChallengerDeposit,
+    getTaskDisputeStatus,
     createTask,
     assignTask,
     submitTranslation,

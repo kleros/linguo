@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo } from 'react';
 import useSWR from 'swr';
-import { Linguo } from '@kleros/contract-deployments';
+import { Linguo, Arbitrator } from '@kleros/contract-deployments';
 import createError from '~/utils/createError';
 import createApi from './createApi';
 
@@ -15,7 +15,7 @@ const methodHandler = {
   },
 };
 
-const apiPlaceholder = new Proxy(createApi({ contract: undefined }), {
+const apiPlaceholder = new Proxy(createApi({ linguoContract: undefined }), {
   get: (target, prop, receiver) => {
     const value = target[prop];
 
@@ -23,7 +23,7 @@ const apiPlaceholder = new Proxy(createApi({ contract: undefined }), {
   },
 });
 
-const createApiInstance = ({ web3, chainId }) => {
+const createApiInstance = async ({ web3, chainId }) => {
   if (!web3 || !chainId) {
     return {
       tag: 'uninitialized',
@@ -41,15 +41,17 @@ const createApiInstance = ({ web3, chainId }) => {
     };
   }
 
-  let contract;
   try {
-    contract = new web3.eth.Contract(Linguo.abi, address);
+    const linguoContract = new web3.eth.Contract(Linguo.abi, address);
+    const arbitratorAddress = await linguoContract.methods.arbitrator().call();
+    const arbitratorContract = new web3.eth.Contract(Arbitrator.abi, arbitratorAddress);
 
     return {
       tag: 'ready',
       error: null,
       api: createApi({
-        contract,
+        linguoContract,
+        arbitratorContract,
       }),
     };
   } catch (err) {
@@ -66,13 +68,23 @@ export default function createHooks({ AppContext, useWeb3React }) {
     const [_ignored, patchContext] = useContext(AppContext);
     const { library: web3, chainId } = useWeb3React();
 
-    const apiInstance = useMemo(() => createApiInstance({ web3, chainId }), [web3, chainId]);
-
     useEffect(() => {
-      patchContext({
-        linguo: apiInstance,
-      });
-    }, [patchContext, apiInstance]);
+      let cancelled = false;
+
+      const assignApiInstance = async () => {
+        if (!cancelled) {
+          patchContext({
+            linguo: await createApiInstance({ web3, chainId }),
+          });
+        }
+      };
+
+      assignApiInstance();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [web3, chainId, patchContext]);
   }
 
   function useLinguo() {
@@ -97,6 +109,7 @@ export default function createHooks({ AppContext, useWeb3React }) {
     getTaskPrice: ([ID]) => ({ ID }),
     getTranslatorDeposit: ([ID]) => ({ ID }),
     getChallengerDeposit: ([ID]) => ({ ID }),
+    getTaskDisputeStatus: ([ID]) => ({ ID }),
     getOwnTasks: ([account]) => ({ account }),
   };
 

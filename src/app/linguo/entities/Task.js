@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 import TaskStatus from './TaskStatus';
+import DisputeStatus from './DisputeStatus';
+import DisputeRuling from './DisputeRuling';
 import Web3 from 'web3';
 
 const { toBN, BN } = Web3.utils;
@@ -55,6 +57,11 @@ const normalizeEventPropsFnMap = {
   TaskResolved: {
     _taskID: Number,
     _timestamp: _timestamp => dayjs.unix(_timestamp).toDate(),
+  },
+  Dispute: {
+    _disputeID: Number,
+    _metaEvidenceID: Number,
+    _evidenceGroupID: Number,
   },
 };
 
@@ -112,7 +119,7 @@ const normalizePropsFnMap = {
  * @return {Task} The normalized task object
  */
 
-export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents } = {}) => {
+export const normalize = ({ ID, reviewTimeout, task, metadata, disputeStatus, lifecycleEvents } = {}) => {
   const data = Object.entries({
     ID,
     ...metadata,
@@ -133,7 +140,34 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents }
 
   data.assignedPrice = data.lifecycleEvents.TaskAssigned?.[0]?._price;
 
+  data.dispute = normalizeDispute({ task: data, disputeStatus });
+  delete data.ruling;
+  delete data.disputeID;
+
   return data;
+};
+
+const normalizeDispute = ({ task, disputeStatus }) => {
+  disputeStatus = disputeStatus ? Number(disputeStatus) : DisputeStatus.None;
+
+  const taskHasDispute = task.lifecycleEvents.Dispute.length > 0;
+  const disputeHasRuling = [DisputeStatus.Appealable, DisputeStatus.Solved].includes(disputeStatus);
+
+  return taskHasDispute
+    ? {
+        ID: task.disputeID,
+        status: disputeStatus,
+        ruling: disputeHasRuling ? task.ruling : DisputeRuling.None,
+      }
+    : {
+        ID: undefined,
+        status: DisputeStatus.None,
+        ruling: DisputeRuling.None,
+      };
+};
+
+export const disputeHasRuling = ({ dispute }) => {
+  return [DisputeStatus.Appealable, DisputeStatus.Solved].includes(dispute.status);
 };
 
 /**
