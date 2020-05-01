@@ -1,10 +1,10 @@
 import React from 'react';
 import Spacer from '~/components/Spacer';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
-import TaskContext from '../../TaskContext';
-import VerticalSplitLayout from '../layout/VerticalSplit';
-import TaskDeadline from '../components/TaskDeadline';
-import TranslationUploadButton from '../components/TranslationUploadButton';
+import TaskContext from '../../../TaskContext';
+import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskDeadline from '../../components/TaskDeadline';
+import TranslationUploadButton from '../../components/TranslationUploadButton';
 
 function AssignedForTranslator() {
   const { reviewTimeout } = React.useContext(TaskContext);

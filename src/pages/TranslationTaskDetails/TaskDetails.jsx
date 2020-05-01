@@ -15,7 +15,7 @@ import TaskContext from './TaskContext';
 import TaskInfoGrid from './TaskInfoGrid';
 import TaskPrice from './TaskPrice';
 import OriginalTextAttachments from './OriginalTextAttachments';
-import TaskStatusDescription from './TaskStatusDescription';
+import TaskStatusDetails from './TaskStatusDetails';
 import DownloadTextButton from './DownloadTextButton';
 
 const StyledTaskTitle = styled(Typography.Title)`
@@ -271,7 +271,7 @@ function TaskDetails() {
       <Spacer span={1} />
       <StyledOriginalTextAttachments originalTextUrl={originalTextUrl} originalTextFile={originalTextFile} />
       <Spacer span={3} />
-      <TaskStatusDescription />
+      <TaskStatusDetails />
     </div>
   );
 }

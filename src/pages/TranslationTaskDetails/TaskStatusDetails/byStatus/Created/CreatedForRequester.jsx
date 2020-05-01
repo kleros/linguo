@@ -1,6 +1,6 @@
 import React from 'react';
 import TaskCreatedAvatar from '~/assets/images/avatar-task-created.svg';
-import VerticalSplitLayout from '../layout/VerticalSplit';
+import VerticalSplitLayout from '../../layout/VerticalSplit';
 
 function CreatedForRequester() {
   const title = 'This translation was not assigned yet';

@@ -1,11 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Task, TaskParty } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import ContentBlocker from '~/components/ContentBlocker';
-import TaskContext from './TaskContext';
-import status from './status';
+import TaskContext from '../TaskContext';
+import byStatus from './byStatus';
 
 const getCurrentParty = ({ account, requester, translator, challenger }) => {
   switch (account) {
@@ -20,13 +19,7 @@ const getCurrentParty = ({ account, requester, translator, challenger }) => {
   }
 };
 
-const StyledWrapper = styled.div`
-  border: 1px solid ${p => p.theme.color.primary.default};
-  border-radius: 0.75rem;
-  padding: 2rem;
-`;
-
-function TaskStatusDescription() {
+function TaskStatusDetails() {
   const task = React.useContext(TaskContext);
   const isIncomplete = Task.isIncomplete(task);
   const { requester, parties } = task;
@@ -34,14 +27,10 @@ function TaskStatusDescription() {
 
   const party = getCurrentParty({ account, requester, ...parties });
 
-  const Component = isIncomplete ? status.Incomplete[party] : status?.[task.status]?.[party];
+  const Component = isIncomplete ? byStatus.Incomplete[party] : byStatus?.[task.status]?.[party];
 
   const contentBlocked = !account;
-  const content = (
-    <ContentBlocker blocked={contentBlocked}>
-      <StyledWrapper>{Component && <Component />}</StyledWrapper>
-    </ContentBlocker>
-  );
+  const content = <ContentBlocker blocked={contentBlocked}>{Component && <Component />}</ContentBlocker>;
 
   return (
     <RequiredWalletGateway
@@ -54,4 +43,4 @@ function TaskStatusDescription() {
   );
 }
 
-export default TaskStatusDescription;
+export default TaskStatusDetails;

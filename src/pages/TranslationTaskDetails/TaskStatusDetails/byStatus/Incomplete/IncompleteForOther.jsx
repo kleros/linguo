@@ -2,10 +2,10 @@ import React from 'react';
 import { Task, TaskStatus } from '~/app/linguo';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
 import Spacer from '~/components/Spacer';
-import TaskContext from '../../TaskContext';
-import VerticalSplitLayout from '../layout/VerticalSplit';
-import TaskInteractionButton from '../components/TaskInteractionButton';
-import TaskDeadline from '../components/TaskDeadline';
+import TaskContext from '../../../TaskContext';
+import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskInteractionButton from '../../components/TaskInteractionButton';
+import TaskDeadline from '../../components/TaskDeadline';
 
 function IncompleteForRequester() {
   const task = React.useContext(TaskContext);

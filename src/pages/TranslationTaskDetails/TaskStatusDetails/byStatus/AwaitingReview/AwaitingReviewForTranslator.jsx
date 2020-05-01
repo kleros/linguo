@@ -2,10 +2,10 @@ import React from 'react';
 import { Task } from '~/app/linguo';
 import TaskAwaitingReviewAvatar from '~/assets/images/avatar-task-awaiting-review.svg';
 import Spacer from '~/components/Spacer';
-import TaskContext from '../../TaskContext';
-import VerticalSplitLayout from '../layout/VerticalSplit';
-import TaskDeadline from '../components/TaskDeadline';
-import TaskInteractionButton from '../components/TaskInteractionButton';
+import TaskContext from '../../../TaskContext';
+import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskDeadline from '../../components/TaskDeadline';
+import TaskInteractionButton from '../../components/TaskInteractionButton';
 
 function AwaitingReviewForTranslator() {
   const task = React.useContext(TaskContext);

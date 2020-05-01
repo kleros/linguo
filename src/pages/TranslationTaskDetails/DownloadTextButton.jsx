@@ -54,7 +54,7 @@ function DownloadTextButton() {
 
   return (
     <StyledLink href={href} download={`linguo-translation-text-${ID}.txt`}>
-      <JumboButton>Download the Text</JumboButton>
+      <JumboButton>Download the Original Text</JumboButton>
     </StyledLink>
   );
 }

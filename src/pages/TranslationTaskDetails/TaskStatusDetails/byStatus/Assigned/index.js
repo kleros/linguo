@@ -1,7 +1,7 @@
 import React from 'react';
 import loadable from '@loadable/component';
 import { TaskParty } from '~/app/linguo';
-import Spinner from '../components/Spinner';
+import Spinner from '../../components/Spinner';
 
 const fallback = <Spinner />;
 

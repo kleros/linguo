@@ -1,23 +1,23 @@
 import React from 'react';
 import TaskAssignedAvatar from '~/assets/images/avatar-task-assigned.svg';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
-import TaskContext from '../../TaskContext';
-import VerticalSplitLayout from '../layout/VerticalSplit';
+import TaskContext from '../../../TaskContext';
+import VerticalSplitLayout from '../../layout/VerticalSplit';
 
-function AssignedForRequester() {
+function AssignedForOther() {
   const { reviewTimeout } = React.useContext(TaskContext);
 
   const props = {
     title: 'This translation task was assigned by a translator',
     description: [
-      'You will be informed when the translation is delivered.',
       <FormattedRelativeDate
         key="next-steps"
         value={reviewTimeout}
         unit="second"
         render={({ formattedValue }) => (
           <>
-            After this, it goes to the Review List for <strong>{formattedValue}</strong>.
+            After the translation is submitted by the translator, it goes to the Review List for{' '}
+            <strong>{formattedValue}</strong>.
           </>
         )}
       />,
@@ -29,4 +29,4 @@ function AssignedForRequester() {
   return <VerticalSplitLayout {...props} />;
 }
 
-export default AssignedForRequester;
+export default AssignedForOther;

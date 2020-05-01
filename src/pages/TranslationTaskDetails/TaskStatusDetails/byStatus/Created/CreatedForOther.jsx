@@ -1,9 +1,9 @@
 import React from 'react';
 import Spacer from '~/components/Spacer';
-import VerticalSplitLayout from '../layout/VerticalSplit';
-import TaskInteractionButton from '../components/TaskInteractionButton';
-import TaskDeadline from '../components/TaskDeadline';
-import TaskAssignmentDepositFetcher from '../components/TaskAssignmentDepositFetcher';
+import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskInteractionButton from '../../components/TaskInteractionButton';
+import TaskDeadline from '../../components/TaskDeadline';
+import TaskAssignmentDepositFetcher from '../../components/TaskAssignmentDepositFetcher';
 
 function CreatedForOther() {
   const props = {

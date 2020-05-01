@@ -2,8 +2,8 @@ import React from 'react';
 import { Task } from '~/app/linguo';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
 import EthValue from '~/components/EthValue';
-import TaskContext from '../../TaskContext';
-import VerticalSplitLayout from '../layout/VerticalSplit';
+import TaskContext from '../../../TaskContext';
+import VerticalSplitLayout from '../../layout/VerticalSplit';
 
 function IncompleteForTranslator() {
   const task = React.useContext(TaskContext);

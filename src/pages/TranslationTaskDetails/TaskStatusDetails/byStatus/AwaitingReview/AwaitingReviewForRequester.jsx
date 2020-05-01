@@ -2,11 +2,11 @@ import React from 'react';
 import { Task } from '~/app/linguo';
 import Spacer from '~/components/Spacer';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
-import TaskContext from '../../TaskContext';
-import VerticalSplitLayout from '../layout/VerticalSplit';
-import TaskDeadline from '../components/TaskDeadline';
-import TaskInteractionButton from '../components/TaskInteractionButton';
-import TranslationChallengeDepositFetcher from '../components/TranslationChallengeDepositFetcher';
+import TaskContext from '../../../TaskContext';
+import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskDeadline from '../../components/TaskDeadline';
+import TaskInteractionButton from '../../components/TaskInteractionButton';
+import TranslationChallengeDepositFetcher from '../../components/TranslationChallengeDepositFetcher';
 
 function AwaitingReviewForRequester() {
   const task = React.useContext(TaskContext);
