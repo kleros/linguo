@@ -21,7 +21,13 @@ const sizeStyles = {
   `,
 };
 
-const StyledButtonContent = styled.span``;
+const StyledButtonContent = styled.span`
+  max-width: 100%;
+  vertical-align: middle;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
 
 const variantStyles = {
   unstyled: css`
@@ -146,6 +152,9 @@ const variantStyles = {
 };
 
 const StyledButton = styled(BaseButton)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: auto;
   cursor: pointer;
   font-weight: 500;
@@ -153,6 +162,7 @@ const StyledButton = styled(BaseButton)`
   border-radius: 0.1875rem;
   padding: 0 1rem;
   transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
+  text-decoration: none !important;
 
   &[disabled] {
     cursor: not-allowed;
@@ -169,6 +179,14 @@ const StyledButton = styled(BaseButton)`
 
   ${props => sizeStyles[props.size]}
   ${props => variantStyles[props.variant]}
+
+  > ${StyledButtonContent} {
+    flex: 1;
+  }
+
+  > .anticon {
+    flex: 0;
+  }
 
   @keyframes kickback {
     0% {
