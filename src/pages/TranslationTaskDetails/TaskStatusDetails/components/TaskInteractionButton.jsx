@@ -112,7 +112,6 @@ function TaskInteractionButton({ interaction, content, buttonProps }) {
         dispatch('SUCCESS');
         return result;
       } catch (err) {
-        console.log(err);
         dispatch('ERROR');
         throw err;
       } finally {

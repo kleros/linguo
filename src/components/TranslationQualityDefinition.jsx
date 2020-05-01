@@ -38,7 +38,7 @@ const StyledLevelTag = styled(Tag)`
   align-items: center;
   pointer-events: none;
   user-select: none;
-  width: 10rem;
+  max-width: 10rem;
   height: 6.5rem;
   font-size: 3rem;
   color: ${props => props.theme.color.text.inverted};
@@ -53,6 +53,10 @@ const StyledLevelTag = styled(Tag)`
   :hover {
     opacity: 1;
   }
+
+  @media (max-width: 767.98px) {
+    margin-right: auto;
+  }
 `;
 
 function TranslationQualityDefinition({ tierValue }) {
@@ -60,7 +64,12 @@ function TranslationQualityDefinition({ tierValue }) {
 
   return (
     <StyledWrapper>
-      <Row gutter={[16, 16]}>
+      <Row
+        gutter={[32, 32]}
+        css={`
+          margin-bottom: -16px !important;
+        `}
+      >
         <Col xs={24} sm={24} md={16}>
           <StyledTitle level={3}>{tier.name}</StyledTitle>
           {tier.description.map((paragraph, index) => (

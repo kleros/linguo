@@ -212,7 +212,9 @@ function TaskDetails() {
   return (
     <div
       css={`
-        margin-top: -2rem;
+        @media (min-width: 576px) {
+          margin-top: -2rem;
+        }
       `}
     >
       <StyledTaskTitle level={2}>{title}</StyledTaskTitle>

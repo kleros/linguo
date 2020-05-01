@@ -8,12 +8,18 @@ import byStatus from './byStatus';
 
 const getCurrentParty = ({ account, requester, translator, challenger }) => {
   switch (account) {
+    /**
+     * The requester could also be the challenger.
+     * If that happens, the role he should assume is the one of challenger,
+     * so he can further participate in the flow.
+     * That's why challenger is matched before requester here.
+     */
+    case challenger:
+      return TaskParty.Challenger;
     case requester:
       return TaskParty.Requester;
     case translator:
       return TaskParty.Translator;
-    case challenger:
-      return TaskParty.Challenger;
     default:
       return TaskParty.Other;
   }

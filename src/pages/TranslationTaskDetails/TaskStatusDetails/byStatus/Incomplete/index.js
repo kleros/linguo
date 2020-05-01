@@ -5,7 +5,7 @@ import Spinner from '../../components/Spinner';
 
 const fallback = <Spinner />;
 
-const NoContent = () => null;
+const NoContent = () => 'yay';
 
 export default {
   [TaskParty.Requester]: loadable(() => import(`./IncompleteForRequester.jsx`), { fallback }),

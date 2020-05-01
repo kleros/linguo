@@ -50,6 +50,13 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
 let id = 0;
 export default function createApi({ contract }) {
   async function getTaskById({ ID }) {
+    /**
+     * For some reason, event filtering breaks when ID is 0.
+     * It returns all events occurrences of the specific event.
+     * Casting it to string seems to solve the problem.
+     */
+    ID = String(ID);
+
     try {
       const [
         reviewTimeout,

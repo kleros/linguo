@@ -292,7 +292,8 @@ export const remainingTimeForReview = (
  */
 export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifecycleEvents } = {}) => {
   if (status === TaskStatus.Resolved) {
-    return lifecycleEvents?.TranslationSubmitted?.length === 0;
+    const translationSubmittedEventCount = lifecycleEvents?.TranslationSubmitted?.length ?? 0;
+    return translationSubmittedEventCount === 0;
   }
 
   if ([TaskStatus.Created, TaskStatus.Assigned].includes(status)) {
