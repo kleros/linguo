@@ -168,13 +168,23 @@ function TaskDetails() {
     originalTextFile,
   } = task;
 
-  const refreshInterval = !!assignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
+  const hasAssignedPrice = assignedPrice !== undefined;
+
+  const refreshInterval = hasAssignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
+  const shouldRevalidate = !hasAssignedPrice;
+
   const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', ID], {
     initialData: Task.currentPrice(task),
+    revalidateOnFocus: shouldRevalidate,
+    revalidateOnReconnect: shouldRevalidate,
     refreshInterval,
   });
+  const actualPrice = assignedPrice ?? currentPrice;
 
-  const currentPricePerWord = Task.currentPricePerWord({ currentPrice, wordCount });
+  const pricePerWord = Task.currentPricePerWord({
+    currentPrice: actualPrice,
+    wordCount,
+  });
 
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
 
@@ -183,7 +193,7 @@ function TaskDetails() {
   const taskInfo = [
     {
       title: 'Price per word',
-      content: <TaskPrice showTooltip value={currentPricePerWord} />,
+      content: <TaskPrice showTooltip value={pricePerWord} />,
     },
     {
       title: 'Number of words',
@@ -191,7 +201,7 @@ function TaskDetails() {
     },
     {
       title: 'Total Price',
-      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={currentPrice} />,
+      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={actualPrice} />,
     },
     {
       title: name,
@@ -248,7 +258,13 @@ function TaskDetails() {
       </StyledExpectedQuality>
       <Spacer span={3} />
       <Row justify="center">
-        <Col>
+        <Col
+          css={`
+            @media (max-width: 575.98px) {
+              flex-grow: 1;
+            }
+          `}
+        >
           <DownloadTextButton />
         </Col>
       </Row>

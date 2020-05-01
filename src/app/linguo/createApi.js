@@ -213,6 +213,11 @@ export default function createApi({ contract }) {
     return String(deposit.add(slope.mul(timeDelta)));
   }
 
+  async function getChallengerDeposit({ ID }) {
+    const deposit = await contract.methods.getChallengeValue(ID).call();
+    return deposit;
+  }
+
   async function createTask(
     { account, deadline, minPrice, maxPrice, ...rest },
     { from = account, gas, gasPrice } = {}
@@ -270,7 +275,7 @@ export default function createApi({ contract }) {
     return receipt;
   }
 
-  async function requestReimbursement({ ID }, { from, gas, gasPrice } = {}) {
+  async function reimburseRequester({ ID }, { from, gas, gasPrice } = {}) {
     const txn = contract.methods.reimburseRequester(ID).send({
       from,
       gas,
@@ -292,16 +297,31 @@ export default function createApi({ contract }) {
     return receipt;
   }
 
+  async function challengeTranslation({ ID }, { from, gas, gasPrice } = {}) {
+    const value = await getChallengerDeposit({ ID });
+    const txn = contract.methods.challengeTranslation(ID).send({
+      from,
+      value,
+      gas,
+      gasPrice,
+    });
+
+    const receipt = await txn;
+    return receipt;
+  }
+
   return {
     id: ++id,
     getTaskById,
     getOwnTasks,
     getTaskPrice,
     getTranslatorDeposit,
+    getChallengerDeposit,
     createTask,
     assignTask,
     submitTranslation,
-    requestReimbursement,
+    reimburseRequester,
     acceptTranslation,
+    challengeTranslation,
   };
 }

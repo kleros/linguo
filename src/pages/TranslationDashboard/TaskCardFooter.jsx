@@ -30,7 +30,7 @@ function RequestReimbursementButton({ ID, ...props }) {
     withNotification(async () => {
       setIsLoading(true);
       try {
-        await linguo.api.requestReimbursement({ ID }, { from: account });
+        await linguo.api.reimburseRequester({ ID }, { from: account });
       } finally {
         setIsLoading(false);
         refresh();
@@ -160,7 +160,12 @@ function TaskCardFooter(task) {
         <TaskFooterInfo {...task} />
       </Col>
       <Col span={12}>
-        <Link to={getTaskDetailsRoute({ id: ID })}>
+        <Link
+          to={getTaskDetailsRoute({ id: ID })}
+          css={`
+            text-decoration: none !important;
+          `}
+        >
           <Button fullWidth variant="filled" color="primary">
             See details
           </Button>

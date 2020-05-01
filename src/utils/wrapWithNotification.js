@@ -18,7 +18,7 @@ const wrapWithNotification = ({
   errorMessage,
   successMessage,
   placement = 'bottomRight',
-  duration = 5000,
+  duration = 5,
 }) => fn => async (...args) => {
   try {
     const result = await fn(...args);

@@ -96,6 +96,7 @@ export default function createHooks({ AppContext, useWeb3React }) {
     getTaskById: ([ID]) => ({ ID }),
     getTaskPrice: ([ID]) => ({ ID }),
     getTranslatorDeposit: ([ID]) => ({ ID }),
+    getChallengerDeposit: ([ID]) => ({ ID }),
     getOwnTasks: ([account]) => ({ account }),
   };
 
@@ -103,12 +104,21 @@ export default function createHooks({ AppContext, useWeb3React }) {
 
   function useCacheCall(
     [method, ...args],
-    { suspense = false, initialData = undefined, refreshInterval = 0, shouldRetryOnError = true } = {}
+    {
+      suspense = false,
+      initialData = undefined,
+      revalidateOnFocus = true,
+      revalidateOnReconnect = true,
+      refreshInterval = 0,
+      shouldRetryOnError = true,
+    } = {}
   ) {
     const { api } = useLinguo();
     const { data, error, isValidating, mutate } = useSWR([method, ...args], createFetcher(api), {
       suspense,
       initialData,
+      revalidateOnFocus,
+      revalidateOnReconnect,
       refreshInterval,
       shouldRetryOnError,
     });

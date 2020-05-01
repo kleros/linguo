@@ -2,12 +2,13 @@ import React from 'react';
 import t from 'prop-types';
 import { mutate } from 'swr';
 import produce from 'immer';
+import { SendOutlined, LoadingOutlined, CheckOutlined } from '@ant-design/icons';
 import { TaskStatus, useLinguo } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import useStateMachine from '~/hooks/useStateMachine';
 import wrapWithNotification from '~/utils/wrapWithNotification';
 import Button from '~/components/Button';
-import TaskContext from './TaskContext';
+import TaskContext from '../../TaskContext';
 
 const buttonStateMachine = {
   initial: 'idle',
@@ -33,12 +34,14 @@ const TaskInteraction = {
   Assign: 'assign',
   Challenge: 'challenge',
   Accept: 'accept',
+  Reimburse: 'reimburse',
 };
 
 const interactionToApiMethodMap = {
   [TaskInteraction.Assign]: 'assignTask',
   [TaskInteraction.Challenge]: 'challengeTranslation',
   [TaskInteraction.Accept]: 'acceptTranslation',
+  [TaskInteraction.Reimburse]: 'reimburseRequester',
 };
 
 // TODO: move this to Task API
@@ -57,6 +60,28 @@ const interactionToMutationMap = {
     produce(task => {
       task.status = TaskStatus.Resolved;
     }),
+  [TaskInteraction.Reimburse]: () =>
+    produce(task => {
+      task.status = TaskStatus.Resolved;
+    }),
+};
+
+const defaultButtonContent = {
+  idle: (
+    <>
+      <SendOutlined /> Send
+    </>
+  ),
+  pending: (
+    <>
+      <LoadingOutlined /> Sending...
+    </>
+  ),
+  succeeded: (
+    <>
+      <CheckOutlined /> Done!
+    </>
+  ),
 };
 
 const withNotification = wrapWithNotification({
@@ -87,6 +112,7 @@ function TaskInteractionButton({ interaction, content, buttonProps }) {
         dispatch('SUCCESS');
         return result;
       } catch (err) {
+        console.log(err);
         dispatch('ERROR');
         throw err;
       } finally {
@@ -97,7 +123,7 @@ function TaskInteractionButton({ interaction, content, buttonProps }) {
 
   return (
     <Button {...buttonProps} disabled={disabled} onClick={handleClick}>
-      {content[state]}
+      {content[state] ?? defaultButtonContent[state]}
     </Button>
   );
 }
@@ -105,15 +131,16 @@ function TaskInteractionButton({ interaction, content, buttonProps }) {
 TaskInteractionButton.propTypes = {
   interaction: t.oneOf(Object.values(TaskInteraction)).isRequired,
   content: t.shape({
-    idle: t.node.isRequired,
-    pending: t.node.isRequired,
-    succeeded: t.node.isRequired,
-  }).isRequired,
+    idle: t.node,
+    pending: t.node,
+    succeeded: t.node,
+  }),
   buttonProps: t.object,
 };
 
 TaskInteractionButton.defaultProps = {
   buttonProps: {},
+  content: {},
 };
 
 TaskInteractionButton.Interaction = TaskInteraction;

@@ -1,5 +1,4 @@
 import React from 'react';
-import t from 'prop-types';
 import styled from 'styled-components';
 import Button from '~/components/Button';
 import TaskContext from './TaskContext';
@@ -16,6 +15,21 @@ const JumboButton = styled(Button)`
     :focus {
       border-color: ${p => p.theme.color.border.default};
     }
+  }
+
+  @media (max-width: 575.98px) {
+    display: block;
+    width: 100%;
+    font-size: ${p => p.theme.fontSize.xl};
+  }
+`;
+
+const StyledLink = styled.a`
+  text-decoration: none !important;
+
+  @media (max-width: 575.98px) {
+    display: block;
+    width: 100%;
   }
 `;
 
@@ -39,15 +53,10 @@ function DownloadTextButton() {
   const href = useObjectUrlForText(text);
 
   return (
-    <a href={href} download={`linguo-translation-text-${ID}.txt`}>
-      <JumboButton>Download the Translation Text</JumboButton>
-    </a>
+    <StyledLink href={href} download={`linguo-translation-text-${ID}.txt`}>
+      <JumboButton>Download the Text</JumboButton>
+    </StyledLink>
   );
 }
-
-DownloadTextButton.propTypes = {
-  ID: t.number.isRequired,
-  text: t.string.isRequired,
-};
 
 export default DownloadTextButton;

@@ -7,7 +7,7 @@ import { withSuspense } from '~/adapters/react';
 import { useCacheCall } from '~/app/linguo';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
 import EthValue from '~/components/EthValue';
-import TaskContext from './TaskContext';
+import TaskContext from '../../TaskContext';
 
 function TaskAssignmentDepositFetcher() {
   const { ID } = React.useContext(TaskContext);

@@ -7,13 +7,13 @@ import { withSuspense } from '~/adapters/react';
 import { useCacheCall } from '~/app/linguo';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
 import EthValue from '~/components/EthValue';
-import TaskContext from './TaskContext';
+import TaskContext from '../../TaskContext';
 
-function TaskAssignmentDepositFetcher() {
+function TranslationChallengeDepositFetcher() {
   const { ID } = React.useContext(TaskContext);
-  const [{ data }] = useCacheCall(['getTranslatorDeposit', ID], { suspense: true });
+  const [{ data }] = useCacheCall(['getChallengerDeposit', ID], { suspense: true });
 
-  return <TaskAssignmentDeposit amount={data} />;
+  return <TranslationChallengeDeposit amount={data} />;
 }
 
 const StyledWrapper = styled.div`
@@ -21,7 +21,7 @@ const StyledWrapper = styled.div`
   color: ${p => p.theme.color.text.default};
 `;
 
-function TaskAssignmentDeposit({ amount }) {
+function TranslationChallengeDeposit({ amount }) {
   return (
     <StyledWrapper>
       <span>
@@ -31,7 +31,7 @@ function TaskAssignmentDeposit({ amount }) {
   );
 }
 
-TaskAssignmentDeposit.propTypes = {
+TranslationChallengeDeposit.propTypes = {
   amount: t.string.isRequired,
 };
 
@@ -70,4 +70,4 @@ const suspenseEnhancer = withSuspense({
  * Since composition is evaluated right-to-left, `suspenseEnhancer` should be declared
  * **AFTER** `errorBoundaryEnhancer`
  */
-export default compose(errorBoundaryEnhancer, suspenseEnhancer)(TaskAssignmentDepositFetcher);
+export default compose(errorBoundaryEnhancer, suspenseEnhancer)(TranslationChallengeDepositFetcher);
