@@ -16,6 +16,10 @@ const StyledRemoveIcon = styled(RemoveIcon)`
 
 const StyledModal = styled(BaseModal)`
   && {
+    &.ant-modal {
+      min-width: calc(384px - 1rem);
+    }
+
     .ant-modal-content {
       border-radius: 0.75rem;
       overflow: hidden;
@@ -23,6 +27,10 @@ const StyledModal = styled(BaseModal)`
 
     .ant-modal-header {
       background-color: ${props => props.theme.color.primary.default};
+    }
+
+    .ant-modal-title {
+      text-align: center;
     }
 
     .ant-modal-title,
@@ -39,6 +47,10 @@ const StyledModal = styled(BaseModal)`
       :hover {
         filter: drop-shadow(0 0 2px ${({ theme }) => theme.color.glow.default});
       }
+    }
+
+    .ant-modal-body {
+      color: ${p => p.theme.color.text.default};
     }
   }
 `;
