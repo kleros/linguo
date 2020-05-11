@@ -3,7 +3,10 @@
   "title": "Review a translation from Linguo",
   "description": "Someone challenged a translation",
   "rulingOptions": {
-    "titles": ["Yes, the translation should be accepted", "No, the translation should not be accepted"],
+    "titles": [
+      "Yes, the translation should be accepted",
+      "No, the translation should not be accepted"
+    ],
     "descriptions": [
       "Select this if you think the translation complies with the required criteria.",
       "Select this if you think the translation does not comply with the required criteria."
