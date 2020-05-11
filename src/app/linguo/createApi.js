@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 import Web3 from 'web3';
+import deepMerge from 'deepmerge';
 import ipfs from '~/app/ipfs';
-import metaEvidenteTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
+import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import createError from '~/utils/createError';
 import { normalize } from './entities/Task';
 
@@ -12,13 +13,12 @@ export const getFileUrl = path => {
 };
 
 export const publishMetaEvidence = async ({ account, ...metadata }) => {
-  const metaEvidence = {
-    ...metaEvidenteTemplate,
+  const metaEvidence = deepMerge(metaEvidenceTemplate, {
     aliases: {
       [account]: 'Requester',
     },
     metadata,
-  };
+  });
 
   const { path } = await ipfs.publish('linguo-evidence.json', JSON.stringify(metaEvidence));
 
