@@ -152,7 +152,7 @@ const variantStyles = {
 };
 
 const StyledButton = styled(BaseButton)`
-  display: flex;
+  display: ${p => (p.fullWidth ? 'flex' : 'inline-flex')};
   justify-content: center;
   align-items: center;
   height: auto;
@@ -213,7 +213,7 @@ const StyledButton = styled(BaseButton)`
 
 function Button({ variant, size, color, fullWidth, children, ...props }) {
   return (
-    <StyledButton {...props} variant={variant} size={size} color={color} block={fullWidth}>
+    <StyledButton {...props} variant={variant} size={size} color={color} fullWidth={fullWidth}>
       <StyledButtonContent>{children}</StyledButtonContent>
     </StyledButton>
   );
