@@ -1,3 +1,5 @@
+import Enum from './utils/Enum';
+
 /**
  * Dispute Ruling.
  *
@@ -7,11 +9,17 @@
  * @readonly
  * @enum {number}
  */
-const DisputeRuling = {
-  None: undefined,
-  RefuseToRule: 0,
-  TranslatorWins: 1,
-  ChallengerWins: 2,
-};
+const DisputeRuling = Enum(
+  'DisputeRuling',
+  {
+    None: undefined,
+    RefuseToRule: 0,
+    TranslationApproved: 1,
+    TranslationRejected: 2,
+  },
+  {
+    parseValue: v => (v === undefined ? v : Number.parseInt(v, 10)),
+  }
+);
 
 export default DisputeRuling;
