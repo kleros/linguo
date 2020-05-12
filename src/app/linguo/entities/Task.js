@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import TaskStatus from './TaskStatus';
-import DisputeStatus from './DisputeStatus';
-import DisputeRuling from './DisputeRuling';
+import TaskParty from './TaskParty';
 import Web3 from 'web3';
 
 const { toBN, BN } = Web3.utils;
@@ -25,7 +24,7 @@ const { toBN, BN } = Web3.utils;
  */
 
 /**
- * @typedef {Object} TaskParts The parts that form a Task object
+ * @typedef {Object} TaskInput The parts that form a Task object
  * @prop {string|number} ID The Task ID
  * @prop {string|number} reviewTimeout The Task review timeout in seconds
  * @prop {Object} task The Task data from the contract
@@ -65,7 +64,7 @@ const normalizeEventPropsFnMap = {
   },
 };
 
-const extractEventsReturnValues = lifecycleEvents =>
+const extractEventsReturnValues = (lifecycleEvents = {}) =>
   Object.entries(lifecycleEvents).reduce(
     (acc, [eventName, occurrences]) =>
       Object.assign(acc, {
@@ -94,8 +93,8 @@ const normalizePropsFnMap = {
   lastInteraction: lastInteraction => dayjs.unix(lastInteraction).toDate(),
   deadline: deadline => dayjs.unix(deadline).toDate(),
   parties: ([_ignored, translator, challenger]) => ({
-    translator: translator === ETH_ADDRESS_ZERO ? undefined : translator,
-    challenger: challenger === ETH_ADDRESS_ZERO ? undefined : challenger,
+    [TaskParty.Translator]: translator === ETH_ADDRESS_ZERO ? undefined : translator,
+    [TaskParty.Challenger]: challenger === ETH_ADDRESS_ZERO ? undefined : challenger,
   }),
   disputeID: Number,
   ruling: Number,
@@ -115,11 +114,11 @@ const normalizePropsFnMap = {
  *
  * @function
  *
- * @param {TaskParts} taskParts The task object parts
+ * @param {TaskInput} taskParts The task object parts
  * @return {Task} The normalized task object
  */
 
-export const normalize = ({ ID, reviewTimeout, task, metadata, disputeStatus, lifecycleEvents } = {}) => {
+export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents } = {}) => {
   const data = Object.entries({
     ID,
     ...metadata,
@@ -140,34 +139,9 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, disputeStatus, li
 
   data.assignedPrice = data.lifecycleEvents.TaskAssigned?.[0]?._price;
 
-  data.dispute = normalizeDispute({ task: data, disputeStatus });
-  delete data.ruling;
-  delete data.disputeID;
+  data.hasDispute = (data.lifecycleEvents.Dispute?.length ?? 0) > 0;
 
   return data;
-};
-
-const normalizeDispute = ({ task, disputeStatus }) => {
-  disputeStatus = disputeStatus ? Number(disputeStatus) : DisputeStatus.None;
-
-  const taskHasDispute = task.lifecycleEvents.Dispute.length > 0;
-  const disputeHasRuling = [DisputeStatus.Appealable, DisputeStatus.Solved].includes(disputeStatus);
-
-  return taskHasDispute
-    ? {
-        ID: task.disputeID,
-        status: disputeStatus,
-        ruling: disputeHasRuling ? task.ruling : DisputeRuling.None,
-      }
-    : {
-        ID: undefined,
-        status: DisputeStatus.None,
-        ruling: DisputeRuling.None,
-      };
-};
-
-export const disputeHasRuling = ({ dispute }) => {
-  return [DisputeStatus.Appealable, DisputeStatus.Solved].includes(dispute.status);
 };
 
 /**

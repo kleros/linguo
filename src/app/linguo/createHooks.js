@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo } from 'react';
 import useSWR from 'swr';
-import { Linguo, Arbitrator } from '@kleros/contract-deployments';
+import { Linguo, Arbitrator } from '@kleros/contract-deployments/interactions/linguo';
 import createError from '~/utils/createError';
 import createApi from './createApi';
 
@@ -109,7 +109,7 @@ export default function createHooks({ AppContext, useWeb3React }) {
     getTaskPrice: ([ID]) => ({ ID }),
     getTranslatorDeposit: ([ID]) => ({ ID }),
     getChallengerDeposit: ([ID]) => ({ ID }),
-    getTaskDisputeStatus: ([ID]) => ({ ID }),
+    getTaskDispute: ([ID]) => ({ ID }),
     getOwnTasks: ([account]) => ({ account }),
   };
 

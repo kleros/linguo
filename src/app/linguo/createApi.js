@@ -4,9 +4,12 @@ import deepMerge from 'deepmerge';
 import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import createError from '~/utils/createError';
-import { normalize } from './entities/Task';
+import { normalize as normalizeTask } from './entities/Task';
+import { normalize as normalizeDispute } from './entities/Dispute';
 
-const { toWei, toBN } = Web3.utils;
+const { toWei, toBN, BN } = Web3.utils;
+
+const NON_PAYABLE_VALUE = new BN(2n ** 256n - 1n).toString();
 
 export const getFileUrl = path => {
   return ipfs.generateUrl(path);
@@ -49,6 +52,27 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
 
 let id = 0;
 export default function createApi({ linguoContract, arbitratorContract }) {
+  async function getOwnTasks({ account }) {
+    const events = await linguoContract.getPastEvents('TaskCreated', {
+      filter: { _requester: account },
+      fromBlock: 0,
+    });
+
+    const tasks = await Promise.all(
+      events.map(async event => {
+        const ID = event.returnValues._taskID;
+
+        try {
+          return await getTaskById({ ID });
+        } catch (err) {
+          return { ID, err };
+        }
+      })
+    );
+
+    return tasks;
+  }
+
   async function getTaskById({ ID }) {
     /**
      * For some reason, event filtering breaks when ID is 0.
@@ -106,15 +130,11 @@ export default function createApi({ linguoContract, arbitratorContract }) {
         }),
       ]);
 
-      const disputeStatus =
-        disputeEvents.length > 0 ? await arbitratorContract.methods.disputeStatus(task.disputeID).call() : undefined;
-
-      return normalize({
+      return normalizeTask({
         ID,
         reviewTimeout,
         task: { ...task, parties: taskParties },
         metadata,
-        disputeStatus,
         lifecycleEvents: {
           TaskCreated: taskCreatedEvents,
           TaskAssigned: taskAssignedEvents,
@@ -125,37 +145,7 @@ export default function createApi({ linguoContract, arbitratorContract }) {
         },
       });
     } catch (err) {
-      console.error(err);
       throw createError(`Failed to fetch task with ID ${ID}`, { cause: err });
-    }
-  }
-
-  async function getOwnTasks({ account }) {
-    const events = await linguoContract.getPastEvents('TaskCreated', {
-      filter: { _requester: account },
-      fromBlock: 0,
-    });
-
-    const tasks = await Promise.all(
-      events.map(async event => {
-        const ID = event.returnValues._taskID;
-
-        try {
-          return await getTaskById({ ID });
-        } catch (err) {
-          return { ID, err };
-        }
-      })
-    );
-
-    return tasks;
-  }
-
-  async function getTaskPrice({ ID }) {
-    try {
-      return await linguoContract.methods.getTaskPrice(ID).call();
-    } catch (err) {
-      throw createError(`Failed to get price for task with ID ${ID}`, { cause: err });
     }
   }
 
@@ -214,6 +204,14 @@ export default function createApi({ linguoContract, arbitratorContract }) {
    * has to lock in order to assign the task to himself if the transaction gets
    * mined before Δt has passed.
    */
+  async function getTaskPrice({ ID }) {
+    try {
+      return await linguoContract.methods.getTaskPrice(ID).call();
+    } catch (err) {
+      throw createError(`Failed to get price for task with ID ${ID}`, { cause: err });
+    }
+  }
+
   async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
     let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
       linguoContract.methods.getDepositValue(ID).call(),
@@ -236,19 +234,126 @@ export default function createApi({ linguoContract, arbitratorContract }) {
     return deposit;
   }
 
-  async function getTaskDisputeStatus({ ID }) {
-    const { disputeID } = await linguoContract.methods.tasks(ID).call();
+  async function getTaskDispute({ ID }) {
+    const [{ task, dispute }, latestRound, arbitrationCostParams] = await Promise.all([
+      _getTaskAndDisputeDetails({ ID }),
+      _getLatestTaskRound({ ID }),
+      _getArbitrationCostParams(),
+    ]);
+
+    const aggregateDispute = {
+      ...dispute,
+      latestRound,
+    };
+
+    return normalizeDispute(aggregateDispute, task, arbitrationCostParams);
+  }
+
+  async function _getTaskAndDisputeDetails({ ID }) {
+    const task = await linguoContract.methods.tasks(ID).call();
+    const { disputeID } = task;
+
+    const [disputeInfo, appealPeriod, appealCost] = await Promise.all([
+      _getDisputeRulingAndStatus({ disputeID }),
+      _getAppealPeriod({ disputeID }),
+      _getAppealCost({ disputeID }),
+    ]);
+
+    const { hasDispute, status, ruling } = disputeInfo;
+    const dispute = { status, ruling, appealPeriod, appealCost };
+
+    return {
+      task: {
+        ...task,
+        hasDispute,
+      },
+      dispute,
+    };
+  }
+
+  async function _getDisputeRulingAndStatus({ disputeID }) {
     const disputeEvents = await linguoContract.getPastEvents('Dispute', {
       filter: { _disputeID: disputeID },
       fromBlock: 0,
     });
 
-    if (disputeEvents.length === 0) {
-      throw new Error(`There is no dispute for task ${ID}`);
+    const hasDispute = disputeEvents.length > 0;
+
+    if (!hasDispute) {
+      return {
+        hasDispute: false,
+      };
     }
 
-    const disputeStatus = await arbitratorContract.methods.disputeStatus(disputeID).call();
-    return Number(disputeStatus);
+    try {
+      const [status, ruling] = await Promise.all([
+        arbitratorContract.methods.disputeStatus(disputeID).call(),
+        arbitratorContract.methods.currentRuling(disputeID).call(),
+      ]);
+      return {
+        hasDispute: true,
+        status,
+        ruling,
+      };
+    } catch (err) {
+      if (!/VM execution error/i.test(err.message)) {
+        console.warn('Could not get dispute info', err);
+      }
+      return {
+        hasDispute: false,
+      };
+    }
+  }
+
+  async function _getAppealPeriod({ disputeID }) {
+    try {
+      return await arbitratorContract.methods.appealPeriod(disputeID).call();
+    } catch (err) {
+      if (!/VM execution error/i.test(err.message)) {
+        console.warn('Could not get dispute appeal period', err);
+      }
+      return {
+        start: '0',
+        end: '0',
+      };
+    }
+  }
+
+  async function _getAppealCost({ disputeID }) {
+    try {
+      return await arbitratorContract.methods.appealCost(disputeID, '0x0').call();
+    } catch (err) {
+      if (!/VM execution error/i.test(err.message)) {
+        console.warn('Could not get dispute appeal cost', err);
+      }
+      return NON_PAYABLE_VALUE;
+    }
+  }
+
+  async function _getArbitrationCostParams() {
+    const [winnerStakeMultiplier, loserStakeMultiplier, sharedStakeMultiplier, multiplierDivisor] = await Promise.all([
+      linguoContract.methods.winnerStakeMultiplier().call(),
+      linguoContract.methods.loserStakeMultiplier().call(),
+      linguoContract.methods.sharedStakeMultiplier().call(),
+      linguoContract.methods.MULTIPLIER_DIVISOR().call(),
+    ]);
+
+    return {
+      winnerStakeMultiplier,
+      loserStakeMultiplier,
+      sharedStakeMultiplier,
+      multiplierDivisor,
+    };
+  }
+
+  async function _getLatestTaskRound({ ID }) {
+    const totalRounds = Number(await linguoContract.methods.getNumberOfRounds(ID).call());
+
+    if (totalRounds === 0) {
+      return undefined;
+    }
+
+    return linguoContract.methods.getRoundInfo(ID, totalRounds - 1).call();
   }
 
   async function createTask(
@@ -343,19 +448,32 @@ export default function createApi({ linguoContract, arbitratorContract }) {
     return receipt;
   }
 
+  async function fundAppeal({ ID, side }, { from, value, gas, gasPrice } = {}) {
+    const txn = linguoContract.methods.fundAppeal(ID, side).send({
+      from,
+      value,
+      gas,
+      gasPrice,
+    });
+
+    const receipt = await txn;
+    return receipt;
+  }
+
   return {
     id: ++id,
-    getTaskById,
     getOwnTasks,
+    getTaskById,
     getTaskPrice,
     getTranslatorDeposit,
     getChallengerDeposit,
-    getTaskDisputeStatus,
+    getTaskDispute,
     createTask,
     assignTask,
     submitTranslation,
     reimburseRequester,
     acceptTranslation,
     challengeTranslation,
+    fundAppeal,
   };
 }

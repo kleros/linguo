@@ -3,7 +3,8 @@ import { useWeb3React } from '../web3React';
 import createHooks from './createHooks';
 
 import * as Task from './entities/Task';
-export { Task };
+import * as Dispute from './entities/Dispute';
+export { Task, Dispute };
 
 export { default as TaskStatus } from './entities/TaskStatus';
 export { default as TaskParty } from './entities/TaskParty';
