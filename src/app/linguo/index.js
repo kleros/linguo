@@ -10,6 +10,7 @@ export { default as TaskStatus } from './entities/TaskStatus';
 export { default as TaskParty } from './entities/TaskParty';
 export { default as DisputeStatus } from './entities/DisputeStatus';
 export { default as DisputeRuling } from './entities/DisputeRuling';
+export { default as AppealSide } from './entities/AppealSide';
 export { default as createHooks } from './createHooks';
 export { getFileUrl } from './createApi';
 export { default as getFilter, filters } from './filters';

@@ -11,7 +11,7 @@ const StyledTitle = styled(Typography.Title)`
   }
 `;
 
-function StatusTitle({ children, className }) {
+function BoxTitle({ children, className }) {
   return (
     <StyledTitle level={3} className={className}>
       {children}
@@ -19,14 +19,14 @@ function StatusTitle({ children, className }) {
   );
 }
 
-StatusTitle.propTypes = {
+BoxTitle.propTypes = {
   children: t.node,
   className: t.string,
 };
 
-StatusTitle.defaultProps = {
+BoxTitle.defaultProps = {
   children: null,
   className: '',
 };
 
-export default StatusTitle;
+export default BoxTitle;

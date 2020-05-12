@@ -2,7 +2,7 @@ import React from 'react';
 import { Task, TaskStatus } from '~/app/linguo';
 import Spacer from '~/components/Spacer';
 import TaskContext from '../../../TaskContext';
-import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
@@ -47,7 +47,7 @@ function IncompleteForRequester() {
         illustration: <TaskIgnoredAvatar />,
       };
 
-  return <VerticalSplitLayout {...props} />;
+  return <TaskStatusDetailsLayout {...props} />;
 }
 
 export default IncompleteForRequester;

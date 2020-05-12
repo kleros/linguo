@@ -36,4 +36,4 @@ AppealSide.fromRulingAndParty = ({ ruling, party }) => {
   }
 };
 
-export { AppealSide as default };
+export default AppealSide;

@@ -2,7 +2,7 @@ import React from 'react';
 import TaskAssignedAvatar from '~/assets/images/avatar-task-assigned.svg';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
 import TaskContext from '../../../TaskContext';
-import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 
 function AssignedForRequester() {
   const { reviewTimeout } = React.useContext(TaskContext);
@@ -26,7 +26,7 @@ function AssignedForRequester() {
     illustration: <TaskAssignedAvatar />,
   };
 
-  return <VerticalSplitLayout {...props} />;
+  return <TaskStatusDetailsLayout {...props} />;
 }
 
 export default AssignedForRequester;

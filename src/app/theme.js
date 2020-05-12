@@ -14,7 +14,7 @@ export default {
       light: '#3DBEFF',
     },
     warning: {
-      default: '#D65900',
+      default: '#FAAD14',
     },
     danger: {
       default: '#F60C36',
@@ -22,6 +22,7 @@ export default {
     background: {
       default: '#F2FFFE',
       light: '#FFFFFF',
+      neutral: '#F5F1FD',
     },
     link: {
       default: '#0043C5',

@@ -1,6 +1,6 @@
 import React from 'react';
 import TaskCreatedAvatar from '~/assets/images/avatar-task-created.svg';
-import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 
 function CreatedForRequester() {
   const title = 'This translation was not assigned yet';
@@ -10,7 +10,7 @@ function CreatedForRequester() {
     description: ['You will be informed when a translator assigns to this task.'],
     illustration: <TaskCreatedAvatar />,
   };
-  return <VerticalSplitLayout {...props} />;
+  return <TaskStatusDetailsLayout {...props} />;
 }
 
 export default CreatedForRequester;

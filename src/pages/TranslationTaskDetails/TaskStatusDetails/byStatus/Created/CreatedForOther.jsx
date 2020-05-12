@@ -1,6 +1,6 @@
 import React from 'react';
 import Spacer from '~/components/Spacer';
-import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskAssignmentDepositFetcher from '../../components/TaskAssignmentDepositFetcher';
@@ -27,7 +27,7 @@ function CreatedForOther() {
     ),
   };
 
-  return <VerticalSplitLayout {...props} />;
+  return <TaskStatusDetailsLayout {...props} />;
 }
 
 export default CreatedForOther;

@@ -14,16 +14,23 @@ export const add = (a, ...args) => {
   return args.reduce((acc, current) => acc.add(normalizeInput(current)), normalizeInput(a)).toString();
 };
 
-export const sub = (a, ...args) => {
+export const subtract = (a, ...args) => {
   return args.reduce((acc, current) => acc.sub(normalizeInput(current)), normalizeInput(a)).toString();
 };
 
-export const mul = (a, ...args) => {
+export const multiply = (a, ...args) => {
   return args.reduce((acc, current) => acc.mul(normalizeInput(current)), normalizeInput(a)).toString();
 };
 
-export const div = (a, b) => {
+export const divide = (a, b) => {
   return normalizeInput(a).div(normalizeInput(b)).toString();
+};
+
+export const percent = (a, b, { decimals = 2 } = {}) => {
+  const multiplier = toBN('10').pow(normalizeInput(decimals));
+  const result = normalizeInput(a).mul(multiplier).div(normalizeInput(b));
+
+  return result.toNumber() / 10 ** decimals;
 };
 
 export const max = (a, ...args) => {

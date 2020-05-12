@@ -2,7 +2,7 @@ import React from 'react';
 import { TaskParty } from '~/app/linguo';
 import TaskInDisputeAvatar from '~/assets/images/avatar-task-in-dispute.svg';
 import TaskContext from '../../../TaskContext';
-import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../hooks/useCurrentParty';
 
 function DisputeIsWaiting() {
@@ -13,7 +13,7 @@ function DisputeIsWaiting() {
 
   const props = contentByParty[party]({ challengerIsRequester });
 
-  return <VerticalSplitLayout {...props} />;
+  return <TaskStatusDetailsLayout {...props} />;
 }
 
 export default DisputeIsWaiting;

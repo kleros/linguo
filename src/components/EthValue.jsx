@@ -11,17 +11,17 @@ const { fromWei, toWei, toBN } = Web3.utils;
  * in order looking for the best match to display a given amount.
  */
 const availableUnits = [
-  { unit: 'tether', suffix: { short: 'TETH', long: 'TEther' } },
-  { unit: 'gether', suffix: { short: 'GETH', long: 'GEther' } },
-  { unit: 'mether', suffix: { short: 'METH', long: 'MEther' } },
-  { unit: 'kether', suffix: { short: 'kETH', long: 'kEther' } },
-  { unit: 'ether', suffix: { short: 'ETH', long: 'Ether' } },
-  { unit: 'milli', suffix: { short: 'mETH', long: 'mEther' } },
-  { unit: 'micro', suffix: { short: 'μETH', long: 'μEther' } },
-  { unit: 'gwei', suffix: { short: 'GWei', long: 'GWei' } },
-  { unit: 'mwei', suffix: { short: 'MWei', long: 'MWei' } },
-  { unit: 'kwei', suffix: { short: 'kWei', long: 'kWei' } },
   { unit: 'wei', suffix: { short: 'Wei', long: 'Wei' } },
+  { unit: 'kwei', suffix: { short: 'kWei', long: 'kWei' } },
+  { unit: 'mwei', suffix: { short: 'MWei', long: 'MWei' } },
+  { unit: 'gwei', suffix: { short: 'GWei', long: 'GWei' } },
+  { unit: 'micro', suffix: { short: 'μETH', long: 'μEther' } },
+  { unit: 'milli', suffix: { short: 'mETH', long: 'mEther' } },
+  { unit: 'ether', suffix: { short: 'ETH', long: 'Ether' } },
+  { unit: 'kether', suffix: { short: 'kETH', long: 'kEther' } },
+  { unit: 'mether', suffix: { short: 'METH', long: 'MEther' } },
+  { unit: 'gether', suffix: { short: 'GETH', long: 'GEther' } },
+  { unit: 'tether', suffix: { short: 'TETH', long: 'TEther' } },
 ];
 
 const indexedAvailableUnit = availableUnits.reduce((acc, info) => Object.assign(acc, { [info.unit]: info }), {});

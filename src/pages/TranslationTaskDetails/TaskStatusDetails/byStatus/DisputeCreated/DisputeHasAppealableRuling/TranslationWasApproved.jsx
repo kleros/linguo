@@ -4,7 +4,7 @@ import { WarningIcon } from '~/components/icons';
 import EthValue from '~/components/EthValue';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TaskContext from '../../../../TaskContext';
-import VerticalSplitLayout from '../../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../../hooks/useCurrentParty';
 import DisputeContext from '../DisputeContext';
 
@@ -15,7 +15,7 @@ function TranslationWasApproved() {
   const illustration = <TranslationApprovedAvatar />;
   const description = descriptionNodeByParty[party]();
 
-  return <VerticalSplitLayout title={title} description={description} illustration={illustration} />;
+  return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;
 }
 
 export default TranslationWasApproved;
@@ -39,18 +39,14 @@ function ForTranslator() {
       amount={totalAppealCost}
       suffixType="short"
       render={({ formattedValue, suffix }) => (
-        <span
-          css={`
-            color: ${p => p.theme.color.warning.default};
-          `}
-        >
+        <>
           <WarningIcon /> If there is an appeal, you be required a{' '}
           <strong>
             {formattedValue} {suffix}
           </strong>{' '}
           deposit, which you can provide yourself or be crowdfunded. If you fail to do so, you will automatically lose
           the dispute.
-        </span>
+        </>
       )}
     />,
   ];

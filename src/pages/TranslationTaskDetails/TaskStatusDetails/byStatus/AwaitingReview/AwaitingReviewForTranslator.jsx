@@ -3,7 +3,7 @@ import { Task } from '~/app/linguo';
 import TaskAwaitingReviewAvatar from '~/assets/images/avatar-task-awaiting-review.svg';
 import Spacer from '~/components/Spacer';
 import TaskContext from '../../../TaskContext';
-import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
 
@@ -55,7 +55,7 @@ function AwaitingReviewForTranslator() {
           ),
         };
 
-  return <VerticalSplitLayout {...props} />;
+  return <TaskStatusDetailsLayout {...props} />;
 }
 
 export default AwaitingReviewForTranslator;

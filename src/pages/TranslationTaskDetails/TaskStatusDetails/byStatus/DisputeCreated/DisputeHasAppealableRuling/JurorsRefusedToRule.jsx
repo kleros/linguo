@@ -3,7 +3,7 @@ import { TaskParty, Dispute } from '~/app/linguo';
 import { WarningIcon } from '~/components/icons';
 import EthValue from '~/components/EthValue';
 import TaskContext from '../../../../TaskContext';
-import VerticalSplitLayout from '../../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../../hooks/useCurrentParty';
 import DisputeContext from '../DisputeContext';
 
@@ -14,7 +14,7 @@ function JurorsRefusedToRule() {
   const illustration = null;
   const description = descriptionNodeByParty[party]();
 
-  return <VerticalSplitLayout title={title} description={description} illustration={illustration} />;
+  return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;
 }
 
 const descriptionNodeByParty = {

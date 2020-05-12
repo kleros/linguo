@@ -3,7 +3,7 @@ import { Task } from '~/app/linguo';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
 import EthValue from '~/components/EthValue';
 import TaskContext from '../../../TaskContext';
-import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 
 function IncompleteForTranslator() {
   const task = React.useContext(TaskContext);
@@ -43,7 +43,7 @@ function IncompleteForTranslator() {
         ],
       };
 
-  return <VerticalSplitLayout {...props} />;
+  return <TaskStatusDetailsLayout {...props} />;
 }
 
 export default IncompleteForTranslator;

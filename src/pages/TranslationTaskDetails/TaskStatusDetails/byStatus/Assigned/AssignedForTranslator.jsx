@@ -2,7 +2,7 @@ import React from 'react';
 import Spacer from '~/components/Spacer';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
 import TaskContext from '../../../TaskContext';
-import VerticalSplitLayout from '../../layout/VerticalSplit';
+import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import TranslationUploadButton from '../../components/TranslationUploadButton';
 
@@ -32,7 +32,7 @@ function AssignedForTranslator() {
     ),
   };
 
-  return <VerticalSplitLayout {...props} />;
+  return <TaskStatusDetailsLayout {...props} />;
 }
 
 export default AssignedForTranslator;
