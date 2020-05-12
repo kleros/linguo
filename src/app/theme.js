@@ -14,7 +14,7 @@ export default {
       light: '#3DBEFF',
     },
     warning: {
-      default: '#FF9900',
+      default: '#D65900',
     },
     danger: {
       default: '#F60C36',

@@ -10,7 +10,7 @@ const StyledSpin = styled(Spin)`
 `;
 
 function Spinner() {
-  return <StyledSpin tip="Loading status information..." />;
+  return <StyledSpin tip="Loading translation status information..." />;
 }
 
 export default Spinner;

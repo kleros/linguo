@@ -18,6 +18,7 @@ function TaskAssignmentDepositFetcher() {
 
 const StyledWrapper = styled.div`
   font-size: ${p => p.theme.fontSize.sm};
+  font-weight: 400;
   color: ${p => p.theme.color.text.default};
 `;
 

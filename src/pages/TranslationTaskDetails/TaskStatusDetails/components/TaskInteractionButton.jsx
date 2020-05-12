@@ -3,7 +3,7 @@ import t from 'prop-types';
 import { mutate } from 'swr';
 import produce from 'immer';
 import { SendOutlined, LoadingOutlined, CheckOutlined } from '@ant-design/icons';
-import { TaskStatus, useLinguo } from '~/app/linguo';
+import { TaskStatus, TaskParty, useLinguo } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import useStateMachine from '~/hooks/useStateMachine';
 import wrapWithNotification from '~/utils/wrapWithNotification';
@@ -49,12 +49,12 @@ const interactionToMutationMap = {
   [TaskInteraction.Assign]: ({ account }) =>
     produce(task => {
       task.status = TaskStatus.Assigned;
-      task.parties.translator = account;
+      task.parties[TaskParty.Translator] = account;
     }),
   [TaskInteraction.Challenge]: ({ account }) =>
     produce(task => {
       task.status = TaskStatus.DisputeCreated;
-      task.parties.challenger = account;
+      task.parties[TaskParty.Challenger] = account;
     }),
   [TaskInteraction.Accept]: () =>
     produce(task => {
@@ -112,6 +112,7 @@ function TaskInteractionButton({ interaction, content, buttonProps }) {
         dispatch('SUCCESS');
         return result;
       } catch (err) {
+        console.log(err);
         dispatch('ERROR');
         throw err;
       } finally {

@@ -12,7 +12,7 @@ const StyledSpin = styled(Spin)`
   transform: translate(-50%, -50%);
 `;
 
-const fallback = <StyledSpin tip="Loading contents of the page" />;
+const fallback = <StyledSpin tip="Loading contents of the page..." />;
 
 const Home = loadable(() => import('~/pages/Home'), { fallback });
 const TranslatorDashboard = loadable(() => import('~/pages/TranslatorDashboard'), { fallback });

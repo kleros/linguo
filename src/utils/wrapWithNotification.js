@@ -39,4 +39,4 @@ const wrapWithNotification = ({
   }
 };
 
-export { wrapWithNotification as default };
+export default wrapWithNotification;
