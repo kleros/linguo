@@ -226,7 +226,7 @@ function TaskDetails() {
           <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
         </StyledDefinitionDescription>
       </StyledDeadline>
-      <Spacer span={3} />
+      <Spacer size={3} />
       <TaskInfoGrid data={taskInfo} />
       {showFootnote && (
         <>
@@ -236,7 +236,7 @@ function TaskDetails() {
           </StyledFootnote>
         </>
       )}
-      <Spacer span={3} />
+      <Spacer size={3} />
       <StyledLanguageInfo>
         <div className="col source">
           <StyledDefinitionTerm>Source Language</StyledDefinitionTerm>
@@ -251,14 +251,14 @@ function TaskDetails() {
           </StyledDefinitionDescription>
         </div>
       </StyledLanguageInfo>
-      <Spacer span={3} />
+      <Spacer size={3} />
       <StyledExpectedQuality>
         <StyledDefinitionTerm>Expected Quality</StyledDefinitionTerm>
         <StyledDefinitionDescription>
           <TranslationQualityDefinition tierValue={expectedQuality} />
         </StyledDefinitionDescription>
       </StyledExpectedQuality>
-      <Spacer span={3} />
+      <Spacer size={3} />
       <Row justify="center">
         <Col
           css={`
@@ -270,9 +270,9 @@ function TaskDetails() {
           <DownloadTextButton />
         </Col>
       </Row>
-      <Spacer span={1} />
+      <Spacer size={1} />
       <StyledOriginalTextAttachments originalTextUrl={originalTextUrl} originalTextFile={originalTextFile} />
-      <Spacer span={3} />
+      <Spacer size={3} />
       <TaskStatusDetails />
     </div>
   );

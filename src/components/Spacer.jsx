@@ -5,29 +5,31 @@ import styled from 'styled-components';
 const StyledVerticalSpacer = styled.div`
   display: block;
   clear: both;
-  height: calc(${p => p.theme.fontSize[p.baseSize] || '1rem'} * ${p => p.span});
+  height: calc(${p => p.theme.fontSize[p.baseSize] || '1rem'} * ${p => p.size});
 `;
 
 const StyledHorizontalSpacer = styled.div`
   display: inline-block;
-  width: calc(${p => p.theme.fontSize[p.baseSize] || '1rem'} * ${p => p.span});
+  width: calc(${p => p.theme.fontSize[p.baseSize] || '1rem'} * ${p => p.size});
 `;
 
-function Spacer({ baseSize, span, orientation }) {
+function Spacer({ baseSize, size, orientation, className }) {
   const Component = orientation === 'vertical' ? StyledVerticalSpacer : StyledHorizontalSpacer;
-  return <Component baseSize={baseSize} span={span} />;
+  return <Component className={className} baseSize={baseSize} size={size} />;
 }
 
 Spacer.propTypes = {
   baseSize: t.oneOf(['xs', 'sm', 'md', 'lg', 'xl', 'xxl']),
-  span: t.number,
+  size: t.number,
   orientation: t.oneOf(['vertical', 'horizontal']),
+  className: t.string,
 };
 
 Spacer.defaultProps = {
   baseSize: 'md',
-  span: 1,
+  size: 1,
   orientation: 'vertical',
+  className: '',
 };
 
 export default Spacer;
