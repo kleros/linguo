@@ -153,6 +153,7 @@ const variantStyles = {
 
 const StyledButton = styled(BaseButton)`
   display: ${p => (p.fullWidth ? 'flex' : 'inline-flex')};
+  width: ${p => (p.fullWidth ? '100%' : 'auto')};
   justify-content: center;
   align-items: center;
   height: auto;
