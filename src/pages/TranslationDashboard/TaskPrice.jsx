@@ -14,6 +14,7 @@ const StyledWrapper = styled.span`
 function TaskPrice({ value, showTooltip, showFootnoteMark, className }) {
   return (
     <EthValue
+      maxIntDigits={2}
       amount={value}
       suffixType="short"
       render={({ formattedValue, suffix }) => (
