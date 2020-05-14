@@ -26,7 +26,7 @@ export const divide = (a, b) => {
   return normalizeInput(a).div(normalizeInput(b)).toString();
 };
 
-export const percent = (a, b, { decimals = 2 } = {}) => {
+export const percentage = (a, b, { decimals = 2 } = {}) => {
   const multiplier = toBN('10').pow(normalizeInput(decimals));
   const result = normalizeInput(a).mul(multiplier).div(normalizeInput(b));
 
@@ -39,4 +39,20 @@ export const max = (a, ...args) => {
 
 export const min = (a, ...args) => {
   return args.reduce((minVal, current) => BN.min(minVal, normalizeInput(current)), normalizeInput(a)).toString();
+};
+
+export const greaterThan = (a, b) => {
+  return normalizeInput(a).gt(normalizeInput(b));
+};
+
+export const lessThan = (a, b) => {
+  return normalizeInput(a).lt(normalizeInput(b));
+};
+
+export const greaterThanOrEqual = (a, b) => {
+  return normalizeInput(a).gte(normalizeInput(b));
+};
+
+export const lessThanOrEqual = (a, b) => {
+  return normalizeInput(a).lte(normalizeInput(b));
 };

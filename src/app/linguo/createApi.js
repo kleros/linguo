@@ -235,10 +235,10 @@ export default function createApi({ linguoContract, arbitratorContract }) {
   }
 
   async function getTaskDispute({ ID }) {
-    const [{ task, dispute }, latestRound, arbitrationCostParams] = await Promise.all([
+    const [{ task, dispute }, latestRound, rewardPoolParams] = await Promise.all([
       _getTaskAndDisputeDetails({ ID }),
       _getLatestTaskRound({ ID }),
-      _getArbitrationCostParams(),
+      _getRewardPoolParams(),
     ]);
 
     const aggregateDispute = {
@@ -246,7 +246,7 @@ export default function createApi({ linguoContract, arbitratorContract }) {
       latestRound,
     };
 
-    return normalizeDispute(aggregateDispute, task, arbitrationCostParams);
+    return normalizeDispute(aggregateDispute, task, rewardPoolParams);
   }
 
   async function _getTaskAndDisputeDetails({ ID }) {
@@ -330,7 +330,7 @@ export default function createApi({ linguoContract, arbitratorContract }) {
     }
   }
 
-  async function _getArbitrationCostParams() {
+  async function _getRewardPoolParams() {
     const [winnerStakeMultiplier, loserStakeMultiplier, sharedStakeMultiplier, multiplierDivisor] = await Promise.all([
       linguoContract.methods.winnerStakeMultiplier().call(),
       linguoContract.methods.loserStakeMultiplier().call(),

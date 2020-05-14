@@ -2,6 +2,7 @@ import Web3 from 'web3';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import produce from 'immer';
+import { percentage } from '~/adapters/bigNumber';
 import TaskParty from './TaskParty';
 import TaskStatus from './TaskStatus';
 import DisputeStatus from './DisputeStatus';
@@ -22,10 +23,10 @@ const NON_PAYABLE_VALUE = new BN(2n ** 256n - 1n).toString();
  * @param {number} task.disputeID The task disputeID
  * @param {number} task.status The task status
  * @param {number} task.ruling The task status
- * @param {ArbitrationCostParamsInput} arbitrationCostParams The arbitration cost params
+ * @param {RewardPoolParamsInput} rewardPoolParams The reward pool cost params
  * @return {Dispute} The normalized draft
  */
-export const normalize = (dispute, task, arbitrationCostParams) => {
+export const normalize = (dispute, task, rewardPoolParams) => {
   if (!task.hasDispute) {
     return {
       ID: undefined,
@@ -36,7 +37,7 @@ export const normalize = (dispute, task, arbitrationCostParams) => {
         end: new Date(0),
       },
       appealCost: NON_PAYABLE_VALUE,
-      arbitrationCost: {
+      rewardPool: {
         [TaskParty.Translator]: NON_PAYABLE_VALUE,
         [TaskParty.Challenger]: NON_PAYABLE_VALUE,
       },
@@ -57,7 +58,7 @@ export const normalize = (dispute, task, arbitrationCostParams) => {
     },
     latestRound: normalizeRound(dispute.latestRound),
     appealCost,
-    arbitrationCost: normalizeArbitrationCost({ status, ruling, appealCost }, arbitrationCostParams),
+    rewardPool: normalizeRewardPool({ status, ruling, appealCost }, rewardPoolParams),
   };
 };
 
@@ -100,7 +101,7 @@ export const normalizeRound = ({ hasPaid, paidFees, feeRewards }) => {
   };
 };
 
-export const normalizeArbitrationCost = (dispute, arbitrationCostParams) => {
+export const normalizeRewardPool = (dispute, rewardPoolParams) => {
   const ruling = DisputeRuling.of(dispute.ruling);
   const disputeStatus = DisputeStatus.of(dispute.status);
 
@@ -112,10 +113,10 @@ export const normalizeArbitrationCost = (dispute, arbitrationCostParams) => {
   }
 
   const appealCost = toBN(dispute.appealCost);
-  const winnerStakeMultiplier = toBN(arbitrationCostParams.winnerStakeMultiplier);
-  const loserStakeMultiplier = toBN(arbitrationCostParams.loserStakeMultiplier);
-  const sharedStakeMultiplier = toBN(arbitrationCostParams.sharedStakeMultiplier);
-  const multiplierDivisor = toBN(arbitrationCostParams.multiplierDivisor);
+  const winnerStakeMultiplier = toBN(rewardPoolParams.winnerStakeMultiplier);
+  const loserStakeMultiplier = toBN(rewardPoolParams.loserStakeMultiplier);
+  const sharedStakeMultiplier = toBN(rewardPoolParams.sharedStakeMultiplier);
+  const multiplierDivisor = toBN(rewardPoolParams.multiplierDivisor);
   const nonPayableValue = toBN(NON_PAYABLE_VALUE);
 
   /**
@@ -123,14 +124,11 @@ export const normalizeArbitrationCost = (dispute, arbitrationCostParams) => {
    * same for both parties and it is calculated using `sharedStakeMultiplier`.
    */
   if (ruling === DisputeRuling.RefuseToRule) {
-    const arbitrationCost = BN.min(
-      appealCost.mul(sharedStakeMultiplier).div(multiplierDivisor),
-      nonPayableValue
-    ).toString();
+    const rewardPool = BN.min(appealCost.mul(sharedStakeMultiplier).div(multiplierDivisor), nonPayableValue).toString();
 
     return {
-      [TaskParty.Translator]: arbitrationCost,
-      [TaskParty.Challenger]: arbitrationCost,
+      [TaskParty.Translator]: rewardPool,
+      [TaskParty.Challenger]: rewardPool,
     };
   }
 
@@ -165,6 +163,7 @@ export const remainingTimeForAppeal = ({ status, ruling, appealPeriod }, { party
   }
 
   const appealTimeoutInSeconds = appealDeadline.diff(appealStartTime, 'second');
+
   /**
    * Losing party has half of the time to fund his side on an appeal.
    */
@@ -173,7 +172,89 @@ export const remainingTimeForAppeal = ({ status, ruling, appealPeriod }, { party
   return Math.max(losingPartyDeadline.diff(dayjs(currentDate), 'second'), 0);
 };
 
-export const totalAppealCost = ({ appealCost, arbitrationCost }, { party }) => {
+export const isAppealOngoing = (
+  { status, ruling, latestRound },
+  {
+    remainingTime = {
+      [TaskParty.Translator]: 0,
+      [TaskParty.Challenger]: 0,
+    },
+  }
+) => {
+  if (!isAppealable({ status })) {
+    return false;
+  }
+
+  ruling = DisputeRuling.of(ruling);
+
+  if (!DisputeRuling.hasWinner(ruling)) {
+    /**
+     * If there is no winner, the appeal period is the same for both parties,
+     * so no matter which one we check here, since both are the same.
+     */
+    return remainingTime[TaskParty.Translator] > 0;
+  }
+
+  const winner = ruling === DisputeRuling.TranslationApproved ? TaskParty.Translator : TaskParty.Challenger;
+  const loser = ruling === DisputeRuling.TranslationApproved ? TaskParty.Challenger : TaskParty.Translator;
+
+  const winnerRemainingTime = remainingTime[winner];
+  const loserRemainingTime = remainingTime[loser];
+
+  if (winnerRemainingTime <= 0) {
+    return false;
+  }
+
+  if (winnerRemainingTime > 0 && loserRemainingTime > 0) {
+    return true;
+  }
+
+  const hasWinnerPaidAppealFee = hasPaidAppealFee({ latestRound }, { party: winner });
+  const hasLoserPaidAppealFee = hasPaidAppealFee({ latestRound }, { party: loser });
+
+  return hasLoserPaidAppealFee && !hasWinnerPaidAppealFee;
+};
+
+export const expectedFinalRuling = ({ status, ruling, latestRound }, { appealIsOngoing }) => {
+  status = DisputeStatus.of(status);
+  ruling = DisputeRuling.of(ruling);
+
+  if (status !== DisputeStatus.Appealable || appealIsOngoing) {
+    return ruling;
+  }
+
+  const hasTranslatorPaidFees = hasPaidAppealFee({ latestRound }, { party: TaskParty.Translator });
+  const hasChallengerPaidFees = hasPaidAppealFee({ latestRound }, { party: TaskParty.Challenger });
+
+  /**
+   * If both parties failed to pay the fees, the final ruling is the same
+   */
+  if (!hasTranslatorPaidFees && !hasChallengerPaidFees) {
+    return ruling;
+  }
+
+  /**
+   * If only the challenger has paid the fees, the translation should be rejected
+   */
+  if (!hasTranslatorPaidFees && hasChallengerPaidFees) {
+    return DisputeRuling.TranslationWasRejected;
+  }
+
+  /**
+   * If only the translator has paid the fees, the translation should be approved
+   */
+  if (!hasChallengerPaidFees && hasTranslatorPaidFees) {
+    return DisputeRuling.TranslationApproved;
+  }
+
+  /**
+   * This should not happen if the task data is normalized after reading from the smart contract.
+   * This is only here for explicitness sake.
+   */
+  return DisputeRuling.None;
+};
+
+export const totalAppealCost = ({ appealCost, rewardPool }, { party }) => {
   party = TaskParty.of(party);
 
   if (![TaskParty.Translator, TaskParty.Challenger].includes(party)) {
@@ -181,33 +262,37 @@ export const totalAppealCost = ({ appealCost, arbitrationCost }, { party }) => {
   }
 
   appealCost = toBN(appealCost);
-  arbitrationCost = toBN(arbitrationCost[party] ?? NON_PAYABLE_VALUE);
+  rewardPool = toBN(rewardPool[party] ?? NON_PAYABLE_VALUE);
 
-  return BN.min(appealCost.add(arbitrationCost), toBN(NON_PAYABLE_VALUE)).toString();
+  return BN.min(appealCost.add(rewardPool), toBN(NON_PAYABLE_VALUE)).toString();
+};
+
+export const fundingROI = ({ appealCost, rewardPool }, { party }) => {
+  party = TaskParty.of(party);
+
+  if (![TaskParty.Translator, TaskParty.Challenger].includes(party)) {
+    return 0;
+  }
+
+  const counterParty = party === TaskParty.Challenger ? TaskParty.Translator : TaskParty.Challenger;
+
+  const partyTotalAppealCost = toBN(totalAppealCost({ appealCost, rewardPool }, { party }));
+  const counterPartyTotalAppealCost = toBN(totalAppealCost({ appealCost, rewardPool }, { party: counterParty }));
+  appealCost = toBN(appealCost);
+
+  return percentage(counterPartyTotalAppealCost.sub(appealCost), partyTotalAppealCost);
 };
 
 export const hasAppealFundingStarted = ({ latestRound }, { party } = {}) => {
   return (latestRound?.parties?.[party]?.paidFees ?? '0') !== '0';
 };
 
-export const isWithinAppealPeriod = ({ ruling, appealPeriod, ...rest }, { currentDate = new Date() } = {}) => {
-  ruling = DisputeRuling.of(ruling);
-
-  if (ruling === DisputeRuling.RefuseToRule) {
-    const start = dayjs(appealPeriod?.start ?? 0);
-    const end = dayjs(appealPeriod?.end ?? 0);
-
-    return dayjs(currentDate).isBetween(start, end, 'second');
-  }
-
-  const loserParty = ruling === DisputeRuling.TranslationApproved ? TaskParty.Challenger : TaskParty.Translator;
-  const remainingTime = remainingTimeForAppeal({ ruling, appealPeriod, ...rest }, { party: loserParty, currentDate });
-
-  return remainingTime > 0;
+export const hasPaidAppealFee = ({ latestRound }, { party }) => {
+  return latestRound?.parties?.[party]?.hasPaid === true;
 };
 
-export const hasPaidAppealFee = ({ latestRound }, { party }) => {
-  return latestRound?.hasPaid?.[party] === true;
+export const paidFees = ({ latestRound }, { party }) => {
+  return latestRound?.parties?.[party]?.paidFees;
 };
 
 export const disputeHasRuling = ({ status }) => {
@@ -243,7 +328,7 @@ export const registerAppealFunding = (dispute, { deposit, party }) => {
 };
 
 /**
- * @typedef {Object} ArbitrationCostParamsInput The arbitration cost parameters
+ * @typedef {Object} RewardPoolParamsInput The arbitration cost parameters
  * @prop {string|BN} winnerStakeMultiplier The multiplier for the winner side
  * @prop {string|BN} loserStakeMultiplier The multiplier for loser side
  * @prop {string|BN} sharedStakeMultiplier The multiplier for when there is no winner to the draft
@@ -290,7 +375,7 @@ export const registerAppealFunding = (dispute, { deposit, party }) => {
  * @prop {Date} appealPeriod.start The draft appeal period start
  * @prop {Date} appealPeriod.end The draft appeal period end
  * @prop {string} appealCost The cost of the appeal
- * @prop {Object} arbitrationCost The arbitration cost for each party
- * @prop {string} arbitrationCost[TaskParty.Translator] The arbitration cost for translator
- * @prop {string} arbitrationCost[TaskParty.Challenger] The arbitration cost for challenger
+ * @prop {Object} rewardPool The arbitration cost for each party
+ * @prop {string} rewardPool[TaskParty.Translator] The arbitration cost for translator
+ * @prop {string} rewardPool[TaskParty.Challenger] The arbitration cost for challenger
  */

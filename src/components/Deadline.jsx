@@ -17,17 +17,17 @@ const StyledDeadline = styled.div`
   }
 `;
 
-function Deadline({ initialValueSeconds, className, icon, render }) {
+function Deadline({ seconds, className, icon, render }) {
   return (
     <RemainingTime
-      initialValueSeconds={initialValueSeconds}
+      initialValueSeconds={seconds}
       render={({ endingSoon, formattedValue }) => render({ endingSoon, formattedValue, className, icon })}
     />
   );
 }
 
 Deadline.propTypes = {
-  initialValueSeconds: t.number.isRequired,
+  seconds: t.number.isRequired,
   icon: t.element,
   className: t.string,
   render: t.func,

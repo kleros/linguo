@@ -22,4 +22,7 @@ const DisputeRuling = Enum(
   }
 );
 
+DisputeRuling.hasWinner = ruling =>
+  [DisputeRuling.TranslationApproved, DisputeRuling.TranslationRejected].includes(DisputeRuling.of(ruling));
+
 export default DisputeRuling;

@@ -14,7 +14,6 @@ const componentsByDisputeStatus = {
 
 function DisputeCreated() {
   const dispute = React.useContext(DisputeContext);
-  console.log(dispute);
   const party = useCurrentParty();
 
   let Component;
