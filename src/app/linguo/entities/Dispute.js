@@ -12,7 +12,8 @@ const { toBN, BN } = Web3.utils;
 
 dayjs.extend(isBetween);
 
-const NON_PAYABLE_VALUE = new BN(2n ** 256n - 1n).toString();
+// 2**256 - 1
+const NON_PAYABLE_VALUE = toBN('2').pow(toBN('256')).sub(toBN('1')).toString();
 
 /**
  * @function
