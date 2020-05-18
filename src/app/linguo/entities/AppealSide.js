@@ -15,25 +15,28 @@ const AppealSide = Enum('AppealSide', {
   None: undefined,
 });
 
-AppealSide.fromRulingAndParty = ({ ruling, party }) => {
-  ruling = DisputeRuling.of(ruling);
-  party = TaskParty.of(party);
+Object.defineProperty(AppealSide, 'fromRulingAndParty', {
+  enumerable: false,
+  value: ({ ruling, party }) => {
+    ruling = DisputeRuling.of(ruling);
+    party = TaskParty.of(party);
 
-  if (![TaskParty.Translator, TaskParty.Challenger].includes(party)) {
-    return AppealSide.None;
-  }
+    if (![TaskParty.Translator, TaskParty.Challenger].includes(party)) {
+      return AppealSide.None;
+    }
 
-  if (ruling === DisputeRuling.RefuseToRule) {
-    return AppealSide.Tie;
-  }
+    if (ruling === DisputeRuling.RefuseToRule) {
+      return AppealSide.Tie;
+    }
 
-  if (party === TaskParty.Translator) {
-    return ruling === DisputeRuling.TranslationApproved ? AppealSide.Winner : AppealSide.Loser;
-  }
+    if (party === TaskParty.Translator) {
+      return ruling === DisputeRuling.TranslationApproved ? AppealSide.Winner : AppealSide.Loser;
+    }
 
-  if (party === TaskParty.Challenger) {
-    return ruling === DisputeRuling.TranslationApproved ? AppealSide.Loser : AppealSide.Winner;
-  }
-};
+    if (party === TaskParty.Challenger) {
+      return ruling === DisputeRuling.TranslationApproved ? AppealSide.Loser : AppealSide.Winner;
+    }
+  },
+});
 
 export default AppealSide;
