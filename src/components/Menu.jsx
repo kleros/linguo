@@ -76,11 +76,14 @@ export function DrawerMenu() {
 const StyledMainMenu = styled(Menu)`
   line-height: 4rem;
   text-align: center;
-  background: transparent;
 
   ${menuAnchorMixin}
 
   && {
+    &.ant-menu-dark {
+      background: transparent;
+    }
+
     .ant-menu-item-selected {
       background-color: transparent;
     }
