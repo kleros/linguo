@@ -53,6 +53,11 @@ export default {
     sm: '0.875rem',
     xs: '0.75rem',
   },
+  transition: {
+    slow: '0.5s cubic-bezier(0.77, 0, 0.175, 1)',
+    default: '0.25s cubic-bezier(0.77, 0, 0.175, 1)',
+    fast: '0.1s cubic-bezier(0.77, 0, 0.175, 1)',
+  },
   debug: 'outline: 2px solid red',
   hexToRgba: (hexColor, alpha) => {
     let hexValues = hexColor.replace('#', '');

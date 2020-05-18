@@ -24,7 +24,9 @@ const availableUnits = [
   { unit: 'tether', suffix: { short: 'TETH', long: 'TEther' } },
 ];
 
-const indexedAvailableUnit = availableUnits.reduce((acc, info) => Object.assign(acc, { [info.unit]: info }), {});
+const indexedAvailableUnits = availableUnits.reduce((acc, info) => Object.assign(acc, { [info.unit]: info }), {});
+
+export { indexedAvailableUnits as EthUnit };
 
 /**
  * Check if it's possible to display a given `amount` of Wei
@@ -61,7 +63,7 @@ export const getBestDisplayUnit = ({ amount, maxIntDigits = 3, decimals = 2 }) =
     { found: false }
   );
 
-  return bestFit || indexedAvailableUnit.ether;
+  return bestFit || indexedAvailableUnits.ether;
 };
 
 export const parse = ({ amount, unit = 'ether' }) => {
@@ -75,7 +77,7 @@ export const valueOf = ({ amount, unit = 'ether' }) => {
 };
 
 function EthValue({ amount, maxIntDigits, decimals, unit, suffixType, render }) {
-  const unitInfo = indexedAvailableUnit[unit] || getBestDisplayUnit({ amount, maxIntDigits, decimals });
+  const unitInfo = indexedAvailableUnits[unit] || getBestDisplayUnit({ amount, maxIntDigits, decimals });
 
   const value = valueOf({ amount, unit: unitInfo.unit });
 
@@ -96,7 +98,7 @@ EthValue.propTypes = {
   amount: t.oneOfType([t.string, t.number]).isRequired,
   maxIntDigits: t.number,
   decimals: t.number,
-  unit: t.oneOf(['auto', ...Object.keys(indexedAvailableUnit)]),
+  unit: t.oneOf(['auto', ...Object.keys(indexedAvailableUnits)]),
   suffixType: t.oneOf(['none', 'short', 'long']),
   render: t.func,
 };

@@ -2,11 +2,10 @@ import React from 'react';
 import t from 'prop-types';
 import styled, { css } from 'styled-components';
 import { Row, Col, Progress } from 'antd';
-import { Dispute, AppealSide, TaskParty } from '~/app/linguo';
+import { AppealSide, TaskParty } from '~/app/linguo';
 import { percentage, greaterThanOrEqual } from '~/adapters/bigNumber';
 import { InfoIcon, WarningIcon, DisputeIcon } from '~/components/icons';
 import Button from '~/components/Button';
-import { useRemainingTime } from '~/components/RemainingTime';
 import Deadline from '~/components/Deadline';
 import Spacer from '~/components/Spacer';
 import FormattedNumber from '~/components/FormattedNumber';
@@ -14,93 +13,35 @@ import EthValue from '~/components/EthValue';
 import BoxWrapper from '../../../components/BoxWrapper';
 import BoxTitle from '../../../components/BoxTitle';
 import BoxParagraph from '../../../components/BoxParagraph';
-import DisputeContext from '../DisputeContext';
+import AppealModalForm from './AppealModalForm';
+import useAppealStatus from './useAppealStatus';
 
-function AppealProcess() {
-  const dispute = React.useContext(DisputeContext);
-
-  const currentDate = new Date();
-
-  const remainingTimeForTranslator = useRemainingTime(
-    Dispute.remainingTimeForAppeal(dispute, {
-      currentDate,
-      party: TaskParty.Translator,
-    })
-  );
-  const remainingTimeForChallenger = useRemainingTime(
-    Dispute.remainingTimeForAppeal(dispute, {
-      currentDate,
-      party: TaskParty.Challenger,
-    })
-  );
-
-  const appealIsOngoing = Dispute.isAppealOngoing(dispute, {
-    remainingTime: {
-      [TaskParty.Translator]: remainingTimeForTranslator,
-      [TaskParty.Challenger]: remainingTimeForChallenger,
-    },
-  });
-
-  const dataByParty = {
-    [TaskParty.Translator]: {
-      remainingTime: remainingTimeForTranslator,
-      appealSide: AppealSide.fromRulingAndParty({
-        ruling: dispute.ruling,
-        party: TaskParty.Translator,
-      }),
-      finalAppealSide: AppealSide.fromRulingAndParty({
-        ruling: Dispute.expectedFinalRuling(dispute, { appealIsOngoing }),
-        party: TaskParty.Translator,
-      }),
-      paidFees: Dispute.paidFees(dispute, { party: TaskParty.Translator }),
-      hasPaidFee: Dispute.hasPaidAppealFee(dispute, { party: TaskParty.Translator }),
-      totalAppealCost: Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger }),
-      reward: Dispute.fundingROI(dispute, { party: TaskParty.Translator }),
-    },
-    [TaskParty.Challenger]: {
-      remainingTime: remainingTimeForChallenger,
-      appealSide: AppealSide.fromRulingAndParty({
-        ruling: dispute.ruling,
-        party: TaskParty.Challenger,
-      }),
-      finalAppealSide: AppealSide.fromRulingAndParty({
-        ruling: Dispute.expectedFinalRuling(dispute, { appealIsOngoing }),
-        party: TaskParty.Challenger,
-      }),
-      paidFees: Dispute.paidFees(dispute, { party: TaskParty.Challenger }),
-      hasPaidFee: Dispute.hasPaidAppealFee(dispute, { party: TaskParty.Challenger }),
-      totalAppealCost: Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger }),
-      reward: Dispute.fundingROI(dispute, { party: TaskParty.Challenger }),
-    },
-  };
+function AppealStatus() {
+  const { parties, isOngoing } = useAppealStatus();
 
   const translatorFundingProps = {
-    ...dataByParty[TaskParty.Translator],
+    ...parties[TaskParty.Translator],
     party: TaskParty.Translator,
   };
 
   const challengerFundingProps = {
-    ...dataByParty[TaskParty.Challenger],
+    ...parties[TaskParty.Challenger],
     party: TaskParty.Challenger,
   };
 
-  const leftSideContext = <AppealFundingSummary appealIsOngoing={appealIsOngoing} {...translatorFundingProps} />;
-  const rightSideContent = <AppealFundingSummary appealIsOngoing={appealIsOngoing} {...challengerFundingProps} />;
+  const leftSideContext = <AppealFundingSummary isOngoing={isOngoing} {...translatorFundingProps} />;
+  const rightSideContent = <AppealFundingSummary isOngoing={isOngoing} {...challengerFundingProps} />;
 
   return (
-    <AppealProcessLayout
-      leftSideContext={leftSideContext}
-      rightSideContent={rightSideContent}
-      appealIsOngoing={appealIsOngoing}
-    />
+    <AppealStatusLayout leftSideContext={leftSideContext} rightSideContent={rightSideContent} isOngoing={isOngoing} />
   );
 }
 
-export default AppealProcess;
+export default AppealStatus;
 
-function AppealProcessLayout({ leftSideContext, rightSideContent, appealIsOngoing }) {
-  const title = appealIsOngoing ? 'Appeal the decision' : 'The appeal cannot be issued';
-  const description = appealIsOngoing ? (
+function AppealStatusLayout({ leftSideContext, rightSideContent, isOngoing }) {
+  const title = isOngoing ? 'Appeal the decision' : 'The appeal cannot be issued';
+  const description = isOngoing ? (
     <>
       <BoxParagraph>
         In order to appeal the decision, you need to complete the crowdfunding deposit. The case will only be sent to
@@ -124,12 +65,7 @@ function AppealProcessLayout({ leftSideContext, rightSideContent, appealIsOngoin
       <BoxTitle>{title}</BoxTitle>
       {description}
       <Spacer size={2} />
-      <Row
-        gutter={[16, 16]}
-        css={`
-          align-items: stretch;
-        `}
-      >
+      <StyledCardRow gutter={[16, 16]}>
         <Col xs={24} sm={24} md={12} lg={12} xl={9}>
           {leftSideContext}
         </Col>
@@ -144,44 +80,28 @@ function AppealProcessLayout({ leftSideContext, rightSideContent, appealIsOngoin
             </StyledDisclaimer>
           </StyledCard>
         </Col>
-      </Row>
-      {appealIsOngoing && (
+      </StyledCardRow>
+      {isOngoing && (
         <>
           <Spacer baseSize="sm" size={0.25} />
           <StyledFootnote>
-            <sup>*</sup> The maximum % of reward. If the other side is not fully funded, the reward will be smaller.
+            * The actual reward may vary in the event of a Kleros governance vote changing the fees or system parameters
+            while this case is ongoing or if the other party is not fully funded.
           </StyledFootnote>
         </>
       )}
       <Spacer />
       <Row justify="end">
-        <Button disabled={!appealIsOngoing}>Fund the Appeal</Button>
+        <AppealModalForm forceClose={!isOngoing} trigger={<Button disabled={!isOngoing}>Fund the Appeal</Button>} />
       </Row>
     </BoxWrapper>
   );
 }
 
-AppealProcessLayout.propTypes = {
+AppealStatusLayout.propTypes = {
   leftSideContext: t.node.isRequired,
   rightSideContent: t.node.isRequired,
-  appealIsOngoing: t.bool.isRequired,
-};
-
-const descriptionByAppealSide = {
-  [AppealSide.Tie]: 'Previous Round was a Tie',
-  [AppealSide.Winner]: 'Previous Round Winner',
-  [AppealSide.Loser]: 'Previous Round Loser',
-};
-
-const descriptionByParty = {
-  [TaskParty.Translator]: 'Translator',
-  [TaskParty.Challenger]: 'Challenger',
-};
-
-const deadlineDescriptionByAppealSide = {
-  [AppealSide.Tie]: 'Deadline',
-  [AppealSide.Winner]: 'Winner Dealine',
-  [AppealSide.Loser]: 'Loser Deadline',
+  isOngoing: t.bool.isRequired,
 };
 
 function AppealFundingSummary({
@@ -192,7 +112,7 @@ function AppealFundingSummary({
   totalAppealCost,
   reward,
   remainingTime,
-  appealIsOngoing,
+  isOngoing,
 }) {
   const percent = percentage(paidFees, totalAppealCost) * 100;
 
@@ -201,7 +121,7 @@ function AppealFundingSummary({
   let status;
   if (percent >= 100) {
     status = 'success';
-  } else if (remainingTime > 0 && appealIsOngoing) {
+  } else if (remainingTime > 0 && isOngoing) {
     status = 'active';
   } else if (finalAppealSide === AppealSide.Winner) {
     status = 'success';
@@ -249,35 +169,32 @@ function AppealFundingSummary({
         <Progress percent={percent} status={status} showInfo={false} />
       </StyledFeeStatus>
       <Spacer baseSize="sm" size={2} />
-      {appealIsOngoing ? (
+      {isOngoing ? (
         <>
-          <StyledRewardBox data-hidden={isRewardBoxHidden}>
-            <StyledSectionTitle>For third party contributors</StyledSectionTitle>
-            <Spacer baseSize="sm" size={0.25} />
-            <StyledSectionDescription>
-              If this side wins, you can receive back your contribution + a reward.
-            </StyledSectionDescription>
-            <Spacer baseSize="sm" />
-            <FormattedNumber
-              value={reward}
-              style="percent"
-              render={({ formattedValue }) => (
-                <StyledRewardDisplay>
-                  {formattedValue} Reward<sup>*</sup>
-                </StyledRewardDisplay>
-              )}
-            />
-          </StyledRewardBox>
-          <Spacer baseSize="sm" size={2} />
-          <StyledDeadline
+          <StyledRewardBoxWrapper visuallyHidden={isRewardBoxHidden}>
+            <StyledRewardBox>
+              <StyledSectionTitle>For third party contributors</StyledSectionTitle>
+              <Spacer baseSize="sm" size={0.25} />
+              <StyledSectionDescription>
+                If this side wins, you can receive back your contribution + a reward.
+              </StyledSectionDescription>
+              <Spacer baseSize="sm" />
+              <FormattedNumber
+                value={reward}
+                style="percent"
+                render={({ formattedValue }) => (
+                  <StyledRewardDisplay>
+                    {formattedValue} Reward<sup>*</sup>
+                  </StyledRewardDisplay>
+                )}
+              />
+            </StyledRewardBox>
+            <Spacer baseSize="sm" size={2} />
+          </StyledRewardBoxWrapper>
+          <Deadline
             seconds={remainingTime}
             render={({ formattedValue, icon, endingSoon }) => (
-              <Row
-                gutter={8}
-                css={`
-                  color: ${endingSoon ? p => p.theme.color.danger.default : 'inherit'};
-                `}
-              >
+              <StyledDeadlineContent gutter={8} className={endingSoon ? 'ending-soon' : ''}>
                 <Col>{icon}</Col>
                 <Col>
                   <StyledSectionTitle>
@@ -285,7 +202,7 @@ function AppealFundingSummary({
                     {formattedValue}
                   </StyledSectionTitle>
                 </Col>
-              </Row>
+              </StyledDeadlineContent>
             )}
           />
         </>
@@ -304,8 +221,29 @@ AppealFundingSummary.propTypes = {
   totalAppealCost: t.string.isRequired,
   reward: t.number.isRequired,
   remainingTime: t.number.isRequired,
-  appealIsOngoing: t.bool.isRequired,
+  isOngoing: t.bool.isRequired,
 };
+
+const descriptionByAppealSide = {
+  [AppealSide.Tie]: 'Previous Round was a Tie',
+  [AppealSide.Winner]: 'Previous Round Winner',
+  [AppealSide.Loser]: 'Previous Round Loser',
+};
+
+const descriptionByParty = {
+  [TaskParty.Translator]: 'Translator',
+  [TaskParty.Challenger]: 'Challenger',
+};
+
+const deadlineDescriptionByAppealSide = {
+  [AppealSide.Tie]: 'Deadline',
+  [AppealSide.Winner]: 'Winner Dealine',
+  [AppealSide.Loser]: 'Loser Deadline',
+};
+
+const StyledCardRow = styled(Row)`
+  align-items: stretch;
+`;
 
 const StyledCard = styled.div`
   background: ${p => p.theme.color.background.light};
@@ -338,12 +276,19 @@ const StyledSectionDescription = styled.p`
   color: inherit;
 `;
 
+const StyledRewardBoxWrapper = styled.div`
+  ${p => (p.visuallyHidden ? 'visibility: hidden;' : undefined)}
+
+  @media(max-width: 767.98px) {
+    ${p => (p.visuallyHidden ? 'display: none;' : undefined)}
+  }
+`;
+
 const StyledRewardBox = styled.div`
   border-radius: 0.75rem;
   background: ${p => p.theme.color.background.neutral};
   padding: 1rem;
   text-align: center;
-  ${p => (p['data-hidden'] ? 'visibility: hidden;' : undefined)}
 `;
 
 const colorsByAppealSide = {
@@ -395,8 +340,12 @@ const StyledDisclaimer = styled.p`
   }
 `;
 
-const StyledDeadline = styled(Deadline)`
+const StyledDeadlineContent = styled(Row)`
   font-size: ${p => p.theme.fontSize.sm};
+
+  &.ending-soon {
+    color: ${p => p.theme.color.danger.default};
+  }
 `;
 
 const StyledFootnote = styled.p`

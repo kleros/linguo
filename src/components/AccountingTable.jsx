@@ -2,13 +2,14 @@ import React from 'react';
 import t from 'prop-types';
 import styled, { css } from 'styled-components';
 
-function AccountingTable({ rows, summary, className }) {
+export default function AccountingTable({ rows, summary, className }) {
   return (
     <StyledTable summary={summary} className={className}>
       <tbody>
         {rows.map(({ description, value, rowProps }, index) => {
+          const { css, ...rest } = rowProps ?? {};
           return (
-            <StyledTableRow key={index} {...rowProps}>
+            <StyledTableRow key={index} css={css} {...rest}>
               <StyledTableCellHeader>{description}</StyledTableCellHeader>
               <StyledTableCell>{value}</StyledTableCell>
             </StyledTableRow>
@@ -36,34 +37,13 @@ AccountingTable.defaultProps = {
   className: '',
 };
 
-export default AccountingTable;
-
 const StyledTable = styled.table`
-  color: ${p => p.theme.color.text.default};
+  color: inherit;
   font-weight: 400;
   width: 100%;
 `;
 
-const rowStyledByColor = {
-  default: css`
-    color: ${p => p.theme.color.text.default};
-  `,
-  primary: css`
-    color: ${p => p.theme.color.primary.default};
-  `,
-  secondary: css`
-    color: ${p => p.theme.color.secondary.default};
-  `,
-  danger: css`
-    color: ${p => p.theme.color.danger.default};
-  `,
-};
-
-const StyledTableRow = styled.tr.attrs(props => ({
-  ...props,
-  color: props.color ?? 'default',
-}))`
-  ${p => rowStyledByColor[p.color]}
+const StyledTableRow = styled.tr`
   line-height: 1.33;
 `;
 

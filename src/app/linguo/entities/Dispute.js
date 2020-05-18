@@ -17,14 +17,14 @@ const NON_PAYABLE_VALUE = new BN(2n ** 256n - 1n).toString();
 /**
  * @function
  *
- * @param {DisputeInput} dispute The draft info object
+ * @param {DisputeInput} dispute The dispute info object
  * @param {Object} task The task object
- * @param {boolean} task.hasDispute Whether the task had a draft or not
+ * @param {boolean} task.hasDispute Whether the task had a dispute or not
  * @param {number} task.disputeID The task disputeID
  * @param {number} task.status The task status
  * @param {number} task.ruling The task status
  * @param {RewardPoolParamsInput} rewardPoolParams The reward pool cost params
- * @return {Dispute} The normalized draft
+ * @return {Dispute} The normalized dispute
  */
 export const normalize = (dispute, task, rewardPoolParams) => {
   if (!task.hasDispute) {
@@ -73,7 +73,7 @@ export const normalizeRuling = (dispute, task) => {
   /**
    * Dispute ruling might have been overwriten if there is an appeal
    * and one of the parties did not receive enough funding.
-   * In this case, the outcome of the draft is no the one from the arbitrator,
+   * In this case, the outcome of the dispute is no the one from the arbitrator,
    * but the one that is stored in the task itself.
    */
   return taskIsResolved ? DisputeRuling.of(task.ruling) : DisputeRuling.of(dispute.ruling);
@@ -215,6 +215,10 @@ export const isAppealOngoing = (
   return hasLoserPaidAppealFee && !hasWinnerPaidAppealFee;
 };
 
+export const isWithinAppealPeriod = ({ appealPeriod }, { currentDate = new Date() } = {}) => {
+  return dayjs(currentDate).isBetween(dayjs(appealPeriod.start), dayjs(appealPeriod.end), 'second');
+};
+
 export const expectedFinalRuling = ({ status, ruling, latestRound }, { appealIsOngoing }) => {
   status = DisputeStatus.of(status);
   ruling = DisputeRuling.of(ruling);
@@ -331,19 +335,19 @@ export const registerAppealFunding = (dispute, { deposit, party }) => {
  * @typedef {Object} RewardPoolParamsInput The arbitration cost parameters
  * @prop {string|BN} winnerStakeMultiplier The multiplier for the winner side
  * @prop {string|BN} loserStakeMultiplier The multiplier for loser side
- * @prop {string|BN} sharedStakeMultiplier The multiplier for when there is no winner to the draft
+ * @prop {string|BN} sharedStakeMultiplier The multiplier for when there is no winner to the dispute
  * @prop {string|BN} multiplierDivisor The divisor for all multipliers.
  */
 
 /**
- * @typedef {Object} DisputeInput The draft info input
- * @prop {string|number} status The draft status
- * @prop {string|number} ruling The draft current ruling
- * @prop {Object} appealPeriod The draft appeal period
- * @prop {string} appealPeriod.start The draft appeal period start as Unix timestamp
- * @prop {string} appealPeriod.end The draft appeal period end as Unix timestamp
+ * @typedef {Object} DisputeInput The dispute info input
+ * @prop {string|number} status The dispute status
+ * @prop {string|number} ruling The dispute current ruling
+ * @prop {Object} appealPeriod The dispute appeal period
+ * @prop {string} appealPeriod.start The dispute appeal period start as Unix timestamp
+ * @prop {string} appealPeriod.end The dispute appeal period end as Unix timestamp
  * @prop {string} appealCost The cost of the appeal
- * @prop {LatestRoundInput} latestRound The latest draft round
+ * @prop {LatestRoundInput} latestRound The latest dispute round
  */
 
 /**
@@ -354,7 +358,7 @@ export const registerAppealFunding = (dispute, { deposit, party }) => {
  */
 
 /**
- * @typedef {Object} LatestRound The latest round of a draft
+ * @typedef {Object} LatestRound The latest round of a dispute
  * @prop {Object} parties
  * @prop {Object} parties[TaskParty.Translator]
  * @prop {boolean} parties[TaskParty.Translator].hasPaid whether the translator side has fully paid its appeal fees
@@ -366,14 +370,14 @@ export const registerAppealFunding = (dispute, { deposit, party }) => {
  */
 
 /**
- * @typedef {Object} Dispute The draft info parts
- * @prop {number} ID The draft ID
- * @prop {DisputeStatus} status The draft status
- * @prop {DisputeRuling} ruling The draft ruling
- * @prop {LatestRound} [latestRound] Information regarding the latest draft round
- * @prop {Object} appealPeriod The draft appeal period
- * @prop {Date} appealPeriod.start The draft appeal period start
- * @prop {Date} appealPeriod.end The draft appeal period end
+ * @typedef {Object} Dispute The dispute info parts
+ * @prop {number} ID The dispute ID
+ * @prop {DisputeStatus} status The dispute status
+ * @prop {DisputeRuling} ruling The dispute ruling
+ * @prop {LatestRound} [latestRound] Information regarding the latest dispute round
+ * @prop {Object} appealPeriod The dispute appeal period
+ * @prop {Date} appealPeriod.start The dispute appeal period start
+ * @prop {Date} appealPeriod.end The dispute appeal period end
  * @prop {string} appealCost The cost of the appeal
  * @prop {Object} rewardPool The arbitration cost for each party
  * @prop {string} rewardPool[TaskParty.Translator] The arbitration cost for translator

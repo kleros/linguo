@@ -3,7 +3,7 @@ import loadable from '@loadable/component';
 import { DisputeRuling } from '~/app/linguo';
 import Spacer from '~/components/Spacer';
 import DisputeContext from '../DisputeContext';
-import AppealProcess from './AppealProcess';
+import AppealStatus from './AppealStatus';
 
 const componentsByRuling = {
   [DisputeRuling.TranslationApproved]: loadable(() => import('./TranslationWasApproved.jsx')),
@@ -20,7 +20,7 @@ function DisputeHasAppealableRuling() {
     <>
       <RulingComponent />
       <Spacer size={3} />
-      <AppealProcess />
+      <AppealStatus />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 
 function DisputeAppealPeriodIsOver() {
-  return <div>Appeal Period is Over</div>;
+  return <p>Appeal Period is Over</p>;
 }
 
 export default DisputeAppealPeriodIsOver;
