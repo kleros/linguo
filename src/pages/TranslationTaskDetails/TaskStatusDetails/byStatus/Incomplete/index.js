@@ -5,11 +5,11 @@ import Spinner from '../../components/Spinner';
 
 const fallback = <Spinner />;
 
-const NoContent = () => 'yay';
+const NoContent = () => null;
 
 export default {
-  [TaskParty.Requester]: loadable(() => import(`./IncompleteForRequester.jsx`), { fallback }),
-  [TaskParty.Translator]: loadable(() => import(`./IncompleteForTranslator.jsx`), { fallback }),
+  [TaskParty.Requester]: loadable(() => import('./IncompleteForRequester.jsx'), { fallback }),
+  [TaskParty.Translator]: loadable(() => import('./IncompleteForTranslator.jsx'), { fallback }),
   [TaskParty.Challenger]: loadable(() => Promise.resolve({ default: NoContent }), { fallback }),
-  [TaskParty.Other]: loadable(() => import(`./IncompleteForOther.jsx`), { fallback }),
+  [TaskParty.Other]: loadable(() => import('./IncompleteForOther.jsx'), { fallback }),
 };

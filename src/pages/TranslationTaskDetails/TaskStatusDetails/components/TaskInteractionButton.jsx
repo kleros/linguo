@@ -1,9 +1,8 @@
 import React from 'react';
 import t from 'prop-types';
 import { mutate } from 'swr';
-import produce from 'immer';
 import { SendOutlined, LoadingOutlined, CheckOutlined } from '@ant-design/icons';
-import { TaskStatus, TaskParty, useLinguo } from '~/app/linguo';
+import { Task, useLinguo } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import useStateMachine from '~/hooks/useStateMachine';
 import wrapWithNotification from '~/utils/wrapWithNotification';
@@ -33,37 +32,22 @@ const buttonStateMachine = {
 const TaskInteraction = {
   Assign: 'assign',
   Challenge: 'challenge',
-  Accept: 'accept',
+  Approve: 'approve',
   Reimburse: 'reimburse',
 };
 
 const interactionToApiMethodMap = {
   [TaskInteraction.Assign]: 'assignTask',
   [TaskInteraction.Challenge]: 'challengeTranslation',
-  [TaskInteraction.Accept]: 'acceptTranslation',
+  [TaskInteraction.Approve]: 'approveTranslation',
   [TaskInteraction.Reimburse]: 'reimburseRequester',
 };
 
-// TODO: move this to Task API
 const interactionToMutationMap = {
-  [TaskInteraction.Assign]: ({ account }) =>
-    produce(task => {
-      task.status = TaskStatus.Assigned;
-      task.parties[TaskParty.Translator] = account;
-    }),
-  [TaskInteraction.Challenge]: ({ account }) =>
-    produce(task => {
-      task.status = TaskStatus.DisputeCreated;
-      task.parties[TaskParty.Challenger] = account;
-    }),
-  [TaskInteraction.Accept]: () =>
-    produce(task => {
-      task.status = TaskStatus.Resolved;
-    }),
-  [TaskInteraction.Reimburse]: () =>
-    produce(task => {
-      task.status = TaskStatus.Resolved;
-    }),
+  [TaskInteraction.Assign]: ({ account }) => task => Task.registerAssignment(task, { account }),
+  [TaskInteraction.Challenge]: ({ account }) => task => Task.registerChallenge(task, { account }),
+  [TaskInteraction.Approve]: () => task => Task.registerApproval(task),
+  [TaskInteraction.Reimburse]: () => task => Task.registerReimbursement(task),
 };
 
 const defaultButtonContent = {

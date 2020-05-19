@@ -3,7 +3,6 @@ import Web3 from 'web3';
 import deepMerge from 'deepmerge';
 import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
-import createError from '~/utils/createError';
 import { normalize as normalizeTask } from './entities/Task';
 import { normalize as normalizeDispute } from './entities/Dispute';
 
@@ -47,7 +46,8 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
     const response = await fetch(url);
     return response.json();
   } catch (err) {
-    throw createError(`Failed to fetch evidence for task ${ID}`, { cause: err });
+    console.warn(`Failed to fetch evidence for task ${ID}`, err);
+    throw new Error(`Failed to fetch evidence for task ${ID}`);
   }
 };
 
@@ -123,13 +123,15 @@ export default function createApi({ linguoContract, arbitratorContract }) {
         }),
       ]);
 
-      const [{ metadata }, disputeEvents] = await Promise.all([
-        fetchMetaEvidenceFromEvents({ ID, events: metaEvidenceEvents }),
-        linguoContract.getPastEvents('Dispute', {
-          filter: { _disputeID: task.disputeID },
-          fromBlock: 0,
-        }),
-      ]);
+      const disputeEvents =
+        translationChallengedEvents.length > 0
+          ? await linguoContract.getPastEvents('Dispute', {
+              filter: { _disputeID: task.disputeID },
+              fromBlock: 0,
+            })
+          : [];
+
+      const { metadata } = await fetchMetaEvidenceFromEvents({ ID, events: metaEvidenceEvents });
 
       return normalizeTask({
         ID,
@@ -146,7 +148,8 @@ export default function createApi({ linguoContract, arbitratorContract }) {
         },
       });
     } catch (err) {
-      throw createError(`Failed to fetch task with ID ${ID}`, { cause: err });
+      console.warn(`Failed to fetch task with ID ${ID}`, err);
+      throw new Error(`Failed to fetch task with ID ${ID}`);
     }
   }
 
@@ -209,7 +212,8 @@ export default function createApi({ linguoContract, arbitratorContract }) {
     try {
       return await linguoContract.methods.getTaskPrice(ID).call();
     } catch (err) {
-      throw createError(`Failed to get price for task with ID ${ID}`, { cause: err });
+      console.warn(`Failed to get price for task with ID ${ID}`, err);
+      throw new Error(`Failed to get price for task with ID ${ID}`);
     }
   }
 
@@ -386,7 +390,8 @@ export default function createApi({ linguoContract, arbitratorContract }) {
       const receipt = await txn;
       return receipt;
     } catch (err) {
-      throw createError('Failed to create the translation task', { cause: err });
+      console.warn('Failed to create the translation task', err);
+      throw new Error('Failed to create the translation task');
     }
   }
 

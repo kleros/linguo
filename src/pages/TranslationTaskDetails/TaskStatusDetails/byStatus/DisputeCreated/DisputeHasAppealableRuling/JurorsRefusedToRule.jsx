@@ -2,6 +2,7 @@ import React from 'react';
 import { TaskParty, Dispute } from '~/app/linguo';
 import { WarningIcon } from '~/components/icons';
 import EthValue from '~/components/EthValue';
+import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
 import TaskContext from '../../../../TaskContext';
 import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../../hooks/useCurrentParty';
@@ -11,7 +12,7 @@ function JurorsRefusedToRule() {
   const party = useCurrentParty();
 
   const title = 'The jurors refused to vote';
-  const illustration = null;
+  const illustration = <RefusedToRuleAvatar />;
   const description = descriptionNodeByParty[party]();
 
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;

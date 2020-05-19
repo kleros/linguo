@@ -1,6 +1,8 @@
+import produce from 'immer';
 import dayjs from 'dayjs';
 import TaskStatus from './TaskStatus';
 import TaskParty from './TaskParty';
+import DisputeRuling from './DisputeRuling';
 import Web3 from 'web3';
 
 const { toBN, BN } = Web3.utils;
@@ -97,7 +99,7 @@ const normalizePropsFnMap = {
     [TaskParty.Challenger]: challenger === ETH_ADDRESS_ZERO ? undefined : challenger,
   }),
   disputeID: Number,
-  ruling: Number,
+  ruling: DisputeRuling.of,
 };
 
 /**
@@ -323,3 +325,84 @@ export const isIncomplete = ({ status, lastInteraction, submissionTimeout, lifec
 export const isPending = ({ status } = {}) => {
   return [TaskStatus.Created, TaskStatus.Assigned].includes(status);
 };
+
+/**
+ * Returns an updated Task object as if it was assigned.
+ * Notice that `task` input is not mutated.
+ *
+ * @function
+ *
+ * @param {Task} task The task object
+ * @param {Object} params The update params
+ * @param {string} params.account The account which assigned to the task
+ * @return {Task} The updated task object
+ */
+export const registerAssignment = (task, { account }) =>
+  produce(task, draft => {
+    draft.status = TaskStatus.Assigned;
+    draft.parties[TaskParty.Translator] = account;
+  });
+
+/**
+ * Returns an updated Task object as if the translation was submitted.
+ * Notice that `task` input is not mutated.
+ *
+ * @function
+ *
+ * @param {Task} task The task object
+ * @param {Object} params The update params
+ * @param {Date} params.currentDate The date in which the submission was made
+ * @return {Task} The updated task object
+ */
+export const registerSubmission = (task, { currentDate = new Date() } = {}) =>
+  produce(task, draft => {
+    draft.status = TaskStatus.AwaitingReview;
+    draft.lastInteraction = currentDate;
+  });
+
+/**
+ * Returns an updated Task object as if the translation was challenged.
+ * Notice that `task` input is not mutated.
+ *
+ * @function
+ *
+ * @param {Task} task The task object
+ * @param {Object} params The update params
+ * @param {Date} params.account The account which challenged the translation
+ * @return {Task} The updated task object
+ */
+export const registerChallenge = (task, { account }) =>
+  produce(task, draft => {
+    draft.status = TaskStatus.DisputeCreated;
+    draft.parties[TaskParty.Challenger] = account;
+  });
+
+/**
+ * Returns an updated Task object as if the translation was approved.
+ * Notice that `task` input is not mutated.
+ *
+ * @function
+ *
+ * @param {Task} task The task object
+ * @return {Task} The updated task object
+ */
+export const registerApproval = task =>
+  produce(task, draft => {
+    draft.status = TaskStatus.Resolved;
+    draft.ruling = DisputeRuling.TranslationApproved;
+  });
+
+/**
+ * Returns an updated Task object as if the translation was rejected.
+ * Notice that `task` input is not mutated.
+ *
+ * @function
+ *
+ * @param {Task} task The task object
+ * @return {Task} The updated task object
+ */
+export const registerReimbursement = task =>
+  produce(task, draft => {
+    draft.status = TaskStatus.Resolved;
+    draft.ruling = DisputeRuling.TranslationRejected;
+  });

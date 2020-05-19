@@ -47,7 +47,7 @@ function AwaitingReviewForRequester() {
         {remainingTime === 0 ? (
           <TaskInteractionButton
             ID={task.ID}
-            interaction={TaskInteractionButton.Interaction.Accept}
+            interaction={TaskInteractionButton.Interaction.Approve}
             content={{ idle: 'Pay Translator' }}
             buttonProps={{ fullWidth: true }}
           />

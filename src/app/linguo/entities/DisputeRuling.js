@@ -22,7 +22,10 @@ const DisputeRuling = Enum(
   }
 );
 
-DisputeRuling.hasWinner = ruling =>
-  [DisputeRuling.TranslationApproved, DisputeRuling.TranslationRejected].includes(DisputeRuling.of(ruling));
+Object.defineProperty(DisputeRuling, 'hasWinner', {
+  enumerable: false,
+  value: ruling =>
+    [DisputeRuling.TranslationApproved, DisputeRuling.TranslationRejected].includes(DisputeRuling.of(ruling)),
+});
 
 export default DisputeRuling;

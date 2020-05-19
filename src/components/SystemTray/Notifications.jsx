@@ -171,11 +171,13 @@ function Notifications() {
       title="Notifications"
       trigger="click"
     >
-      <Badge count={notifications.length}>
-        <Button shape="round">
-          <StyledNotificationIcon />
-        </Button>
-      </Badge>
+      <span>
+        <Badge count={notifications.length}>
+          <Button shape="round">
+            <StyledNotificationIcon />
+          </Button>
+        </Badge>
+      </span>
     </StyledPopover>
   );
 }

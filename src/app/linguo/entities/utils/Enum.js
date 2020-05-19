@@ -10,7 +10,7 @@ const Enum = (name, options, { parseValue = identity } = {}) =>
         value: function of(value) {
           const parsedValue = parseValue(value);
 
-          if (!Object.values(this).includes(parsedValue)) {
+          if (!Object.values(options).includes(parsedValue)) {
             throw new Error(`Invalid ${name} value: ${value}`);
           }
 
@@ -19,7 +19,7 @@ const Enum = (name, options, { parseValue = identity } = {}) =>
       },
       toString: {
         value: function toString() {
-          return `${name} #{ ${Object.entries(this)
+          return `${name} #{ ${Object.entries(options)
             .map(([k, v]) => `${k}: ${v}`)
             .join(', ')} }`;
         },

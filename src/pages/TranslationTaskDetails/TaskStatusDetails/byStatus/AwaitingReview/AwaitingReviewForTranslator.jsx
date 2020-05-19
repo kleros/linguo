@@ -30,7 +30,7 @@ function AwaitingReviewForTranslator() {
       ? {
           title,
           description: [
-            'During review time if someone challenge the translation a dispute is open and specialized jurors are drawn to decide the case. ',
+            'During review time, if someone challenges the translation, a dispute is open and specialized jurors are drawn to decide the case. ',
             'If so, you will be asked to deposit the arbitration fee as well. But, if the translation is not challenged, the task is finished and you receive the escrow payment + your translation deposit back.',
           ],
           illustration: <TaskAwaitingReviewAvatar />,
@@ -47,7 +47,7 @@ function AwaitingReviewForTranslator() {
               <Spacer />
               <TaskInteractionButton
                 ID={task.ID}
-                interaction={TaskInteractionButton.Interaction.Accept}
+                interaction={TaskInteractionButton.Interaction.Approve}
                 content={{ idle: 'Claim Payment' }}
                 buttonProps={{ fullWidth: true }}
               />

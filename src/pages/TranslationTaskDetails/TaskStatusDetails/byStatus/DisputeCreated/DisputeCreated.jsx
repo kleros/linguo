@@ -1,14 +1,14 @@
 import React from 'react';
-import loadable from '@loadable/component';
+import __lazy from '@loadable/component';
 import { Dispute } from '~/app/linguo';
 import DisputeContext from './DisputeContext';
 import { withDisputeFetcher } from './DisputeFetcher';
 
 const componentsByDisputeStatus = {
-  waiting: loadable(() => import('./DisputeIsWaiting.jsx')),
-  appealable: loadable(() => import('./DisputeHasAppealableRuling/index.js')),
-  appealPeriodIsOver: loadable(() => import('./DisputeAppealPeriodIsOver.jsx')),
-  solved: loadable(() => Promise.resolve({ default: () => null })),
+  waiting: __lazy(() => import('./DisputeIsWaiting.jsx')),
+  appealable: __lazy(() => import('./DisputeHasAppealableRuling/index.js')),
+  appealPeriodIsOver: __lazy(() => import('./DisputeAppealPeriodIsOver.jsx')),
+  solved: __lazy(() => Promise.resolve({ default: () => null })),
 };
 
 function DisputeCreated() {

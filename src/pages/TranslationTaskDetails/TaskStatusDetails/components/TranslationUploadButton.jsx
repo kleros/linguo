@@ -2,10 +2,9 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { mutate } from 'swr';
-import produce from 'immer';
 import { notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { TaskStatus, useLinguo } from '~/app/linguo';
+import { Task, useLinguo } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import SingleFileUpload from '~/components/SingleFileUpload';
 import Button from '~/components/Button';
@@ -63,12 +62,7 @@ function TranslationUploadButton({ buttonProps }) {
       try {
         setHasPendingTxn(true);
         await linguo.api.submitTranslation({ ID, text }, { from: account });
-        mutate(
-          ['getTaskById', ID],
-          produce(task => {
-            task.status = TaskStatus.AwaitingReview;
-          })
-        );
+        mutate(['getTaskById', ID], Task.registerSubmission);
       } finally {
         setHasPendingTxn(false);
       }
