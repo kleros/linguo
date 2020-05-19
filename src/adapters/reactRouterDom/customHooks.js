@@ -2,7 +2,9 @@ import { useCallback, useEffect } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 
 export function useQuery() {
-  return Object.fromEntries(new URLSearchParams(useLocation().search).entries());
+  const params = new URLSearchParams(useLocation().search).entries();
+
+  return [...params].reduce((acc, [key, value]) => Object.assign(acc, { [key]: value }), {});
 }
 
 export function useImperativeRefresh() {

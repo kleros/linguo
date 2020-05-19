@@ -7,9 +7,10 @@ import createError from '~/utils/createError';
 import { normalize as normalizeTask } from './entities/Task';
 import { normalize as normalizeDispute } from './entities/Dispute';
 
-const { toWei, toBN, BN } = Web3.utils;
+const { toWei, toBN } = Web3.utils;
 
-const NON_PAYABLE_VALUE = new BN(2n ** 256n - 1n).toString();
+// 2**256 - 1
+const NON_PAYABLE_VALUE = toBN('2').pow(toBN('256')).sub(toBN('1')).toString();
 
 export const getFileUrl = path => {
   return ipfs.generateUrl(path);
