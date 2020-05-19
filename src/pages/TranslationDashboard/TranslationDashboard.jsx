@@ -8,7 +8,7 @@ import TaskListControls from './TaskListControls';
 import TaskListFetcher from './TaskListFetcher';
 
 const StyledDivider = styled(Divider)`
-  background: ${props => props.theme.color.primary.default};
+  border-top-color: ${props => props.theme.color.primary.default};
   margin: 2.5rem 0;
 
   @media (max-width: 575.98px) {

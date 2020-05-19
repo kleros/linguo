@@ -66,7 +66,7 @@ const StyledPopover = styled(Popover)`
 `;
 
 const StyledDivider = styled(Divider)`
-  background-color: ${props => props.theme.color.background.light};
+  border-top-color: ${props => props.theme.color.background.light};
 `;
 
 const StyledSettingsIcon = withToolbarStylesIcon(SettingsIcon);

@@ -43,7 +43,7 @@ const StyledAlert = styled(Alert)`
 `;
 
 const StyledDivider = styled(Divider)`
-  background: none;
+  border-top: none;
 `;
 
 const createHandleActivation = (

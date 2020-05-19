@@ -27,7 +27,7 @@ const StyledForm = styled(Form)`
 `;
 
 const StyledDivider = styled(Divider)`
-  background: none;
+  border-top: none;
 `;
 
 const extractOriginalTextFilePath = originalTextFile => {
