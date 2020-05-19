@@ -14,12 +14,7 @@ const StyledActions = styled.div``;
 function TaskListActions() {
   return (
     <StyledActions>
-      <Link
-        to={r.TRANSLATION_REQUEST}
-        css={`
-          text-decoration: none !important;
-        `}
-      >
+      <Link to={r.TRANSLATION_REQUEST}>
         <Button variant="filled" icon={<AddIcon />}>
           New Translation
         </Button>

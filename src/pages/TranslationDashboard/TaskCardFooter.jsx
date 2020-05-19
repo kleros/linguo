@@ -160,12 +160,7 @@ function TaskCardFooter(task) {
         <TaskFooterInfo {...task} />
       </Col>
       <Col span={12}>
-        <Link
-          to={getTaskDetailsRoute({ id: ID })}
-          css={`
-            text-decoration: none !important;
-          `}
-        >
+        <Link to={getTaskDetailsRoute({ id: ID })}>
           <Button fullWidth variant="filled" color="primary">
             See details
           </Button>

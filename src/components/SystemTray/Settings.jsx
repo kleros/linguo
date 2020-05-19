@@ -44,12 +44,7 @@ function TranslatorSetup({ onClick }) {
       >
         Translator
       </StyledSectionTitle>
-      <Link
-        to={r.TRANSLATOR_SETTINGS}
-        css={`
-          text-decoration: none !important;
-        `}
-      >
+      <Link to={r.TRANSLATOR_SETTINGS}>
         <Button fullWidth onClick={onClick}>
           Update your language skills
         </Button>

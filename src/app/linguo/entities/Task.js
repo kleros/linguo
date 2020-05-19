@@ -1,42 +1,12 @@
 import produce from 'immer';
 import dayjs from 'dayjs';
+import Web3 from 'web3';
+import ipfs from '~/app/ipfs';
 import TaskStatus from './TaskStatus';
 import TaskParty from './TaskParty';
 import DisputeRuling from './DisputeRuling';
-import Web3 from 'web3';
 
 const { toBN, BN } = Web3.utils;
-
-/**
- *
- * @typedef {Object} Task The task object
- * @prop {TaskStatus} status The task status
- * @prop {string} [assignedPrice] The task assigned price
- * @prop {string} minPrice The task minimum price
- * @prop {string} maxPrice The task maximum price
- * @prop {Date} lastInteraction The task last interaction date
- * @prop {number} submissionTimeout The task submission timeout in seconds
- * @prop {number} wordCount The task word count
- */
-
-/**
- * @typedef {Object} TaskWithDefinedPrice The task params object
- * @prop {string|number|BN} currentPrice The task minimum price
- * @prop {number} wordCount The task word count
- */
-
-/**
- * @typedef {Object} TaskInput The parts that form a Task object
- * @prop {string|number} ID The Task ID
- * @prop {string|number} reviewTimeout The Task review timeout in seconds
- * @prop {Object} task The Task data from the contract
- * @prop {Object} metadata The Task metadata from the evidenceMetadata object
- * @prop {Object} lifecycleEvents The Task lifecycle events
- * @prop {Object[]} lifecycleEvents.TaskCreated The TaskCreated events from the contract
- * @prop {Object[]} lifecycleEvents.TranslationSubmitted The TranslationSubmitted events from the contract
- * @prop {Object[]} lifecycleEvents.TranslationChallenged The TranslationChallenged events from the contract
- * @prop {Object[]} lifecycleEvents.TaskResolved The TaskResolved events from the contract
- */
 
 const normalizeEventPropsFnMap = {
   TaskCreated: {
@@ -121,6 +91,7 @@ const normalizePropsFnMap = {
  */
 
 export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents } = {}) => {
+  console.log('normalize', metadata);
   const data = Object.entries({
     ID,
     ...metadata,
@@ -142,6 +113,11 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents }
   data.assignedPrice = data.lifecycleEvents.TaskAssigned?.[0]?._price;
 
   data.hasDispute = (data.lifecycleEvents.Dispute?.length ?? 0) > 0;
+
+  const translatedText = data.lifecycleEvents.TranslationSubmitted?.[0]?._translatedText;
+  if (translatedText) {
+    data.translatedTextUrl = ipfs.generateUrl(translatedText);
+  }
 
   return data;
 };
@@ -406,3 +382,42 @@ export const registerReimbursement = task =>
     draft.status = TaskStatus.Resolved;
     draft.ruling = DisputeRuling.TranslationRejected;
   });
+
+/**
+ *
+ * @typedef {Object} Task The task object
+ * @prop {TaskStatus} status The task status
+ * @prop {string} [assignedPrice] The task assigned price
+ * @prop {string} minPrice The task minimum price
+ * @prop {string} maxPrice The task maximum price
+ * @prop {string} text The original text to be translated
+ * @prop {number} wordCount The task word count
+ * @prop {string} requester The requester address, if exists
+ * @prop {Object} parties The parties regarding the task
+ * @prop {string} [parties[TaskParty.Translator]] The translator address, if exists
+ * @prop {string} [parties[TaskParty.Challenger]] The challenger address, if exists
+ * @prop {Date} lastInteraction The task last interaction date
+ * @prop {number} submissionTimeout The task submission timeout in seconds
+ * @prop {number} reviewTimeout The task review timeout in seconds
+ * @prop {boolean} hasDispute Whether the task has a dispute or not
+ * @prop {number} ruling The dispute ruling
+ */
+
+/**
+ * @typedef {Object} TaskWithDefinedPrice The task params object
+ * @prop {string|number|BN} currentPrice The task minimum price
+ * @prop {number} wordCount The task word count
+ */
+
+/**
+ * @typedef {Object} TaskInput The parts that form a Task object
+ * @prop {string|number} ID The Task ID
+ * @prop {string|number} reviewTimeout The Task review timeout in seconds
+ * @prop {Object} task The Task data from the contract
+ * @prop {Object} metadata The Task metadata from the evidenceMetadata object
+ * @prop {Object} lifecycleEvents The Task lifecycle events
+ * @prop {Object[]} lifecycleEvents.TaskCreated The TaskCreated events from the contract
+ * @prop {Object[]} lifecycleEvents.TranslationSubmitted The TranslationSubmitted events from the contract
+ * @prop {Object[]} lifecycleEvents.TranslationChallenged The TranslationChallenged events from the contract
+ * @prop {Object[]} lifecycleEvents.TaskResolved The TaskResolved events from the contract
+ */

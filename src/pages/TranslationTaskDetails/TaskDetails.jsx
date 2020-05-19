@@ -2,6 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Row, Col, Typography } from 'antd';
+import { FileTextOutlined, TranslationOutlined } from '@ant-design/icons';
 import { Task, TaskStatus, useCacheCall } from '~/app/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
@@ -17,6 +18,213 @@ import TaskPrice from './TaskPrice';
 import OriginalTextAttachments from './OriginalTextAttachments';
 import TaskStatusDetails from './TaskStatusDetails';
 import DownloadTextButton from './DownloadTextButton';
+
+const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
+
+function TaskDetails() {
+  const task = React.useContext(TaskContext);
+  const {
+    ID,
+    status,
+    title,
+    deadline,
+    assignedPrice,
+    expectedQuality,
+    text,
+    wordCount,
+    sourceLanguage,
+    targetLanguage,
+    originalTextUrl,
+    originalTextFile,
+    translatedTextUrl,
+  } = task;
+
+  // const translatedTextUrl='';
+
+  const hasAssignedPrice = assignedPrice !== undefined;
+
+  const refreshInterval = hasAssignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
+  const shouldRevalidate = !hasAssignedPrice;
+
+  const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', ID], {
+    initialData: Task.currentPrice(task),
+    revalidateOnFocus: shouldRevalidate,
+    revalidateOnReconnect: shouldRevalidate,
+    refreshInterval,
+  });
+  const actualPrice = assignedPrice ?? currentPrice;
+
+  const pricePerWord = Task.currentPricePerWord({
+    currentPrice: actualPrice,
+    wordCount,
+  });
+
+  const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
+
+  const showFootnote = status === TaskStatus.Created && !Task.isIncomplete(task);
+
+  const taskInfo = [
+    {
+      title: 'Price per word',
+      content: <TaskPrice showTooltip value={pricePerWord} />,
+    },
+    {
+      title: 'Number of words',
+      content: <FormattedNumber value={wordCount} />,
+    },
+    {
+      title: 'Total Price',
+      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={actualPrice} />,
+    },
+    {
+      title: name,
+      content: requiredLevel,
+    },
+  ];
+
+  const viewOriginalText = (
+    <>
+      <DownloadTextButton
+        download={{
+          content: text,
+        }}
+        buttonProps={{
+          variant: 'filled',
+          icon: <FileTextOutlined />,
+        }}
+      >
+        View Original Text
+      </DownloadTextButton>
+      <Spacer size={1} />
+      <StyledOriginalTextAttachments originalTextUrl={originalTextUrl} originalTextFile={originalTextFile} />
+    </>
+  );
+
+  return (
+    <div
+      css={`
+        @media (min-width: 576px) {
+          margin-top: -2rem;
+        }
+      `}
+    >
+      <StyledTaskTitle level={2}>{title}</StyledTaskTitle>
+      <StyledDeadline>
+        <StyledDefinitionTerm>
+          <CalendarIcon /> Translation Deadline:{' '}
+        </StyledDefinitionTerm>
+        <StyledDefinitionDescription>
+          <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
+        </StyledDefinitionDescription>
+      </StyledDeadline>
+      <Spacer size={3} />
+      <TaskInfoGrid data={taskInfo} />
+      {showFootnote && (
+        <>
+          <Spacer baseSize="xs" />
+          <StyledFootnote>
+            <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
+          </StyledFootnote>
+        </>
+      )}
+      <Spacer size={3} />
+      <StyledLanguageInfoWrapper>
+        <div className="col source">
+          <StyledDefinitionTerm>Source Language</StyledDefinitionTerm>
+          <StyledDefinitionDescription>
+            <LanguageInfo language={sourceLanguage} />
+          </StyledDefinitionDescription>
+        </div>
+        <div className="col target">
+          <StyledDefinitionTerm>Target Language</StyledDefinitionTerm>
+          <StyledDefinitionDescription>
+            <LanguageInfo language={targetLanguage} />
+          </StyledDefinitionDescription>
+        </div>
+      </StyledLanguageInfoWrapper>
+      <Spacer size={3} />
+      <StyledExpectedQuality>
+        <StyledDefinitionTerm>Expected Quality</StyledDefinitionTerm>
+        <StyledDefinitionDescription>
+          <TranslationQualityDefinition tierValue={expectedQuality} />
+        </StyledDefinitionDescription>
+      </StyledExpectedQuality>
+      <Spacer size={3} />
+      <Row justify="center" gutter={[32, 32]}>
+        {!translatedTextUrl ? (
+          <Col
+            css={`
+              @media (max-width: 575.98px) {
+                flex-grow: 1;
+              }
+            `}
+          >
+            {viewOriginalText}
+          </Col>
+        ) : (
+          <>
+            <Col
+              xs={24}
+              sm={24}
+              md={24}
+              lg={12}
+              css={`
+                display: flex;
+                justify-content: flex-end;
+
+                @media (max-width: 991.98px) {
+                  justify-content: center;
+                }
+              `}
+            >
+              <div
+                css={`
+                  max-width: 100%;
+
+                  @media (max-width: 575.98px) {
+                    width: 100%;
+                  }
+                `}
+              >
+                {viewOriginalText}
+              </div>
+            </Col>
+            <Col
+              xs={24}
+              sm={24}
+              md={24}
+              lg={12}
+              css={`
+                display: flex;
+                justify-content: flex-start;
+
+                @media (max-width: 991.98px) {
+                  justify-content: center;
+                }
+              `}
+            >
+              <DownloadTextButton
+                download={{
+                  url: translatedTextUrl,
+                }}
+                buttonProps={{
+                  variant: 'outlined',
+                  icon: <TranslationOutlined />,
+                }}
+              >
+                View Translated Text
+              </DownloadTextButton>
+            </Col>
+          </>
+        )}
+      </Row>
+      <Spacer size={2} />
+      <TaskStatusDetails />
+    </div>
+  );
+}
+
+export default TaskDetails;
 
 const StyledTaskTitle = styled(Typography.Title)`
   && {
@@ -65,7 +273,7 @@ const StyledFootnote = styled(Typography.Paragraph)`
   }
 `;
 
-const StyledLanguageInfo = styled(StyledDefinitionList)`
+const StyledLanguageInfoWrapper = styled(StyledDefinitionList)`
   text-align: center;
   display: flex;
   justify-content: center;
@@ -91,6 +299,34 @@ const StyledLanguageInfo = styled(StyledDefinitionList)`
     }
   }
 `;
+
+const StyledExpectedQuality = styled(StyledDefinitionList)`
+  ${StyledDefinitionTerm} {
+    text-align: center;
+  }
+`;
+
+const StyledOriginalTextAttachments = styled(OriginalTextAttachments)`
+  text-align: center;
+`;
+
+function LanguageInfo({ language }) {
+  const languageName = indexedLanguages[language].name || '<Unknown>';
+  const FlagIcon = getLanguageFlag(language);
+
+  return (
+    <StyledLanguageDisplay>
+      <FlagIcon className="flag" />
+      <span className="name">{languageName}</span>
+    </StyledLanguageDisplay>
+  );
+}
+
+LanguageInfo.propTypes = {
+  language: t.string.isRequired,
+};
+
+const indexedLanguages = languages.reduce((acc, item) => Object.assign(acc, { [item.code]: item }), {});
 
 const StyledLanguageDisplay = styled.div`
   padding: 1.5rem;
@@ -121,161 +357,3 @@ const StyledLanguageDisplay = styled.div`
     text-overflow: ellipsis;
   }
 `;
-
-const StyledExpectedQuality = styled(StyledDefinitionList)`
-  ${StyledDefinitionTerm} {
-    text-align: center;
-  }
-`;
-
-const indexedLanguages = languages.reduce((acc, item) => Object.assign(acc, { [item.code]: item }), {});
-
-function LanguageInfo({ language }) {
-  const languageName = indexedLanguages[language].name || '<Unknown>';
-  const FlagIcon = getLanguageFlag(language);
-
-  return (
-    <StyledLanguageDisplay>
-      <FlagIcon className="flag" />
-      <span className="name">{languageName}</span>
-    </StyledLanguageDisplay>
-  );
-}
-
-LanguageInfo.propTypes = {
-  language: t.string.isRequired,
-};
-
-const StyledOriginalTextAttachments = styled(OriginalTextAttachments)`
-  text-align: center;
-`;
-
-const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
-
-function TaskDetails() {
-  const task = React.useContext(TaskContext);
-  const {
-    ID,
-    status,
-    title,
-    deadline,
-    assignedPrice,
-    expectedQuality,
-    wordCount,
-    sourceLanguage,
-    targetLanguage,
-    originalTextUrl,
-    originalTextFile,
-  } = task;
-
-  const hasAssignedPrice = assignedPrice !== undefined;
-
-  const refreshInterval = hasAssignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
-  const shouldRevalidate = !hasAssignedPrice;
-
-  const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', ID], {
-    initialData: Task.currentPrice(task),
-    revalidateOnFocus: shouldRevalidate,
-    revalidateOnReconnect: shouldRevalidate,
-    refreshInterval,
-  });
-  const actualPrice = assignedPrice ?? currentPrice;
-
-  const pricePerWord = Task.currentPricePerWord({
-    currentPrice: actualPrice,
-    wordCount,
-  });
-
-  const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
-
-  const showFootnote = status === TaskStatus.Created && !Task.isIncomplete(task);
-
-  const taskInfo = [
-    {
-      title: 'Price per word',
-      content: <TaskPrice showTooltip value={pricePerWord} />,
-    },
-    {
-      title: 'Number of words',
-      content: <FormattedNumber value={wordCount} />,
-    },
-    {
-      title: 'Total Price',
-      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={actualPrice} />,
-    },
-    {
-      title: name,
-      content: requiredLevel,
-    },
-  ];
-
-  return (
-    <div
-      css={`
-        @media (min-width: 576px) {
-          margin-top: -2rem;
-        }
-      `}
-    >
-      <StyledTaskTitle level={2}>{title}</StyledTaskTitle>
-      <StyledDeadline>
-        <StyledDefinitionTerm>
-          <CalendarIcon /> Translation Deadline:{' '}
-        </StyledDefinitionTerm>
-        <StyledDefinitionDescription>
-          <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
-        </StyledDefinitionDescription>
-      </StyledDeadline>
-      <Spacer size={3} />
-      <TaskInfoGrid data={taskInfo} />
-      {showFootnote && (
-        <>
-          <Spacer baseSize="xs" />
-          <StyledFootnote>
-            <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
-          </StyledFootnote>
-        </>
-      )}
-      <Spacer size={3} />
-      <StyledLanguageInfo>
-        <div className="col source">
-          <StyledDefinitionTerm>Source Language</StyledDefinitionTerm>
-          <StyledDefinitionDescription>
-            <LanguageInfo language={sourceLanguage} />
-          </StyledDefinitionDescription>
-        </div>
-        <div className="col target">
-          <StyledDefinitionTerm>Target Language</StyledDefinitionTerm>
-          <StyledDefinitionDescription>
-            <LanguageInfo language={targetLanguage} />
-          </StyledDefinitionDescription>
-        </div>
-      </StyledLanguageInfo>
-      <Spacer size={3} />
-      <StyledExpectedQuality>
-        <StyledDefinitionTerm>Expected Quality</StyledDefinitionTerm>
-        <StyledDefinitionDescription>
-          <TranslationQualityDefinition tierValue={expectedQuality} />
-        </StyledDefinitionDescription>
-      </StyledExpectedQuality>
-      <Spacer size={3} />
-      <Row justify="center">
-        <Col
-          css={`
-            @media (max-width: 575.98px) {
-              flex-grow: 1;
-            }
-          `}
-        >
-          <DownloadTextButton />
-        </Col>
-      </Row>
-      <Spacer size={1} />
-      <StyledOriginalTextAttachments originalTextUrl={originalTextUrl} originalTextFile={originalTextFile} />
-      <Spacer size={3} />
-      <TaskStatusDetails />
-    </div>
-  );
-}
-
-export default TaskDetails;

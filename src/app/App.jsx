@@ -40,8 +40,6 @@ const GlobalStyle = createGlobalStyle`
   a:active,
   a:focus {
     color: ${p => p.theme.color.link.highlight};
-    text-decoration: underline;
-    text-decoration-skip-ink: auto;
   }
 `;
 
