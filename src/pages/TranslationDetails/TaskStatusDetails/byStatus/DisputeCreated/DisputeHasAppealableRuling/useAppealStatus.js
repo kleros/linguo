@@ -41,7 +41,7 @@ export default function useAppealStatus() {
       }),
       paidFees: Dispute.paidFees(dispute, { party: TaskParty.Translator }),
       hasPaidFee: Dispute.hasPaidAppealFee(dispute, { party: TaskParty.Translator }),
-      totalAppealCost: Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger }),
+      totalAppealCost: Dispute.totalAppealCost(dispute, { party: TaskParty.Translator }),
       reward: Dispute.fundingROI(dispute, { party: TaskParty.Translator }),
     },
     [TaskParty.Challenger]: {
