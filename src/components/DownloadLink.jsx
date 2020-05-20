@@ -1,27 +1,22 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import Button from '~/components/Button';
 
-function DownloadTextButton({ children, download, buttonProps }) {
+function DownloadLink({ children, download }) {
   const { content, url } = download;
 
   if (!url) {
-    return (
-      <DownloadTextButtonFromText content={content}>
-        <JumboButton {...buttonProps}>{children}</JumboButton>
-      </DownloadTextButtonFromText>
-    );
+    return <DownloadLinkFromText content={content}>{children}</DownloadLinkFromText>;
   }
 
   return (
     <StyledLink target="_blank" rel="noreferrer noopener" href={url}>
-      <JumboButton {...buttonProps}>{children}</JumboButton>
+      {children}
     </StyledLink>
   );
 }
 
-DownloadTextButton.propTypes = {
+DownloadLink.propTypes = {
   children: t.node.isRequired,
   download: t.oneOfType([
     t.shape({
@@ -31,12 +26,11 @@ DownloadTextButton.propTypes = {
       url: t.string.isRequired,
     }),
   ]).isRequired,
-  buttonProps: t.object,
 };
 
-export default DownloadTextButton;
+export default DownloadLink;
 
-function DownloadTextButtonFromText({ content, children }) {
+function DownloadLinkFromText({ content, children }) {
   const href = useObjectUrlForContent(content);
 
   return (
@@ -46,7 +40,7 @@ function DownloadTextButtonFromText({ content, children }) {
   );
 }
 
-DownloadTextButtonFromText.propTypes = {
+DownloadLinkFromText.propTypes = {
   children: t.node.isRequired,
   content: t.string.isRequired,
 };
@@ -65,27 +59,6 @@ const useObjectUrlForContent = content => {
 
   return url;
 };
-
-const JumboButton = styled(Button)`
-  font-size: ${p => p.theme.fontSize.xxl};
-  height: 6rem;
-  border-radius: 0.75rem;
-  padding: 0 2rem;
-  border: 5px solid ${p => p.theme.color.border.default};
-  max-width: 100%;
-
-  &.ant-btn {
-    :hover,
-    :focus {
-      border-color: ${p => p.theme.color.border.default};
-    }
-  }
-
-  @media (max-width: 575.98px) {
-    display: block;
-    width: 100%;
-  }
-`;
 
 const StyledLink = styled.a`
   max-width: 100%;

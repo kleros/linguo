@@ -1,16 +1,16 @@
 import React from 'react';
 import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
 import SingleCardLayout from '../layouts/SingleCardLayout';
-import TaskDetailsFetcher from './TaskDetailsFetcher';
+import TaskFetcher from './TaskFetcher';
 
-function TranslationTaskDetails() {
+function TranslationDetails() {
   return (
     <SingleCardLayout title="Translation Task Details">
       <LinguoApiReadyGateway>
-        <TaskDetailsFetcher />
+        <TaskFetcher />
       </LinguoApiReadyGateway>
     </SingleCardLayout>
   );
 }
 
-export default TranslationTaskDetails;
+export default TranslationDetails;

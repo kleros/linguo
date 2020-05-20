@@ -6,10 +6,10 @@ import { useCacheCall, Task, TaskStatus } from '~/app/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Card from '~/components/Card';
 import FormattedNumber from '~/components/FormattedNumber';
+import TaskInfoGrid from '~/components/TaskInfoGrid';
+import TaskPrice from '~/components/TaskPrice';
 import TaskCardTitle from './TaskCardTitle';
 import TaskCardFooter from './TaskCardFooter';
-import TaskInfoGrid from './TaskInfoGrid';
-import TaskPrice from './TaskPrice';
 
 const StyledCard = styled(Card)`
   && {

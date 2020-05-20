@@ -1,23 +1,23 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Row, Col, Typography } from 'antd';
-import { FileTextOutlined, TranslationOutlined } from '@ant-design/icons';
-import { Task, TaskStatus, useCacheCall } from '~/app/linguo';
+import { Typography } from 'antd';
+import { FileTextOutlined, TranslationOutlined, LinkOutlined, PaperClipOutlined } from '@ant-design/icons';
+import { Task, TaskStatus, useCacheCall, getFileUrl } from '~/app/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
 import getLanguageFlag from '~/components/helpers/getLanguageFlag';
 import { CalendarIcon } from '~/components/icons';
+import Button from '~/components/Button';
 import Spacer from '~/components/Spacer';
 import FormattedDate from '~/components/FormattedDate';
 import FormattedNumber from '~/components/FormattedNumber';
 import TranslationQualityDefinition from '~/components/TranslationQualityDefinition';
+import TaskInfoGrid from '~/components/TaskInfoGrid';
+import TaskPrice from '~/components/TaskPrice';
+import DownloadLink from '~/components/DownloadLink';
 import TaskContext from './TaskContext';
-import TaskInfoGrid from './TaskInfoGrid';
-import TaskPrice from './TaskPrice';
-import OriginalTextAttachments from './OriginalTextAttachments';
 import TaskStatusDetails from './TaskStatusDetails';
-import DownloadTextButton from './DownloadTextButton';
 
 const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
 
@@ -84,19 +84,36 @@ function TaskDetails() {
 
   const viewOriginalText = (
     <>
-      <DownloadTextButton
+      <DownloadLink
         download={{
           content: text,
         }}
-        buttonProps={{
-          variant: 'filled',
-          icon: <FileTextOutlined />,
-        }}
       >
-        View Original Text
-      </DownloadTextButton>
-      <Spacer size={1} />
-      <StyledOriginalTextAttachments originalTextUrl={originalTextUrl} originalTextFile={originalTextFile} />
+        <JumboButton fullWidth={true} variant="filled" icon={<FileTextOutlined />}>
+          View Original Text
+        </JumboButton>
+      </DownloadLink>
+      {(originalTextUrl || originalTextFile) && (
+        <>
+          <Spacer size={1} />
+          <StyledLinkList>
+            {originalTextUrl ? (
+              <StyledLinkListItem>
+                <a href={originalTextUrl} target="_blank" rel="noopener noreferrer external">
+                  <LinkOutlined /> Source of the original text
+                </a>
+              </StyledLinkListItem>
+            ) : null}
+            {originalTextFile ? (
+              <StyledLinkListItem>
+                <a href={getFileUrl(originalTextFile)} target="_blank" rel="noopener noreferrer external">
+                  <PaperClipOutlined /> File of the original text
+                </a>
+              </StyledLinkListItem>
+            ) : null}
+          </StyledLinkList>
+        </>
+      )}
     </>
   );
 
@@ -150,75 +167,27 @@ function TaskDetails() {
         </StyledDefinitionDescription>
       </StyledExpectedQuality>
       <Spacer size={3} />
-      <Row justify="center" gutter={[32, 32]}>
+      <StyledDownloadTextWrapper>
         {!translatedTextUrl ? (
-          <Col
-            css={`
-              @media (max-width: 575.98px) {
-                flex-grow: 1;
-              }
-            `}
-          >
-            {viewOriginalText}
-          </Col>
+          <div className="col">{viewOriginalText}</div>
         ) : (
           <>
-            <Col
-              xs={24}
-              sm={24}
-              md={24}
-              lg={12}
-              css={`
-                display: flex;
-                justify-content: flex-end;
-
-                @media (max-width: 991.98px) {
-                  justify-content: center;
-                }
-              `}
-            >
-              <div
-                css={`
-                  max-width: 100%;
-
-                  @media (max-width: 575.98px) {
-                    width: 100%;
-                  }
-                `}
-              >
-                {viewOriginalText}
-              </div>
-            </Col>
-            <Col
-              xs={24}
-              sm={24}
-              md={24}
-              lg={12}
-              css={`
-                display: flex;
-                justify-content: flex-start;
-
-                @media (max-width: 991.98px) {
-                  justify-content: center;
-                }
-              `}
-            >
-              <DownloadTextButton
+            <div className="col">{viewOriginalText}</div>
+            <div className="col">
+              <DownloadLink
                 download={{
                   url: translatedTextUrl,
                 }}
-                buttonProps={{
-                  variant: 'outlined',
-                  icon: <TranslationOutlined />,
-                }}
               >
-                View Translated Text
-              </DownloadTextButton>
-            </Col>
+                <JumboButton fullWidth={true} variant="outlined" icon={<TranslationOutlined />}>
+                  View Translated Text
+                </JumboButton>
+              </DownloadLink>
+            </div>
           </>
         )}
-      </Row>
-      <Spacer size={2} />
+      </StyledDownloadTextWrapper>
+      <Spacer size={3} />
       <TaskStatusDetails />
     </div>
   );
@@ -306,9 +275,7 @@ const StyledExpectedQuality = styled(StyledDefinitionList)`
   }
 `;
 
-const StyledOriginalTextAttachments = styled(OriginalTextAttachments)`
-  text-align: center;
-`;
+const indexedLanguages = languages.reduce((acc, item) => Object.assign(acc, { [item.code]: item }), {});
 
 function LanguageInfo({ language }) {
   const languageName = indexedLanguages[language].name || '<Unknown>';
@@ -325,8 +292,6 @@ function LanguageInfo({ language }) {
 LanguageInfo.propTypes = {
   language: t.string.isRequired,
 };
-
-const indexedLanguages = languages.reduce((acc, item) => Object.assign(acc, { [item.code]: item }), {});
 
 const StyledLanguageDisplay = styled.div`
   padding: 1.5rem;
@@ -355,5 +320,66 @@ const StyledLanguageDisplay = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+`;
+
+const StyledDownloadTextWrapper = styled.div`
+  text-align: center;
+  display: flex;
+  justify-content: center;
+
+  .col {
+    min-width: 0;
+    flex: 22rem 0 1;
+
+    :first-child:not(only-child) {
+      margin-right: 1rem;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    flex-wrap: wrap;
+
+    .col {
+      :first-child:not(only-child) {
+        margin-right: 0;
+        margin-bottom: 2rem;
+      }
+    }
+  }
+`;
+
+const JumboButton = styled(Button)`
+  font-size: ${p => p.theme.fontSize.xxl};
+  height: 6rem;
+  border-radius: 0.75rem;
+  padding: 0 2rem;
+  border: 5px solid ${p => p.theme.color.border.default};
+  max-width: 100%;
+
+  &.ant-btn {
+    :hover,
+    :focus {
+      border-color: ${p => p.theme.color.border.default};
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    display: block;
+    width: 100%;
+  }
+`;
+
+const StyledLinkList = styled.ul`
+  padding: 0;
+  margin: 0;
+`;
+
+const StyledLinkListItem = styled.li`
+  list-style: none;
+  margin: 0;
+
+  & + & {
+    margin-top: 0.25rem;
   }
 `;

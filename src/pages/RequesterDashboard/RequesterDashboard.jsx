@@ -23,7 +23,7 @@ const StyledContentWrapper = styled.div`
   }
 `;
 
-function TranslationDashboard() {
+function RequesterDashboard() {
   return (
     <MultiCardLayout>
       <TaskListControls />
@@ -39,4 +39,4 @@ function TranslationDashboard() {
   );
 }
 
-export default TranslationDashboard;
+export default RequesterDashboard;

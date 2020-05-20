@@ -3,6 +3,47 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Typography, Row, Col } from 'antd';
 
+function TaskInfoGrid({ data }) {
+  return (
+    <StyledGrid>
+      {data.map(({ title, content }) => (
+        <GridCell key={title} title={title} content={content} />
+      ))}
+    </StyledGrid>
+  );
+}
+
+TaskInfoGrid.propTypes = {
+  data: t.arrayOf(
+    t.shape({
+      title: t.node.isRequired,
+      content: t.node.isRequired,
+    })
+  ).isRequired,
+};
+
+export default TaskInfoGrid;
+
+function GridCell({ title, content }) {
+  return (
+    <StyledCell>
+      <GridCellTitle level={4}>{title}</GridCellTitle>
+      <GridCellContent>{content}</GridCellContent>
+    </StyledCell>
+  );
+}
+
+GridCell.propTypes = {
+  title: t.node.isRequired,
+  content: t.node.isRequired,
+};
+
+const StyledGrid = styled(Row)`
+  background-color: ${props => props.theme.color.background.default};
+  border: 1px solid ${props => props.theme.color.primary.default};
+  border-radius: 0.75rem;
+`;
+
 const StyledCell = styled(Col)`
   display: flex;
   flex-flow: column nowrap;
@@ -39,44 +80,3 @@ const GridCellContent = styled(Typography.Paragraph)`
     margin-bottom: 0;
   }
 `;
-
-function GridCell({ title, content }) {
-  return (
-    <StyledCell>
-      <GridCellTitle level={4}>{title}</GridCellTitle>
-      <GridCellContent>{content}</GridCellContent>
-    </StyledCell>
-  );
-}
-
-GridCell.propTypes = {
-  title: t.node.isRequired,
-  content: t.node.isRequired,
-};
-
-const StyledGrid = styled(Row)`
-  background-color: ${props => props.theme.color.background.default};
-  border: 1px solid ${props => props.theme.color.primary.default};
-  border-radius: 0.75rem;
-`;
-
-function TaskInfoGrid({ data }) {
-  return (
-    <StyledGrid>
-      {data.map(({ title, content }) => (
-        <GridCell key={title} title={title} content={content} />
-      ))}
-    </StyledGrid>
-  );
-}
-
-TaskInfoGrid.propTypes = {
-  data: t.arrayOf(
-    t.shape({
-      title: t.node.isRequired,
-      content: t.node.isRequired,
-    })
-  ).isRequired,
-};
-
-export default TaskInfoGrid;

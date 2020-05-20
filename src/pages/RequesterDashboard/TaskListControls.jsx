@@ -9,7 +9,16 @@ import RadioButton from '~/components/RadioButton';
 import { AddIcon } from '~/components/icons';
 import useFilter from './useFilter';
 
-const StyledActions = styled.div``;
+function TaskListControls() {
+  return (
+    <StyledControls>
+      <TaskListActions />
+      <TaskListFilters />
+    </StyledControls>
+  );
+}
+
+export default TaskListControls;
 
 function TaskListActions() {
   return (
@@ -22,6 +31,32 @@ function TaskListActions() {
     </StyledActions>
   );
 }
+
+function TaskListFilters() {
+  const [filter, setFilter] = useFilter();
+
+  const handleFilterChange = React.useCallback(
+    e => {
+      const { value } = e.target;
+      setFilter(value);
+    },
+    [setFilter]
+  );
+
+  return (
+    <StyledFilters>
+      <StyledRadioGroup onChange={handleFilterChange} value={filter}>
+        {buttons.map(({ value, text }) => (
+          <StyledRadioButton key={value} value={value}>
+            {text}
+          </StyledRadioButton>
+        ))}
+      </StyledRadioGroup>
+    </StyledFilters>
+  );
+}
+
+const StyledActions = styled.div``;
 
 const StyledFilters = styled.div``;
 
@@ -145,38 +180,3 @@ const StyledControls = styled.div`
     padding: 1.5rem;
   }
 `;
-
-function TaskListFilters() {
-  const [filter, setFilter] = useFilter();
-
-  const handleFilterChange = React.useCallback(
-    e => {
-      const { value } = e.target;
-      setFilter(value);
-    },
-    [setFilter]
-  );
-
-  return (
-    <StyledFilters>
-      <StyledRadioGroup onChange={handleFilterChange} value={filter}>
-        {buttons.map(({ value, text }) => (
-          <StyledRadioButton key={value} value={value}>
-            {text}
-          </StyledRadioButton>
-        ))}
-      </StyledRadioGroup>
-    </StyledFilters>
-  );
-}
-
-function TaskListControls() {
-  return (
-    <StyledControls>
-      <TaskListActions />
-      <TaskListFilters />
-    </StyledControls>
-  );
-}
-
-export default TaskListControls;

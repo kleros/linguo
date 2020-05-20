@@ -5,12 +5,6 @@ import styled from 'styled-components';
 import { Tooltip } from 'antd';
 import EthValue from '~/components/EthValue';
 
-const StyledWrapper = styled.span`
-  &.with-tooltip {
-    cursor: help;
-  }
-`;
-
 function TaskPrice({ value, showTooltip, showFootnoteMark, className }) {
   return (
     <EthValue
@@ -43,3 +37,9 @@ TaskPrice.defaultProps = {
 };
 
 export default TaskPrice;
+
+const StyledWrapper = styled.span`
+  &.with-tooltip {
+    cursor: help;
+  }
+`;

@@ -11,7 +11,7 @@ import TaskDetails from './TaskDetails';
 
 const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
 
-function TaskDetailsFetcher() {
+function TaskFetcher() {
   const params = useParams();
   const ID = Number(params.id);
 
@@ -57,4 +57,4 @@ const suspenseEnhancer = withSuspense({
  * Since composition is evaluated right-to-left, `suspenseEnhancer` should be declared
  * **AFTER** `errorBoundaryEnhancer`
  */
-export default compose(errorBoundaryEnhancer, suspenseEnhancer)(TaskDetailsFetcher);
+export default compose(errorBoundaryEnhancer, suspenseEnhancer)(TaskFetcher);
