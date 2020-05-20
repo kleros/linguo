@@ -91,7 +91,6 @@ const normalizePropsFnMap = {
  */
 
 export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents } = {}) => {
-  console.log('normalize', metadata);
   const data = Object.entries({
     ID,
     ...metadata,
@@ -161,7 +160,11 @@ export const currentPrice = (
   }
 
   let timeSinceLastInteraction = dayjs(currentDate).diff(dayjs(lastInteraction), 'second');
-  if (status !== TaskStatus.Created || timeSinceLastInteraction > submissionTimeout) {
+  if (timeSinceLastInteraction > submissionTimeout) {
+    return maxPrice;
+  }
+
+  if (status !== TaskStatus.Created) {
     return '0';
   }
 

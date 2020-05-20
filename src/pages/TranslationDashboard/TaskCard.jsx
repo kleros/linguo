@@ -36,8 +36,8 @@ function TaskCard(task) {
 
   const hasAssignedPrice = assignedPrice !== undefined;
 
-  const refreshInterval = hasAssignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
-  const shouldRevalidate = !hasAssignedPrice;
+  const shouldRevalidate = !(hasAssignedPrice || Task.isIncomplete(task));
+  const refreshInterval = shouldRevalidate ? _1_MINUTE_IN_MILLISECONDS : 0;
 
   const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', ID], {
     initialData: Task.currentPrice(task),
@@ -65,7 +65,13 @@ function TaskCard(task) {
     },
     {
       title: 'Total Price',
-      content: <TaskPrice showTooltip showFootnoteMark={status === TaskStatus.Created} value={currentPrice} />,
+      content: (
+        <TaskPrice
+          showTooltip
+          showFootnoteMark={status === TaskStatus.Created && !Task.isIncomplete(task)}
+          value={currentPrice}
+        />
+      ),
     },
     {
       title: name,
