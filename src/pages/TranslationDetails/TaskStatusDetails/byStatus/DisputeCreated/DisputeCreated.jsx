@@ -1,14 +1,17 @@
 import React from 'react';
-import __lazy from '@loadable/component';
+import loadable from '@loadable/component';
 import { Dispute } from '~/app/linguo';
+import Spinner from '../../components/Spinner';
 import DisputeContext from './DisputeContext';
 import { withDisputeFetcher } from './DisputeFetcher';
 
+const fallback = <Spinner />;
+
 const componentsByDisputeStatus = {
-  waiting: __lazy(() => import('./DisputeIsWaiting.jsx')),
-  appealable: __lazy(() => import('./DisputeHasAppealableRuling/index.js')),
-  appealPeriodIsOver: __lazy(() => import('./DisputeAppealPeriodIsOver.jsx')),
-  solved: __lazy(() => Promise.resolve({ default: () => null })),
+  waiting: loadable(() => import('./DisputeIsWaiting.jsx'), { fallback }),
+  appealable: loadable(() => import('./DisputeHasAppealableRuling/index.js'), { fallback }),
+  appealPeriodIsOver: loadable(() => import('./DisputeAppealPeriodIsOver.jsx'), { fallback }),
+  solved: loadable(() => Promise.resolve({ default: () => null }), { fallback }),
 };
 
 function DisputeCreated() {

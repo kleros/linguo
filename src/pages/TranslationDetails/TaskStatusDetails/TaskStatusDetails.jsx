@@ -3,16 +3,14 @@ import { Task } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import ContentBlocker from '~/components/ContentBlocker';
-import useCurrentParty from './hooks/useCurrentParty';
 import TaskContext from '../TaskContext';
 import byStatus from './byStatus';
 
 function TaskStatusDetails() {
   const task = React.useContext(TaskContext);
   const isIncomplete = Task.isIncomplete(task);
-  const party = useCurrentParty();
 
-  const Component = isIncomplete ? byStatus.Incomplete[party] : byStatus?.[task.status]?.[party];
+  const Component = isIncomplete ? byStatus.Incomplete : byStatus[task.status];
 
   const { account } = useWeb3React();
   const contentBlocked = !account;

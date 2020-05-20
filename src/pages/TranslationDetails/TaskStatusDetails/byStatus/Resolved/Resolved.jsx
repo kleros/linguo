@@ -64,10 +64,6 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
       },
     },
     [TaskParty.Challenger]: {
-      // This should not be possible, declared here for defensive purposes only
-      get false() {
-        return this.true;
-      },
       true: {
         [DisputeRuling.RefuseToRule]: challengerIsRequester
           ? ['You received the escrow payment + your challenge deposit back (minus arbitration fees).']
@@ -84,7 +80,7 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
     },
   };
 
-  return descriptionMap[party][hasDispute][ruling];
+  return descriptionMap[party]?.[hasDispute]?.[ruling] ?? [];
 };
 
 const illustrationMap = {
