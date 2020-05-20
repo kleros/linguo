@@ -12,11 +12,12 @@ import { Task, TaskStatus, useLinguo } from '~/app/linguo';
 import wrapWithNotification from '~/utils/wrapWithNotification';
 import Button from '~/components/Button';
 import RemainingTime from '~/components/RemainingTime';
+import { useTask } from './TaskListContext';
 
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
-function TaskCardFooter(task) {
-  const { ID } = task;
+function TaskCardFooter({ ID }) {
+  const task = useTask({ ID });
 
   return (
     <Row gutter={16} align="middle">

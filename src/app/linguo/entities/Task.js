@@ -8,6 +8,55 @@ import DisputeRuling from './DisputeRuling';
 
 const { toBN, BN } = Web3.utils;
 
+/**
+ * Normalize task data to use JS-friendly types.
+ *
+ * For example, task IDs are declared as `uint` in Linguo smart contract.
+ * This causes this prop to be returned as a string, because `uint`s cannot
+ * be directly converted to `number`, since `uint` can represent numbers up to
+ * 2^256 - 1, while JS `number` is much smaller, representing up to 2^53-1 integers.
+ *
+ * However it's very unlikely that more than 2^53-1 tasks will ever be created in
+ * this contract, so we can safely convert the returned `uint` string representation
+ * to a native JS `number`.
+ *
+ * @function
+ *
+ * @param {TaskInput} taskParts The task object parts
+ * @return {Task} The normalized task object
+ */
+
+export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents } = {}) => {
+  const data = Object.entries({
+    ID,
+    ...metadata,
+    ...task,
+    reviewTimeout,
+  }).reduce((acc, [prop, value]) => {
+    const isNumericProp = !Number.isNaN(Number(prop));
+    return isNumericProp
+      ? acc
+      : Object.assign(acc, {
+          [prop]: normalizePropsFnMap[prop] ? normalizePropsFnMap[prop](value) : value,
+        });
+  }, {});
+
+  data.wordCount = wordCount({ text: data.text });
+
+  data.lifecycleEvents = extractEventsReturnValues(lifecycleEvents);
+
+  data.assignedPrice = data.lifecycleEvents.TaskAssigned?.[0]?._price;
+
+  data.hasDispute = (data.lifecycleEvents.Dispute?.length ?? 0) > 0;
+
+  const translatedText = data.lifecycleEvents.TranslationSubmitted?.[0]?._translatedText;
+  if (translatedText) {
+    data.translatedTextUrl = ipfs.generateUrl(translatedText);
+  }
+
+  return data;
+};
+
 const normalizeEventPropsFnMap = {
   TaskCreated: {
     _taskID: Number,
@@ -70,55 +119,6 @@ const normalizePropsFnMap = {
   }),
   disputeID: Number,
   ruling: DisputeRuling.of,
-};
-
-/**
- * Normalize task data to use JS-friendly types.
- *
- * For example, task IDs are declared as `uint` in Linguo smart contract.
- * This causes this prop to be returned as a string, because `uint`s cannot
- * be directly converted to `number`, since `uint` can represent numbers up to
- * 2^256 - 1, while JS `number` is much smaller, representing up to 2^53-1 integers.
- *
- * However it's very unlikely that more than 2^53-1 tasks will ever be created in
- * this contract, so we can safely convert the returned `uint` string representation
- * to a native JS `number`.
- *
- * @function
- *
- * @param {TaskInput} taskParts The task object parts
- * @return {Task} The normalized task object
- */
-
-export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents } = {}) => {
-  const data = Object.entries({
-    ID,
-    ...metadata,
-    ...task,
-    reviewTimeout,
-  }).reduce((acc, [prop, value]) => {
-    const isNumericProp = !Number.isNaN(Number(prop));
-    return isNumericProp
-      ? acc
-      : Object.assign(acc, {
-          [prop]: normalizePropsFnMap[prop] ? normalizePropsFnMap[prop](value) : value,
-        });
-  }, {});
-
-  data.wordCount = wordCount({ text: data.text });
-
-  data.lifecycleEvents = extractEventsReturnValues(lifecycleEvents);
-
-  data.assignedPrice = data.lifecycleEvents.TaskAssigned?.[0]?._price;
-
-  data.hasDispute = (data.lifecycleEvents.Dispute?.length ?? 0) > 0;
-
-  const translatedText = data.lifecycleEvents.TranslationSubmitted?.[0]?._translatedText;
-  if (translatedText) {
-    data.translatedTextUrl = ipfs.generateUrl(translatedText);
-  }
-
-  return data;
 };
 
 /**

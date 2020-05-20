@@ -13,7 +13,5 @@ export { default as DisputeRuling } from './entities/DisputeRuling';
 export { default as AppealSide } from './entities/AppealSide';
 export { default as createHooks } from './createHooks';
 export { getFileUrl } from './createApi';
-export { default as getFilter, filters } from './filters';
-export { default as getComparator } from './sorting';
 
 export const { useCreateLinguoApiInstance, useLinguo, useCacheCall } = createHooks({ AppContext, useWeb3React });

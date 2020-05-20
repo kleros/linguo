@@ -2,12 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { Radio } from 'antd';
 import { Link } from 'react-router-dom';
-import { filters } from '~/app/linguo';
 import * as r from '~/app/routes';
 import Button from '~/components/Button';
 import RadioButton from '~/components/RadioButton';
 import { AddIcon } from '~/components/icons';
-import useFilter from './useFilter';
+import filters, { useFilterName } from './filters';
 
 function TaskListControls() {
   return (
@@ -33,19 +32,19 @@ function TaskListActions() {
 }
 
 function TaskListFilters() {
-  const [filter, setFilter] = useFilter();
+  const [filterName, setFilterName] = useFilterName();
 
   const handleFilterChange = React.useCallback(
     e => {
       const { value } = e.target;
-      setFilter(value);
+      setFilterName(value);
     },
-    [setFilter]
+    [setFilterName]
   );
 
   return (
     <StyledFilters>
-      <StyledRadioGroup onChange={handleFilterChange} value={filter}>
+      <StyledRadioGroup onChange={handleFilterChange} value={filterName}>
         {buttons.map(({ value, text }) => (
           <StyledRadioButton key={value} value={value}>
             {text}

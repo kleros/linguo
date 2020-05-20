@@ -4,11 +4,9 @@ import { useSettings, TRANSLATOR } from '~/app/settings';
 import * as r from '~/app/routes';
 
 export default function TranslatorMain() {
-  const [{ languages }] = useSettings(TRANSLATOR);
+  const [{ languages = [] }] = useSettings(TRANSLATOR);
 
-  return languages?.length > 0 ? (
-    <div>Translator Dashboard</div>
-  ) : (
+  return languages.length === 0 ? (
     <Redirect
       to={{
         pathname: r.TRANSLATOR_SETTINGS,
@@ -17,5 +15,7 @@ export default function TranslatorMain() {
         },
       }}
     />
+  ) : (
+    <div>Translator Dashboard</div>
   );
 }

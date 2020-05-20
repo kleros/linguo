@@ -1699,11 +1699,6 @@
   dependencies:
     "@types/ethereum-protocol" "*"
 
-"@ungap/url-search-params@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@ungap/url-search-params/-/url-search-params-0.2.0.tgz#8942763e5d31330fcd5a04fdbf1c66a5eb97c20e"
-  integrity sha512-KVPTXfdofx9g/1OnO4js0Sos/ITghfNxw+DHJUyXG+X83KEMyJV+fQ6zyd2jTUwqall/SCJlV7p/HDqJbbF5WQ==
-
 "@web3-js/scrypt-shim@^0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@web3-js/scrypt-shim/-/scrypt-shim-0.1.0.tgz#0bf7529ab6788311d3e07586f7d89107c3bea2cc"

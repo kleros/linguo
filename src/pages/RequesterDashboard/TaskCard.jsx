@@ -5,10 +5,11 @@ import { Typography, Tooltip } from 'antd';
 import { useCacheCall, Task, TaskStatus } from '~/app/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Card from '~/components/Card';
+import TaskLanguages from '~/components/TaskLanguages';
 import FormattedNumber from '~/components/FormattedNumber';
 import TaskInfoGrid from '~/components/TaskInfoGrid';
 import TaskPrice from '~/components/TaskPrice';
-import TaskCardTitle from './TaskCardTitle';
+import { useTask } from './TaskListContext';
 import TaskCardFooter from './TaskCardFooter';
 
 const StyledCard = styled(Card)`
@@ -31,8 +32,9 @@ const StyledTaskTitle = styled(Typography.Title)`
 
 const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
 
-function TaskCard(task) {
-  const { ID, status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality } = task;
+function TaskCard({ ID }) {
+  const task = useTask({ ID });
+  const { status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality } = task;
 
   const hasAssignedPrice = assignedPrice !== undefined;
 
@@ -81,9 +83,9 @@ function TaskCard(task) {
 
   return (
     <StyledCard
-      title={<TaskCardTitle sourceLanguage={sourceLanguage} targetLanguage={targetLanguage} />}
+      title={<TaskLanguages fullWidth source={sourceLanguage} target={targetLanguage} />}
       titleLevel={2}
-      footer={<TaskCardFooter {...task} />}
+      footer={<TaskCardFooter ID={ID} />}
     >
       <Tooltip title={title} placement="top" mouseEnterDelay={0.5} arrowPointAtCenter>
         {/* The wrapping div fixes an issue with styled compnents not
@@ -103,18 +105,6 @@ function TaskCard(task) {
 
 TaskCard.propTypes = {
   ID: t.number.isRequired,
-  status: t.number.isRequired,
-  title: t.string.isRequired,
-  minPrice: t.any.isRequired,
-  maxPrice: t.any.isRequired,
-  assignedPrice: t.string,
-  sourceLanguage: t.string.isRequired,
-  targetLanguage: t.string.isRequired,
-  lastInteraction: t.any.isRequired,
-  submissionTimeout: t.number.isRequired,
-  reviewTimeout: t.number.isRequired,
-  wordCount: t.number.isRequired,
-  expectedQuality: t.string.isRequired,
 };
 
 export default TaskCard;

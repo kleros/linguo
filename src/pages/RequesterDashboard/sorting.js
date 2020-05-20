@@ -1,10 +1,4 @@
-import {
-  remainingTimeForReview,
-  remainingTimeForSubmission,
-  isIncomplete,
-  currentPrice,
-  currentPricePerWord,
-} from './entities/Task';
+import { Task } from '~/app/linguo';
 import Web3 from 'web3';
 
 const { toBN } = Web3.utils;
@@ -29,10 +23,12 @@ function createComparator(descriptor = {}) {
 
 const comparatorMap = {
   all: {
-    incomplete: (a, b) => isIncomplete(a) - isIncomplete(b),
+    incomplete: (a, b) => Task.isIncomplete(a) - Task.isIncomplete(b),
     remainingTimeForSubmissionDesc: (a, b) => {
       const currentDate = new Date();
-      return -1 * (remainingTimeForSubmission(b, { currentDate }) - remainingTimeForSubmission(a, { currentDate }));
+      return (
+        -1 * (Task.remainingTimeForSubmission(b, { currentDate }) - Task.remainingTimeForSubmission(a, { currentDate }))
+      );
     },
     ID: -1,
   },
@@ -40,8 +36,8 @@ const comparatorMap = {
     currentPricePerWordDesc: (a, b) => {
       const currentDate = new Date();
       return sortBNDescending(
-        toBN(currentPricePerWord({ ...a, currentPrice: currentPrice(a, { currentDate }) })),
-        toBN(currentPricePerWord({ ...b, currentPrice: currentPrice(b, { currentDate }) }))
+        toBN(Task.currentPricePerWord({ ...a, currentPrice: Task.currentPrice(a, { currentDate }) })),
+        toBN(Task.currentPricePerWord({ ...b, currentPrice: Task.currentPrice(b, { currentDate }) }))
       );
     },
     ID: -1,
@@ -49,14 +45,16 @@ const comparatorMap = {
   inProgress: {
     remainingTimeForSubmissionDesc: (a, b) => {
       const currentDate = new Date();
-      return -1 * (remainingTimeForSubmission(b, { currentDate }) - remainingTimeForSubmission(a, { currentDate }));
+      return (
+        -1 * (Task.remainingTimeForSubmission(b, { currentDate }) - Task.remainingTimeForSubmission(a, { currentDate }))
+      );
     },
     ID: -1,
   },
   inReview: {
     remainingTimeForReviewDesc: (a, b) => {
       const currentDate = new Date();
-      return -1 * (remainingTimeForReview(b, { currentDate }) - remainingTimeForReview(a, { currentDate }));
+      return -1 * (Task.remainingTimeForReview(b, { currentDate }) - Task.remainingTimeForReview(a, { currentDate }));
     },
     ID: -1,
   },
@@ -87,7 +85,7 @@ const comparatorMap = {
  * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} filterName The name of the filter
  * @return TaskComparator a filter predicated function to be used with Array#filter.
  */
-export default function getComparator(filterName) {
+export function getComparator(filterName) {
   const comparator = comparatorMap[filterName];
   return createComparator(comparator || comparatorMap.all);
 }
