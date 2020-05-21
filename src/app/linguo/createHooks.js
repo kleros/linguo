@@ -15,7 +15,7 @@ const methodHandler = {
   },
 };
 
-const apiPlaceholder = new Proxy(createApi({ linguoContract: undefined }), {
+const apiPlaceholder = new Proxy(createApi({}), {
   get: (target, prop, receiver) => {
     const value = target[prop];
 
@@ -50,6 +50,7 @@ const createApiInstance = async ({ web3, chainId }) => {
       tag: 'ready',
       error: null,
       api: createApi({
+        web3,
         linguoContract,
         arbitratorContract,
       }),
@@ -110,7 +111,8 @@ export default function createHooks({ AppContext, useWeb3React }) {
     getTranslatorDeposit: ([ID]) => ({ ID }),
     getChallengerDeposit: ([ID]) => ({ ID }),
     getTaskDispute: ([ID]) => ({ ID }),
-    getOwnTasks: ([account]) => ({ account }),
+    getRequesterTasks: ([account]) => ({ account }),
+    getTranslatorTasks: ([account, languageSkills]) => ({ account, languageSkills }),
   };
 
   const createFetcher = api => (method, ...args) => api[method](argumentListToApiMethodAdapter[method](args));
@@ -126,8 +128,14 @@ export default function createHooks({ AppContext, useWeb3React }) {
       shouldRetryOnError = true,
     } = {}
   ) {
+    /**
+     * SWR does not play well with non-primitive data types,
+     * so we need to JSON.stringify any objects or arrays passed as args.
+     */
+    const actualArgs = args.map(arg => (isPrimitive(arg) || arg === null ? arg : JSON.stringify(arg)));
+
     const { api } = useLinguo();
-    const { data, error, isValidating, mutate } = useSWR([method, ...args], createFetcher(api), {
+    const { data, error, isValidating, mutate } = useSWR([method, ...actualArgs], createFetcher(api), {
       suspense,
       initialData,
       revalidateOnFocus,
@@ -150,3 +158,5 @@ export default function createHooks({ AppContext, useWeb3React }) {
 
   return { useCreateLinguoApiInstance, useLinguo, useCacheCall };
 }
+
+const isPrimitive = arg => ['string', 'number', 'boolean', 'undefined', 'symbol'].includes(typeof arg);
