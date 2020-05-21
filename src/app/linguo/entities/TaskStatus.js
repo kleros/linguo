@@ -18,4 +18,4 @@ const TaskStatus = Enum(
   { parseValue: v => Number.parseInt(v, 10) }
 );
 
-export { TaskStatus as default };
+export default TaskStatus;

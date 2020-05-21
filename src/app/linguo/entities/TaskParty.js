@@ -24,4 +24,4 @@ const TaskParty = Enum(
   }
 );
 
-export { TaskParty as default };
+export default TaskParty;

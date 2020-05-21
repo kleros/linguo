@@ -4,6 +4,7 @@ import Web3 from 'web3';
 import ipfs from '~/app/ipfs';
 import TaskStatus from './TaskStatus';
 import TaskParty from './TaskParty';
+import TaskResolveReason from './TaskResolveReason';
 import DisputeRuling from './DisputeRuling';
 
 const { toBN, BN } = Web3.utils;
@@ -47,11 +48,24 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents }
 
   data.assignedPrice = data.lifecycleEvents.TaskAssigned?.[0]?._price;
 
-  data.hasDispute = (data.lifecycleEvents.Dispute?.length ?? 0) > 0;
-
   const translatedText = data.lifecycleEvents.TranslationSubmitted?.[0]?._translatedText;
   if (translatedText) {
     data.translatedTextUrl = ipfs.generateUrl(translatedText);
+  }
+
+  data.hasDispute = (data.lifecycleEvents.Dispute?.length ?? 0) > 0;
+  /**
+   * If there was never a dispute, the `ruling` field of the task will not be set.
+   * To normalize the expected behavior, we will derive what would be the ruling
+   * from the `TaskResolved` event.
+   */
+  if (data.status === TaskStatus.Resolved && !data.hasDispute) {
+    const reason = data.lifecycleEvents.TaskResolved?.[0]?._reason;
+    if (reason === TaskResolveReason.TranslationAccepted) {
+      data.ruling = DisputeRuling.TranslationApproved;
+    } else if (reason === TaskResolveReason.RequesterReimbured) {
+      data.ruling = DisputeRuling.TranslationRejected;
+    }
   }
 
   return data;
@@ -108,7 +122,7 @@ const ETH_ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
 const normalizePropsFnMap = {
   ID: Number,
-  status: Number,
+  status: TaskStatus.of,
   submissionTimeout: Number,
   reviewTimeout: Number,
   lastInteraction: lastInteraction => dayjs.unix(lastInteraction).toDate(),
