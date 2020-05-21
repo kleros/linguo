@@ -249,8 +249,8 @@ const StyledLanguageInfoWrapper = styled(StyledDefinitionList)`
 
   .col {
     min-width: 0;
-    max-width: 20rem;
-    flex: 20rem 1 1;
+    max-width: 22rem;
+    flex: 22rem 1 1;
 
     &.target {
       margin-left: 1rem;
