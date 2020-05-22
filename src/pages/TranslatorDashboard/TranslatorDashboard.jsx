@@ -5,7 +5,6 @@ import { Divider } from 'antd';
 import { useSettings, TRANSLATOR } from '~/app/settings';
 import * as r from '~/app/routes';
 import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
-import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListControls from './TaskListControls';
 import TaskListFetcher from './TaskListFetcher';
@@ -28,9 +27,7 @@ export default function TranslatorDashboard() {
       <StyledDivider />
       <LinguoApiReadyGateway>
         <StyledContentWrapper>
-          <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
-            <TaskListFetcher />
-          </RequiredWalletGateway>
+          <TaskListFetcher />
         </StyledContentWrapper>
       </LinguoApiReadyGateway>
     </MultiCardLayout>
