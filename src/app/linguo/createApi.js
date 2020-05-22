@@ -44,7 +44,7 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   const url = getFileUrl(path);
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { mode: 'cors' });
     return response.json();
   } catch (err) {
     console.warn(`Failed to fetch evidence for task ${ID}`, err);
