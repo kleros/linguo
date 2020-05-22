@@ -4,8 +4,60 @@ import styled, { css } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { List } from 'antd';
 import TimeAgo from '~/components/TimeAgo';
+import ContentBlocker from '~/components/ContentBlocker';
 import { NotificationIcon, DisputeIcon, CheckIcon } from '~/components/icons';
 import { Popover, Button, Badge, withToolbarStylesIcon } from './adapters';
+
+function Notifications() {
+  const notifications = notificationFixtures;
+
+  const renderItem = React.useCallback(data => <Notification {...data} id={data.key} />, []);
+
+  return (
+    <StyledPopover
+      arrowPointAtCenter
+      content={
+        <ContentBlocker
+          blocked
+          contentBlur={2}
+          overlayText={
+            <div
+              css={`
+                transform: rotate(-30deg);
+                color: ${p => p.theme.color.danger.default};
+                background-color: ${p => p.theme.color.background.light};
+                padding: 0.5rem 1rem;
+                border-radius: 0.75rem;
+                font-size: ${p => p.theme.fontSize.xxl};
+                text-align: center;
+                white-space: nowrap;
+              `}
+            >
+              Comming soon...
+            </div>
+          }
+        >
+          <StyledList dataSource={notifications} loading={false} locale={locale} renderItem={renderItem} />
+        </ContentBlocker>
+      }
+      placement="bottomRight"
+      title="Notifications"
+      trigger="click"
+    >
+      <span>
+        <Badge count={notifications.length}>
+          <Button shape="round">
+            <StyledNotificationIcon />
+          </Button>
+        </Badge>
+      </span>
+    </StyledPopover>
+  );
+}
+
+export default Notifications;
+
+const locale = { emptyText: 'Wow. Such empty.' };
 
 const notificationFixtures = [
   {
@@ -39,68 +91,23 @@ const notificationFixtures = [
   },
 ];
 
-const typeToColor = (theme, type) => {
-  const availableColors = {
-    info: theme.color.secondary.default,
-    warning: theme.color.warning.default,
-    danger: theme.color.danger.default,
-  };
+const StyledNotificationIcon = withToolbarStylesIcon(NotificationIcon);
 
-  return availableColors[type] || theme.color.primary.default;
-};
-
-const itemIconStyles = css`
-  background-color: ${props => typeToColor(props.theme, props.type)};
-  color: ${props => props.theme.color.text.inverted};
-  border-radius: 100%;
-
-  svg {
-    padding: 0.375rem;
-    width: 1.75rem;
-    height: 1.75rem;
-  }
+const StyledPopover = styled(Popover)`
+  width: 32rem;
 `;
 
-const BellItemIcon = styled(NotificationIcon)`
-  ${itemIconStyles}
-`;
-
-const DisputeItemIcon = styled(DisputeIcon)`
-  ${itemIconStyles}
-`;
-
-const CheckOutlinedIcon = styled(CheckIcon)`
-  ${itemIconStyles}
-`;
-
-const iconNameToIcon = iconName => {
-  const iconMap = {
-    bell: BellItemIcon,
-    dispute: DisputeItemIcon,
-    confirmation: CheckOutlinedIcon,
-  };
-
-  return iconMap[iconName] || BellItemIcon;
-};
-
-const StyledTimeAgo = styled(TimeAgo)`
-  color: ${props => typeToColor(props.theme, props.type)};
-`;
-
-const StyledListItem = styled(List.Item)`
-  &.ant-list-item {
-    padding: 1rem 0;
-    border-bottom-color: ${props => props.theme.hexToRgba(props.theme.color.secondary.default, 0.25)};
+const StyledList = styled(List)`
+  .ant-list-items {
+    max-height: 50vh;
+    overflow: hidden auto;
   }
 
-  .ant-list-item-meta-title {
-    font-weight: 400;
+  .ant-list-empty-text {
     color: ${props => props.theme.color.text.default};
-  }
-
-  .ant-list-item-meta-description {
-    text-align: right;
-    font-weight: 700;
+    font-size: ${props => props.theme.fontSize.md};
+    text-align: left;
+    padding: 1rem 0;
   }
 `;
 
@@ -136,50 +143,67 @@ Notification.defaultProps = {
   icon: '',
 };
 
-const StyledPopover = styled(Popover)`
-  width: 32rem;
+const typeToColor = (theme, type) => {
+  const availableColors = {
+    info: theme.color.secondary.default,
+    warning: theme.color.warning.default,
+    danger: theme.color.danger.default,
+  };
+
+  return availableColors[type] || theme.color.primary.default;
+};
+
+const iconNameToIcon = iconName => {
+  const iconMap = {
+    bell: BellItemIcon,
+    dispute: DisputeItemIcon,
+    confirmation: CheckOutlinedIcon,
+  };
+
+  return iconMap[iconName] || BellItemIcon;
+};
+
+const itemIconStyles = css`
+  background-color: ${props => typeToColor(props.theme, props.type)};
+  color: ${props => props.theme.color.text.inverted};
+  border-radius: 100%;
+
+  svg {
+    padding: 0.375rem;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
 `;
 
-const StyledList = styled(List)`
-  .ant-list-items {
-    max-height: 50vh;
-    overflow: hidden auto;
-  }
+const BellItemIcon = styled(NotificationIcon)`
+  ${itemIconStyles}
+`;
 
-  .ant-list-empty-text {
-    color: ${props => props.theme.color.text.default};
-    font-size: ${props => props.theme.fontSize.md};
-    text-align: left;
+const DisputeItemIcon = styled(DisputeIcon)`
+  ${itemIconStyles}
+`;
+
+const CheckOutlinedIcon = styled(CheckIcon)`
+  ${itemIconStyles}
+`;
+
+const StyledListItem = styled(List.Item)`
+  &.ant-list-item {
     padding: 1rem 0;
+    border-bottom-color: ${props => props.theme.hexToRgba(props.theme.color.secondary.default, 0.25)};
+  }
+
+  .ant-list-item-meta-title {
+    font-weight: 400;
+    color: ${props => props.theme.color.text.default};
+  }
+
+  .ant-list-item-meta-description {
+    text-align: right;
+    font-weight: 700;
   }
 `;
 
-const locale = { emptyText: 'Wow. Such empty.' };
-
-const StyledNotificationIcon = withToolbarStylesIcon(NotificationIcon);
-
-function Notifications() {
-  const notifications = notificationFixtures;
-
-  const renderItem = React.useCallback(data => <Notification {...data} id={data.key} />, []);
-
-  return (
-    <StyledPopover
-      arrowPointAtCenter
-      content={<StyledList dataSource={notifications} loading={false} locale={locale} renderItem={renderItem} />}
-      placement="bottomRight"
-      title="Notifications"
-      trigger="click"
-    >
-      <span>
-        <Badge count={notifications.length}>
-          <Button shape="round">
-            <StyledNotificationIcon />
-          </Button>
-        </Badge>
-      </span>
-    </StyledPopover>
-  );
-}
-
-export default Notifications;
+const StyledTimeAgo = styled(TimeAgo)`
+  color: ${props => typeToColor(props.theme, props.type)};
+`;

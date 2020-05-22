@@ -3,6 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Form, Checkbox, Input, Row, notification } from 'antd';
 import Button from '~/components/Button';
+import ContentBlocker from '~/components/ContentBlocker';
 import { EmailIcon } from '~/components/icons';
 import { Popover, Button as TrayButton, withToolbarStylesIcon } from './adapters';
 
@@ -80,7 +81,7 @@ EmailNotificationsForm.defaultProps = {
 };
 
 const StyledPopover = styled(Popover)`
-  width: 24rem;
+  width: 28rem;
 `;
 
 const StyledEmailIcon = withToolbarStylesIcon(EmailIcon);
@@ -99,7 +100,30 @@ function EmailNotifications() {
   return (
     <StyledPopover
       arrowPointAtCenter
-      content={<EmailNotificationsForm onSubmit={handleFormSubmit} />}
+      content={
+        <ContentBlocker
+          blocked
+          contentBlur={2}
+          overlayText={
+            <div
+              css={`
+                transform: rotate(-30deg);
+                color: ${p => p.theme.color.danger.default};
+                background-color: ${p => p.theme.color.background.light};
+                padding: 0.5rem 1rem;
+                border-radius: 0.75rem;
+                font-size: ${p => p.theme.fontSize.xxl};
+                text-align: center;
+                white-space: nowrap;
+              `}
+            >
+              Comming soon...
+            </div>
+          }
+        >
+          <EmailNotificationsForm onSubmit={handleFormSubmit} />
+        </ContentBlocker>
+      }
       placement="bottomRight"
       title="Notify me by e-mail when:"
       trigger="click"

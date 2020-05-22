@@ -2,9 +2,41 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 
+function ContentBlocker({ children, blocked, contentBlur, overlayText }) {
+  return (
+    <StyledOverlayWrapper>
+      <StyledContentWrapper disabled={blocked} contentBlur={contentBlur}>
+        {children}
+      </StyledContentWrapper>
+      <StyledOverlay visible={blocked} />
+      {blocked && overlayText && <StyledOverlayText>{overlayText}</StyledOverlayText>}
+    </StyledOverlayWrapper>
+  );
+}
+
+ContentBlocker.propTypes = {
+  children: t.node,
+  blocked: t.bool,
+  contentBlur: t.number,
+  overlayText: t.node,
+};
+
+ContentBlocker.defaultProps = {
+  children: null,
+  blocked: false,
+  contentBlur: 1,
+  overlayText: null,
+};
+
+export default ContentBlocker;
+
 const StyledOverlayWrapper = styled.div`
   position: relative;
   z-index: 1;
+`;
+
+const StyledContentWrapper = styled.div`
+  filter: ${props => (props.disabled ? `blur(${props.contentBlur}px)` : 'none')};
 `;
 
 const StyledOverlay = styled.div`
@@ -19,27 +51,13 @@ const StyledOverlay = styled.div`
   z-index: 100;
 `;
 
-const StyledContentWrapper = styled.div`
-  filter: ${props => (props.disabled ? 'blur(1px)' : 'none')};
+const StyledOverlayText = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 101;
+  font-weight: 500;
+  font-size: ${p => p.theme.fontSize.xl};
+  pointer-events: none;
 `;
-
-function ContentBlocker({ children, blocked }) {
-  return (
-    <StyledOverlayWrapper>
-      <StyledContentWrapper disabled={blocked}>{children}</StyledContentWrapper>
-      <StyledOverlay visible={blocked} />
-    </StyledOverlayWrapper>
-  );
-}
-
-ContentBlocker.propTypes = {
-  children: t.node,
-  blocked: t.bool,
-};
-
-ContentBlocker.defaultProps = {
-  children: null,
-  blocked: false,
-};
-
-export default ContentBlocker;

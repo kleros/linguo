@@ -82,12 +82,11 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
     const tasks = await Promise.all(
       events.map(async event => {
         const ID = event.returnValues._taskID;
-
-        try {
-          return await getTaskById({ ID });
-        } catch (err) {
-          return { ID, err };
+        if (!ID) {
+          throw new Error('TaskCreated event has not task ID');
         }
+
+        return getTaskById({ ID });
       })
     );
 
@@ -127,15 +126,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
       ]),
     ];
 
-    const tasks = await Promise.all(
-      uniqueTaskIDs.map(async ID => {
-        try {
-          return await getTaskById({ ID });
-        } catch (err) {
-          return { ID, err };
-        }
-      })
-    );
+    const tasks = await Promise.all(uniqueTaskIDs.map(async ID => getTaskById({ ID })));
 
     return tasks;
   }
