@@ -28,7 +28,7 @@ function TaskList() {
       to={{
         pathname: r.TRANSLATION_REQUEST,
         state: {
-          message: 'You have no tranlsation requests yet! You can create one here.',
+          message: 'You have no translation requests yet! You can create one here.',
         },
       }}
     />
