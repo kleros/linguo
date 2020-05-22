@@ -1,35 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Radio } from 'antd';
-import { Link } from 'react-router-dom';
-import * as r from '~/app/routes';
-import Button from '~/components/Button';
 import RadioButton from '~/components/RadioButton';
-import { AddIcon } from '~/components/icons';
 import filters, { useFilterName } from './filters';
 
 function TaskListControls() {
   return (
     <StyledControls>
-      <TaskListActions />
       <TaskListFilters />
     </StyledControls>
   );
 }
 
 export default TaskListControls;
-
-function TaskListActions() {
-  return (
-    <StyledActions>
-      <Link to={r.TRANSLATION_REQUEST}>
-        <Button variant="filled" icon={<AddIcon />}>
-          New Translation
-        </Button>
-      </Link>
-    </StyledActions>
-  );
-}
 
 function TaskListFilters() {
   const [filterName, setFilterName] = useFilterName();
@@ -147,7 +130,7 @@ const buttons = [
 
 const StyledControls = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 
   ${StyledActions} {
