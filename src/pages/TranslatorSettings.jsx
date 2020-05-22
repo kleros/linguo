@@ -4,6 +4,7 @@ import produce from 'immer';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { useSettings, TRANSLATOR } from '~/app/settings';
+import * as r from '~/app/routes';
 import { Row, Col, Form, Typography, notification } from 'antd';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
 import WithRouteMessage from '~/components/WithRouteMessage';
@@ -215,19 +216,6 @@ export default function TranslatorSettings() {
   const [storedValues, setStoredValues] = useSettings(TRANSLATOR);
   const [values, setValues] = React.useState(ensureAtLeastOneLanguage(storedValues));
 
-  const handleFinish = React.useCallback(
-    values => {
-      setStoredValues(values);
-
-      notification.success({
-        message: "You've updated your language skills settings!",
-        placement: 'bottomRight',
-        duration: 10,
-      });
-    },
-    [setStoredValues]
-  );
-
   const handleValuesChange = React.useCallback(
     (_, allValues) => {
       setValues(allValues);
@@ -252,6 +240,21 @@ export default function TranslatorSettings() {
   const handleReturnClick = React.useCallback(() => {
     history.goBack();
   }, [history]);
+
+  const handleFinish = React.useCallback(
+    values => {
+      setStoredValues(values);
+
+      notification.success({
+        message: "You've updated your language skills settings!",
+        placement: 'bottomRight',
+        duration: 10,
+      });
+
+      history.push(r.TRANSLATOR_DASHBOARD);
+    },
+    [setStoredValues, history]
+  );
 
   return (
     <SingleCardLayout title="Set your language skills">

@@ -18,7 +18,7 @@ function TranslationRequest() {
   );
 
   return (
-    <SingleCardLayout title="New Translation">
+    <SingleCardLayout title="Request Translation">
       <LinguoApiReadyGateway>
         <WithRouteMessage>
           <RequiredWalletGateway
