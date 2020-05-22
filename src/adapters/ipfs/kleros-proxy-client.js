@@ -57,7 +57,7 @@ export default function createClient({ hostAddress }) {
     // Removes any trailing slashes
     const normalizedHostAddress = hostAddress.replace(/\/+$/, '');
     // Removes any slashes from the beginning as well as the /ipfs/ prefix
-    const normalizedPath = path.replace(/^\/+(ipfs\/)?/, '');
+    const normalizedPath = path.replace(/^\/*(ipfs\/)?/, '');
 
     return `${normalizedHostAddress}/ipfs/${normalizedPath}`;
   }
