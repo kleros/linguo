@@ -208,8 +208,6 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
         linguoContract.methods.getTaskParties(ID).call(),
       ]);
 
-      const metadata = await _getTaskMetadata({ ID });
-
       const taskCreatedEvents = await linguoContract.getPastEvents('TaskCreated', {
         filter: { _taskID: ID },
         fromBlock: 0,
@@ -230,6 +228,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
         filter: { _taskID: ID },
         fromBlock: 0,
       });
+      const metadata = await _getTaskMetadata({ ID });
 
       const disputeEvents =
         translationChallengedEvents.length > 0
@@ -260,11 +259,16 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function _getTaskMetadata({ ID }) {
+    ID = String(ID);
+
     const metaEvidenceEvents = await linguoContract.getPastEvents('MetaEvidence', {
       filter: { _metaEvidenceID: ID },
       fromBlock: 0,
     });
-    const { metadata } = await fetchMetaEvidenceFromEvents({ ID, events: metaEvidenceEvents });
+    const { metadata } = await fetchMetaEvidenceFromEvents({
+      ID,
+      events: metaEvidenceEvents,
+    });
 
     return { ID, ...metadata };
   }
@@ -568,9 +572,9 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
     return receipt;
   }
 
-  async function challengeTranslation({ ID }, { from, gas, gasPrice } = {}) {
+  async function challengeTranslation({ ID, evidence }, { from, gas, gasPrice } = {}) {
     const value = await getChallengerDeposit({ ID });
-    const txn = linguoContract.methods.challengeTranslation(ID).send({
+    const txn = linguoContract.methods.challengeTranslation(ID, evidence).send({
       from,
       value,
       gas,

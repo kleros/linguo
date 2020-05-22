@@ -6,6 +6,7 @@ import TaskContext from '../../../TaskContext';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
+import ChallengeUploadButton from '../../components/ChallengeUploadButton';
 import TranslationChallengeDepositFetcher from '../../components/TranslationChallengeDepositFetcher';
 
 function AwaitingReviewForRequester() {
@@ -53,12 +54,7 @@ function AwaitingReviewForRequester() {
           />
         ) : (
           <>
-            <TaskInteractionButton
-              ID={task.ID}
-              interaction={TaskInteractionButton.Interaction.Challenge}
-              content={{ idle: 'Challenge It' }}
-              buttonProps={{ fullWidth: true }}
-            />
+            <ChallengeUploadButton buttonProps={{ fullWidth: true }} />
             <Spacer />
             <TranslationChallengeDepositFetcher />
           </>

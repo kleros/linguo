@@ -32,37 +32,28 @@ const beforeUpload = file => {
     return false;
   }
 
-  const isPlainTextFile = file.type === 'text/plain';
-  if (!isPlainTextFile) {
-    notification.error({
-      message: 'File must be plain text (.txt)',
-      placement: 'bottomRight',
-    });
-    return false;
-  }
-
   return true;
 };
 
 const withNotification = wrapWithNotification({
-  errorMessage: 'Failed to submit the translation',
-  successMessage: 'Translation submitted successfuly',
+  errorMessage: 'Failed to submit the challenge!',
+  successMessage: 'You challenged this translation!',
   duration: 10,
 });
 
-function TranslationUploadButton({ buttonProps }) {
+function ChallengeUploadButton({ buttonProps }) {
   const { ID } = React.useContext(TaskContext);
   const linguo = useLinguo();
   const { account } = useWeb3React();
 
   const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
 
-  const submitTranslation = React.useCallback(
-    withNotification(async ({ ID, text, account }) => {
+  const challengeTranslation = React.useCallback(
+    withNotification(async ({ ID, evidence, account }) => {
       try {
         setHasPendingTxn(true);
-        await linguo.api.submitTranslation({ ID, text }, { from: account });
-        mutate(['getTaskById', ID], Task.registerSubmission);
+        await linguo.api.challengeTranslation({ ID, evidence }, { from: account });
+        mutate(['getTaskById', ID], Task.registerChallenge);
       } finally {
         setHasPendingTxn(false);
       }
@@ -80,10 +71,10 @@ function TranslationUploadButton({ buttonProps }) {
           throw new Error('Failed to upload the file. Please try again.');
         }
 
-        submitTranslation({ ID, account, text: path });
+        challengeTranslation({ ID, account, evidence: path });
       }
     },
-    [ID, account, submitTranslation, hasPendingTxn]
+    [ID, account, challengeTranslation, hasPendingTxn]
   );
 
   return (
@@ -98,19 +89,19 @@ function TranslationUploadButton({ buttonProps }) {
       )}
       {hasPendingTxn && (
         <Button {...buttonProps} disabled>
-          <LoadingOutlined /> Sending translation...
+          <LoadingOutlined /> Submitting challenge...
         </Button>
       )}
     </StyledWrapper>
   );
 }
 
-TranslationUploadButton.propTypes = {
+ChallengeUploadButton.propTypes = {
   buttonProps: t.object,
 };
 
-TranslationUploadButton.defaultProps = {
+ChallengeUploadButton.defaultProps = {
   buttonProps: {},
 };
 
-export default TranslationUploadButton;
+export default ChallengeUploadButton;

@@ -25,6 +25,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.0.2",
     "@hot-loader/react-dom": "^16.13.0",
+    "@kleros/contract-deployments": "^0.2.1",
     "@kleros/react-components": "^3.10.0",
     "@loadable/component": "^5.12.0",
     "@rehooks/local-storage": "^2.2.3",

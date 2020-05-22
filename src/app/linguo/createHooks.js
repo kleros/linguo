@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo } from 'react';
 import useSWR from 'swr';
-import { Linguo, Arbitrator } from '@kleros/contract-deployments/interactions/linguo';
+import { Linguo, Arbitrator } from '@kleros/contract-deployments/linguo';
 import createError from '~/utils/createError';
 import createApi from './createApi';
 
