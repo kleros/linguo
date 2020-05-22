@@ -182,7 +182,7 @@ const StyledButton = styled(BaseButton)`
   ${props => variantStyles[props.variant]}
 
   > ${StyledButtonContent} {
-    flex: 1;
+    flex: auto 0 1;
   }
 
   > .anticon {

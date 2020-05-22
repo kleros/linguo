@@ -62,7 +62,7 @@ function TranslationUploadButton({ buttonProps }) {
       try {
         setHasPendingTxn(true);
         await linguo.api.submitTranslation({ ID, text }, { from: account });
-        mutate(['getTaskById', ID], Task.registerSubmission);
+        mutate(['getTaskById', ID], task => Task.registerSubmission(task, { currentDate: new Date() }));
       } finally {
         setHasPendingTxn(false);
       }
@@ -90,6 +90,7 @@ function TranslationUploadButton({ buttonProps }) {
     <StyledWrapper>
       {!hasPendingTxn && (
         <SingleFileUpload
+          accept="text/plain"
           forbidRedoAfterSuccess
           beforeUpload={beforeUpload}
           onChange={handleChange}

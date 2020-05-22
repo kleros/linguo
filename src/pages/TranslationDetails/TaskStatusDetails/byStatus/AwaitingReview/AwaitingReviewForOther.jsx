@@ -49,7 +49,9 @@ function AwaitingReviewForOther() {
           <TaskInteractionButton
             ID={task.ID}
             interaction={TaskInteractionButton.Interaction.Approve}
-            content={{ idle: 'Pay Translator' }}
+            content={{
+              idle: { text: 'Pay Translator' },
+            }}
             buttonProps={{ fullWidth: true }}
           />
         ) : (

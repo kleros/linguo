@@ -33,7 +33,7 @@ function AwaitingReviewForRequester() {
     description:
       remainingTime > 0
         ? [
-            'During review you can challenge the translation if you think it does not fulfill the quality requirements. To do so, you need to send a challenge deposit.',
+            'During review you can challenge the translation if you think it does not fulfill the quality requirements. To do so, you need to send a challenge deposit alongside an evidence file describing what is wrong with it.',
             'If the jurors decide to not approve the translation you receive the escrow deposit back + the challenge deposit back + the deposit of the translator (minus arbitration fees).',
             'If the translation is approved by the jurors you lose the challenge deposit and the escrow payment goes to the translator.',
           ]
@@ -49,7 +49,9 @@ function AwaitingReviewForRequester() {
           <TaskInteractionButton
             ID={task.ID}
             interaction={TaskInteractionButton.Interaction.Approve}
-            content={{ idle: 'Pay Translator' }}
+            content={{
+              idle: { text: 'Pay Translator' },
+            }}
             buttonProps={{ fullWidth: true }}
           />
         ) : (

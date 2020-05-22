@@ -32,7 +32,9 @@ function IncompleteForRequester() {
             <Spacer />
             <TaskInteractionButton
               interaction={TaskInteractionButton.Interaction.Reimburse}
-              content={{ idle: isAssigned ? 'Claim Deposit' : 'Reimburse Me' }}
+              content={{
+                idle: { text: isAssigned ? 'Claim Deposit' : 'Reimburse Me' },
+              }}
               buttonProps={{ fullWidth: true }}
             />
           </>

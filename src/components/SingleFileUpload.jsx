@@ -56,7 +56,26 @@ const uploadStateMachine = {
   },
 };
 
-function SingleFileUpload({ beforeUpload, onChange, buttonContent, buttonProps }) {
+const defaultButtonContent = {
+  idle: {
+    text: 'Upload a File',
+    icon: <UploadOutlined />,
+  },
+  pending: {
+    text: ' Uploading...',
+    icon: <LoadingOutlined />,
+  },
+  succeeded: {
+    text: 'Done!',
+    icon: <CheckCircleOutlined />,
+  },
+  errored: {
+    text: 'Failed!',
+    icon: <CloseCircleOutlined />,
+  },
+};
+
+function SingleFileUpload({ accept, beforeUpload, onChange, buttonContent, buttonProps }) {
   const [state, send] = useStateMachine(uploadStateMachine);
 
   const disabled = state !== 'idle';
@@ -106,12 +125,21 @@ function SingleFileUpload({ beforeUpload, onChange, buttonContent, buttonProps }
     [send]
   );
 
+  const icon = buttonContent[state]?.icon ?? defaultButtonContent[state].icon;
+  const text = buttonContent[state]?.text ?? defaultButtonContent[state].text;
+
   return (
-    <Upload beforeUpload={handleBeforeUpload} onChange={onChange} onRemove={handleRemove} customRequest={customRequest}>
+    <Upload
+      accept={accept}
+      beforeUpload={handleBeforeUpload}
+      onChange={onChange}
+      onRemove={handleRemove}
+      customRequest={customRequest}
+    >
       <Tooltip title={tooltip}>
         <span>
-          <Button {...buttonProps} disabled={disabled}>
-            {buttonContent[state]}
+          <Button {...buttonProps} icon={icon} disabled={disabled}>
+            {text}
           </Button>
         </span>
       </Tooltip>
@@ -119,43 +147,29 @@ function SingleFileUpload({ beforeUpload, onChange, buttonContent, buttonProps }
   );
 }
 
+const buttonContentShape = t.shape({
+  text: t.node,
+  icon: t.node,
+});
+
 SingleFileUpload.propTypes = {
+  accept: t.string,
   beforeUpload: t.func,
   onChange: t.func,
   buttonContent: t.shape({
-    idle: t.node.isRequired,
-    pending: t.node.isRequired,
-    succeeded: t.node.isRequired,
-    errored: t.node.isRequired,
+    idle: buttonContentShape,
+    pending: buttonContentShape,
+    succeeded: buttonContentShape,
+    errored: buttonContentShape,
   }),
   buttonProps: t.object,
 };
 
 SingleFileUpload.defaultProps = {
+  accept: '*/*',
   beforeUpload: () => true,
   onChange: () => {},
-  buttonContent: {
-    idle: (
-      <>
-        <UploadOutlined /> Upload a File
-      </>
-    ),
-    pending: (
-      <>
-        <LoadingOutlined /> Uploading...
-      </>
-    ),
-    succeeded: (
-      <>
-        <CheckCircleOutlined /> Done!
-      </>
-    ),
-    errored: (
-      <>
-        <CloseCircleOutlined /> Failed!
-      </>
-    ),
-  },
+  buttonContent: defaultButtonContent,
   buttonProps: {},
 };
 

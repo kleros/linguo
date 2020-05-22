@@ -3,7 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { mutate } from 'swr';
 import { notification } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined, FlagOutlined } from '@ant-design/icons';
 import { Task, useLinguo } from '~/app/linguo';
 import { useWeb3React } from '~/app/web3React';
 import SingleFileUpload from '~/components/SingleFileUpload';
@@ -53,7 +53,7 @@ function ChallengeUploadButton({ buttonProps }) {
       try {
         setHasPendingTxn(true);
         await linguo.api.challengeTranslation({ ID, evidence }, { from: account });
-        mutate(['getTaskById', ID], Task.registerChallenge);
+        mutate(['getTaskById', ID], task => Task.registerChallenge(task, { account }));
       } finally {
         setHasPendingTxn(false);
       }
@@ -84,6 +84,12 @@ function ChallengeUploadButton({ buttonProps }) {
           forbidRedoAfterSuccess
           beforeUpload={beforeUpload}
           onChange={handleChange}
+          buttonContent={{
+            idle: {
+              text: 'Challenge it',
+              icon: <FlagOutlined />,
+            },
+          }}
           buttonProps={buttonProps}
         />
       )}

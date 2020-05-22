@@ -31,41 +31,35 @@ const buttonStateMachine = {
 
 const TaskInteraction = {
   Assign: 'assign',
-  Challenge: 'challenge',
   Approve: 'approve',
   Reimburse: 'reimburse',
 };
 
 const interactionToApiMethodMap = {
   [TaskInteraction.Assign]: 'assignTask',
-  [TaskInteraction.Challenge]: 'challengeTranslation',
   [TaskInteraction.Approve]: 'approveTranslation',
   [TaskInteraction.Reimburse]: 'reimburseRequester',
 };
 
 const interactionToMutationMap = {
   [TaskInteraction.Assign]: ({ account }) => task => Task.registerAssignment(task, { account }),
-  [TaskInteraction.Challenge]: ({ account }) => task => Task.registerChallenge(task, { account }),
   [TaskInteraction.Approve]: () => task => Task.registerApproval(task),
   [TaskInteraction.Reimburse]: () => task => Task.registerReimbursement(task),
 };
 
 const defaultButtonContent = {
-  idle: (
-    <>
-      <SendOutlined /> Send
-    </>
-  ),
-  pending: (
-    <>
-      <LoadingOutlined /> Sending...
-    </>
-  ),
-  succeeded: (
-    <>
-      <CheckOutlined /> Done!
-    </>
-  ),
+  idle: {
+    text: 'Send',
+    icon: <SendOutlined />,
+  },
+  pending: {
+    text: 'Sending...',
+    icon: <LoadingOutlined />,
+  },
+  succeeded: {
+    text: 'Done!',
+    icon: <CheckOutlined />,
+  },
 };
 
 const withNotification = wrapWithNotification({
@@ -105,19 +99,27 @@ function TaskInteractionButton({ interaction, content, buttonProps }) {
     [dispatch, linguo.api, apiMethod, ID, account, history, location]
   );
 
+  const icon = content[state]?.icon ?? null;
+  const text = content[state]?.text ?? defaultButtonContent[state].text;
+
   return (
-    <Button {...buttonProps} disabled={disabled} onClick={handleClick}>
-      {content[state] ?? defaultButtonContent[state]}
+    <Button {...buttonProps} icon={icon} disabled={disabled} onClick={handleClick}>
+      {text}
     </Button>
   );
 }
 
+const contentItemShape = t.shape({
+  text: t.node.isRequired,
+  icon: t.node,
+});
+
 TaskInteractionButton.propTypes = {
   interaction: t.oneOf(Object.values(TaskInteraction)).isRequired,
   content: t.shape({
-    idle: t.node,
-    pending: t.node,
-    succeeded: t.node,
+    idle: contentItemShape,
+    pending: contentItemShape,
+    succeeded: contentItemShape,
   }),
   buttonProps: t.object,
 };

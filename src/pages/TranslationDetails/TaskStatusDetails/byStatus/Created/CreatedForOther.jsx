@@ -18,7 +18,9 @@ function CreatedForOther() {
         <Spacer />
         <TaskInteractionButton
           interaction={TaskInteractionButton.Interaction.Assign}
-          content={{ idle: 'Translate It' }}
+          content={{
+            idle: { text: 'Translate It' },
+          }}
           buttonProps={{ fullWidth: true }}
         />
         <Spacer />
