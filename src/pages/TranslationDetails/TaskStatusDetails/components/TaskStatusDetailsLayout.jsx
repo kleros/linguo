@@ -42,7 +42,7 @@ const StyledIllustrationWrapper = styled.div`
   justify-content: flex-end;
 
   > svg {
-    max-width: 10rem;
+    width: 10rem;
   }
 
   @media (max-width: 767.98px) {
