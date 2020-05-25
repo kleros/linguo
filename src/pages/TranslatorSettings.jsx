@@ -3,9 +3,9 @@ import t from 'prop-types';
 import produce from 'immer';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
+import { Row, Col, Form, Typography, Alert, notification } from 'antd';
 import { useSettings, TRANSLATOR } from '~/app/settings';
 import * as r from '~/app/routes';
-import { Row, Col, Form, Typography, notification } from 'antd';
 import SingleCardLayout from '~/pages/layouts/SingleCardLayout';
 import WithRouteMessage from '~/components/WithRouteMessage';
 import { InfoIcon, AddIcon, RemoveIcon } from '~/components/icons';
@@ -300,8 +300,38 @@ export default function TranslatorSettings() {
             }}
           </Form.List>
 
+          <Alert
+            type="info"
+            message="Linguo considers language skills as defined by the Common European Framework of Reference (CEFR)."
+            description={
+              <>
+                <p>
+                  <a
+                    href="https://www.coe.int/en/web/common-european-framework-reference-languages/level-descriptions"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Click here to find out more about CEFR.
+                  </a>
+                </p>
+                <p>
+                  If the languages you speak are not part of the CEFR, please choose the level closer to what is
+                  described in this{' '}
+                  <a
+                    href="https://rm.coe.int/CoERMPublicCommonSearchServices/DisplayDCTMContent?documentId=090000168045bb52"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    self-assessment grid
+                  </a>
+                  .
+                </p>
+              </>
+            }
+          />
+
           <StyledDisclaimer>
-            <InfoIcon /> You can update your language level or add more languages anytime on settings.
+            <InfoIcon /> You can update your language level or add more languages anytime in settings.
           </StyledDisclaimer>
 
           <Row gutter={16} justify="space-between">

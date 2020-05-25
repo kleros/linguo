@@ -30,6 +30,7 @@ export const publishMetaEvidence = async ({ account, ...metadata }) => {
 };
 
 export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
+  console.debug('Fetching MetaEvidence', events);
   // There should be one and only one event
   const [event] = events;
   if (!event) {
@@ -44,7 +45,9 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   const url = getFileUrl(path);
 
   try {
-    const response = await fetch(url, { mode: 'cors' });
+    const response = await fetch(url, {
+      // mode: 'cors'
+    });
     return response.json();
   } catch (err) {
     console.warn(`Failed to fetch evidence for task ${ID}`, err);
@@ -72,23 +75,41 @@ const onlyIfMatchingLanguageSkills = languageSkills => ({ sourceLanguage, target
 
 let id = 0;
 
+const createSplitBlockIntervals = ({ fromBlock, toBlock, blocksPerRequest }) => {
+  const blockCount = toBlock - fromBlock;
+  const intervalCount = Math.ceil((blockCount + 1) / blocksPerRequest);
+
+  return Array(intervalCount)
+    .fill()
+    .map((_, i) => {
+      const start = fromBlock + i * blocksPerRequest;
+      const end = Math.min(start + blocksPerRequest - 1, toBlock);
+
+      return { fromBlock: start, toBlock: end };
+    });
+};
+
 export default function createApi({ web3, linguoContract, arbitratorContract }) {
   async function getRequesterTasks({ account }) {
-    const events = await linguoContract.getPastEvents('TaskCreated', {
+    const events = await _getPastEvents(linguoContract, 'TaskCreated', {
       filter: { _requester: account },
       fromBlock: 0,
     });
 
-    const tasks = await Promise.all(
-      events.map(async event => {
-        const ID = event.returnValues._taskID;
-        if (!ID) {
-          throw new Error('TaskCreated event has not task ID');
-        }
+    const tasks = (
+      await Promise.allSettled(
+        events.map(async event => {
+          const ID = event.returnValues._taskID;
+          if (!ID) {
+            throw new Error('TaskCreated event has not task ID');
+          }
 
-        return getTaskById({ ID });
-      })
-    );
+          return getTaskById({ ID });
+        })
+      )
+    )
+      .filter(({ status }) => status === 'fulfilled')
+      .map(({ value }) => value);
 
     return tasks;
   }
@@ -126,7 +147,9 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
       ]),
     ];
 
-    const tasks = await Promise.all(uniqueTaskIDs.map(async ID => getTaskById({ ID })));
+    const tasks = (await Promise.allSettled(uniqueTaskIDs.map(async ID => getTaskById({ ID }))))
+      .filter(({ status }) => status === 'fulfilled')
+      .map(({ value }) => value);
 
     return tasks;
   }
@@ -148,7 +171,9 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
       return unassignedTaskIDs;
     }
 
-    const unassignedTasksMetadata = await Promise.all(unassignedTaskIDs.map(ID => _getTaskMetadata({ ID })));
+    const unassignedTasksMetadata = (await Promise.allSettled(unassignedTaskIDs.map(ID => _getTaskMetadata({ ID }))))
+      .filter(({ status }) => status === 'fulfilled')
+      .map(({ value }) => value);
 
     return unassignedTasksMetadata.filter(onlyIfMatchingLanguageSkills(languageSkills)).map(({ ID }) => ID);
   }
@@ -165,7 +190,9 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
     const taskIDsInReview = await _getTaskIDsFromEvent('TranslationSubmitted', { fromBlock });
 
-    const tasksInReviewMetadata = await Promise.all(taskIDsInReview.map(ID => _getTaskMetadata({ ID })));
+    const tasksInReviewMetadata = (await Promise.allSettled(taskIDsInReview.map(ID => _getTaskMetadata({ ID }))))
+      .filter(({ status }) => status === 'fulfilled')
+      .map(({ value }) => value);
 
     if (!Array.isArray(languageSkills)) {
       return taskIDsInReview;
@@ -175,7 +202,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function _getTaskIDsFromEvent(eventName, { fromBlock, toBlock, filter }) {
-    const events = await linguoContract.getPastEvents(eventName, {
+    const events = await _getPastEvents(linguoContract, eventName, {
       fromBlock,
       toBlock,
       filter,
@@ -199,23 +226,23 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
         linguoContract.methods.getTaskParties(ID).call(),
       ]);
 
-      const taskCreatedEvents = await linguoContract.getPastEvents('TaskCreated', {
+      const taskCreatedEvents = await _getPastEvents(linguoContract, 'TaskCreated', {
         filter: { _taskID: ID },
         fromBlock: 0,
       });
-      const taskAssignedEvents = await linguoContract.getPastEvents('TaskAssigned', {
+      const taskAssignedEvents = await _getPastEvents(linguoContract, 'TaskAssigned', {
         filter: { _taskID: ID },
         fromBlock: 0,
       });
-      const translationSubmittedEvents = await linguoContract.getPastEvents('TranslationSubmitted', {
+      const translationSubmittedEvents = await _getPastEvents(linguoContract, 'TranslationSubmitted', {
         filter: { _taskID: ID },
         fromBlock: 0,
       });
-      const translationChallengedEvents = await linguoContract.getPastEvents('TranslationChallenged', {
+      const translationChallengedEvents = await _getPastEvents(linguoContract, 'TranslationChallenged', {
         filter: { _taskID: ID },
         fromBlock: 0,
       });
-      const taskResolvedEvents = await linguoContract.getPastEvents('TaskResolved', {
+      const taskResolvedEvents = await _getPastEvents(linguoContract, 'TaskResolved', {
         filter: { _taskID: ID },
         fromBlock: 0,
       });
@@ -223,7 +250,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
       const disputeEvents =
         translationChallengedEvents.length > 0
-          ? await linguoContract.getPastEvents('Dispute', {
+          ? await _getPastEvents(linguoContract, 'Dispute', {
               filter: { _disputeID: task.disputeID },
               fromBlock: 0,
             })
@@ -252,16 +279,21 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   async function _getTaskMetadata({ ID }) {
     ID = String(ID);
 
-    const metaEvidenceEvents = await linguoContract.getPastEvents('MetaEvidence', {
-      filter: { _metaEvidenceID: ID },
-      fromBlock: 0,
-    });
-    const { metadata } = await fetchMetaEvidenceFromEvents({
-      ID,
-      events: metaEvidenceEvents,
-    });
+    try {
+      const metaEvidenceEvents = await _getPastEvents(linguoContract, 'MetaEvidence', {
+        filter: { _metaEvidenceID: ID },
+        fromBlock: 0,
+      });
+      const { metadata } = await fetchMetaEvidenceFromEvents({
+        ID,
+        events: metaEvidenceEvents,
+      });
 
-    return { ID, ...metadata };
+      return { ID, ...metadata };
+    } catch (err) {
+      console.warn('Error feching task metadata', err);
+      throw err;
+    }
   }
 
   /**
@@ -388,7 +420,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function _getDisputeRulingAndStatus({ disputeID }) {
-    const disputeEvents = await linguoContract.getPastEvents('Dispute', {
+    const disputeEvents = await _getPastEvents(linguoContract, 'Dispute', {
       filter: { _disputeID: disputeID },
       fromBlock: 0,
     });
@@ -419,6 +451,24 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
         hasDispute: false,
       };
     }
+  }
+
+  async function _getPastEvents(contract, eventName, { filter, fromBlock = 0, toBlock = 'latest' } = {}) {
+    toBlock = toBlock === 'latest' ? (await web3.eth.getBlockNumber()) - 2 : toBlock;
+
+    const intervals = createSplitBlockIntervals({ fromBlock, toBlock, blocksPerRequest: 1000000 });
+
+    const events = await Promise.all(
+      intervals.map(({ fromBlock, toBlock }) =>
+        contract.getPastEvents(eventName, {
+          fromBlock,
+          toBlock,
+          filter,
+        })
+      )
+    );
+
+    return events.flat();
   }
 
   async function _getAppealPeriod({ disputeID }) {

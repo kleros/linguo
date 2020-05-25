@@ -6,14 +6,6 @@ import { DatePicker } from '~/adapters/antd';
 
 dayjs.extend(advancedFormat);
 
-function isBefore1HourFromNow(current) {
-  return !!current && dayjs(current) < dayjs().add(1, 'hour');
-}
-
-function isBeforeToday(current) {
-  return !!current && dayjs(current) < dayjs().startOf('day');
-}
-
 function DeadlineField() {
   return (
     <>
@@ -57,3 +49,11 @@ function DeadlineField() {
 }
 
 export default DeadlineField;
+
+function isBefore1HourFromNow(current) {
+  return !!current && dayjs(current) < dayjs().add(1, 'hour');
+}
+
+function isBeforeToday(current) {
+  return !!current && dayjs(current) < dayjs().startOf('day');
+}

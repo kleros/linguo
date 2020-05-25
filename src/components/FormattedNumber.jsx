@@ -1,8 +1,9 @@
 import t from 'prop-types';
 
-function FormattedNumber({ value, decimals, style, render }) {
+function FormattedNumber({ value, decimals, style, currency, render }) {
   const nf = new Intl.NumberFormat('en-US', {
     style,
+    currency,
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
     useGrouping: true,
@@ -13,7 +14,8 @@ function FormattedNumber({ value, decimals, style, render }) {
 }
 
 FormattedNumber.propTypes = {
-  style: t.oneOf(['decimal', 'percent']),
+  style: t.oneOf(['decimal', 'percent', 'currency']),
+  current: t.string,
   value: t.number,
   decimals: t.number,
   render: t.func,

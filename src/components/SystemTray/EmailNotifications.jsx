@@ -117,7 +117,7 @@ function EmailNotifications() {
                 white-space: nowrap;
               `}
             >
-              Comming soon...
+              Coming soon...
             </div>
           }
         >

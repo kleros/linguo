@@ -43,4 +43,8 @@ const StyledInputNumber = styled(InputNumber)`
       border-color: #d9d9d9;
     }
   }
+
+  .ant-input-number-input {
+    padding-left: 0;
+  }
 `;

@@ -33,7 +33,7 @@ function Notifications() {
                 white-space: nowrap;
               `}
             >
-              Comming soon...
+              Coming soon...
             </div>
           }
         >

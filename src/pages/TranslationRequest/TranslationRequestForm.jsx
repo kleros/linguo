@@ -1,13 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { Form, Row, Col, Divider, notification } from 'antd';
+import { Form, Row, Col, notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import * as r from '~/app/routes';
 import { useWeb3React } from '~/app/web3React';
 import { useLinguo } from '~/app/linguo';
 import useStateMachine from '~/hooks/useStateMachine';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
+import Spacer from '~/components/Spacer';
 import Button from '~/components/Button';
 import TitleField from './TitleField';
 import DeadlineField from './DeadlineField';
@@ -24,10 +25,6 @@ const StyledForm = styled(Form)`
       width: 100%;
     }
   }
-`;
-
-const StyledDivider = styled(Divider)`
-  border-top: none;
 `;
 
 const extractOriginalTextFilePath = originalTextFile => {
@@ -139,7 +136,21 @@ function TranslationRequestForm() {
   return (
     <StyledForm hideRequiredMark layout="vertical" form={form} initialValues={initialValues} onFinish={handleFinish}>
       <Row gutter={rowGutter}>
+        <LanguagesSelectionFields setFieldsValue={form.setFieldsValue} />
+      </Row>
+      <Row gutter={rowGutter}>
+        <ExpectedQualityField initialValue={initialValues.expectedQuality} />
+      </Row>
+      <Spacer />
+      <Row gutter={rowGutter}>
         <TitleField />
+      </Row>
+      <Spacer />
+      <Row gutter={rowGutter}>
+        <TextField />
+      </Row>
+      <Row gutter={rowGutter}>
+        <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
       </Row>
       <Row gutter={rowGutter}>
         <DeadlineField />
@@ -147,20 +158,7 @@ function TranslationRequestForm() {
       <Row gutter={rowGutter}>
         <PriceDefinitionFields />
       </Row>
-      <StyledDivider />
-      <Row gutter={rowGutter}>
-        <LanguagesSelectionFields setFieldsValue={form.setFieldsValue} />
-      </Row>
-      <Row gutter={rowGutter}>
-        <ExpectedQualityField initialValue={initialValues.expectedQuality} />
-      </Row>
-      <StyledDivider />
-      <Row gutter={rowGutter}>
-        <TextField />
-      </Row>
-      <Row gutter={rowGutter}>
-        <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
-      </Row>
+      <Spacer />
       <Row gutter={rowGutter} justify="end">
         <Col>
           <Button {...submitButtonProps} htmlType="submit" />

@@ -3,8 +3,8 @@
     "value": "costEffective",
     "name": "Cost Effective",
     "description": [
-      "A basic traduction will be expected. The conveyed meaning must be the similar but it is acceptable to lose nuances. Occasional typos and translation errors are acceptable.",
-      "Those tasks are shown to translators self-declaring a level B2+."
+      "A basic translation. The conveyed meaning must be the similar, but nuances might be lost. Occasional typos and translation errors are acceptable.",
+      "Translators having a self-declared level B2+ (CEFR) will be able to see this task."
     ],
     "requiredLevel": "B2"
   },
@@ -12,17 +12,17 @@
     "value": "standard",
     "name": "Standard",
     "description": [
-      "To the standard level of a translation. The meaning must be almost identical. Occasional typos are acceptable.",
-      "Those tasks are shown to translators self-declaring a level C1+."
+      "The standard level of a translation. The meaning must be almost identical. Occasional typos are acceptable.",
+      "Translators having a self-declared level C1+ (CEFR) will be able to see this task."
     ],
     "requiredLevel": "C1"
   },
   "perfect": {
     "value": "perfect",
-    "name": "Perfect",
+    "name": "Professional",
     "description": [
-      "The highest translation quality. The meaning must be almost identical and the translator must work to correctly reflect the style and nuance of the original text. Translators are expected to have their text reviewed before submission. A single typo is enough to reject a text with a perfect expected quality.",
-      "Those tasks are shown to translators self-declaring a level C2."
+      "Professional translation. The meaning and spirit of the translation must remain identical and the translator must reflect the style and nuances of the original text. Translators are expected to have their text reviewed before submission.",
+      "Only translators having a self-declared level C2 (CEFR) will be able to see this task."
     ],
     "requiredLevel": "C2"
   }

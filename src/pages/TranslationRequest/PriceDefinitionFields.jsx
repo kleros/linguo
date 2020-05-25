@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Form, Col, InputNumber, Typography } from 'antd';
+import { Form, Col, Typography } from 'antd';
+import { InputNumberWithAddons } from '~/adapters/antd';
 import { InfoIcon } from '~/components/icons';
 
 const StyledDisclaimerText = styled(Typography.Text)`
@@ -20,7 +21,7 @@ function PriceDefinitionFields() {
     <>
       <Col xs={24} sm={24} md={12}>
         <Form.Item
-          label="Min Price (ETH)"
+          label="Minimum Price"
           name="minPrice"
           rules={[
             {
@@ -34,18 +35,18 @@ function PriceDefinitionFields() {
             },
           ]}
         >
-          <InputNumber
-            placeholder="Amount in ETH"
-            size="large"
+          <InputNumberWithAddons
+            placeholder="e.g.: 1.2"
             min={0.01}
             step={0.01}
             onChange={handleMinPriceChange}
+            addonAfter="ETH"
           />
         </Form.Item>
       </Col>
       <Col xs={24} sm={24} md={12}>
         <Form.Item
-          label="Max Price (ETH)"
+          label="Maximum Price"
           name="maxPrice"
           dependencies={['minPrice']}
           rules={[
@@ -60,7 +61,7 @@ function PriceDefinitionFields() {
             },
           ]}
         >
-          <InputNumber placeholder="Amount in ETH" size="large" min={minMaxPrice} step={0.01} />
+          <InputNumberWithAddons type="number" placeholder="e.g.: 2.5" min={minMaxPrice} step={0.01} addonAfter="ETH" />
         </Form.Item>
       </Col>
       <Col
@@ -71,7 +72,7 @@ function PriceDefinitionFields() {
       >
         <StyledDisclaimerText>
           <InfoIcon /> The pricing is market based. The prices are automatically increased until a translator is found.
-          This also take into account the urgency of tasks.
+          This also sets the priority of the task.
         </StyledDisclaimerText>
       </Col>
     </>

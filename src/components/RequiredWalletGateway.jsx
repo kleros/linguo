@@ -19,13 +19,9 @@ function MissingWalletAlert({ message, missing, renderMissing }) {
   }, []);
 
   const appendedMessage = (
-    <>
-      Click{' '}
-      <a href="#" onClick={handleOpenModalClick}>
-        here
-      </a>{' '}
-      to connect to a wallet.
-    </>
+    <a href="#" onClick={handleOpenModalClick}>
+      Click here to connect to a wallet.
+    </a>
   );
 
   const fullMessage = (

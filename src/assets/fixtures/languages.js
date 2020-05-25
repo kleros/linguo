@@ -1,27 +1,27 @@
 const cefrLevels = [
   {
     code: 'A1',
-    name: 'A1',
+    name: 'A1 (CEFR)',
   },
   {
     code: 'A2',
-    name: 'A2',
+    name: 'A2 (CEFR)',
   },
   {
     code: 'B1',
-    name: 'B1',
+    name: 'B1 (CEFR)',
   },
   {
     code: 'B2',
-    name: 'B2',
+    name: 'B2 (CEFR)',
   },
   {
     code: 'C1',
-    name: 'C1',
+    name: 'C1 (CEFR)',
   },
   {
     code: 'C2',
-    name: 'C2',
+    name: 'C2 (CEFR)',
   },
 ];
 
@@ -67,12 +67,20 @@ const cefrLanguages = [
     name: 'Dutch',
   },
   {
+    code: 'ru',
+    name: 'Russian',
+  },
+  {
     code: 'ja',
     name: 'Japanese',
   },
   {
     code: 'zh-cn',
     name: 'Chinese (China)',
+  },
+  {
+    code: 'ko',
+    name: 'Korean',
   },
 ];
 
