@@ -25,7 +25,7 @@ const getCurrentParty = ({ account, requester, translator, challenger }) => {
 export default function useCurrentParty() {
   const { account } = useWeb3React();
 
-  const { requester, parties } = useContext(TaskContext);
+  const { requester, parties = {} } = useContext(TaskContext);
   const translator = parties[TaskParty.Translator];
   const challenger = parties[TaskParty.Challenger];
 

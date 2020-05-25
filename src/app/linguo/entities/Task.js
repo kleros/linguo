@@ -42,6 +42,8 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents }
         });
   }, {});
 
+  data.parties = data.parties ?? {};
+
   data.wordCount = wordCount({ text: data.text });
 
   data.lifecycleEvents = extractEventsReturnValues(lifecycleEvents);

@@ -4,12 +4,8 @@ import clsx from 'clsx';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Row, Col } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
-import { useImperativeRefresh } from '~/adapters/reactRouterDom';
 import * as r from '~/app/routes';
-import { useWeb3React } from '~/app/web3React';
-import { Task, TaskStatus, useLinguo } from '~/app/linguo';
-import wrapWithNotification from '~/utils/wrapWithNotification';
+import { Task, TaskStatus } from '~/app/linguo';
 import Button from '~/components/Button';
 import RemainingTime from '~/components/RemainingTime';
 import { useTask } from './TaskListContext';
@@ -42,19 +38,11 @@ TaskCardFooter.propTypes = {
 export default TaskCardFooter;
 
 function TaskFooterInfo(task) {
-  const { ID, status } = task;
+  const { status } = task;
 
   const TaskFooterInfoPending = () => {
     if (Task.isIncomplete(task)) {
-      return (
-        <RequestReimbursement
-          ID={ID}
-          buttonProps={{
-            fullWidth: true,
-            variant: 'outlined',
-          }}
-        />
-      );
+      return null;
     }
 
     const currentDate = new Date();
@@ -114,53 +102,6 @@ function TaskFooterInfo(task) {
   const Component = taskFooterInfoByStatusMap[status];
   return <Component />;
 }
-
-const withNotification = wrapWithNotification({
-  successMessage: 'Reimbursement requested with success!',
-  errorMessage: 'Failed to request the reimbursement!',
-});
-
-// TODO: see if we can merge this with TaskInteractionButton
-function RequestReimbursement({ ID, buttonProps }) {
-  const { account } = useWeb3React();
-  const linguo = useLinguo();
-
-  const [isLoading, setIsLoading] = React.useState(false);
-  const refresh = useImperativeRefresh();
-
-  const handleClick = React.useCallback(
-    withNotification(async () => {
-      if (ID === undefined) {
-        throw new Error('Failed to reimburse the requester');
-      }
-
-      setIsLoading(true);
-      try {
-        await linguo.api.reimburseRequester({ ID }, { from: account });
-        refresh();
-      } finally {
-        setIsLoading(false);
-      }
-    }, [linguo.api, ID, account])
-  );
-
-  const icon = isLoading ? <LoadingOutlined /> : null;
-
-  return (
-    <Button {...buttonProps} onClick={handleClick} disabled={isLoading} icon={icon}>
-      Reimburse Me
-    </Button>
-  );
-}
-
-RequestReimbursement.propTypes = {
-  ID: t.number.isRequired,
-  buttonProps: t.object,
-};
-
-RequestReimbursement.defaultProps = {
-  buttonProps: {},
-};
 
 const StyledTaskDeadline = styled.div`
   text-align: center;

@@ -4,6 +4,7 @@ import deepMerge from 'deepmerge';
 import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
+import promiseRetry from '~/utils/promiseRetry';
 import { normalize as normalizeTask } from './entities/Task';
 import { normalize as normalizeDispute } from './entities/Dispute';
 
@@ -74,20 +75,6 @@ const onlyIfMatchingLanguageSkills = languageSkills => ({ sourceLanguage, target
 };
 
 let id = 0;
-
-const createSplitBlockIntervals = ({ fromBlock, toBlock, blocksPerRequest }) => {
-  const blockCount = toBlock - fromBlock;
-  const intervalCount = Math.ceil((blockCount + 1) / blocksPerRequest);
-
-  return Array(intervalCount)
-    .fill()
-    .map((_, i) => {
-      const start = fromBlock + i * blocksPerRequest;
-      const end = Math.min(start + blocksPerRequest - 1, toBlock);
-
-      return { fromBlock: start, toBlock: end };
-    });
-};
 
 export default function createApi({ web3, linguoContract, arbitratorContract }) {
   async function getRequesterTasks({ account }) {
@@ -458,21 +445,27 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function _getPastEvents(contract, eventName, { filter, fromBlock = 0, toBlock = 'latest' } = {}) {
-    toBlock = toBlock === 'latest' ? (await web3.eth.getBlockNumber()) - 2 : toBlock;
-
-    const intervals = createSplitBlockIntervals({ fromBlock, toBlock, blocksPerRequest: 1000000 });
-
-    const events = await Promise.all(
-      intervals.map(({ fromBlock, toBlock }) =>
-        contract.getPastEvents(eventName, {
+    return promiseRetry(
+      contract
+        .getPastEvents(eventName, {
           fromBlock,
           toBlock,
           filter,
         })
-      )
-    );
+        .then(events => {
+          if (events.some(({ event }) => event === undefined)) {
+            console.warn('Failed to get log values for event', { eventName, filter, events });
+            throw new Error('Failed to get log values for event');
+          }
 
-    return events.flat();
+          return events;
+        }),
+      {
+        maxAttempts: 5,
+        delay: count => 500 + count * 1000,
+        shouldRetry: err => err.message === 'Failed to get log values for event',
+      }
+    );
   }
 
   async function _getAppealPeriod({ disputeID }) {

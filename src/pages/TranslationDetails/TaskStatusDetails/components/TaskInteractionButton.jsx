@@ -90,7 +90,7 @@ function TaskInteractionButton({ interaction, content, buttonProps }) {
         dispatch('SUCCESS');
         return result;
       } catch (err) {
-        console.log(err);
+        console.warn(err);
         dispatch('ERROR');
         throw err;
       } finally {
@@ -99,7 +99,7 @@ function TaskInteractionButton({ interaction, content, buttonProps }) {
     [dispatch, linguo.api, apiMethod, ID, account, history, location]
   );
 
-  const icon = content[state]?.icon ?? null;
+  const icon = content[state] ? content[state].icon ?? null : defaultButtonContent[state].icon;
   const text = content[state]?.text ?? defaultButtonContent[state].text;
 
   return (
