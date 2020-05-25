@@ -117,35 +117,30 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   async function getTranslatorTasks({ account, languageSkills }) {
     languageSkills = typeof languageSkills === 'string' ? JSON.parse(languageSkills) : languageSkills;
 
-    const currentBlockNumber = await web3.eth.getBlockNumber();
-
-    const unassignedTaskIDs = await _getUnassignedTaskIDs({
-      languageSkills,
-      currentBlockNumber,
-    });
-
-    const inReviewTaskIDs = await _getInReviewTaskIDs({
-      languageSkills,
-      currentBlockNumber,
-    });
-
-    const taskIDsAssignedToAccount = await _getTaskIDsFromEvent('TaskAssigned', {
+    const assignedTaskIDsPromise = _getTaskIDsFromEvent('TaskAssigned', {
       fromBlock: 0,
       filter: { _translator: account },
     });
-    const taskIDsChallengedByAccount = await _getTaskIDsFromEvent('TranslationChallenged', {
+    const challengeTaskIDsPromise = _getTaskIDsFromEvent('TranslationChallenged', {
       fromBlock: 0,
       filter: { _challenger: account },
     });
 
-    const uniqueTaskIDs = [
-      ...new Set([
-        ...unassignedTaskIDs,
-        ...inReviewTaskIDs,
-        ...taskIDsAssignedToAccount,
-        ...taskIDsChallengedByAccount,
-      ]),
-    ];
+    const currentBlockNumber = await web3.eth.getBlockNumber();
+
+    const taskIDs = (
+      await Promise.allSettled([
+        _getUnassignedTaskIDs({ languageSkills, currentBlockNumber }),
+        _getInReviewTaskIDs({ languageSkills, currentBlockNumber }),
+        assignedTaskIDsPromise,
+        challengeTaskIDsPromise,
+      ])
+    )
+      .filter(({ status }) => status === 'fulfilled')
+      .map(({ value }) => value)
+      .flat();
+
+    const uniqueTaskIDs = [...new Set([...taskIDs])];
 
     const tasks = (await Promise.allSettled(uniqueTaskIDs.map(async ID => getTaskById({ ID }))))
       .filter(({ status }) => status === 'fulfilled')
@@ -220,33 +215,42 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
     ID = String(ID);
 
     try {
-      const [reviewTimeout, task, taskParties] = await Promise.all([
+      const [
+        reviewTimeout,
+        task,
+        taskParties,
+        taskCreatedEvents,
+        taskAssignedEvents,
+        translationSubmittedEvents,
+        translationChallengedEvents,
+        taskResolvedEvents,
+        metadata,
+      ] = await Promise.all([
         linguoContract.methods.reviewTimeout().call(),
         linguoContract.methods.tasks(ID).call(),
         linguoContract.methods.getTaskParties(ID).call(),
+        _getPastEvents(linguoContract, 'TaskCreated', {
+          filter: { _taskID: ID },
+          fromBlock: 0,
+        }),
+        _getPastEvents(linguoContract, 'TaskAssigned', {
+          filter: { _taskID: ID },
+          fromBlock: 0,
+        }),
+        _getPastEvents(linguoContract, 'TranslationSubmitted', {
+          filter: { _taskID: ID },
+          fromBlock: 0,
+        }),
+        _getPastEvents(linguoContract, 'TranslationChallenged', {
+          filter: { _taskID: ID },
+          fromBlock: 0,
+        }),
+        _getPastEvents(linguoContract, 'TaskResolved', {
+          filter: { _taskID: ID },
+          fromBlock: 0,
+        }),
+        _getTaskMetadata({ ID }),
       ]);
-
-      const taskCreatedEvents = await _getPastEvents(linguoContract, 'TaskCreated', {
-        filter: { _taskID: ID },
-        fromBlock: 0,
-      });
-      const taskAssignedEvents = await _getPastEvents(linguoContract, 'TaskAssigned', {
-        filter: { _taskID: ID },
-        fromBlock: 0,
-      });
-      const translationSubmittedEvents = await _getPastEvents(linguoContract, 'TranslationSubmitted', {
-        filter: { _taskID: ID },
-        fromBlock: 0,
-      });
-      const translationChallengedEvents = await _getPastEvents(linguoContract, 'TranslationChallenged', {
-        filter: { _taskID: ID },
-        fromBlock: 0,
-      });
-      const taskResolvedEvents = await _getPastEvents(linguoContract, 'TaskResolved', {
-        filter: { _taskID: ID },
-        fromBlock: 0,
-      });
-      const metadata = await _getTaskMetadata({ ID });
 
       const disputeEvents =
         translationChallengedEvents.length > 0
