@@ -1,66 +1,128 @@
-import { useContext, useEffect, useCallback } from 'react';
-import { useWeb3React as useOriginalWeb3React } from '@web3-react/core';
+import { useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useWeb3React } from '@web3-react/core';
+import {
+  selectCurrentConnector,
+  selectActivatingConnector,
+  selectIsIdle,
+  selectIsConnected,
+  selectIsConnecting,
+  selectIsErrored,
+  activate,
+  deactivate,
+  changeAccount,
+  changeChainId,
+  setError,
+} from '~/features/web3/web3Slice';
 
-export default function createHooks({ AppContext, connectors: { injected, network } = {} } = {}) {
-  if (!injected) {
+const actions = {
+  activate,
+  deactivate,
+  changeAccount,
+  changeChainId,
+  setError,
+};
+
+export default function createHooks({ connectors = {} } = {}) {
+  if (!connectors.injected) {
     throw new Error(`
       The 'injected' connector is required.
       Please check the call to 'createHooks' from ~/adapters/web3React module
     `);
   }
 
-  if (!network) {
+  if (!connectors.network) {
     throw new Error(`
       The 'network' connector is required.
       Please check the call to 'createHooks' from ~/adapters/web3React module
     `);
   }
 
-  function useWeb3React() {
-    const web3React = useOriginalWeb3React();
-    const [{ activatingConnector }, patchState] = useContext(AppContext);
+  function useConnectToProvider() {
+    const { activate, setError } = useWeb3React();
+    const dispatch = useDispatch();
 
-    const activate = useCallback(
-      async (connector, onError, throwErrors = false) => {
-        patchState({ activatingConnector: connector });
+    return useCallback(
+      async connectorName => {
         try {
-          return await web3React.activate(connector, onError, throwErrors);
-        } finally {
-          patchState({ activatingConnector: undefined });
+          dispatch(actions.activate.start({ name: connectorName }));
+          await activate(connectors[connectorName], undefined, true);
+          dispatch(actions.activate.success({ name: connectorName }));
+        } catch (err) {
+          setError(err);
+          dispatch(actions.activate.error({ error: err }));
         }
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      []
+      [dispatch, activate, setError]
     );
+  }
 
-    return { ...web3React, activate, activatingConnector };
+  function useDisconnectFromProvider() {
+    const { deactivate } = useWeb3React();
+    const dispatch = useDispatch();
+
+    return useCallback(() => {
+      deactivate();
+      dispatch(actions.deactivate());
+    }, [dispatch, deactivate]);
+  }
+
+  function useSyncToStore() {
+    const { account, chainId, error, connector } = useWeb3React();
+    const hasConnector = !!connector;
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+      if (hasConnector) {
+        dispatch(actions.changeAccount({ account }));
+        dispatch(actions.changeChainId({ chainId }));
+        dispatch(actions.setError({ error }));
+      }
+    }, [dispatch, hasConnector, account, chainId, error]);
   }
 
   function useDefaultConnection() {
-    const { active, activate } = useWeb3React();
+    const isIdle = useSelector(selectIsIdle);
+    const isErrored = useSelector(selectIsErrored);
+
+    const connect = useConnectToProvider();
+
     useEffect(() => {
-      if (!active) {
-        activate(network);
+      if (isIdle) {
+        connect('network');
       }
-    }, [activate, active]);
+    }, [isIdle, connect]);
+
+    const disconnect = useDisconnectFromProvider();
+    useComonentDidMount(() => {
+      if (isErrored) {
+        disconnect();
+      }
+    });
   }
 
-  function useEagerWalletConnection({ skip = false, connector } = {}) {
-    const { activate, connector: currentConnector, error } = useWeb3React();
-    const [{ activatingConnector }] = useContext(AppContext);
+  function useEagerWalletConnection({ skip = false } = {}) {
+    const isConnected = useSelector(selectIsConnected);
+    const isConnecting = useSelector(selectIsConnecting);
+    const currentConnector = useSelector(selectCurrentConnector);
+    const activatingConnector = useSelector(selectActivatingConnector);
 
-    const hasActivatingConnector = !!activatingConnector;
-    const hasConnector = !!currentConnector;
-    const hasWallet = !(activatingConnector === network || currentConnector === network);
-    const shouldIgnoreCurrentConnection = (hasActivatingConnector || hasConnector) && hasWallet;
+    const connect = useConnectToProvider();
+    const { active } = useWeb3React();
 
-    const shouldAttemptToConnect = !error && !skip && !shouldIgnoreCurrentConnection && connector !== network;
-
-    useEffect(() => {
-      if (shouldAttemptToConnect) {
-        activate(connector);
+    useComonentDidMount(() => {
+      if (skip || active) {
+        return;
       }
-    }, [shouldAttemptToConnect, activate, connector]);
+
+      if (isConnected && currentConnector) {
+        connect(currentConnector);
+      }
+
+      if (isConnecting && activatingConnector) {
+        connect(activatingConnector);
+      }
+    });
   }
 
   function useInactiveListener({ suppress = false } = {}) {
@@ -75,24 +137,24 @@ export default function createHooks({ AppContext, connectors: { injected, networ
       if (ethereum && ethereum.on && !active && !error && !suppress) {
         const handleConnect = () => {
           console.info("Handling 'connect' event");
-          activate(injected);
+          activate(connectors.injected);
         };
 
         const handleChainChanged = chainId => {
           console.info("Handling 'chainChanged' event with payload", chainId);
-          activate(injected);
+          activate(connectors.injected);
         };
 
         const handleAccountsChanged = (accounts = []) => {
           console.info("Handling 'accountsChanged' event with payload", accounts);
           if (accounts.length > 0) {
-            activate(injected);
+            activate(connectors.injected);
           }
         };
 
         const handleNetworkChanged = networkId => {
           console.info("Handling 'networkChanged' event with payload", networkId);
-          activate(injected);
+          activate(connectors.injected);
         };
 
         ethereum.on('connect', handleConnect);
@@ -112,5 +174,19 @@ export default function createHooks({ AppContext, connectors: { injected, networ
     });
   }
 
-  return { useWeb3React, useDefaultConnection, useEagerWalletConnection, useInactiveListener };
+  return {
+    useConnectToProvider,
+    useDisconnectFromProvider,
+    useSyncToStore,
+    useDefaultConnection,
+    useEagerWalletConnection,
+    useInactiveListener,
+  };
+}
+
+function useComonentDidMount(fn) {
+  useEffect(() => {
+    fn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }

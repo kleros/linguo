@@ -13,6 +13,8 @@ const { toWei, toBN } = Web3.utils;
 // 2**256 - 1
 const NON_PAYABLE_VALUE = toBN('2').pow(toBN('256')).sub(toBN('1')).toString();
 
+const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
+
 export const getFileUrl = path => {
   return ipfs.generateUrl(path);
 };
@@ -56,7 +58,7 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   }
 };
 
-const onlyIfMatchingLanguageSkills = languageSkills => ({ sourceLanguage, targetLanguage, expectedQuality }) => {
+const onlyIfMatchingSkills = skills => ({ sourceLanguage, targetLanguage, expectedQuality }) => {
   /**
    * Z1 level does not exist for any language, so we are just using this as
    * a fallback in case we find an unexpected value for `expectedQuality`.
@@ -64,12 +66,8 @@ const onlyIfMatchingLanguageSkills = languageSkills => ({ sourceLanguage, target
    * to a translator.
    */
   const requiredLevel = translationQualityTiers[expectedQuality]?.requiredLevel ?? 'Z1';
-  const satisfiesSource = languageSkills.some(
-    skill => skill.language === sourceLanguage && skill.level >= requiredLevel
-  );
-  const satisfiesTarget = languageSkills.some(
-    skill => skill.language === targetLanguage && skill.level >= requiredLevel
-  );
+  const satisfiesSource = skills.some(skill => skill.language === sourceLanguage && skill.level >= requiredLevel);
+  const satisfiesTarget = skills.some(skill => skill.language === targetLanguage && skill.level >= requiredLevel);
 
   return satisfiesSource && satisfiesTarget;
 };
@@ -101,26 +99,29 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
     return tasks;
   }
 
-  async function getTranslatorTasks({ account, languageSkills }) {
-    languageSkills = typeof languageSkills === 'string' ? JSON.parse(languageSkills) : languageSkills;
+  async function getTranslatorTasks({ account, skills }) {
+    account = account ?? ADDRESS_ZERO;
+    skills = typeof skills === 'string' ? JSON.parse(skills) : skills;
 
     const assignedTaskIDsPromise = _getTaskIDsFromEvent('TaskAssigned', {
       fromBlock: 0,
       filter: { _translator: account },
     });
-    const challengeTaskIDsPromise = _getTaskIDsFromEvent('TranslationChallenged', {
+    const challengedTaskIDsPromise = _getTaskIDsFromEvent('TranslationChallenged', {
       fromBlock: 0,
       filter: { _challenger: account },
     });
 
     const currentBlockNumber = await web3.eth.getBlockNumber();
+    const unassignedTaskIDsPromise = _getUnassignedTaskIDs({ skills, currentBlockNumber });
+    const inReviewTaskIdsPromise = _getInReviewTaskIDs({ skills, currentBlockNumber });
 
     const taskIDs = (
       await Promise.allSettled([
-        _getUnassignedTaskIDs({ languageSkills, currentBlockNumber }),
-        _getInReviewTaskIDs({ languageSkills, currentBlockNumber }),
+        unassignedTaskIDsPromise,
+        inReviewTaskIdsPromise,
         assignedTaskIDsPromise,
-        challengeTaskIDsPromise,
+        challengedTaskIDsPromise,
       ])
     )
       .filter(({ status }) => status === 'fulfilled')
@@ -136,7 +137,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
     return tasks;
   }
 
-  async function _getUnassignedTaskIDs({ currentBlockNumber, languageSkills }) {
+  async function _getUnassignedTaskIDs({ currentBlockNumber, skills }) {
     /**
      * We are going back ~60 days (considering ~4 blocks / minute)
      */
@@ -149,7 +150,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
     const unassignedTaskIDs = created.filter(ID => !assigned.includes(ID) && !resolved.includes(ID));
 
-    if (!Array.isArray(languageSkills)) {
+    if (!Array.isArray(skills)) {
       return unassignedTaskIDs;
     }
 
@@ -157,10 +158,10 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
       .filter(({ status }) => status === 'fulfilled')
       .map(({ value }) => value);
 
-    return unassignedTasksMetadata.filter(onlyIfMatchingLanguageSkills(languageSkills)).map(({ ID }) => ID);
+    return unassignedTasksMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
   }
 
-  async function _getInReviewTaskIDs({ currentBlockNumber, languageSkills }) {
+  async function _getInReviewTaskIDs({ currentBlockNumber, skills }) {
     const reviewTimeout = await linguoContract.methods.reviewTimeout().call();
 
     /**
@@ -176,11 +177,11 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
       .filter(({ status }) => status === 'fulfilled')
       .map(({ value }) => value);
 
-    if (!Array.isArray(languageSkills)) {
+    if (!Array.isArray(skills)) {
       return taskIDsInReview;
     }
 
-    return tasksInReviewMetadata.filter(onlyIfMatchingLanguageSkills(languageSkills)).map(({ ID }) => ID);
+    return tasksInReviewMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
   }
 
   async function _getTaskIDsFromEvent(eventName, { fromBlock, toBlock, filter }) {
@@ -374,11 +375,13 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function getTaskDispute({ ID }) {
-    const [{ task, dispute }, latestRound, rewardPoolParams] = await Promise.all([
-      _getTaskAndDisputeDetails({ ID }),
-      _getLatestTaskRound({ ID }),
-      _getRewardPoolParams(),
-    ]);
+    const { task, dispute } = await _getTaskAndDisputeDetails({ ID });
+
+    if (!task.hasDispute) {
+      return {};
+    }
+
+    const [latestRound, rewardPoolParams] = await Promise.all([_getLatestTaskRound({ ID }), _getRewardPoolParams()]);
 
     const aggregateDispute = {
       ...dispute,
@@ -392,21 +395,34 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
     const task = await linguoContract.methods.tasks(ID).call();
     const { disputeID } = task;
 
-    const [disputeInfo, appealPeriod, appealCost] = await Promise.all([
-      _getDisputeRulingAndStatus({ disputeID }),
+    const disputeInfo = await _getDisputeRulingAndStatus({ disputeID });
+    const { hasDispute, status, ruling } = disputeInfo;
+
+    if (!hasDispute) {
+      return {
+        task: {
+          ...task,
+          hasDispute,
+        },
+      };
+    }
+
+    const [appealPeriod, appealCost] = await Promise.all([
       _getAppealPeriod({ disputeID }),
       _getAppealCost({ disputeID }),
     ]);
-
-    const { hasDispute, status, ruling } = disputeInfo;
-    const dispute = { status, ruling, appealPeriod, appealCost };
 
     return {
       task: {
         ...task,
         hasDispute,
       },
-      dispute,
+      dispute: {
+        status,
+        ruling,
+        appealPeriod,
+        appealCost,
+      },
     };
   }
 

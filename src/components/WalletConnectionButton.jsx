@@ -1,98 +1,62 @@
 import React from 'react';
 import { Badge } from 'antd';
-import { useWeb3React } from '~/app/web3React';
-import { useSettings, WEB3_PROVIDER } from '~/app/settings';
+import { useSelector } from 'react-redux';
+import { useWeb3React, useDisconnectFromProvider } from '~/app/web3React';
+import { selectState } from '~/features/web3/web3Slice';
 import Button from '~/components/Button';
 import WalletConnectionModal from '~/components/WalletConnectionModal';
-
-const connectionButtonStateMachine = {
-  initial: 'disconnected',
-  states: {
-    disconnected: {
-      on: {
-        CONNECT: 'connecting',
-        SUCCESS: 'connected',
-      },
-    },
-    connecting: {
-      on: {
-        ABORT: 'disconnected',
-        SUCCESS: 'connected',
-      },
-    },
-    connected: {
-      on: {
-        DISCONNECT: 'disconnected',
-      },
-    },
-  },
-};
-
-const connectionButtonStateReducer = (state, action) => {
-  return connectionButtonStateMachine.states[state]?.on?.[action] || state;
-};
 
 const stateToPropsMap = {
   connecting: {
     color: 'orange',
-    text: 'Connecting to wallet...',
+    text: 'Connecting...',
   },
   connected: {
     color: 'green',
     text: 'Disconnect',
   },
-  disconnected: {
+  idle: {
     color: 'red',
-    text: 'Connect to wallet',
+    text: 'Connect to Wallet',
+  },
+  errored: {
+    color: 'red',
+    text: 'Connect to Wallet',
   },
 };
 
 function WalletConnectionButton(props) {
-  const [state, send] = React.useReducer(connectionButtonStateReducer, connectionButtonStateMachine.initial);
+  const disconnect = useDisconnectFromProvider();
 
-  const { active, account, error, activatingConnector, deactivate } = useWeb3React();
-  React.useEffect(() => {
-    const isActivatingConnector = !!activatingConnector;
-    if (isActivatingConnector) {
-      send('CONNECT');
-    }
-    if (error) {
-      send('ABORT');
-    }
-
-    const isConnected = active;
-    const hasWallet = !!(isConnected && account);
-    if (hasWallet) {
-      send('SUCCESS');
-    } else if (isConnected) {
-      send('ABORT');
-    }
-  }, [active, account, error, activatingConnector]);
+  const { account } = useWeb3React();
+  const web3State = useSelector(selectState);
+  const hasWallet = !!account;
+  /**
+   * If the user has not selected a wallet yet, the app will connect to
+   * the default network-only provider and its state will be `connected`.
+   * However, since there is no wallet, the state should still be considered
+   * `idle` in what concerns this component
+   */
+  const buttonState = web3State === 'connected' && !hasWallet ? 'idle' : web3State;
 
   const [modalVisible, setModalVisible] = React.useState(false);
-  const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER);
 
-  const handleButtonClick = async () => {
-    if (state === 'disconnected') {
-      setModalVisible(true);
+  const handleButtonClick = React.useCallback(async () => {
+    if (buttonState === 'connected') {
+      disconnect();
     } else {
-      deactivate();
-      setWeb3ProviderSettings({
-        allowEagerConnection: false,
-        connectorName: undefined,
-      });
-      send('DISCONNECT');
+      setModalVisible(true);
     }
-  };
+  }, [buttonState, disconnect]);
 
-  const handleModalCancel = () => {
-    send('ABORT');
-  };
+  const handleModalCancel = React.useCallback(() => {}, []);
+
+  const { text, color } = stateToPropsMap[buttonState] ?? {};
 
   return (
     <>
-      <Button {...props} disabled={state === 'connecting'} onClick={handleButtonClick}>
-        <Badge color={stateToPropsMap[state].color} /> {stateToPropsMap[state].text}
+      <Button {...props} disabled={buttonState === 'connecting'} onClick={handleButtonClick}>
+        <Badge color={color} /> {text}
       </Button>
       <WalletConnectionModal visible={modalVisible} setVisible={setModalVisible} onCancel={handleModalCancel} />
     </>

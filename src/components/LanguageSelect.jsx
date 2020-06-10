@@ -27,6 +27,11 @@ const StyledBaseSelect = styled(Select)`
       }
     }
 
+    &.ant-select:not(.ant-select-borderless).ant-select-open .ant-select-selector,
+    &.ant-select:not(.ant-select-borderless).ant-select-focused .ant-select-selector {
+      border-width: 0.3125rem !important;
+    }
+
     .ant-select-selector {
       height: 100%;
       padding: 0 2rem;

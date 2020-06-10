@@ -1,101 +1,45 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { useWeb3React } from '@web3-react/core';
+import { useSelector } from 'react-redux';
 import { Row, Col, Divider, Typography, Alert, Spin } from 'antd';
-import { getErrorMessage } from '~/adapters/web3React';
+import { selectIsConnecting, selectIsConnected, selectError } from '~/features/web3/web3Slice';
+import { getErrorMessage, useConnectToProvider } from '~/app/web3React';
 import { injected, fortmatic } from '~/app/connectors';
-import { useSettings, WEB3_PROVIDER } from '~/app/settings';
 import Button from '~/components/Button';
 import Modal from '~/components/Modal';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
 import FortmaticLogo from '~/assets/images/logo-fortmatic.svg';
 
-const StyledWalletButton = styled(Button)`
-  border-radius: 0.75rem;
-  > span {
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
-    padding: 1rem;
-
-    .logo {
-      width: 60%;
-      height: auto;
-    }
-
-    .description {
-      margin-top: 1rem;
-    }
-  }
-`;
-
-const StyledHelperText = styled(Typography.Text)`
-  && {
-    display: block;
-    text-align: center;
-    color: ${props => props.theme.color.text.default};
-  }
-`;
-
-const StyledAlert = styled(Alert)`
-  margin-bottom: 2rem;
-`;
-
-const StyledDivider = styled(Divider)`
-  border-top: none;
-`;
-
-const createHandleActivation = (
-  connector,
-  { activate, setError, setVisible, setWeb3ProviderSettings, setIsLoading }
-) => async () => {
-  try {
-    setIsLoading(true);
-    await activate(connector, undefined, true);
-    setWeb3ProviderSettings({
-      allowEagerConnection: true,
-      connectorName: connector.name,
-    });
-    setVisible(false);
-  } catch (err) {
-    setError(err);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
 function WalletConnectionModal({ visible, setVisible, onCancel }) {
-  const [isLoading, setIsLoading] = React.useState(false);
-  const { activate, error, setError } = useWeb3React();
+  const isConnecting = useSelector(selectIsConnecting);
+  const isConnected = useSelector(selectIsConnected);
+  const error = useSelector(selectError);
 
-  const [_, setWeb3ProviderSettings] = useSettings(WEB3_PROVIDER);
+  React.useEffect(() => {
+    if (isConnected) {
+      setVisible(false);
+    }
+  }, [isConnected, setVisible]);
 
   const handleCancel = () => {
     setVisible(false);
-    setError(null);
     onCancel();
   };
 
-  const handleMetamaskActivation = createHandleActivation(injected, {
-    activate,
-    setError,
-    setVisible,
-    setWeb3ProviderSettings,
-    setIsLoading,
-  });
+  const connect = useConnectToProvider();
 
-  const handleFortmaticActivation = createHandleActivation(fortmatic, {
-    activate,
-    setError,
-    setVisible,
-    setWeb3ProviderSettings,
-    setIsLoading,
-  });
+  const handleMetamaskActivation = React.useCallback(() => {
+    connect(injected.name);
+  }, [connect]);
+
+  const handleFortmaticActivation = React.useCallback(() => {
+    connect(fortmatic.name);
+  }, [connect]);
 
   return (
     <Modal centered visible={visible} title="Connect to a Wallet" footer={null} onCancel={handleCancel}>
-      <Spin spinning={isLoading} tip="Connecting...">
+      <Spin spinning={isConnecting} tip="Connecting...">
         {error && <StyledAlert type="error" message={getErrorMessage(error)} />}
         <Row gutter={[16, 16]} align="center">
           <Col sm={8} xs={12}>
@@ -135,3 +79,38 @@ WalletConnectionModal.defaultProps = {
 };
 
 export default WalletConnectionModal;
+
+const StyledWalletButton = styled(Button)`
+  border-radius: 0.75rem;
+  > span {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    padding: 1rem;
+
+    .logo {
+      width: 60%;
+      height: auto;
+    }
+
+    .description {
+      margin-top: 1rem;
+    }
+  }
+`;
+
+const StyledHelperText = styled(Typography.Text)`
+  && {
+    display: block;
+    text-align: center;
+    color: ${props => props.theme.color.text.default};
+  }
+`;
+
+const StyledAlert = styled(Alert)`
+  margin-bottom: 2rem;
+`;
+
+const StyledDivider = styled(Divider)`
+  border-top: none;
+`;

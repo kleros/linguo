@@ -1,16 +1,17 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider } from 'antd';
-import { useSettings, TRANSLATOR } from '~/app/settings';
 import * as r from '~/app/routes';
 import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
+import { selectAllSkillLanguages } from '~/features/translator/translatorSlice';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListControls from './TaskListControls';
 import TaskListFetcher from './TaskListFetcher';
 
 export default function TranslatorDashboard() {
-  const [{ languages = [] }] = useSettings(TRANSLATOR);
+  const languages = useSelector(selectAllSkillLanguages);
 
   return languages.length === 0 ? (
     <Redirect

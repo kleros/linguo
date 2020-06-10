@@ -1,9 +1,10 @@
 import React from 'react';
 import { Alert, Spin } from 'antd';
+import { useSelector } from 'react-redux';
+import { selectAllSkills } from '~/features/translator/translatorSlice';
 import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
 import { useWeb3React } from '~/app/web3React';
 import { useCacheCall } from '~/app/linguo';
-import { useSettings, TRANSLATOR } from '~/app/settings';
 import compose from '~/utils/fp/compose';
 import { withSuspense } from '~/adapters/react';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
@@ -15,9 +16,9 @@ const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
 
 function TaskListFetcher() {
   const { account } = useWeb3React();
-  const [{ languages = [] }] = useSettings(TRANSLATOR);
+  const skills = useSelector(selectAllSkills);
 
-  const [{ data }, refetch] = useCacheCall(['getTranslatorTasks', account, languages], {
+  const [{ data }, refetch] = useCacheCall(['getTranslatorTasks', account, skills], {
     suspense: true,
     initialData: emptyTaskList,
     refreshInterval: _1_MINUTE_IN_MILISECONDS,

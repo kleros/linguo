@@ -1,21 +1,14 @@
 import { hot } from 'react-hot-loader';
 import React from 'react';
 import t from 'prop-types';
-import { HashRouter as Router } from 'react-router-dom';
-import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
-import { Layout } from 'antd';
+import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import Web3 from 'web3';
 import { Web3ReactProvider } from '@web3-react/core';
-import Navbar from '~/components/Navbar';
-import Footer from '~/components/Footer';
-import { DrawerMenu } from '~/components/Menu';
-import MainRouterSwitch from './MainRouterSwitch';
 import { AppContextProvider } from './AppContext';
-import { useSettings, WEB3_PROVIDER } from './settings';
 import { useCreateLinguoApiInstance } from './linguo';
-import { useDefaultConnection, useEagerWalletConnection, useInactiveListener } from './web3React';
-import { connectorsByName } from './connectors';
+import { useDefaultConnection, useEagerWalletConnection, useInactiveListener, useSyncToStore } from './web3React';
 import theme from './theme';
+import MainRouter from './MainRouter';
 
 function App() {
   return (
@@ -24,18 +17,7 @@ function App() {
         <ThemeProvider theme={theme}>
           <Initializer>
             <GlobalStyle />
-            <Router>
-              <Layout>
-                <DrawerMenu />
-                <Layout>
-                  <Navbar />
-                  <StyledContent>
-                    <MainRouterSwitch />
-                  </StyledContent>
-                  <Footer />
-                </Layout>
-              </Layout>
-            </Router>
+            <MainRouter />
           </Initializer>
         </ThemeProvider>
       </Web3ReactProvider>
@@ -49,12 +31,11 @@ function Initializer({ children }) {
   // Always connect to the network (Infura) provider by default
   useDefaultConnection();
 
-  const [{ allowEagerConnection, connectorName }] = useSettings(WEB3_PROVIDER);
-  const savedConnector = connectorsByName[connectorName];
-
-  useEagerWalletConnection({ skip: !allowEagerConnection, connector: savedConnector });
+  useEagerWalletConnection();
 
   useInactiveListener();
+
+  useSyncToStore();
 
   // Initialize Linguo API only once globally
   useCreateLinguoApiInstance();
@@ -102,14 +83,4 @@ const GlobalStyle = createGlobalStyle`
       margin-top: 1rem;
     }
   }
-`;
-
-const StyledContent = styled(Layout.Content)`
-  height: 100%;
-  /* Must account for both navbar and footer height */
-  min-height: calc(100vh - 4rem - 4rem);
-  background-color: ${p => p.theme.color.background.default};
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
 `;

@@ -5,8 +5,8 @@ import { FortmaticConnector } from '~/adapters/web3React/connectors';
 const env = process.env.NODE_ENV ?? 'development';
 
 const defaultChainIdsPerEnv = {
-  production: process.env.DEFAULT_CHAIN_ID ?? 1,
-  development: process.env.DEFAULT_CHAIN_ID ?? 42,
+  production: Number(process.env.DEFAULT_CHAIN_ID) ?? 1,
+  development: Number(process.env.DEFAULT_CHAIN_ID) ?? 42,
 };
 
 const defaultChainId = defaultChainIdsPerEnv[env] ?? 42;

@@ -56,6 +56,9 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents }
   }
 
   data.hasDispute = (data.lifecycleEvents.Dispute?.length ?? 0) > 0;
+  if (!data.hasDispute) {
+    delete data.disputeID;
+  }
   /**
    * If there was never a dispute, the `ruling` field of the task will not be set.
    * To normalize the expected behavior, we will derive what would be the ruling

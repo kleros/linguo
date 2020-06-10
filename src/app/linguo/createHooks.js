@@ -112,7 +112,7 @@ export default function createHooks({ AppContext, useWeb3React }) {
     getChallengerDeposit: ([ID]) => ({ ID }),
     getTaskDispute: ([ID]) => ({ ID }),
     getRequesterTasks: ([account]) => ({ account }),
-    getTranslatorTasks: ([account, languageSkills]) => ({ account, languageSkills }),
+    getTranslatorTasks: ([account, skills]) => ({ account, skills }),
   };
 
   const createFetcher = api => (method, ...args) => api[method](argumentListToApiMethodAdapter[method](args));
