@@ -40,7 +40,7 @@ const StyledDivider = styled(Divider)`
   margin: 2.5rem 0;
 
   @media (max-width: 575.98px) {
-    background: none;
+    border-top-color: transparent;
     margin: 0 0 1rem;
   }
 `;
