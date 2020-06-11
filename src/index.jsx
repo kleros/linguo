@@ -7,7 +7,7 @@ import { Spin } from '~/adapters/antd';
 import store, { persistor } from './store';
 import App from './app/App';
 
-const loading = <Spin $centered tip="Loading contents of the page..." />;
+const loading = <Spin tip="Loading local data..." />;
 
 render(
   <Provider store={store}>
