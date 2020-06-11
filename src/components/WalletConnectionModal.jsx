@@ -2,9 +2,9 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
-import { Row, Col, Divider, Typography, Alert, Spin } from 'antd';
-import { selectIsConnecting, selectIsConnected, selectError } from '~/features/web3/web3Slice';
-import { getErrorMessage, useConnectToProvider } from '~/app/web3React';
+import { Row, Col, Divider, Typography, Spin } from 'antd';
+import { selectIsConnecting, selectIsConnected } from '~/features/web3/web3Slice';
+import { useConnectToProvider } from '~/app/web3React';
 import { injected, fortmatic } from '~/app/connectors';
 import Button from '~/components/Button';
 import Modal from '~/components/Modal';
@@ -14,7 +14,6 @@ import FortmaticLogo from '~/assets/images/logo-fortmatic.svg';
 function WalletConnectionModal({ visible, setVisible, onCancel }) {
   const isConnecting = useSelector(selectIsConnecting);
   const isConnected = useSelector(selectIsConnected);
-  const error = useSelector(selectError);
 
   React.useEffect(() => {
     if (isConnected) {
@@ -40,7 +39,6 @@ function WalletConnectionModal({ visible, setVisible, onCancel }) {
   return (
     <Modal centered visible={visible} title="Connect to a Wallet" footer={null} onCancel={handleCancel}>
       <Spin spinning={isConnecting} tip="Connecting...">
-        {error && <StyledAlert type="error" message={getErrorMessage(error)} />}
         <Row gutter={[16, 16]} align="center">
           <Col sm={8} xs={12}>
             <StyledWalletButton fullWidth variant="outlined" onClick={handleMetamaskActivation}>
@@ -105,10 +103,6 @@ const StyledHelperText = styled(Typography.Text)`
     text-align: center;
     color: ${props => props.theme.color.text.default};
   }
-`;
-
-const StyledAlert = styled(Alert)`
-  margin-bottom: 2rem;
 `;
 
 const StyledDivider = styled(Divider)`

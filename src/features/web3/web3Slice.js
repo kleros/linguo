@@ -57,7 +57,7 @@ export function* notifyErrorSaga(action) {
       key: 'web3/error',
       level: 'error',
       message: getErrorMessage(error),
-      duration: 30,
+      duration: 5,
     })
   );
 }

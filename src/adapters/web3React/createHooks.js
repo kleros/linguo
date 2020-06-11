@@ -83,7 +83,6 @@ export default function createHooks({ connectors = {} } = {}) {
 
   function useDefaultConnection() {
     const isIdle = useSelector(selectIsIdle);
-    const isErrored = useSelector(selectIsErrored);
 
     const connect = useConnectToProvider();
 
@@ -92,17 +91,11 @@ export default function createHooks({ connectors = {} } = {}) {
         connect('network');
       }
     }, [isIdle, connect]);
-
-    const disconnect = useDisconnectFromProvider();
-    useComonentDidMount(() => {
-      if (isErrored) {
-        disconnect();
-      }
-    });
   }
 
   function useEagerWalletConnection({ skip = false } = {}) {
     const isConnected = useSelector(selectIsConnected);
+    const isErrored = useSelector(selectIsErrored);
     const isConnecting = useSelector(selectIsConnecting);
     const currentConnector = useSelector(selectCurrentConnector);
     const activatingConnector = useSelector(selectActivatingConnector);
@@ -115,7 +108,7 @@ export default function createHooks({ connectors = {} } = {}) {
         return;
       }
 
-      if (isConnected && currentConnector) {
+      if ((isConnected || isErrored) && currentConnector) {
         connect(currentConnector);
       }
 
@@ -174,13 +167,17 @@ export default function createHooks({ connectors = {} } = {}) {
     });
   }
 
+  function useWeb3ReactBootstrap() {
+    useSyncToStore();
+    useDefaultConnection();
+    useEagerWalletConnection();
+    useInactiveListener();
+  }
+
   return {
     useConnectToProvider,
     useDisconnectFromProvider,
-    useSyncToStore,
-    useDefaultConnection,
-    useEagerWalletConnection,
-    useInactiveListener,
+    useWeb3ReactBootstrap,
   };
 }
 

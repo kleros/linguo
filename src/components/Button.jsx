@@ -3,6 +3,32 @@ import t from 'prop-types';
 import styled, { css } from 'styled-components';
 import { Button as BaseButton } from 'antd';
 
+function Button({ variant, size, color, fullWidth, children, ...props }) {
+  return (
+    <StyledButton {...props} variant={variant} size={size} color={color} block={fullWidth}>
+      <StyledButtonContent>{children}</StyledButtonContent>
+    </StyledButton>
+  );
+}
+
+Button.propTypes = {
+  variant: t.oneOf(['filled', 'outlined', 'link', 'unstyled']),
+  size: t.oneOf(['small', 'default', 'large']),
+  color: t.oneOf(['primary', 'secondary', 'primary-light', 'secondary-dark']),
+  fullWidth: t.bool,
+  children: t.node,
+};
+
+Button.defaultProps = {
+  variant: 'filled',
+  size: 'default',
+  color: 'primary',
+  fullWidth: false,
+  children: null,
+};
+
+export default Button;
+
 const sizeStyles = {
   small: css`
     font-size: ${props => props.theme.fontSize.xs};
@@ -30,6 +56,28 @@ const StyledButtonContent = styled.span`
 `;
 
 const variantStyles = {
+  link: css`
+    min-height: auto;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: ${p => p.theme.color.primary.default};
+
+    &:hover,
+    &:focus,
+    &:active {
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      color: ${p => p.theme.color.secondary.default};
+    }
+
+    a&.ant-btn {
+      padding-top: initial;
+      line-height: initial;
+    }
+  `,
   unstyled: css`
     && {
       all: initial;
@@ -211,29 +259,3 @@ const StyledButton = styled(BaseButton)`
     animation: none !important;
   }
 `;
-
-function Button({ variant, size, color, fullWidth, children, ...props }) {
-  return (
-    <StyledButton {...props} variant={variant} size={size} color={color} block={fullWidth}>
-      <StyledButtonContent>{children}</StyledButtonContent>
-    </StyledButton>
-  );
-}
-
-Button.propTypes = {
-  variant: t.oneOf(['filled', 'outlined', 'unstyled']),
-  size: t.oneOf(['small', 'default', 'large']),
-  color: t.oneOf(['primary', 'secondary', 'primary-light', 'secondary-dark']),
-  fullWidth: t.bool,
-  children: t.node,
-};
-
-Button.defaultProps = {
-  variant: 'filled',
-  size: 'default',
-  color: 'primary',
-  fullWidth: false,
-  children: null,
-};
-
-export default Button;

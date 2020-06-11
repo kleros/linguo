@@ -1,4 +1,5 @@
 import React from 'react';
+import t from 'prop-types';
 import { Badge } from 'antd';
 import { useSelector } from 'react-redux';
 import { useWeb3React, useDisconnectFromProvider } from '~/app/web3React';
@@ -25,7 +26,7 @@ const stateToPropsMap = {
   },
 };
 
-function WalletConnectionButton(props) {
+function WalletConnectionButton({ children, ...props }) {
   const disconnect = useDisconnectFromProvider();
 
   const { account } = useWeb3React();
@@ -56,11 +57,23 @@ function WalletConnectionButton(props) {
   return (
     <>
       <Button {...props} disabled={buttonState === 'connecting'} onClick={handleButtonClick}>
-        <Badge color={color} /> {text}
+        {children ?? (
+          <>
+            <Badge color={color} /> {text}
+          </>
+        )}
       </Button>
       <WalletConnectionModal visible={modalVisible} setVisible={setModalVisible} onCancel={handleModalCancel} />
     </>
   );
 }
+
+WalletConnectionButton.propTypes = {
+  children: t.node,
+};
+
+WalletConnectionButton.defaultProps = {
+  children: null,
+};
 
 export default WalletConnectionButton;

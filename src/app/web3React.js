@@ -5,14 +5,7 @@ export { useWeb3React } from '@web3-react/core';
 
 export { getErrorMessage };
 
-export const {
-  useConnectToProvider,
-  useDisconnectFromProvider,
-  useSyncToStore,
-  useDefaultConnection,
-  useEagerWalletConnection,
-  useInactiveListener,
-} = createHooks({
+export const { useConnectToProvider, useDisconnectFromProvider, useWeb3ReactBootstrap } = createHooks({
   connectors: {
     injected,
     network,
