@@ -2,13 +2,41 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Alert } from 'antd';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import WalletConnectionModal from './WalletConnectionModal';
 import RequiredWeb3Gateway from './RequiredWeb3Gateway';
 
-const StyledAlert = styled(Alert)`
-  margin-bottom: 2rem;
-`;
+function RequiredWalletGateway({ message, children, missing, error, render, renderMissing, renderError }) {
+  const { active, account, activatingConnector } = useWeb3React();
+  const hasAccount = active && !!account;
+  const hasActivatingConnector = !!activatingConnector;
+
+  const missingWalletWarning = <MissingWalletAlert message={message} missing={missing} renderMissing={renderMissing} />;
+
+  return (
+    <RequiredWeb3Gateway missing={missingWalletWarning} error={error} renderError={renderError}>
+      {hasAccount ? children || render({ account }) : !hasActivatingConnector ? missingWalletWarning : null}
+    </RequiredWeb3Gateway>
+  );
+}
+
+RequiredWalletGateway.propTypes = {
+  message: t.node.isRequired,
+  children: t.node,
+  missing: t.node,
+  error: t.node,
+  render: t.func,
+  renderMissing: t.func,
+  renderError: t.func,
+};
+
+RequiredWalletGateway.defaultProps = {
+  children: null,
+  missing: null,
+  error: null,
+};
+
+export default RequiredWalletGateway;
 
 function MissingWalletAlert({ message, missing, renderMissing }) {
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -61,34 +89,6 @@ MissingWalletAlert.defaultProps = {
   renderMissing: () => null,
 };
 
-function RequiredWalletGateway({ message, children, missing, error, render, renderMissing, renderError }) {
-  const { active, account, activatingConnector } = useWeb3React();
-  const hasAccount = active && !!account;
-  const hasActivatingConnector = !!activatingConnector;
-
-  const missingWalletWarning = <MissingWalletAlert message={message} missing={missing} renderMissing={renderMissing} />;
-
-  return (
-    <RequiredWeb3Gateway missing={missingWalletWarning} error={error} renderError={renderError}>
-      {hasAccount ? children || render({ account }) : !hasActivatingConnector ? missingWalletWarning : null}
-    </RequiredWeb3Gateway>
-  );
-}
-
-RequiredWalletGateway.propTypes = {
-  message: t.node.isRequired,
-  children: t.node,
-  missing: t.node,
-  error: t.node,
-  render: t.func,
-  renderMissing: t.func,
-  renderError: t.func,
-};
-
-RequiredWalletGateway.defaultProps = {
-  children: null,
-  missing: null,
-  error: null,
-};
-
-export default RequiredWalletGateway;
+const StyledAlert = styled(Alert)`
+  margin-bottom: 2rem;
+`;

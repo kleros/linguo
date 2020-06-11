@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert, Spin } from 'antd';
 import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import { useCacheCall } from '~/app/linguo';
 import compose from '~/utils/fp/compose';
 import { withSuspense } from '~/adapters/react';

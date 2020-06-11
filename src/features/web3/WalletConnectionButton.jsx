@@ -2,10 +2,10 @@ import React from 'react';
 import t from 'prop-types';
 import { Badge } from 'antd';
 import { useSelector } from 'react-redux';
-import { useWeb3React, useDisconnectFromProvider } from '~/app/web3React';
+import { useWeb3React, useDisconnectFromProvider } from '~/features/web3';
 import { selectState } from '~/features/web3/web3Slice';
 import Button from '~/components/Button';
-import WalletConnectionModal from '~/components/WalletConnectionModal';
+import WalletConnectionModal from './WalletConnectionModal';
 
 const stateToPropsMap = {
   connecting: {

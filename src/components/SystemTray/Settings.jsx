@@ -8,7 +8,7 @@ import { selectHasError } from '~/features/web3/web3Slice';
 import * as r from '~/app/routes';
 import { SettingsIcon } from '~/components/icons';
 import Button from '~/components/Button';
-import WalletConnectionButton from '~/components/WalletConnectionButton';
+import WalletConnectionButton from '~/features/web3/WalletConnectionButton';
 import WalletInformation from './WalletInformation';
 import { Popover, Button as TrayButton, withToolbarStylesIcon } from './adapters';
 

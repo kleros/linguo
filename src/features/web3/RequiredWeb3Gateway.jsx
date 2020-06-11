@@ -2,8 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Alert, Spin } from 'antd';
-import { getErrorMessage } from '~/adapters/web3React';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React, getErrorMessage } from '~/features/web3';
 
 const StyledAlert = styled(Alert)`
   margin-bottom: 2rem;

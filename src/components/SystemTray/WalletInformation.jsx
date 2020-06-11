@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useAsync, IfPending, IfFulfilled, IfRejected } from 'react-async';
 import { Row, Typography, Skeleton, Alert } from 'antd';
 import ReactBlockies from 'react-blockies';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import EthLogo from '~/assets/images/logo-eth.svg';
 import EthAddress from '~/components/EthAddress';
 import EthValue from '~/components/EthValue';

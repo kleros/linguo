@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Divider } from 'antd';
 import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
-import RequiredWalletGateway from '~/components/RequiredWalletGateway';
+import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListControls from './TaskListControls';
 import TaskListFetcher from './TaskListFetcher';

@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { TaskParty } from '~/app/linguo';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import TaskContext from '../../TaskContext';
 
 const getCurrentParty = ({ account, requester, translator, challenger }) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import t from 'prop-types';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 
 function renderAddress({ address }) {
   return address.slice(0, 6) + '...' + address.slice(-4);

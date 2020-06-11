@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Row, Col, Typography, Alert, Tabs } from 'antd';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import { InfoIcon } from '~/components/icons';
 import TaskListContext from './TaskListContext';
 import TaskCard from './TaskCard';

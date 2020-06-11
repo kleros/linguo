@@ -7,7 +7,7 @@ import { Row, Col } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useImperativeRefresh } from '~/adapters/reactRouterDom';
 import * as r from '~/app/routes';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import { Task, TaskStatus, useLinguo } from '~/app/linguo';
 import wrapWithNotification from '~/utils/wrapWithNotification';
 import Button from '~/components/Button';

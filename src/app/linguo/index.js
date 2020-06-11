@@ -1,5 +1,5 @@
 import AppContext from '../AppContext';
-import { useWeb3React } from '../web3React';
+import { useWeb3React } from '~/features/web3';
 import createHooks from './createHooks';
 
 import * as Task from './entities/Task';

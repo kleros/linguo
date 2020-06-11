@@ -1,7 +1,7 @@
 import React from 'react';
 import { Task } from '~/app/linguo';
-import { useWeb3React } from '~/app/web3React';
-import RequiredWalletGateway from '~/components/RequiredWalletGateway';
+import { useWeb3React } from '~/features/web3';
+import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
 import ContentBlocker from '~/components/ContentBlocker';
 import TaskContext from '../TaskContext';
 import byStatus from './byStatus';

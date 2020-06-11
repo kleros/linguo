@@ -8,7 +8,7 @@ import { mutate } from 'swr';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import { subtract } from '~/adapters/bigNumber';
 import { TaskParty, Dispute, AppealSide, useLinguo } from '~/app/linguo';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import Button from '~/components/Button';
 import Spacer from '~/components/Spacer';
 import Modal from '~/components/Modal';

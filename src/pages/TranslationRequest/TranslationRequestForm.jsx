@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { Form, Row, Col, notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import * as r from '~/app/routes';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import { useLinguo } from '~/app/linguo';
 import useStateMachine from '~/hooks/useStateMachine';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';

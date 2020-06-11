@@ -5,7 +5,7 @@ import { mutate } from 'swr';
 import { notification } from 'antd';
 import { LoadingOutlined, FlagOutlined } from '@ant-design/icons';
 import { Task, useLinguo } from '~/app/linguo';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import SingleFileUpload from '~/components/SingleFileUpload';
 import Button from '~/components/Button';
 import wrapWithNotification from '~/utils/wrapWithNotification';

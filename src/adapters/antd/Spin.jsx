@@ -6,6 +6,16 @@ export default styled(Spin).attrs(props => ({
   $centered: props.$centered ?? true,
 }))`
   ${props => props.$centered && centeredStyles}
+  animation: fadeIn 0.25s cubic-bezier(0.77, 0, 0.175, 1);
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 `;
 
 const centeredStyles = css`

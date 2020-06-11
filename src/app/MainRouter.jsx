@@ -5,7 +5,7 @@ import { Switch, Route } from 'react-router-dom';
 import loadable from '@loadable/component';
 import { Layout } from 'antd';
 import { Spin } from '~/adapters/antd';
-import Web3ErrorAlert from '~/components/Web3ErrorAlert';
+import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
 import Navbar from '~/components/Navbar';
 import Footer from '~/components/Footer';
 import { DrawerMenu } from '~/components/Menu';

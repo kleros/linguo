@@ -4,7 +4,7 @@ import { Alert } from 'antd';
 import { selectError, deactivate } from '~/features/web3/web3Slice';
 import getErrorMessage from '~/features/web3/getErrorMessage';
 import Button from '~/components/Button';
-import WalletConnectionButton from '~/components/WalletConnectionButton';
+import WalletConnectionButton from './WalletConnectionButton';
 
 function Web3ErrorAlert() {
   const dispatch = useDispatch();

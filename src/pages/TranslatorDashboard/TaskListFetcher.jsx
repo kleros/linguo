@@ -3,7 +3,7 @@ import { Alert, Spin } from 'antd';
 import { useSelector } from 'react-redux';
 import { selectAllSkills } from '~/features/translator/translatorSlice';
 import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import { useCacheCall } from '~/app/linguo';
 import compose from '~/utils/fp/compose';
 import { withSuspense } from '~/adapters/react';

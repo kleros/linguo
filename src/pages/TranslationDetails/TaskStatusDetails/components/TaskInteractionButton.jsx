@@ -3,7 +3,7 @@ import t from 'prop-types';
 import { mutate } from 'swr';
 import { SendOutlined, LoadingOutlined, CheckOutlined } from '@ant-design/icons';
 import { Task, useLinguo } from '~/app/linguo';
-import { useWeb3React } from '~/app/web3React';
+import { useWeb3React } from '~/features/web3';
 import useStateMachine from '~/hooks/useStateMachine';
 import wrapWithNotification from '~/utils/wrapWithNotification';
 import Button from '~/components/Button';

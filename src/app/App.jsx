@@ -4,10 +4,10 @@ import t from 'prop-types';
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import Web3 from 'web3';
 import { Web3ReactProvider } from '@web3-react/core';
+import { useWeb3ReactBootstrap } from '~/features/web3';
+import theme from '~/features/ui/theme';
 import { AppContextProvider } from './AppContext';
 import { useCreateLinguoApiInstance } from './linguo';
-import { useWeb3ReactBootstrap } from './web3React';
-import theme from './theme';
 import MainRouter from './MainRouter';
 
 function App() {
