@@ -48,7 +48,7 @@ DownloadLinkFromText.propTypes = {
 const useObjectUrlForContent = content => {
   const [url, setUrl] = React.useState('data:text/plain,');
   React.useEffect(() => {
-    const blob = new Blob([content], { type: 'text/plain' });
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const dataUrl = URL.createObjectURL(blob);
     setUrl(dataUrl);
 
