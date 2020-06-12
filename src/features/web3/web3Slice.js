@@ -3,10 +3,10 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 import { put } from 'redux-saga/effects';
+import getErrorMessage from '~/adapters/web3React/getErrorMessage';
 import createStateMachineReducer from '~/features/shared/createStateMachineReducer';
-import { notify } from '~/features/ui/notificationSlice';
+import { notify, NotificationLevel } from '~/features/ui/notificationSlice';
 import createWatchSaga from '~/features/shared/createWatchSaga';
-import getErrorMessage from './getErrorMessage';
 
 export const activate = Object.assign(createAction(`web3/activate`), {
   start: createAction(`web3/activate/start`),
@@ -55,7 +55,7 @@ export function* notifyErrorSaga(action) {
   yield put(
     notify({
       key: 'web3/error',
-      level: 'error',
+      level: NotificationLevel.error,
       message: getErrorMessage(error),
       duration: 5,
     })

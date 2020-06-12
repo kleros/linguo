@@ -1,21 +1,23 @@
 import React from 'react';
 import t from 'prop-types';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Alert } from 'antd';
-import { useWeb3React } from '~/features/web3';
 import WalletConnectionModal from './WalletConnectionModal';
 import RequiredWeb3Gateway from './RequiredWeb3Gateway';
+import { selectIsConnected, selectIsConnecting, selectAccount } from './web3Slice';
 
 function RequiredWalletGateway({ message, children, missing, error, render, renderMissing, renderError }) {
-  const { active, account, activatingConnector } = useWeb3React();
-  const hasAccount = active && !!account;
-  const hasActivatingConnector = !!activatingConnector;
+  const isConnected = useSelector(selectIsConnected);
+  const isConnecting = useSelector(selectIsConnecting);
+  const account = useSelector(selectAccount);
+  const hasAccount = isConnected && !!account;
 
   const missingWalletWarning = <MissingWalletAlert message={message} missing={missing} renderMissing={renderMissing} />;
 
   return (
     <RequiredWeb3Gateway missing={missingWalletWarning} error={error} renderError={renderError}>
-      {hasAccount ? children || render({ account }) : !hasActivatingConnector ? missingWalletWarning : null}
+      {hasAccount ? children || render({ account }) : !isConnecting ? missingWalletWarning : null}
     </RequiredWeb3Gateway>
   );
 }

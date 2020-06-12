@@ -19,17 +19,15 @@ function TranslationRequest() {
 
   return (
     <SingleCardLayout title="Request Translation">
-      <LinguoApiReadyGateway>
-        <WithRouteMessage>
-          <RequiredWalletGateway
-            message="To request a translation you need an Ethereum wallet."
-            missing={form}
-            error={form}
-          >
-            {form}
-          </RequiredWalletGateway>
-        </WithRouteMessage>
-      </LinguoApiReadyGateway>
+      <WithRouteMessage>
+        <RequiredWalletGateway
+          message="To request a translation you need an Ethereum wallet."
+          missing={form}
+          error={form}
+        >
+          <LinguoApiReadyGateway>{form}</LinguoApiReadyGateway>
+        </RequiredWalletGateway>
+      </WithRouteMessage>
     </SingleCardLayout>
   );
 }

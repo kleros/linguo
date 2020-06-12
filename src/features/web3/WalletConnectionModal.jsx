@@ -3,13 +3,13 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { Row, Col, Divider, Typography, Spin } from 'antd';
-import { selectIsConnecting, selectIsConnected } from '~/features/web3/web3Slice';
-import { useConnectToProvider } from '~/features/web3';
-import { injected, fortmatic } from '~/features/web3/connectors';
 import Button from '~/components/Button';
 import Modal from '~/components/Modal';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
 import FortmaticLogo from '~/assets/images/logo-fortmatic.svg';
+import { selectIsConnecting, selectIsConnected } from './web3Slice';
+import { useConnectToProvider } from './hooks';
+import { injected, fortmatic } from './connectors';
 
 function WalletConnectionModal({ visible, setVisible, onCancel }) {
   const isConnecting = useSelector(selectIsConnecting);

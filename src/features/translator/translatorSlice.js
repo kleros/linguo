@@ -4,7 +4,7 @@ import { push, goBack } from 'connected-react-router';
 import { normalize } from 'normalizr';
 import * as r from '~/app/routes';
 import { schemas } from '~/store';
-import { notify } from '~/features/ui/notificationSlice';
+import { notify, NotificationLevel } from '~/features/ui/notificationSlice';
 import createWatchSaga from '~/features/shared/createWatchSaga';
 
 const initialState = {
@@ -46,7 +46,7 @@ export function* saveSettingsSaga(action) {
     put(
       notify({
         key: `${saveSettings}/success`,
-        level: 'success',
+        level: NotificationLevel.success,
         message: "You've updated your language skills settings!",
         duration: 10,
       })

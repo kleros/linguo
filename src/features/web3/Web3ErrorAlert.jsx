@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Alert } from 'antd';
-import { selectError, deactivate } from '~/features/web3/web3Slice';
-import getErrorMessage from '~/features/web3/getErrorMessage';
 import Button from '~/components/Button';
+import getErrorMessage from '~/adapters/web3React/getErrorMessage';
 import WalletConnectionButton from './WalletConnectionButton';
+import { selectError, deactivate } from './web3Slice';
 
 function Web3ErrorAlert() {
   const dispatch = useDispatch();
