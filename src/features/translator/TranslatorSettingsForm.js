@@ -16,7 +16,7 @@ export default function TranslatorSettingsForm() {
   const [form] = Form.useForm();
 
   const storedSkills = useSelector(selectAllSkills);
-  const [state, setState] = React.useState({ skills: ensureAtLeastOneLanguage(storedSkills) });
+  const [state, setState] = React.useState({ skills: ensureAtLeastOneEmptySkill(storedSkills) });
 
   const handleValuesChange = React.useCallback(
     (_, allValues) => {
@@ -82,7 +82,7 @@ export default function TranslatorSettingsForm() {
                       variant="outlined"
                       icon={<AddIcon />}
                       disabled={totalLanguagesReached}
-                      onClick={add}
+                      onClick={() => add(EMPTY_SKILL)}
                     >
                       New Language
                     </StyledJumboButton>
@@ -157,12 +157,14 @@ const StyledDisclaimer = styled(Typography.Text)`
   font-weight: 400;
 `;
 
-const ensureAtLeastOneLanguage = produce(skills => {
+const EMPTY_SKILL = {
+  language: undefined,
+  level: undefined,
+};
+
+const ensureAtLeastOneEmptySkill = produce(skills => {
   if (skills.length === 0) {
-    skills.push({
-      language: undefined,
-      level: undefined,
-    });
+    skills.push(EMPTY_SKILL);
   }
 });
 
