@@ -1,18 +1,40 @@
 import { createSlice, createAction } from '@reduxjs/toolkit';
 import { notification } from 'antd';
-import { call, put, delay, race } from 'redux-saga/effects';
+import { eventChannel, END } from 'redux-saga';
+import { call, put, take, cancelled } from 'redux-saga/effects';
 import { nanoid } from 'nanoid';
 import createWatchSaga from '~/features/shared/createWatchSaga';
 
+export const NotificationLevel = {
+  info: 'info',
+  warn: 'warn',
+  error: 'error',
+  success: 'success',
+};
+
+export const notify = createAction(
+  'ui/notification/notify',
+  ({ key = nanoid(10), duration = 10, placement = 'bottomRight', level = 'info', ...rest }) => ({
+    payload: {
+      key,
+      duration,
+      placement,
+      level,
+      ...rest,
+    },
+  })
+);
+export const close = createAction('ui/notification/close');
+
 const notificationSlice = createSlice({
-  name: 'ui/notifications',
+  name: 'ui/notification',
   initialState: {},
-  reducers: {
-    addKey: (state, action) => {
+  extraReducers: {
+    [notify]: (state, action) => {
       const { key } = action.payload;
       state[key] = key;
     },
-    removeKey: (state, action) => {
+    [close]: (state, action) => {
       const { key } = action.payload;
       delete state[key];
     },
@@ -21,52 +43,43 @@ const notificationSlice = createSlice({
 
 export default notificationSlice.reducer;
 
-export const { addKey, removeKey } = notificationSlice.actions;
-export const notify = createAction(
-  'ui/notifications/notify',
-  ({ duration = 10, placement = 'topRight', type = 'info', ...rest }) => ({
-    payload: {
-      duration,
-      placement,
-      type,
-      ...rest,
-    },
-  })
-);
-export const close = createAction('ui/notification/close');
+const createNotificationChannel = ({ method, key, ...params }) =>
+  eventChannel(emitter => {
+    const onClose = () => emitter(END);
+
+    notification[method]({
+      ...params,
+      key,
+      onClose,
+    });
+
+    return () => notification.close(key);
+  });
 
 export function* notifySaga(action) {
-  const { key, level, duration, ...rest } = action.payload;
-  const method = NotificationMethods[level] ?? 'info';
+  const { key, level, ...rest } = action.payload;
+  const method = NotificationLevel[level] ?? 'info';
 
-  let deferred;
-  const promise = new Promise(resolve => {
-    deferred = resolve;
-  });
-
-  yield put(addKey({ key }));
-  yield call([notification, method], {
+  const chan = yield call(createNotificationChannel, {
+    method,
+    key,
     ...rest,
-    key: key ?? action.meta?.id ?? nanoid(10),
-    duration,
-    onClose: () => deferred(),
   });
-  yield race([delay(duration * 1000), promise]);
-  yield put(close({ key }));
-}
 
-const NotificationMethods = {
-  info: 'info',
-  warn: 'warn',
-  error: 'error',
-  success: 'success',
-};
+  try {
+    yield take(chan);
+  } finally {
+    if (yield cancelled()) {
+      chan.close();
+    }
+    yield put(close({ key }));
+  }
+}
 
 export function* closeSaga(action) {
   const { key } = action.payload;
 
   yield call([notification, 'close'], key);
-  yield put(removeKey({ key }));
 }
 
 export const sagas = {
