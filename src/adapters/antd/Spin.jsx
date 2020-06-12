@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
-import { Spin } from 'antd';
+import { Spin as BaseSpin } from 'antd';
 
-export default styled(Spin).attrs(props => ({
+export default styled(BaseSpin).attrs(props => ({
   ...props,
   $centered: props.$centered ?? true,
 }))`
@@ -20,7 +20,7 @@ export default styled(Spin).attrs(props => ({
 
 const centeredStyles = css`
   position: absolute;
-  left: 50%;
+  left: 50% !important;
   top: 50%;
   transform: translate(-50%, -50%);
 `;
