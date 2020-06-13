@@ -36,7 +36,7 @@ function TaskCardFooter({ ID }) {
 }
 
 TaskCardFooter.propTypes = {
-  ID: t.number.isRequired,
+  ID: t.oneOfType([t.number, t.string]).isRequired,
 };
 
 export default TaskCardFooter;
@@ -154,7 +154,7 @@ function RequestReimbursement({ ID, buttonProps }) {
 }
 
 RequestReimbursement.propTypes = {
-  ID: t.number.isRequired,
+  ID: t.oneOfType([t.number, t.string]).isRequired,
   buttonProps: t.object,
 };
 

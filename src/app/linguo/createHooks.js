@@ -15,13 +15,12 @@ const methodHandler = {
   },
 };
 
-const apiPlaceholder = new Proxy(createApi({}), {
-  get: (target, prop, receiver) => {
-    const value = target[prop];
-
-    return typeof value === 'function' ? new Proxy(value.bind(receiver), methodHandler) : value;
-  },
-});
+const apiPlaceholder = new Proxy(
+  {},
+  {
+    get: () => new Proxy(() => {}, methodHandler),
+  }
+);
 
 const createApiInstance = async ({ web3, chainId }) => {
   if (!web3 || !chainId) {
@@ -42,17 +41,19 @@ const createApiInstance = async ({ web3, chainId }) => {
   }
 
   try {
-    const linguoContract = new web3.eth.Contract(Linguo.abi, address);
-    const arbitratorAddress = await linguoContract.methods.arbitrator().call();
-    const arbitratorContract = new web3.eth.Contract(Arbitrator.abi, arbitratorAddress);
+    const linguo = new web3.eth.Contract(Linguo.abi, address);
+    const arbitratorAddress = await linguo.methods.arbitrator().call();
+    const arbitrator = new web3.eth.Contract(Arbitrator.abi, arbitratorAddress);
 
     return {
       tag: 'ready',
       error: null,
       api: createApi({
         web3,
-        linguoContract,
-        arbitratorContract,
+        withEtherPayments: {
+          linguo,
+          arbitrator,
+        },
       }),
     };
   } catch (err) {

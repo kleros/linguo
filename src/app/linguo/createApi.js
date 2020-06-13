@@ -15,6 +15,51 @@ const NON_PAYABLE_VALUE = toBN('2').pow(toBN('256')).sub(toBN('1')).toString();
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
+export default function createApi({ web3, withEtherPayments }) {
+  const linguoEtherAddress = withEtherPayments.linguo?.options.address;
+
+  const interfaces = {
+    [linguoEtherAddress]: createContractApi({ web3, ...withEtherPayments }),
+  };
+
+  const methodCallHandler = {
+    apply: (target, thisArg, args) => {
+      const { name } = target;
+      const ID = args?.[0]?.ID;
+
+      if (!ID) {
+        const contract = args?.[0]?.contract ?? linguoEtherAddress;
+        const actualInterface = interfaces[contract];
+        return actualInterface[name].apply(actualInterface, args);
+      }
+
+      const [contract, internalID] = String(ID).includes('/') ? String(ID).split('/') : [linguoEtherAddress, ID];
+
+      const [first, ...rest] = args;
+      const actualArgs = [
+        {
+          ...first,
+          ID: internalID,
+        },
+        ...rest,
+      ];
+
+      const actualInterface = interfaces[contract];
+      return actualInterface[name].apply(actualInterface, actualArgs);
+    },
+  };
+
+  const propHandler = {
+    get: (target, prop) => {
+      const dummyFn = Object.defineProperty(function () {}, 'name', { value: prop });
+
+      return new Proxy(dummyFn, methodCallHandler);
+    },
+  };
+
+  return new Proxy({}, propHandler);
+}
+
 export const getFileUrl = path => {
   return ipfs.generateUrl(path);
 };
@@ -58,25 +103,9 @@ export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   }
 };
 
-const onlyIfMatchingSkills = skills => ({ sourceLanguage, targetLanguage, expectedQuality }) => {
-  /**
-   * Z1 level does not exist for any language, so we are just using this as
-   * a fallback in case we find an unexpected value for `expectedQuality`.
-   * In this case, since the task is non-standard, it should not be shown
-   * to a translator.
-   */
-  const requiredLevel = translationQualityTiers[expectedQuality]?.requiredLevel ?? 'Z1';
-  const satisfiesSource = skills.some(skill => skill.language === sourceLanguage && skill.level >= requiredLevel);
-  const satisfiesTarget = skills.some(skill => skill.language === targetLanguage && skill.level >= requiredLevel);
-
-  return satisfiesSource && satisfiesTarget;
-};
-
-let id = 0;
-
-export default function createApi({ web3, linguoContract, arbitratorContract }) {
+function createContractApi({ web3, linguo, arbitrator }) {
   async function getRequesterTasks({ account }) {
-    const events = await _getPastEvents(linguoContract, 'TaskCreated', {
+    const events = await _getPastEvents(linguo, 'TaskCreated', {
       filter: { _requester: account },
       fromBlock: 0,
     });
@@ -162,7 +191,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function _getInReviewTaskIDs({ currentBlockNumber, skills }) {
-    const reviewTimeout = await linguoContract.methods.reviewTimeout().call();
+    const reviewTimeout = await linguo.methods.reviewTimeout().call();
 
     /**
      * We are adding 20% to the `reviewTimeout` to cope with fluctuations
@@ -185,7 +214,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function _getTaskIDsFromEvent(eventName, { fromBlock, toBlock, filter }) {
-    const events = await _getPastEvents(linguoContract, eventName, {
+    const events = await _getPastEvents(linguo, eventName, {
       fromBlock,
       toBlock,
       filter,
@@ -214,26 +243,26 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
         taskResolvedEvents,
         metadata,
       ] = await Promise.all([
-        linguoContract.methods.reviewTimeout().call(),
-        linguoContract.methods.tasks(ID).call(),
-        linguoContract.methods.getTaskParties(ID).call(),
-        _getPastEvents(linguoContract, 'TaskCreated', {
+        linguo.methods.reviewTimeout().call(),
+        linguo.methods.tasks(ID).call(),
+        linguo.methods.getTaskParties(ID).call(),
+        _getPastEvents(linguo, 'TaskCreated', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        _getPastEvents(linguoContract, 'TaskAssigned', {
+        _getPastEvents(linguo, 'TaskAssigned', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        _getPastEvents(linguoContract, 'TranslationSubmitted', {
+        _getPastEvents(linguo, 'TranslationSubmitted', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        _getPastEvents(linguoContract, 'TranslationChallenged', {
+        _getPastEvents(linguo, 'TranslationChallenged', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        _getPastEvents(linguoContract, 'TaskResolved', {
+        _getPastEvents(linguo, 'TaskResolved', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
@@ -242,7 +271,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
       const disputeEvents =
         translationChallengedEvents.length > 0
-          ? await _getPastEvents(linguoContract, 'Dispute', {
+          ? await _getPastEvents(linguo, 'Dispute', {
               filter: { _disputeID: task.disputeID },
               fromBlock: 0,
             })
@@ -250,6 +279,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
       return normalizeTask({
         ID,
+        contract: linguo.options.address,
         reviewTimeout,
         task: { ...task, parties: taskParties },
         metadata,
@@ -272,7 +302,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
     ID = String(ID);
 
     try {
-      const metaEvidenceEvents = await _getPastEvents(linguoContract, 'MetaEvidence', {
+      const metaEvidenceEvents = await _getPastEvents(linguo, 'MetaEvidence', {
         filter: { _metaEvidenceID: ID },
         fromBlock: 0,
       });
@@ -345,7 +375,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
    */
   async function getTaskPrice({ ID }) {
     try {
-      return await linguoContract.methods.getTaskPrice(ID).call();
+      return await linguo.methods.getTaskPrice(ID).call();
     } catch (err) {
       console.warn(`Failed to get price for task with ID ${ID}`, err);
       throw new Error(`Failed to get price for task with ID ${ID}`);
@@ -354,8 +384,8 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
   async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
     let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
-      linguoContract.methods.getDepositValue(ID).call(),
-      linguoContract.methods.tasks(ID).call(),
+      linguo.methods.getDepositValue(ID).call(),
+      linguo.methods.tasks(ID).call(),
     ]);
 
     deposit = toBN(deposit);
@@ -370,7 +400,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function getChallengerDeposit({ ID }) {
-    const deposit = await linguoContract.methods.getChallengeValue(ID).call();
+    const deposit = await linguo.methods.getChallengeValue(ID).call();
     return deposit;
   }
 
@@ -392,7 +422,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function _getTaskAndDisputeDetails({ ID }) {
-    const task = await linguoContract.methods.tasks(ID).call();
+    const task = await linguo.methods.tasks(ID).call();
     const { disputeID } = task;
 
     const disputeInfo = await _getDisputeRulingAndStatus({ disputeID });
@@ -427,7 +457,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function _getDisputeRulingAndStatus({ disputeID }) {
-    const disputeEvents = await _getPastEvents(linguoContract, 'Dispute', {
+    const disputeEvents = await _getPastEvents(linguo, 'Dispute', {
       filter: { _disputeID: disputeID },
       fromBlock: 0,
     });
@@ -442,8 +472,8 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
     try {
       const [status, ruling] = await Promise.all([
-        arbitratorContract.methods.disputeStatus(disputeID).call(),
-        arbitratorContract.methods.currentRuling(disputeID).call(),
+        arbitrator.methods.disputeStatus(disputeID).call(),
+        arbitrator.methods.currentRuling(disputeID).call(),
       ]);
       return {
         hasDispute: true,
@@ -486,7 +516,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
   async function _getAppealPeriod({ disputeID }) {
     try {
-      return await arbitratorContract.methods.appealPeriod(disputeID).call();
+      return await arbitrator.methods.appealPeriod(disputeID).call();
     } catch (err) {
       if (!/VM execution error/i.test(err.message)) {
         console.warn('Could not get dispute appeal period', err);
@@ -500,7 +530,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
   async function _getAppealCost({ disputeID }) {
     try {
-      return await arbitratorContract.methods.appealCost(disputeID, '0x0').call();
+      return await arbitrator.methods.appealCost(disputeID, '0x0').call();
     } catch (err) {
       if (!/VM execution error/i.test(err.message)) {
         console.warn('Could not get dispute appeal cost', err);
@@ -511,10 +541,10 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
   async function _getRewardPoolParams() {
     const [winnerStakeMultiplier, loserStakeMultiplier, sharedStakeMultiplier, multiplierDivisor] = await Promise.all([
-      linguoContract.methods.winnerStakeMultiplier().call(),
-      linguoContract.methods.loserStakeMultiplier().call(),
-      linguoContract.methods.sharedStakeMultiplier().call(),
-      linguoContract.methods.MULTIPLIER_DIVISOR().call(),
+      linguo.methods.winnerStakeMultiplier().call(),
+      linguo.methods.loserStakeMultiplier().call(),
+      linguo.methods.sharedStakeMultiplier().call(),
+      linguo.methods.MULTIPLIER_DIVISOR().call(),
     ]);
 
     return {
@@ -526,13 +556,13 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function _getLatestTaskRound({ ID }) {
-    const totalRounds = Number(await linguoContract.methods.getNumberOfRounds(ID).call());
+    const totalRounds = Number(await linguo.methods.getNumberOfRounds(ID).call());
 
     if (totalRounds === 0) {
       return undefined;
     }
 
-    return linguoContract.methods.getRoundInfo(ID, totalRounds - 1).call();
+    return linguo.methods.getRoundInfo(ID, totalRounds - 1).call();
   }
 
   async function createTask(
@@ -552,7 +582,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
     });
 
     try {
-      const contractCall = linguoContract.methods.createTask(deadline, minPrice, metaEvidence);
+      const contractCall = linguo.methods.createTask(deadline, minPrice, metaEvidence);
 
       const txn = contractCall.send({
         from,
@@ -571,7 +601,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
     const value = await getTranslatorDeposit({ ID });
-    const txn = linguoContract.methods.assignTask(ID).send({
+    const txn = linguo.methods.assignTask(ID).send({
       from,
       value,
       gas,
@@ -583,7 +613,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function submitTranslation({ ID, text }, { from, gas, gasPrice } = {}) {
-    const txn = linguoContract.methods.submitTranslation(ID, text).send({
+    const txn = linguo.methods.submitTranslation(ID, text).send({
       from,
       gas,
       gasPrice,
@@ -594,7 +624,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function approveTranslation({ ID }, { from, gas, gasPrice } = {}) {
-    const txn = linguoContract.methods.acceptTranslation(ID).send({
+    const txn = linguo.methods.acceptTranslation(ID).send({
       from,
       gas,
       gasPrice,
@@ -605,7 +635,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function reimburseRequester({ ID }, { from, gas, gasPrice } = {}) {
-    const txn = linguoContract.methods.reimburseRequester(ID).send({
+    const txn = linguo.methods.reimburseRequester(ID).send({
       from,
       gas,
       gasPrice,
@@ -616,7 +646,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function acceptTranslation({ ID }, { from, gas, gasPrice } = {}) {
-    const txn = linguoContract.methods.acceptTranslation(ID).send({
+    const txn = linguo.methods.acceptTranslation(ID).send({
       from,
       gas,
       gasPrice,
@@ -628,7 +658,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
 
   async function challengeTranslation({ ID, evidence }, { from, gas, gasPrice } = {}) {
     const value = await getChallengerDeposit({ ID });
-    const txn = linguoContract.methods.challengeTranslation(ID, evidence).send({
+    const txn = linguo.methods.challengeTranslation(ID, evidence).send({
       from,
       value,
       gas,
@@ -640,7 +670,7 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   async function fundAppeal({ ID, side }, { from, value, gas, gasPrice } = {}) {
-    const txn = linguoContract.methods.fundAppeal(ID, side).send({
+    const txn = linguo.methods.fundAppeal(ID, side).send({
       from,
       value,
       gas,
@@ -652,7 +682,6 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
   }
 
   return {
-    id: ++id,
     getRequesterTasks,
     getTranslatorTasks,
     getTaskById,
@@ -670,3 +699,17 @@ export default function createApi({ web3, linguoContract, arbitratorContract }) 
     fundAppeal,
   };
 }
+
+const onlyIfMatchingSkills = skills => ({ sourceLanguage, targetLanguage, expectedQuality }) => {
+  /**
+   * Z1 level does not exist for any language, so we are just using this as
+   * a fallback in case we find an unexpected value for `expectedQuality`.
+   * In this case, since the task is non-standard, it should not be shown
+   * to a translator.
+   */
+  const requiredLevel = translationQualityTiers[expectedQuality]?.requiredLevel ?? 'Z1';
+  const satisfiesSource = skills.some(skill => skill.language === sourceLanguage && skill.level >= requiredLevel);
+  const satisfiesTarget = skills.some(skill => skill.language === targetLanguage && skill.level >= requiredLevel);
+
+  return satisfiesSource && satisfiesTarget;
+};

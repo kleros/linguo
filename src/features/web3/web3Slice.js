@@ -2,12 +2,13 @@ import { createReducer, createAction } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
-import { put } from 'redux-saga/effects';
+import { put, setContext } from 'redux-saga/effects';
 import getErrorMessage from '~/adapters/web3React/getErrorMessage';
 import createStateMachineReducer from '~/features/shared/createStateMachineReducer';
 import { notify, NotificationLevel } from '~/features/ui/notificationSlice';
 import createWatchSaga from '~/features/shared/createWatchSaga';
 
+/* -------------------- Action Creators -------------------- */
 export const activate = Object.assign(createAction(`web3/activate`), {
   start: createAction(`web3/activate/start`),
   success: createAction(`web3/activate/success`),
@@ -24,6 +25,11 @@ export const setError = createAction(`web3/setError`, errorPayloadCreator);
 
 export const changeLibrary = createAction(`web3/changeLibrary`);
 
+/* ------------------------ Reducer ------------------------ */
+const reducer = createFinalReducer();
+export default reducer;
+
+/* ----------------------- Selectors ----------------------- */
 export const selectState = state => state.web3.state;
 
 export const selectIsConnecting = state => selectState(state) === 'connecting';
@@ -46,6 +52,7 @@ export const selectError = state => state.web3.context.error;
 
 export const selectHasError = state => selectError(state) !== null;
 
+/* ------------------------- Sagas ------------------------- */
 export function* notifyErrorSaga(action) {
   const { error } = action.payload;
   if (!error) {
@@ -62,14 +69,20 @@ export function* notifyErrorSaga(action) {
   );
 }
 
+export function* changeLibrarySaga(action) {
+  const { library } = action.payload;
+
+  if (library) {
+    yield setContext({ library });
+  }
+}
+
 export const sagas = {
   watchNotifyError: createWatchSaga(notifyErrorSaga, setError),
   watchNotifyActivateError: createWatchSaga(notifyErrorSaga, activate.error),
 };
 
-const reducer = createFinalReducer();
-export default reducer;
-
+/* ------------------------- Other ------------------------- */
 function createFinalReducer() {
   const guards = {
     hasError({ action }) {

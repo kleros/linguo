@@ -27,9 +27,8 @@ const { toBN, BN } = Web3.utils;
  * @return {Task} The normalized task object
  */
 
-export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents } = {}) => {
+export const normalize = ({ ID, contract, reviewTimeout, task, metadata, lifecycleEvents } = {}) => {
   const data = Object.entries({
-    ID,
     ...metadata,
     ...task,
     reviewTimeout,
@@ -41,6 +40,8 @@ export const normalize = ({ ID, reviewTimeout, task, metadata, lifecycleEvents }
           [prop]: normalizePropsFnMap[prop] ? normalizePropsFnMap[prop](value) : value,
         });
   }, {});
+
+  data.ID = contract ? `${contract}/${ID}` : ID;
 
   data.parties = data.parties ?? {};
 
@@ -126,7 +127,6 @@ const extractEventsReturnValues = (lifecycleEvents = {}) =>
 const ETH_ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
 const normalizePropsFnMap = {
-  ID: Number,
   status: TaskStatus.of,
   submissionTimeout: Number,
   reviewTimeout: Number,

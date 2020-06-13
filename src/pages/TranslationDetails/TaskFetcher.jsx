@@ -13,7 +13,7 @@ const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
 
 function TaskFetcher() {
   const params = useParams();
-  const ID = Number(params.id);
+  const ID = params.id;
 
   const [{ data }, refetch] = useCacheCall(['getTaskById', ID], {
     suspense: true,

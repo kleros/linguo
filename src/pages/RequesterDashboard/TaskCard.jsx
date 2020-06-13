@@ -104,7 +104,7 @@ function TaskCard({ ID }) {
 }
 
 TaskCard.propTypes = {
-  ID: t.number.isRequired,
+  ID: t.oneOfType([t.number, t.string]).isRequired,
 };
 
 export default TaskCard;

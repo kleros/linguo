@@ -3,6 +3,7 @@ import { persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 
 import createSagaMiddleware from 'redux-saga';
 import { routerMiddleware } from 'connected-react-router';
 import actionIdMiddleware from '~/features/shared/actionIdMiddleware';
+import { changeLibrary } from '~/features/web3/web3Slice';
 import { createRootReducer } from './rootReducer';
 import rootSaga from './rootSaga';
 import history from './history';
@@ -18,7 +19,7 @@ const store = configureStore({
     ...getDefaultMiddleware({
       thunk: false,
       serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        ignoredActions: [changeLibrary.type, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),
   ],
