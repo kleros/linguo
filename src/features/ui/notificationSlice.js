@@ -44,8 +44,8 @@ const notificationSlice = createSlice({
 export default notificationSlice.reducer;
 
 const createNotificationChannel = ({ method, key, ...params }) =>
-  eventChannel(emitter => {
-    const onClose = () => emitter(END);
+  eventChannel(emit => {
+    const onClose = () => emit(END);
 
     notification[method]({
       ...params,

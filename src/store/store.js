@@ -3,6 +3,7 @@ import { persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 
 import createSagaMiddleware from 'redux-saga';
 import { routerMiddleware } from 'connected-react-router';
 import actionIdMiddleware from '~/features/shared/actionIdMiddleware';
+import normalizeErrorMiddleware from '~/features/shared/normalizeErrorMiddleware';
 import { changeLibrary } from '~/features/web3/web3Slice';
 import { createRootReducer } from './rootReducer';
 import rootSaga from './rootSaga';
@@ -10,10 +11,15 @@ import history from './history';
 
 const sagaMiddleware = createSagaMiddleware();
 
+export function runSaga(saga, ...args) {
+  return sagaMiddleware.run(saga, ...args);
+}
+
 const store = configureStore({
   reducer: createRootReducer(),
   middleware: [
     actionIdMiddleware,
+    normalizeErrorMiddleware,
     routerMiddleware(history),
     sagaMiddleware,
     ...getDefaultMiddleware({

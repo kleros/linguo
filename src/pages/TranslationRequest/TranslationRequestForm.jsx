@@ -18,14 +18,120 @@ import ExpectedQualityField from './ExpectedQualityField';
 import TextField from './TextField';
 import OriginalSourceFields from './OriginalSourceFields';
 
-const StyledForm = styled(Form)`
-  && {
-    .ant-input-number,
-    .ant-picker {
-      width: 100%;
-    }
-  }
-`;
+function TranslationRequestForm() {
+  const history = useHistory();
+  const [form] = Form.useForm();
+  const [state, send] = useStateMachine(formStateMachine);
+  const { account } = useWeb3React();
+  const linguo = useLinguo();
+
+  const submitButtonProps =
+    state === 'submitting'
+      ? {
+          icon: <LoadingOutlined />,
+          disabled: true,
+          children: 'Submitting...',
+        }
+      : {
+          children: 'Request the translation',
+        };
+
+  const handleFinish = React.useCallback(
+    async ({ originalTextFile, ...rest }) => {
+      console.log('Submitting...', { originalTextFile, ...rest });
+
+      if (linguo.error) {
+        notification.error({
+          placement: 'bottomRight',
+          message: linguo.error.message || 'Not ready to submit the request translation yet!',
+        });
+        return;
+      }
+
+      send('SUBMIT');
+      try {
+        await linguo.api.createTask(
+          {
+            account,
+            originalTextFile: extractOriginalTextFilePath(originalTextFile),
+            ...rest,
+          },
+          {
+            from: account,
+          }
+        );
+        send('SUCCESS');
+        notification.success({
+          placement: 'bottomRight',
+          message: 'Translation submitted!',
+        });
+        history.push(r.TRANSLATION_DASHBOARD);
+      } catch (err) {
+        send('ERROR');
+        notification.error({
+          placement: 'bottomRight',
+          message: 'Failed to submit the translation request!',
+          description: err.cause?.message,
+        });
+      } finally {
+        send('RESET');
+      }
+    },
+    [account, linguo.error, linguo.api, send, history]
+  );
+
+  const handleFinishFailed = React.useCallback(
+    ({ errorFields }) => {
+      form.scrollToField(errorFields[0].name);
+    },
+    [form]
+  );
+
+  return (
+    <StyledForm
+      hideRequiredMark
+      layout="vertical"
+      form={form}
+      initialValues={initialValues}
+      onFinish={handleFinish}
+      onFinishFailed={handleFinishFailed}
+    >
+      <Row gutter={rowGutter}>
+        <LanguagesSelectionFields setFieldsValue={form.setFieldsValue} />
+      </Row>
+      <Row gutter={rowGutter}>
+        <ExpectedQualityField initialValue={initialValues.expectedQuality} />
+      </Row>
+      <Spacer />
+      <Row gutter={rowGutter}>
+        <TitleField />
+      </Row>
+      <Spacer />
+      <Row gutter={rowGutter}>
+        <TextField />
+      </Row>
+      <Row gutter={rowGutter}>
+        <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
+      </Row>
+      <Row gutter={rowGutter}>
+        <DeadlineField />
+      </Row>
+        <PriceDefinitionFields
+          getFieldValue={form.getFieldValue}
+          isFieldValidating={form.isFieldValidating}
+          getFieldError={form.getFieldError}
+        />
+      <Spacer />
+      <Row gutter={rowGutter} justify="end">
+        <Col>
+          <Button {...submitButtonProps} htmlType="submit" />
+        </Col>
+      </Row>
+    </StyledForm>
+  );
+}
+
+export default TranslationRequestForm;
 
 const extractOriginalTextFilePath = originalTextFile => {
   if (originalTextFile?.length > 0) {
@@ -73,99 +179,11 @@ const formStateMachine = {
   },
 };
 
-function TranslationRequestForm() {
-  const history = useHistory();
-  const [form] = Form.useForm();
-  const [state, send] = useStateMachine(formStateMachine);
-  const { account } = useWeb3React();
-  const linguo = useLinguo();
-
-  const submitButtonProps =
-    state === 'submitting'
-      ? {
-          icon: <LoadingOutlined />,
-          disabled: true,
-          children: 'Submitting...',
-        }
-      : {
-          children: 'Request the translation',
-        };
-
-  const handleFinish = React.useCallback(
-    async ({ originalTextFile, ...rest }) => {
-      if (linguo.error) {
-        notification.error({
-          placement: 'bottomRight',
-          message: linguo.error.message || 'Not ready to submit the request translation yet!',
-        });
-        return;
-      }
-
-      send('SUBMIT');
-      try {
-        await linguo.api.createTask(
-          {
-            account,
-            originalTextFile: extractOriginalTextFilePath(originalTextFile),
-            ...rest,
-          },
-          {
-            from: account,
-          }
-        );
-        send('SUCCESS');
-        notification.success({
-          placement: 'bottomRight',
-          message: 'Translation submitted!',
-        });
-        history.push(r.TRANSLATION_DASHBOARD);
-      } catch (err) {
-        send('ERROR');
-        notification.error({
-          placement: 'bottomRight',
-          message: 'Failed to submit the translation request!',
-          description: err.cause?.message,
-        });
-      } finally {
-        send('RESET');
-      }
-    },
-    [account, linguo.error, linguo.api, send, history]
-  );
-
-  return (
-    <StyledForm hideRequiredMark layout="vertical" form={form} initialValues={initialValues} onFinish={handleFinish}>
-      <Row gutter={rowGutter}>
-        <LanguagesSelectionFields setFieldsValue={form.setFieldsValue} />
-      </Row>
-      <Row gutter={rowGutter}>
-        <ExpectedQualityField initialValue={initialValues.expectedQuality} />
-      </Row>
-      <Spacer />
-      <Row gutter={rowGutter}>
-        <TitleField />
-      </Row>
-      <Spacer />
-      <Row gutter={rowGutter}>
-        <TextField />
-      </Row>
-      <Row gutter={rowGutter}>
-        <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
-      </Row>
-      <Row gutter={rowGutter}>
-        <DeadlineField />
-      </Row>
-      <Row gutter={rowGutter}>
-        <PriceDefinitionFields />
-      </Row>
-      <Spacer />
-      <Row gutter={rowGutter} justify="end">
-        <Col>
-          <Button {...submitButtonProps} htmlType="submit" />
-        </Col>
-      </Row>
-    </StyledForm>
-  );
-}
-
-export default TranslationRequestForm;
+const StyledForm = styled(Form)`
+  && {
+    .ant-input-number,
+    .ant-picker {
+      width: 100%;
+    }
+  }
+`;

@@ -1,4 +1,5 @@
 import createContractApi from './createContractApi';
+import { ADDRESS_ZERO } from './constants';
 
 export default function createApiFacade({ web3, withEtherPayments }) {
   const linguoEtherAddress = withEtherPayments.linguo?.options.address;
@@ -29,26 +30,32 @@ export default function createApiFacade({ web3, withEtherPayments }) {
     get: (target, prop) => {
       if (target[prop]) {
         if (['getRequesterTasks', 'getTranslatorTasks'].includes(prop)) {
-          return new Proxy(target[prop], callBothOnMissingIdentifier);
+          return new Proxy(target[prop], callBothIfMissingToken);
         }
 
-        return new Proxy(target[prop], callDefaultOnMissingIdentifier);
+        return new Proxy(target[prop], callDefaultIfMissingIDorToken);
       }
     },
   };
 
-  const callDefaultOnMissingIdentifier = {
+  const callDefaultIfMissingIDorToken = {
     apply: (target, thisArg, args) => {
       const { name } = target;
       const ID = args?.[0]?.ID;
 
       if (!ID) {
-        const contract = args?.[0]?.contract ?? linguoEtherAddress;
+        const token = args?.[0]?.token ?? ADDRESS_ZERO;
+        const contract = token === ADDRESS_ZERO ? linguoEtherAddress : undefined;
+
+        if (!contract) {
+          throw new Error('Not implemented yet!');
+        }
 
         const [first, ...rest] = args;
         const actualArgs = [
           {
             ...first,
+            token,
             contract,
           },
           ...rest,
@@ -74,12 +81,17 @@ export default function createApiFacade({ web3, withEtherPayments }) {
     },
   };
 
-  const callBothOnMissingIdentifier = {
+  const callBothIfMissingToken = {
     apply: async (target, thisArg, args) => {
       const { name } = target;
-      const contract = args?.[0]?.contract;
+      const token = args?.[0]?.token;
 
-      if (contract) {
+      if (token) {
+        const contract = token === 'ETH' ? linguoEtherAddress : undefined;
+        if (!contract) {
+          throw new Error('Not implemented yet!');
+        }
+
         const actualInterface = interfaces[contract];
         return actualInterface[name].apply(actualInterface, args);
       }

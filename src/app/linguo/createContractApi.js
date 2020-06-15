@@ -8,13 +8,9 @@ import promiseRetry from '~/utils/promiseRetry';
 import getFileUrl from './getFileUrl';
 import { normalize as normalizeTask } from './entities/Task';
 import { normalize as normalizeDispute } from './entities/Dispute';
+import { NON_PAYABLE_VALUE, ADDRESS_ZERO } from './constants';
 
 const { toWei, toBN } = Web3.utils;
-
-// 2**256 - 1
-const NON_PAYABLE_VALUE = toBN('2').pow(toBN('256')).sub(toBN('1')).toString();
-
-const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
 export default function createContractApi({ web3, linguo, arbitrator }) {
   async function getRequesterTasks({ account }) {

@@ -15,5 +15,5 @@ export default function createWatchSaga(saga, actionType, { takeType = 'every', 
   };
 
   const sagaName = saga.displayName ?? saga.name ?? 'anonymous';
-  return Object.defineProperty(watchSaga, name, { value: `watch(${sagaName})` });
+  return Object.defineProperty(watchSaga, 'name', { value: `watch(${sagaName})` });
 }

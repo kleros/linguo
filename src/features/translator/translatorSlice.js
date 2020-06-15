@@ -1,15 +1,15 @@
 import { createSlice, createAction } from '@reduxjs/toolkit';
-import { all, put } from 'redux-saga/effects';
+import { ids, put } from 'redux-saga/effects';
 import { push, goBack } from 'connected-react-router';
 import { normalize } from 'normalizr';
 import * as r from '~/app/routes';
-import { schemas } from '~/store';
 import { notify, NotificationLevel } from '~/features/ui/notificationSlice';
 import createWatchSaga from '~/features/shared/createWatchSaga';
+import * as schemas from './schemas';
 
 const initialState = {
   skills: {
-    all: [],
+    ids: [],
     entities: {},
   },
 };
@@ -20,8 +20,8 @@ const translatorSlice = createSlice({
   reducers: {
     updateSkills(state, action) {
       const { entities, result } = normalize(action.payload, [schemas.skill]);
-      state.skills.entities = entities.skills;
-      state.skills.all = result;
+      state.skills.entities = entities.skill;
+      state.skills.ids = result;
     },
     clearSkills(state, _) {
       state.skills = initialState.skills;
@@ -35,14 +35,14 @@ export const { updateSkills, clearSkills } = translatorSlice.actions;
 export const saveSettings = createAction('translator/saveSettings');
 export const cancelSaveSettings = createAction('translator/cancelSaveSettings');
 
-export const selectAllSkillLanguages = state => state.translator.skills.all;
+export const selectAllSkillLanguages = state => state.translator.skills.ids;
 export const selectAllSkills = state =>
   selectAllSkillLanguages(state).map(language => state.translator.skills.entities[language]);
 
 export function* saveSettingsSaga(action) {
   yield put(updateSkills(action.payload.skills));
 
-  yield all([
+  yield ids([
     put(
       notify({
         key: `${saveSettings}/success`,
