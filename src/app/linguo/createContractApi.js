@@ -5,6 +5,7 @@ import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import promiseRetry from '~/utils/promiseRetry';
+import getFileUrl from './getFileUrl';
 import { normalize as normalizeTask } from './entities/Task';
 import { normalize as normalizeDispute } from './entities/Dispute';
 
@@ -15,95 +16,7 @@ const NON_PAYABLE_VALUE = toBN('2').pow(toBN('256')).sub(toBN('1')).toString();
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
-export default function createApi({ web3, withEtherPayments }) {
-  const linguoEtherAddress = withEtherPayments.linguo?.options.address;
-
-  const interfaces = {
-    [linguoEtherAddress]: createContractApi({ web3, ...withEtherPayments }),
-  };
-
-  const methodCallHandler = {
-    apply: (target, thisArg, args) => {
-      const { name } = target;
-      const ID = args?.[0]?.ID;
-
-      if (!ID) {
-        const contract = args?.[0]?.contract ?? linguoEtherAddress;
-        const actualInterface = interfaces[contract];
-        return actualInterface[name].apply(actualInterface, args);
-      }
-
-      const [contract, internalID] = String(ID).includes('/') ? String(ID).split('/') : [linguoEtherAddress, ID];
-
-      const [first, ...rest] = args;
-      const actualArgs = [
-        {
-          ...first,
-          ID: internalID,
-        },
-        ...rest,
-      ];
-
-      const actualInterface = interfaces[contract];
-      return actualInterface[name].apply(actualInterface, actualArgs);
-    },
-  };
-
-  const propHandler = {
-    get: (target, prop) => {
-      const dummyFn = Object.defineProperty(function () {}, 'name', { value: prop });
-
-      return new Proxy(dummyFn, methodCallHandler);
-    },
-  };
-
-  return new Proxy({}, propHandler);
-}
-
-export const getFileUrl = path => {
-  return ipfs.generateUrl(path);
-};
-
-export const publishMetaEvidence = async ({ account, ...metadata }) => {
-  const metaEvidence = deepMerge(metaEvidenceTemplate, {
-    aliases: {
-      [account]: 'Requester',
-    },
-    metadata,
-  });
-
-  const { path } = await ipfs.publish('linguo-evidence.json', JSON.stringify(metaEvidence));
-
-  return path;
-};
-
-export const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
-  console.debug('Fetching MetaEvidence', events);
-  // There should be one and only one event
-  const [event] = events;
-  if (!event) {
-    throw new Error(`No MetaEvidence event found for task ${ID}`);
-  }
-
-  const { _evidence: path } = event.returnValues;
-  if (!path) {
-    throw new Error(`No evidence file found for task ${ID}`);
-  }
-
-  const url = getFileUrl(path);
-
-  try {
-    const response = await fetch(url, {
-      // mode: 'cors'
-    });
-    return response.json();
-  } catch (err) {
-    console.warn(`Failed to fetch evidence for task ${ID}`, err);
-    throw new Error(`Failed to fetch evidence for task ${ID}`);
-  }
-};
-
-function createContractApi({ web3, linguo, arbitrator }) {
+export default function createContractApi({ web3, linguo, arbitrator }) {
   async function getRequesterTasks({ account }) {
     const events = await _getPastEvents(linguo, 'TaskCreated', {
       filter: { _requester: account },
@@ -699,6 +612,45 @@ function createContractApi({ web3, linguo, arbitrator }) {
     fundAppeal,
   };
 }
+
+const publishMetaEvidence = async ({ account, ...metadata }) => {
+  const metaEvidence = deepMerge(metaEvidenceTemplate, {
+    aliases: {
+      [account]: 'Requester',
+    },
+    metadata,
+  });
+
+  const { path } = await ipfs.publish('linguo-evidence.json', JSON.stringify(metaEvidence));
+
+  return path;
+};
+
+const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
+  console.debug('Fetching MetaEvidence', events);
+  // There should be one and only one event
+  const [event] = events;
+  if (!event) {
+    throw new Error(`No MetaEvidence event found for task ${ID}`);
+  }
+
+  const { _evidence: path } = event.returnValues;
+  if (!path) {
+    throw new Error(`No evidence file found for task ${ID}`);
+  }
+
+  const url = getFileUrl(path);
+
+  try {
+    const response = await fetch(url, {
+      // mode: 'cors'
+    });
+    return response.json();
+  } catch (err) {
+    console.warn(`Failed to fetch evidence for task ${ID}`, err);
+    throw new Error(`Failed to fetch evidence for task ${ID}`);
+  }
+};
 
 const onlyIfMatchingSkills = skills => ({ sourceLanguage, targetLanguage, expectedQuality }) => {
   /**

@@ -2,7 +2,7 @@ import { useContext, useEffect, useMemo } from 'react';
 import useSWR from 'swr';
 import { Linguo, Arbitrator } from '@kleros/contract-deployments/linguo';
 import createError from '~/utils/createError';
-import createApi from './createApi';
+import createApiFacade from './createApiFacade';
 
 const methodPlaceholder = async () => {
   throw new Error(`API not properly initialized.
@@ -48,7 +48,7 @@ const createApiInstance = async ({ web3, chainId }) => {
     return {
       tag: 'ready',
       error: null,
-      api: createApi({
+      api: createApiFacade({
         web3,
         withEtherPayments: {
           linguo,
