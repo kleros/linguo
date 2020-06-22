@@ -35,7 +35,7 @@
     "@web3-react/fortmatic-connector": "^6.0.7",
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/network-connector": "^6.0.7",
-    "antd": "^4.0.2",
+    "antd": "^4.3.0",
     "clsx": "^1.1.0",
     "connected-react-router": "^6.8.0",
     "core-js": "^3.0.0",

@@ -3,24 +3,27 @@ import t from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { Form, Select, Input, Row, Col, Typography } from 'antd';
-import { UnlockOutlined } from '@ant-design/icons';
+import { UnlockOutlined, LoadingOutlined } from '@ant-design/icons';
+import { nanoid } from 'nanoid';
+import { useShallowEqualSelector } from '~/adapters/reactRedux';
 import {
   selectAllTokens,
   selectTokenByTicker,
   selectTokenByAddress,
-  checkAllowanceChannel,
-  checkAllowance,
+  selectInteractionTx,
   approve,
 } from '~/features/tokens/tokensSlice';
+import TransactionState from '~/features/transactions/TransactionState';
 import { selectLinguoTokenAddress } from '~/features/linguo/linguoSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import { InfoIcon } from '~/components/icons';
 import Button from '~/components/Button';
 import Spacer from '~/components/Spacer';
-import usePrevious from '~/hooks/usePrevious';
+import FormattedNumber from '~/components/FormattedNumber';
+import useAllowanceValidation from './useAllowanceValidation';
 
-function PriceDefinitionFields({ getFieldValue, isFieldValidating, getFieldError }) {
+function PriceDefinitionFields({ getFieldValue, validateFields }) {
   const ethNativeToken = useSelector(selectTokenByTicker('ETH'));
   const allTokens = useSelector(selectAllTokens);
 
@@ -31,47 +34,12 @@ function PriceDefinitionFields({ getFieldValue, isFieldValidating, getFieldError
 
   const paymentToken = useSelector(selectTokenByAddress(paymentTokenAddress));
 
-  const [allowanceValidation, setAllowanceValidation] = React.useState('idle');
-
   const account = useSelector(selectAccount);
   const linguoTokenAddress = useSelector(selectLinguoTokenAddress);
-  const dispatch = useDispatch();
 
-  const createAllowanceValidator = ({ getFieldsValue }) => ({
-    validator: async (_, value) => {
-      setAllowanceValidation('idle');
-      if (!value) {
-        return;
-      }
-
-      const { token, account } = getFieldsValue(['token', 'account']);
-
-      /**
-       * If the paymentTokenAddress is ETH, there's no need to check for allowance
-       */
-      // eslint-disable-next-line security/detect-possible-timing-attacks
-      if (ethNativeToken.address === token) {
-        return;
-      }
-
-      dispatch(
-        checkAllowance({
-          amount: value,
-          tokenAddress: token,
-          owner: account,
-          spender: linguoTokenAddress,
-        })
-      );
-
-      setAllowanceValidation('pending');
-      try {
-        await getCheckAllowanceResponse();
-        setAllowanceValidation('valid');
-      } catch (err) {
-        setAllowanceValidation('invalid');
-        throw err;
-      }
-    },
+  const allowanceValidation = useAllowanceValidation({
+    spender: linguoTokenAddress,
+    shouldSkip: ({ token } = {}) => token === ethNativeToken.address,
   });
 
   const [minMaxPrice, setMinMaxPrice] = React.useState(0.01);
@@ -144,7 +112,7 @@ function PriceDefinitionFields({ getFieldValue, isFieldValidating, getFieldError
         </Col>
         <Col xs={24} sm={24} md={8}>
           <StyledAsyncFormItem
-            hasFeedback={paymentTokenAddress !== ethNativeToken.address}
+            hasFeedback={paymentTokenAddress !== ethNativeToken.address && allowanceValidation.status === 'pending'}
             label="Maximum Price"
             name="maxPrice"
             dependencies={['token', 'minPrice']}
@@ -158,7 +126,7 @@ function PriceDefinitionFields({ getFieldValue, isFieldValidating, getFieldError
                 min: minMaxPrice,
                 message: `Maximum price must be at least ${minMaxPrice} ${paymentToken.ticker}.`,
               },
-              createAllowanceValidator,
+              allowanceValidation.createValidator,
             ]}
           >
             <InputNumberWithAddons
@@ -171,42 +139,16 @@ function PriceDefinitionFields({ getFieldValue, isFieldValidating, getFieldError
           </StyledAsyncFormItem>
         </Col>
       </Row>
-      {allowanceValidation === 'invalid' && (
+      {allowanceValidation.latestResult === 'invalid' && (
         <>
-          <StyledDisclaimerText>
-            <InfoIcon /> You need to unlock Linguo to spend {paymentToken.ticker} in your behalf.
-          </StyledDisclaimerText>
-          <Spacer />
-          <Row gutter={16}>
-            <Col>
-              <SetAllowanceButton
-                tokenAddress={paymentTokenAddress}
-                owner={account}
-                spender={linguoTokenAddress}
-                amount={getFieldValue('maxPrice')}
-                buttonProps={{
-                  variant: 'outlined',
-                  icon: <UnlockOutlined />,
-                }}
-              >
-                Unlock {getFieldValue('maxPrice')} {paymentToken.ticker}
-              </SetAllowanceButton>
-            </Col>
-            <Col>
-              <SetAllowanceButton
-                tokenAddress={paymentTokenAddress}
-                owner={account}
-                spender={linguoTokenAddress}
-                amount={Infinity}
-                buttonProps={{
-                  variant: 'filled',
-                  icon: <UnlockOutlined />,
-                }}
-              >
-                Unlock {paymentToken.ticker} Permanently
-              </SetAllowanceButton>
-            </Col>
-          </Row>
+          <ApproveOptions
+            onSuccess={validateFields}
+            tokenAddress={paymentToken.address}
+            tokenTicker={paymentToken.ticker}
+            owner={account}
+            spender={linguoTokenAddress}
+            amount={getFieldValue('maxPrice')}
+          />
         </>
       )}
     </>
@@ -215,64 +157,10 @@ function PriceDefinitionFields({ getFieldValue, isFieldValidating, getFieldError
 
 PriceDefinitionFields.propTypes = {
   getFieldValue: t.func.isRequired,
-  isFieldValidating: t.func,
-  getFieldError: t.func,
+  validateFields: t.func.isRequired,
 };
 
 export default PriceDefinitionFields;
-
-function getCheckAllowanceResponse() {
-  let res;
-  let rej;
-
-  const promise = new Promise((resolve, reject) => {
-    res = resolve;
-    rej = reject;
-  });
-
-  checkAllowanceChannel.take(
-    action => {
-      if (checkAllowance.fulfilled.match(action)) {
-        return res();
-      }
-
-      if (checkAllowance.rejected.match(action)) {
-        const message = action.payload?.error?.message ?? 'Unknown error.';
-        return rej(new Error(message));
-      }
-    },
-    action => checkAllowance.fulfilled.match(action) || checkAllowance.rejected.match(action)
-  );
-
-  return promise;
-}
-
-function SetAllowanceButton({ tokenAddress, owner, spender, amount, buttonProps, children }) {
-  const dispatch = useDispatch();
-
-  const handleClick = React.useCallback(() => {
-    console.log('Submitting...', { tokenAddress, owner, spender, amount });
-    dispatch(approve({ tokenAddress, owner, spender, amount }));
-  }, [dispatch, tokenAddress, owner, spender, amount]);
-  return (
-    <Button {...buttonProps} onClick={handleClick}>
-      {children}
-    </Button>
-  );
-}
-
-SetAllowanceButton.propTypes = {
-  tokenAddress: t.string.isRequired,
-  owner: t.string,
-  spender: t.string.isRequired,
-  amount: t.number.isRequired,
-  buttonProps: t.object,
-  children: t.node.isRequired,
-};
-
-SetAllowanceButton.defaultProps = {
-  buttonProps: {},
-};
 
 const StyledDisclaimerText = styled(Typography.Paragraph)`
   && {
@@ -388,3 +276,135 @@ const StyledAsyncFormItem = styled(Form.Item)`
     }
   }
 `;
+
+function ApproveOptions({ tokenAddress, tokenTicker, owner, spender, amount, onSuccess, onError }) {
+  const { current: interactionKey } = React.useRef(nanoid());
+  const { txState } = useShallowEqualSelector(selectInteractionTx(interactionKey)) ?? {};
+
+  React.useEffect(() => {
+    if (txState === TransactionState.Mined) {
+      onSuccess();
+    }
+
+    if (txState === TransactionState.Failed) {
+      onError();
+    }
+  }, [onSuccess, onError, txState]);
+
+  const hasPendingInteraction = txState === TransactionState.Pending;
+  const shouldShowButtons = txState !== TransactionState.Mined;
+
+  return (
+    shouldShowButtons && (
+      <>
+        <StyledDisclaimerText>
+          <InfoIcon /> You need to unlock Linguo to spend {tokenTicker} in your behalf.
+        </StyledDisclaimerText>
+        <Spacer />
+        <Row gutter={16}>
+          <Col>
+            <ApproveButton
+              interactionKey={interactionKey}
+              tokenAddress={tokenAddress}
+              owner={owner}
+              spender={spender}
+              amount={amount}
+              buttonProps={{
+                disabled: hasPendingInteraction,
+                variant: 'outlined',
+                icon: <UnlockOutlined />,
+              }}
+            >
+              <>
+                Unlock <FormattedNumber value={amount} decimals={2} /> {tokenTicker}
+              </>
+            </ApproveButton>
+          </Col>
+          <Col>
+            <ApproveButton
+              interactionKey={interactionKey}
+              tokenAddress={tokenAddress}
+              owner={owner}
+              spender={spender}
+              amount={Infinity}
+              buttonProps={{
+                disabled: hasPendingInteraction,
+                variant: 'filled',
+                icon: <UnlockOutlined />,
+              }}
+            >
+              Unlock {tokenTicker} Permanently
+            </ApproveButton>
+          </Col>
+          {hasPendingInteraction && (
+            <Col
+              css={`
+                display: flex;
+                align-items: center;
+              `}
+            >
+              <LoadingOutlined
+                css={`
+                  > svg {
+                    width: 1.5rem;
+                    height: 1.5rem;
+                  }
+                `}
+              />
+            </Col>
+          )}
+        </Row>
+      </>
+    )
+  );
+}
+
+ApproveOptions.propTypes = {
+  tokenAddress: t.string.isRequired,
+  tokenTicker: t.string.isRequired,
+  owner: t.string.isRequired,
+  spender: t.string.isRequired,
+  amount: t.oneOfType([t.number, t.string]).isRequired,
+  onSuccess: t.func,
+  onError: t.func,
+};
+
+ApproveOptions.defaultProps = {
+  onSuccess: () => {},
+  onError: () => {},
+};
+
+function ApproveButton({ interactionKey, tokenAddress, owner, spender, amount, buttonProps, children }) {
+  const dispatch = useDispatch();
+
+  const handleClick = React.useCallback(() => {
+    dispatch(
+      approve({
+        key: interactionKey,
+        tokenAddress,
+        owner,
+        spender,
+        amount,
+      })
+    );
+  }, [interactionKey, dispatch, tokenAddress, owner, spender, amount]);
+  return (
+    <Button {...buttonProps} onClick={handleClick}>
+      {children}
+    </Button>
+  );
+}
+
+ApproveButton.propTypes = {
+  interactionKey: t.string.isRequired,
+  tokenAddress: t.string.isRequired,
+  owner: t.string,
+  spender: t.string.isRequired,
+  amount: t.oneOfType([t.number, t.string]).isRequired,
+  buttonProps: t.object,
+  children: t.node.isRequired,
+};
+
+ApproveButton.defaultProps = {
+  buttonProps: {},
+};

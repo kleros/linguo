@@ -31,7 +31,7 @@ export default function createTokenApi({ library }) {
       return;
     }
 
-    throw new Error('Not enough allowance.');
+    throw new Error('Not allowed to spend this amount.');
   }
 
   async function approve({ tokenAddress, spender, owner, amount }) {

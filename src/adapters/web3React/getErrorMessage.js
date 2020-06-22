@@ -12,11 +12,14 @@ export default function getErrorMessage(error) {
   } else if (
     error instanceof UserRejectedRequestErrorInjected ||
     error.name === 'UserRejectedRequestErrorInjected' ||
-    error.code === 4001
+    // Metamask error bellow
+    error.message === 'User denied account authorization'
   ) {
     return 'Please authorize this website to access your Ethereum account.';
+  } else if (/MetaMask Tx Signature:\s+/.test(error.message)) {
+    return error.message.replace(/MetaMask Tx Signature:\s+/, '');
   } else {
-    console.error(error);
+    console.warn('Unrecognized error', error);
     return error.message;
   }
 }

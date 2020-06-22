@@ -1,5 +1,5 @@
-import createContractApi from './createContractApi';
 import { ADDRESS_ZERO } from './constants';
+import createContractApi from './createContractApi';
 
 export default function createApiFacade({ web3, withEtherPayments }) {
   const linguoEtherAddress = withEtherPayments.linguo?.options.address;
@@ -30,15 +30,15 @@ export default function createApiFacade({ web3, withEtherPayments }) {
     get: (target, prop) => {
       if (target[prop]) {
         if (['getRequesterTasks', 'getTranslatorTasks'].includes(prop)) {
-          return new Proxy(target[prop], callBothIfMissingToken);
+          return new Proxy(target[prop], callBothIfMissingIDOrToken);
         }
 
-        return new Proxy(target[prop], callDefaultIfMissingIDorToken);
+        return new Proxy(target[prop], callDefaultIfMissingIDOrToken);
       }
     },
   };
 
-  const callDefaultIfMissingIDorToken = {
+  const callDefaultIfMissingIDOrToken = {
     apply: (target, thisArg, args) => {
       const { name } = target;
       const ID = args?.[0]?.ID;
@@ -81,7 +81,7 @@ export default function createApiFacade({ web3, withEtherPayments }) {
     },
   };
 
-  const callBothIfMissingToken = {
+  const callBothIfMissingIDOrToken = {
     apply: async (target, thisArg, args) => {
       const { name } = target;
       const token = args?.[0]?.token;

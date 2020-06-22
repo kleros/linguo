@@ -1,9 +1,11 @@
+import React from 'react';
 import { createSlice, createAction } from '@reduxjs/toolkit';
 import { notification } from 'antd';
 import { eventChannel, END } from 'redux-saga';
 import { call, put, take, cancelled } from 'redux-saga/effects';
 import { nanoid } from 'nanoid';
 import createWatchSaga from '~/features/shared/createWatchSaga';
+import { NotificationWithLink as link } from './NotificationTemplates';
 
 export const NotificationLevel = {
   info: 'info',
@@ -43,18 +45,31 @@ const notificationSlice = createSlice({
 
 export default notificationSlice.reducer;
 
-const createNotificationChannel = ({ method, key, ...params }) =>
-  eventChannel(emit => {
+const notificationTemplates = {
+  link,
+};
+
+const createNotificationChannel = ({ method, key, template, ...params }) => {
+  const Component = notificationTemplates[template?.id];
+  const templatedDescriptionMixin = Component
+    ? {
+        description: <Component {...template?.params} />,
+      }
+    : {};
+
+  return eventChannel(emit => {
     const onClose = () => emit(END);
 
     notification[method]({
       ...params,
+      ...templatedDescriptionMixin,
       key,
       onClose,
     });
 
     return () => notification.close(key);
   });
+};
 
 export function* notifySaga(action) {
   const { key, level, ...rest } = action.payload;

@@ -1,13 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { persistReducer, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { eventChannel, channel, END } from 'redux-saga';
+import { END } from 'redux-saga';
 import { take, call, put, select, all, spawn } from 'redux-saga/effects';
 import serializerr from 'serializerr';
-import { pick, mapValues } from '~/features/shared/fp';
+import { notify, NotificationLevel } from '~/features/ui/notificationSlice';
+import { getErrorMessage } from '~/features/web3';
+import { getBlockExplorerTxUrl } from '~/features/web3/web3Slice';
+import TransactionState from './TransactionState';
+import createTransactionChannel from './createTransactionChannel';
+import createTtlChannel from './createTtlChannel';
 
 const _30_MINUTES_MS = 30 * 60 * 1000;
-const DEFAULT_TTL = 30000;
+const DEFAULT_TTL = _30_MINUTES_MS;
 
 const PERSISTANCE_KEY = 'transactions';
 
@@ -30,7 +35,7 @@ const transactionsSlice = createSlice({
     add(state, action) {
       const {
         txHash,
-        txState = 'sent',
+        txState = TransactionState.Pending,
         expiresAt = null,
         receipt = null,
         confirmations = 0,
@@ -80,7 +85,7 @@ const transactionsSlice = createSlice({
     confirm(state, action) {
       const { txHash, number, receipt } = action.payload;
       if (state.entities[txHash]) {
-        state.entities[txHash].txState = 'mined';
+        state.entities[txHash].txState = TransactionState.Mined;
         state.entities[txHash].confirmations = number;
         state.entities[txHash].receipt = receipt;
       }
@@ -88,7 +93,7 @@ const transactionsSlice = createSlice({
     setError(state, action) {
       const { txHash, error } = action.payload;
       if (state.entities[txHash]) {
-        state.entities[txHash].txState = 'failed';
+        state.entities[txHash].txState = TransactionState.Failed;
         state.entities[txHash].error = error;
       }
     },
@@ -107,23 +112,33 @@ export const selectAll = state => {
 export const selectExpired = expirationDate => state =>
   selectAll(state).filter(({ expiresAt }) => new Date(expirationDate) >= new Date(expiresAt));
 
+export const selectByTxHash = txHash => state => state.transactions.entities[txHash];
 /**
  * Registers a transaction.
  *
+ * @typedef {object} ShouldNotifyOption
+ * @prop {boolean} [pending=true] whether it should notify on pending.
+ * @prop {boolean} [success=true] whether it should notify on sucess.
+ * @prop {boolean} [failure=true] whether it should notify on failure.
+ *
  * @param {PromiEvent} tx the transaction PromiEvent from web3.js
  * @param {object} options the options object
- * @param {false|number} options.wait if the saga must wait for the transaction to be mined.
+ * @param {false|number} [options.wait=false] if the saga must wait for the transaction to be mined.
  * If `false`, it will return right after the transaction hash is calculated.
  * If `0`, it will wait until the transaction is mined.
  * If `n`, it will wait until `n` confirmations.
- * @param {number} options.ttl time in milliseconds which the transaction data should be kept
+ * @param {number} [options.ttl=10] time in milliseconds which the transaction data should be kept
  * in the store.
+ * @param {boolean|ShouldNotifyOption} [options.shouldNotify=true] time in milliseconds which the transaction data should be kept
  */
-export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL } = {}) {
-  const txChannel = yield call(createTxChannel, tx, { wait });
+export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL, shouldNotify = true } = {}) {
+  const txChannel = yield call(createTransactionChannel, tx, { wait });
 
   // Consumes all transaction events in the background
-  yield spawn(processTxEventsSaga, txChannel);
+  yield spawn(processTxEventsSaga, txChannel, [
+    createStoreUpdateSubscriber(),
+    createNoticationSubscriber({ shouldNotify }),
+  ]);
 
   let hasScheduledRemoval = false;
 
@@ -135,8 +150,10 @@ export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL } = {}) {
     }
 
     const { txHash } = result.payload ?? {};
+
     if (!hasScheduledRemoval && txHash) {
-      const expiresAt = new Date(Date.now() + ttl).toISOString();
+      const currentDate = yield call(getCurrentDate);
+      const expiresAt = new Date(currentDate.getTime() + ttl).toISOString();
       yield put(setExpiration({ expiresAt, txHash }));
 
       const ttlChannel = yield call(createTtlChannel, ttl, { txHash });
@@ -151,6 +168,7 @@ export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL } = {}) {
 
     if (result.type === 'REJECTED') {
       const { error, txHash } = result.payload;
+
       throw Object.assign(Object.create(Error.prototype), {
         ...serializerr(error),
         context: { txHash },
@@ -163,11 +181,9 @@ export function* removeExpiredTxsSaga() {
   while (true) {
     const { key } = yield take(REHYDRATE);
     if (key === PERSISTANCE_KEY) {
-      const expiredTxs = yield select(selectExpired(new Date().toISOString()));
-      for (let i = 0; i < expiredTxs.length; i++) {
-        const txHash = expiredTxs[i].txHash;
-        yield put(remove({ txHash }));
-      }
+      const currentDate = yield call(getCurrentDate);
+      const expiredTxs = yield select(selectExpired(currentDate.toISOString()));
+      yield all(expiredTxs.map(({ txHash }) => put(remove({ txHash }))));
     }
   }
 }
@@ -176,66 +192,16 @@ export const sagas = {
   removeExpiredTxsSaga,
 };
 
-const createTxChannel = (tx, { wait = false } = {}) => {
-  const resultChannel = channel();
+function getCurrentDate() {
+  return new Date();
+}
 
-  const txChannel = eventChannel(emit => {
-    const confirmations = wait === false ? 0 : wait;
-    let txHash = null;
+function* removeTxAfterTtl(ttlChannel) {
+  const { txHash } = yield take(ttlChannel);
+  yield put(remove({ txHash }));
+}
 
-    tx.once('transactionHash', _txHash => {
-      emit({ type: 'TX_HASH', payload: { txHash: _txHash } });
-      txHash = _txHash;
-
-      if (wait === false) {
-        resultChannel.put({ type: 'FULFILLED', payload: { txHash } });
-        resultChannel.put(END);
-      } else {
-        resultChannel.put({ type: 'PENDING', payload: { txHash } });
-      }
-    });
-
-    tx.on('confirmation', (number, receipt) => {
-      if (number <= confirmations) {
-        emit({
-          type: 'CONFIRMATION',
-          payload: {
-            txHash,
-            number,
-            receipt: {
-              ...pick(['from', 'to', 'transactionIndex', 'blockHash', 'blockNumber'], receipt),
-              events: extractEventsReturnValues(receipt.events),
-            },
-          },
-        });
-      }
-
-      if (number >= confirmations) {
-        emit(END);
-
-        resultChannel.put({ type: 'FULFILLED', payload: { txHash } });
-        resultChannel.put(END);
-      }
-    });
-
-    tx.on('error', error => {
-      emit({ type: 'ERROR', payload: { txHash, error } });
-      emit(END);
-
-      resultChannel.put({ type: 'REJECTED', payload: { txHash, error } });
-      resultChannel.put(END);
-    });
-
-    return () => {
-      tx.off('confirmation');
-      tx.off('error');
-    };
-  });
-
-  return Object.assign(txChannel, { result: resultChannel });
-};
-
-function* processTxEventsSaga(txChannel) {
+function* processTxEventsSaga(txChannel, subscribers = []) {
   while (true) {
     const event = yield take(txChannel);
 
@@ -243,41 +209,106 @@ function* processTxEventsSaga(txChannel) {
       break;
     }
 
+    yield all(subscribers.map(subscriber => call(subscriber, event)));
+  }
+}
+
+function createStoreUpdateSubscriber() {
+  return function* storeUpdateSubscriber(event) {
     switch (event.type) {
       case 'TX_HASH':
         yield put(add(event.payload));
         break;
-      case 'CONFIRMATION':
+      case 'TX_CONFIRMATION':
         yield put(confirm(event.payload));
         break;
-      case 'ERROR':
-        if (event.payload.txHash) {
-          yield put(setError(event.payload));
-        }
+      case 'TX_ERROR':
+        yield put(setError(event.payload));
         break;
     }
-  }
+  };
 }
 
-const createTtlChannel = (ttl, { txHash }) =>
-  eventChannel(emit => {
-    const handler = setTimeout(emit, ttl, { txHash });
+function createNoticationSubscriber({ shouldNotify }) {
+  shouldNotify = normalizeShouldNotify(shouldNotify);
 
-    return () => clearTimeout(handler);
-  });
-
-function* removeTxAfterTtl(ttlChannel) {
-  const { txHash } = yield take(ttlChannel);
-  yield put(remove({ txHash }));
-}
-
-const extractEventsReturnValues = mapValues(({ returnValues }) =>
-  Object.entries(returnValues).reduce((acc, [key, value]) => {
-    // Ignore numeric keys
-    if (!Number.isNaN(Number(key))) {
-      return acc;
+  return function* notificationSubscriber(event) {
+    if (!shouldNotify) {
+      return;
     }
 
-    return Object.assign(acc, { [key]: value });
-  }, {})
-);
+    const txHash = event.payload?.txHash ?? null;
+    const url = txHash ? yield call(getBlockExplorerTxUrl, txHash) : null;
+    const notificationTemplateMixin = url
+      ? {
+          template: {
+            id: 'link',
+            params: {
+              text: 'View on Etherscan',
+              url,
+            },
+          },
+        }
+      : {};
+
+    const _1_HOUR_SECONDS = 3600;
+    const _5_SECONDS = 5;
+
+    switch (event.type) {
+      case 'TX_HASH':
+        if (shouldNotify.pending) {
+          yield put(
+            notify({
+              key: `tx/${txHash}`,
+              level: NotificationLevel.info,
+              duration: _1_HOUR_SECONDS,
+              message: 'Transaction pending!',
+              ...notificationTemplateMixin,
+            })
+          );
+        }
+
+        break;
+      case 'TX_CONFIRMATION':
+        if (shouldNotify.success) {
+          yield put(
+            notify({
+              key: `tx/${txHash}`,
+              level: NotificationLevel.success,
+              message: 'Transaction mined!',
+              duration: _5_SECONDS,
+              ...notificationTemplateMixin,
+            })
+          );
+        }
+
+        break;
+
+      case 'TX_ERROR':
+        if (shouldNotify.failure) {
+          yield put(
+            notify({
+              key: `tx/${txHash}`,
+              level: NotificationLevel.error,
+              message: getErrorMessage(event.payload.error ?? 'Unknown error'),
+              ...notificationTemplateMixin,
+            })
+          );
+        }
+
+        break;
+    }
+  };
+}
+
+function normalizeShouldNotify(shouldNotify) {
+  if (typeof shouldNotify === 'boolean') {
+    return {
+      pending: shouldNotify,
+      failure: shouldNotify,
+      success: shouldNotify,
+    };
+  }
+
+  return shouldNotify;
+}

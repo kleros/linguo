@@ -2,7 +2,7 @@ import { createReducer, createAction } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
-import { put, take, all, call, fork, cancel, cancelled, setContext } from 'redux-saga/effects';
+import { put, take, all, call, fork, cancel, cancelled, setContext, select } from 'redux-saga/effects';
 import getErrorMessage from '~/adapters/web3React/getErrorMessage';
 import createStateMachineReducer from '~/features/shared/createStateMachineReducer';
 import { notify, NotificationLevel } from '~/features/ui/notificationSlice';
@@ -67,6 +67,18 @@ export function* notifyErrorSaga(action) {
       duration: 5,
     })
   );
+}
+
+export function* getBlockExplorerTxUrl(txHash) {
+  const baseUrlMap = {
+    1: 'https://etherscan.io/tx',
+    42: 'https://kovan.etherscan.io/tx',
+  };
+
+  const chainId = yield select(selectChainId);
+  const baseUrl = baseUrlMap[chainId] ?? baseUrlMap[1];
+
+  return `${baseUrl}/${txHash}`;
 }
 
 export const sagas = {

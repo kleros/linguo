@@ -1,12 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit';
 import { stdChannel } from 'redux-saga';
-import { debounce, getContext, put, call } from 'redux-saga/effects';
+import { debounce, getContext, put, call, all, take, spawn } from 'redux-saga/effects';
 import ipfs from '~/app/ipfs';
 import { mapValues } from '~/features/shared/fp';
 import createAsyncAction from '~/features/shared/createAsyncAction';
 import createWatchSaga from '~/features/shared/createWatchSaga';
 import { runSagasWithContext } from '~/features/web3/web3Slice';
-import { registerTxSaga } from '~/features/transactions/transactionsSlice';
+import createSliceWithTransactions from '~/features/transactions/createSliceWithTransactions';
+import { selectByTxHash, registerTxSaga } from '~/features/transactions/transactionsSlice';
 import createTokenApi from './tokenApi';
 import fixtures from './fixtures/tokens.json';
 
@@ -26,33 +26,38 @@ const normalizedFixtures = mapValues(
 const initialState = {
   entities: normalizedFixtures,
   all: Object.keys(normalizedFixtures),
-  txs: [],
+  interactions: {},
 };
 
 export const checkAllowance = createAsyncAction('tokens/checkAllowance');
 export const approve = createAsyncAction('tokens/approve');
 
-const tokenSlice = createSlice({
+const tokensSlice = createSliceWithTransactions({
   name: 'tokens',
   initialState,
   reducers: {
-    addTx(state, action) {
-      const { txHash } = action.payload;
-
-      if (txHash) {
-        state.txs.push(txHash);
-      }
+    addInteraction(state, action) {
+      const { key, txHash } = action.payload;
+      state.interactions[key] = txHash;
+    },
+    removeInteraction(state, action) {
+      const { key } = action.payload;
+      delete state.interactions[key];
     },
   },
 });
 
-export const { addTx } = tokenSlice.actions;
+export const { addTx, removeTx, addInteraction, removeInteraction } = tokensSlice.actions;
 
-export default tokenSlice.reducer;
+export default tokensSlice.reducer;
 
 export const selectAllTokens = state => state.tokens.all.map(key => state.tokens.entities[key]);
 
 export const selectTokenByID = ID => state => state.tokens.entities[ID];
+
+export const selectAllTxs = state => tokensSlice.selectors.selectAllTxs(state.tokens);
+
+export const selectInteractionTx = key => state => selectByTxHash(state.tokens.interactions[key])(state);
 
 export const selectTokenByTicker = ticker => state =>
   Object.values(state.tokens.entities).find(token => token.ticker === ticker);
@@ -82,25 +87,39 @@ export function* debounceCheckAllowanceSaga() {
 
 export function* approveSaga(action) {
   const tokenApi = yield getContext('tokenApi');
-  const { tokenAddress, owner, spender, amount } = action.payload;
+  const { key, tokenAddress, owner, spender, amount } = action.payload;
 
   const { tx } = yield call([tokenApi, 'approve'], { tokenAddress, owner, spender, amount });
 
   try {
-    const { txHash } = yield call(registerTxSaga, tx, { wait: 0 });
-    console.log(txHash);
-    yield put(addTx({ txHash }));
+    const { txHash } = yield call(registerTxSaga, tx);
+    yield all([put(addTx({ txHash })), call(trackInteraction, { key, txHash })]);
   } catch (err) {
-    console.log('ooops', err);
+    // Nothing to be done here...
   }
 }
 
 export const watchApproveSaga = createWatchSaga(approveSaga, approve);
 
 export const sagas = {
+  ...tokensSlice.sagas,
   tokensRootSaga: runSagasWithContext([debounceCheckAllowanceSaga, watchApproveSaga], {
     createContext: ({ library }) => ({
       tokenApi: createTokenApi({ library }),
     }),
   }),
 };
+
+function* trackInteraction({ key, txHash }) {
+  yield put(addInteraction({ key, txHash }));
+
+  yield spawn(function* watchRemoveInteraction() {
+    while (true) {
+      const removedTx = yield take(`${removeTx}`);
+      if (removedTx.payload.txHash === txHash) {
+        yield put(removeInteraction({ key }));
+        return;
+      }
+    }
+  });
+}

@@ -16,7 +16,7 @@ function FormattedNumber({ value, decimals, style, currency, render }) {
 FormattedNumber.propTypes = {
   style: t.oneOf(['decimal', 'percent', 'currency']),
   current: t.string,
-  value: t.number,
+  value: t.oneOfType([t.number, t.string]),
   decimals: t.number,
   render: t.func,
 };
