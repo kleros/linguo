@@ -1,27 +1,28 @@
 import React from 'react';
 import t from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Form, Select, Input, Row, Col, Typography } from 'antd';
-import { UnlockOutlined, LoadingOutlined } from '@ant-design/icons';
 import { nanoid } from 'nanoid';
+import { LoadingOutlined, UnlockOutlined } from '@ant-design/icons';
+import { Col, Form, Input, Row, Select, Typography } from 'antd';
+import { InputNumberWithAddons } from '~/adapters/antd';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
+import Button from '~/components/Button';
+import FormattedNumber from '~/components/FormattedNumber';
+import { InfoIcon } from '~/components/icons';
+import Spacer from '~/components/Spacer';
+import usePreviousMatching from '~/features/shared/usePreviousMatching';
+import { selectLinguoTokenAddress } from '~/features/tasks/linguoSlice';
 import {
-  selectAllTokens,
-  selectTokenByTicker,
-  selectTokenByAddress,
-  selectInteractionTx,
   approve,
+  selectAllTokens,
+  selectInteractionTx,
+  selectTokenByAddress,
+  selectTokenByTicker,
 } from '~/features/tokens/tokensSlice';
 import TransactionState from '~/features/transactions/TransactionState';
-import { selectLinguoTokenAddress } from '~/features/linguo/linguoSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
-import { InputNumberWithAddons } from '~/adapters/antd';
-import { InfoIcon } from '~/components/icons';
-import Button from '~/components/Button';
-import Spacer from '~/components/Spacer';
-import FormattedNumber from '~/components/FormattedNumber';
-import useAllowanceValidation from './useAllowanceValidation';
+import useAllowanceValidation, { AllowanceValidationStatus } from './useAllowanceValidation';
 
 function PriceDefinitionFields({ getFieldValue, validateFields }) {
   const ethNativeToken = useSelector(selectTokenByTicker('ETH'));
@@ -112,7 +113,10 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
         </Col>
         <Col xs={24} sm={24} md={8}>
           <StyledAsyncFormItem
-            hasFeedback={paymentTokenAddress !== ethNativeToken.address && allowanceValidation.status === 'pending'}
+            hasFeedback={
+              paymentTokenAddress !== ethNativeToken.address &&
+              allowanceValidation.status === AllowanceValidationStatus.Pending
+            }
             label="Maximum Price"
             name="maxPrice"
             dependencies={['token', 'minPrice']}
@@ -139,9 +143,10 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
           </StyledAsyncFormItem>
         </Col>
       </Row>
-      {allowanceValidation.latestResult === 'invalid' && (
+      {allowanceValidation.latestResult === AllowanceValidationStatus.Invalid && (
         <>
           <ApproveOptions
+            status={allowanceValidation.status}
             onSuccess={validateFields}
             tokenAddress={paymentToken.address}
             tokenTicker={paymentToken.ticker}
@@ -278,21 +283,26 @@ const StyledAsyncFormItem = styled(Form.Item)`
 `;
 
 function ApproveOptions({ tokenAddress, tokenTicker, owner, spender, amount, onSuccess, onError }) {
-  const { current: interactionKey } = React.useRef(nanoid());
+  const [interactionKey, setInteractionKey] = React.useState(nanoid());
   const { txState } = useShallowEqualSelector(selectInteractionTx(interactionKey)) ?? {};
+  const hasPendingInteraction = txState === TransactionState.Pending;
+
+  const previousTxState = usePreviousMatching(txState, previous =>
+    [TransactionState.Mined, TransactionState.Failed].includes(previous)
+  );
+  const shouldShowButtons = previousTxState !== TransactionState.Mined;
 
   React.useEffect(() => {
     if (txState === TransactionState.Mined) {
       onSuccess();
+      setInteractionKey(nanoid());
     }
 
     if (txState === TransactionState.Failed) {
       onError();
+      setInteractionKey(nanoid());
     }
   }, [onSuccess, onError, txState]);
-
-  const hasPendingInteraction = txState === TransactionState.Pending;
-  const shouldShowButtons = txState !== TransactionState.Mined;
 
   return (
     shouldShowButtons && (

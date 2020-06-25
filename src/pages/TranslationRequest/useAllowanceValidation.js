@@ -1,25 +1,34 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { checkAllowanceChannel, checkAllowance } from '~/features/tokens/tokensSlice';
-import useLatestMatching from '~/features/shared/useLatestMatching';
+import usePreviousMatching from '~/features/shared/usePreviousMatching';
+
+export const AllowanceValidationStatus = {
+  Idle: 'idle',
+  Pending: 'pending',
+  Valid: 'valid',
+  Invalid: 'invalid',
+};
 
 export default function useAllowanceValidation({ spender, shouldSkip }) {
   const dispatch = useDispatch();
 
-  const [status, setStatus] = useState('idle');
-  const latestResult = useLatestMatching(status, previous => ['valid', 'invalid'].includes(previous));
+  const [status, setStatus] = useState(AllowanceValidationStatus.Idle);
+  const latestResult = usePreviousMatching(status, previous =>
+    [AllowanceValidationStatus.Valid, AllowanceValidationStatus.Invalid].includes(previous)
+  );
 
   const createValidator = ({ getFieldsValue }) => ({
     validator: async (_, value) => {
       if (!value) {
-        setStatus('idle');
+        setStatus(AllowanceValidationStatus.Idle);
         return;
       }
 
       const { token, account } = getFieldsValue(['token', 'account']);
 
       if (shouldSkip({ token, account })) {
-        setStatus('valid');
+        setStatus(AllowanceValidationStatus.Valid);
         return;
       }
 
@@ -32,12 +41,12 @@ export default function useAllowanceValidation({ spender, shouldSkip }) {
         })
       );
 
-      setStatus('pending');
+      setStatus(AllowanceValidationStatus.Pending);
       try {
         await getCheckAllowanceResponse();
-        setStatus('valid');
+        setStatus(AllowanceValidationStatus.Valid);
       } catch (err) {
-        setStatus('invalid');
+        setStatus(AllowanceValidationStatus.Invalid);
         throw err;
       }
     },

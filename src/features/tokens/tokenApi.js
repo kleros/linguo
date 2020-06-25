@@ -22,7 +22,7 @@ export default function createTokenApi({ library }) {
       allowance = await contract.methods.allowance(owner, spender).call({ from: owner });
     } catch (err) {
       console.warn('Failed to get allowance amount:', err);
-      throw new Error('Failed to check allowance.');
+      throw new Error('Failed to check spending limit.');
     }
 
     amount = toBN(toWei(String(amount)));

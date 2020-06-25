@@ -1,14 +1,14 @@
 import { stdChannel } from 'redux-saga';
-import { debounce, getContext, put, call, all, take, spawn } from 'redux-saga/effects';
+import { all, call, debounce, getContext, put, spawn, take } from 'redux-saga/effects';
 import ipfs from '~/app/ipfs';
-import { mapValues } from '~/features/shared/fp';
 import createAsyncAction from '~/features/shared/createAsyncAction';
 import createWatchSaga from '~/features/shared/createWatchSaga';
-import { runSagasWithContext } from '~/features/web3/web3Slice';
+import { mapValues } from '~/features/shared/fp';
 import createSliceWithTransactions from '~/features/transactions/createSliceWithTransactions';
-import { selectByTxHash, registerTxSaga } from '~/features/transactions/transactionsSlice';
-import createTokenApi from './tokenApi';
+import { registerTxSaga, selectByTxHash } from '~/features/transactions/transactionsSlice';
+import { watchAll } from '~/features/web3/runWithContext';
 import fixtures from './fixtures/tokens.json';
+import createTokenApi from './tokenApi';
 
 const normalizedFixtures = mapValues(
   ([ID, name, ticker, address, logo, status, decimals]) => ({
@@ -103,7 +103,7 @@ export const watchApproveSaga = createWatchSaga(approveSaga, approve);
 
 export const sagas = {
   ...tokensSlice.sagas,
-  tokensRootSaga: runSagasWithContext([debounceCheckAllowanceSaga, watchApproveSaga], {
+  tokensRootSaga: watchAll([debounceCheckAllowanceSaga, watchApproveSaga], {
     createContext: ({ library }) => ({
       tokenApi: createTokenApi({ library }),
     }),

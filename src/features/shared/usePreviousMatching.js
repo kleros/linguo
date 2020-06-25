@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 
-export default function useLatestMatching(value, match) {
+export default function usePreviousMatching(value, match) {
   const previous = useRef();
 
   useEffect(() => {
