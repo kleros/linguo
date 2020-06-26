@@ -213,7 +213,7 @@ function LanguageSelectionCombobox({ value, selectedValues, onChange, name, remo
         align-items: center;
       `}
     >
-      <StyledIconButton variant="unstyled" onClick={handleRemove}>
+      <StyledIconButton fullWidth variant="unstyled" onClick={handleRemove}>
         <RemoveIcon />
       </StyledIconButton>
     </div>
@@ -313,22 +313,29 @@ LanguageSelectionCombobox.defaultProps = {
 
 const StyledIconButton = styled(Button)`
   && {
-    width: 100%;
-    max-width: 2.5rem;
-    min-width: 1rem;
-    color: #ccc;
     transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
-
+    color: #ccc;
     :not([disabled]):hover,
     :not([disabled]):focus,
     :not([disabled]):active {
       color: #999;
     }
 
-    .anticon,
-    .anticon svg {
+    width: 100%;
+    min-width: 2.5rem;
+    max-width: 3rem;
+    display: flex;
+    justify-content: stretch;
+    align-items: stretch;
+
+    > span {
       width: 100%;
-      height: 100%;
+
+      > .anticon,
+      > .anticon > svg {
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 `;
