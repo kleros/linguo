@@ -12,7 +12,7 @@ import FormattedNumber from '~/components/FormattedNumber';
 import { InfoIcon } from '~/components/icons';
 import Spacer from '~/components/Spacer';
 import usePreviousMatching from '~/features/shared/usePreviousMatching';
-import { selectLinguoTokenAddress } from '~/features/tasks/linguoSlice';
+import { selectLinguoTokenAddress } from '~/features/linguo/linguoSlice';
 import {
   approve,
   selectAllTokens,
@@ -282,7 +282,7 @@ const StyledAsyncFormItem = styled(Form.Item)`
   }
 `;
 
-function ApproveOptions({ tokenAddress, tokenTicker, owner, spender, amount, onSuccess, onError }) {
+function ApproveOptions({ status, tokenAddress, tokenTicker, owner, spender, amount, onSuccess, onError }) {
   const [interactionKey, setInteractionKey] = React.useState(nanoid());
   const { txState } = useShallowEqualSelector(selectInteractionTx(interactionKey)) ?? {};
   const hasPendingInteraction = txState === TransactionState.Pending;
@@ -290,7 +290,7 @@ function ApproveOptions({ tokenAddress, tokenTicker, owner, spender, amount, onS
   const previousTxState = usePreviousMatching(txState, previous =>
     [TransactionState.Mined, TransactionState.Failed].includes(previous)
   );
-  const shouldShowButtons = previousTxState !== TransactionState.Mined;
+  const shouldShowButtons = status === AllowanceValidationStatus.Invalid || previousTxState !== TransactionState.Mined;
 
   React.useEffect(() => {
     if (txState === TransactionState.Mined) {
@@ -370,6 +370,7 @@ function ApproveOptions({ tokenAddress, tokenTicker, owner, spender, amount, onS
 }
 
 ApproveOptions.propTypes = {
+  status: t.oneOf(Object.values(AllowanceValidationStatus)).isRequired,
   tokenAddress: t.string.isRequired,
   tokenTicker: t.string.isRequired,
   owner: t.string.isRequired,
