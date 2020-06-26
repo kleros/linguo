@@ -1276,10 +1276,10 @@
     multihashes "^0.4.14"
     web3 "1.0.0-beta.36"
 
-"@kleros/contract-deployments@~0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@kleros/contract-deployments/-/contract-deployments-0.3.1.tgz#edae9ed5261128488e59689e2fc3c59b2fd631ce"
-  integrity sha512-9pMbKDK51PzIQCNyfuv89tmWL65Ngn9RNyp2aiNnakozzWAKVsKiwncXnig+2r7vbG6hlC3iVTDLNgeEUWc7Dw==
+"@kleros/contract-deployments@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@kleros/contract-deployments/-/contract-deployments-0.3.2.tgz#926a31e928cf59f5af9a8b6c306d369012959e4c"
+  integrity sha512-J3YTvCOpBbZbQkh+oshBwm9KhS1GD0ZhBNvabLqHSnKkN/EC4m104q0IA/ax55iV6GoHKBH0G961DhzwIQTVUg==
 
 "@kleros/kleros-interaction@^0.7.0":
   version "0.7.0"
