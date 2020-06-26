@@ -38,8 +38,6 @@ function TranslationRequestForm() {
 
   const handleFinish = React.useCallback(
     async ({ originalTextFile, ...rest }) => {
-      console.log('Submitting...', { originalTextFile, ...rest });
-
       if (linguo.error) {
         notification.error({
           placement: 'bottomRight',

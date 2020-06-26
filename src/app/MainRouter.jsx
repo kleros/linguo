@@ -12,7 +12,7 @@ import { DrawerMenu } from '~/components/Menu';
 import { history } from '~/store';
 import * as r from './routes';
 
-const fallback = <Spin tip="Loading contents of the page..." />;
+const fallback = <Spin $centered tip="Loading contents of the page..." />;
 
 const Home = loadable(() => import('~/pages/Home'), { fallback });
 const TranslatorDashboard = loadable(() => import('~/pages/TranslatorDashboard'), { fallback });
@@ -23,7 +23,7 @@ const TranslationDetails = loadable(() => import('~/pages/TranslationDetails'), 
 
 function MainRouter() {
   return (
-    <ConnectedRouter history={history}>
+    <ConnectedRouter history={history} noInitialPop>
       <Layout>
         <DrawerMenu />
         <Layout>

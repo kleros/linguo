@@ -1,10 +1,21 @@
+import React from 'react';
+import t from 'prop-types';
 import styled, { css } from 'styled-components';
 import { Spin as BaseSpin } from 'antd';
 
-export default styled(BaseSpin).attrs(props => ({
-  ...props,
-  $centered: props.$centered ?? true,
-}))`
+export default function Spin({ $centered, ...props }) {
+  return <StyledSpin $centered={$centered} {...props} />;
+}
+
+Spin.propTypes = {
+  $centered: t.bool,
+};
+
+Spin.defaultProps = {
+  $centered: false,
+};
+
+const StyledSpin = styled(BaseSpin)`
   ${props => props.$centered && centeredStyles}
   animation: fadeIn 0.25s cubic-bezier(0.77, 0, 0.175, 1);
 
@@ -19,8 +30,8 @@ export default styled(BaseSpin).attrs(props => ({
 `;
 
 const centeredStyles = css`
-  position: absolute;
+  position: fixed !important;
   left: 50% !important;
-  top: 50%;
+  top: 50% !important;
   transform: translate(-50%, -50%);
 `;

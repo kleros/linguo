@@ -1,12 +1,13 @@
-import { persistCombineReducers } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
 import { connectRouter } from 'connected-react-router';
+import { persistCombineReducers } from 'redux-persist';
+import requesterReducer from '~/features/requester/requesterSlice';
+import storage from 'redux-persist/lib/storage';
+import tasksReducer from '~/features/tasks/tasksSlice';
+import tokenReducer from '~/features/tokens/tokensSlice';
+import transactionsReducer from '~/features/transactions/transactionsSlice';
 import translatorReducer from '~/features/translator/translatorSlice';
 import uiReducer from '~/features/ui/uiSlice';
 import web3Reducer from '~/features/web3/web3Slice';
-import tokenReducer from '~/features/tokens/tokensSlice';
-import linguoReducer from '~/features/linguo/linguoSlice';
-import transactionsReducer from '~/features/transactions/transactionsSlice';
 import history from './history';
 
 const persistConfig = {
@@ -19,11 +20,12 @@ const persistConfig = {
 export const createRootReducer = additionalReducers =>
   persistCombineReducers(persistConfig, {
     ...additionalReducers,
+    router: connectRouter(history),
+    requester: requesterReducer,
+    tasks: tasksReducer,
+    tokens: tokenReducer,
+    transactions: transactionsReducer,
     translator: translatorReducer,
     ui: uiReducer,
     web3: web3Reducer,
-    tokens: tokenReducer,
-    linguo: linguoReducer,
-    transactions: transactionsReducer,
-    router: connectRouter(history),
   });

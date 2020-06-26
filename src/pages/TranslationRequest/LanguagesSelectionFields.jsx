@@ -31,7 +31,7 @@ const StyledSwapButtonCol = styled(Col)`
 
     @media (min-width: 768px) {
       position: absolute;
-      top: 40%;
+      top: 3.6rem;
       z-index: 10;
     }
   }
@@ -39,6 +39,9 @@ const StyledSwapButtonCol = styled(Col)`
 
 const StyledSwapButton = styled(Button)`
   && {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 2rem;
     height: 2rem;
     background: ${props => props.theme.color.border.default};
@@ -52,8 +55,8 @@ const StyledSwapButton = styled(Button)`
 
     .anticon,
     .anticon > svg {
-      width: 100%;
-      height: 100%;
+      width: 1.5rem;
+      height: 1.5rem;
     }
   }
 `;

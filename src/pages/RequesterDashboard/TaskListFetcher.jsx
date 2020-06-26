@@ -1,61 +1,86 @@
 import React from 'react';
-import { Alert, Spin } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { Alert } from 'antd';
+import { Spin } from '~/adapters/antd';
+import { useShallowEqualSelector } from '~/adapters/reactRedux';
 import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
-import { useWeb3React } from '~/features/web3';
-import { useCacheCall } from '~/app/linguo';
-import compose from '~/utils/fp/compose';
-import { withSuspense } from '~/adapters/react';
-import { withErrorBoundary } from '~/components/ErrorBoundary';
-import { TaskListProvider } from './TaskListContext';
-import TaskList from './TaskList';
+import { InfoIcon } from '~/components/icons';
+import withLoading from '~/features/shared/withLoading';
+import TaskList from '~/features/tasks/TaskList';
+import { fetchTasks, selectTasks, selectIsLoading } from '~/features/requester/requesterSlice';
+import { selectAccount } from '~/features/web3/web3Slice';
+import filters, { getFilter, useFilterName } from './filters';
+import { getComparator } from './sorting';
 
-const emptyTaskList = [];
-const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
-
-function TaskListFetcher() {
-  const { account } = useWeb3React();
-
-  const [{ data }, refetch] = useCacheCall(['getRequesterTasks', account], {
-    suspense: true,
-    initialData: emptyTaskList,
-    refreshInterval: _1_MINUTE_IN_MILISECONDS,
-  });
-
-  useRefreshEffectOnce(refetch);
-
-  return (
-    <TaskListProvider taskList={data}>
-      <TaskList />
-    </TaskListProvider>
-  );
-}
-
-const errorBoundaryEnhancer = withErrorBoundary({
-  renderFallback: function ErrorBoundaryFallback(error) {
-    return <Alert type="error" message={error.message} />;
+const loadingEnhancer = withLoading({
+  fallback(Component, props) {
+    return (
+      <>
+        <Spin $centered spinning tip="Loading the translation tasks you created...">
+          <Component {...props} />
+        </Spin>
+      </>
+    );
   },
 });
 
-const suspenseEnhancer = withSuspense({
-  fallback: (
-    <Spin
-      spinning
-      tip="Loading the translation tasks you created..."
-      css={`
-        &&.ant-spin {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-      `}
-    />
-  ),
-});
+const TaskListWithLoading = loadingEnhancer(TaskList);
+
+function TaskListFetcher() {
+  const dispatch = useDispatch();
+  const account = useSelector(selectAccount);
+
+  const doFetchTasks = React.useCallback(() => {
+    dispatch(fetchTasks({ account }));
+  }, [dispatch, account]);
+
+  React.useEffect(() => {
+    doFetchTasks();
+  }, [doFetchTasks]);
+
+  useRefreshEffectOnce(doFetchTasks);
+
+  const [filterName] = useFilterName();
+
+  const data = useShallowEqualSelector(selectTasks({ account }));
+  const displayableData = React.useMemo(() => sort(filter(data, getFilter(filterName)), getComparator(filterName)), [
+    data,
+    filterName,
+  ]);
+
+  const showFootnote = [filters.open].includes(filterName) && displayableData.length > 0;
+  const showFilterDescription = displayableData.length > 0;
+
+  const isLoading = useSelector(selectIsLoading(account));
+
+  return (
+    <>
+      {showFilterDescription && filterDescriptionMap[filterName]}
+      <TaskListWithLoading isLoading={isLoading} data={displayableData} showFootnote={showFootnote} />
+    </>
+  );
+}
 
 /**
  * ATTENTION: Order is important!
- * Since composition is evaluated right-to-left, `suspenseEnhancer` should be declared
+ * Since composition is evaluated right-to-left, `loadingEnhancer` should be declared
  * **AFTER** `errorBoundaryEnhancer`
  */
-export default compose(errorBoundaryEnhancer, suspenseEnhancer)(TaskListFetcher);
+export default TaskListFetcher;
+
+const sort = (data, comparator) => [...data].sort(comparator);
+const filter = (data, predicate) => data.filter(predicate);
+
+const filterDescriptionMap = {
+  [filters.incomplete]: (
+    <Alert
+      showIcon
+      css={`
+        margin-bottom: 1rem;
+      `}
+      icon={<InfoIcon />}
+      type="info"
+      message="Incomplete taks are those which were not assigned to any translator or whose translator did not submit the translated text within the specified deadline."
+    />
+  ),
+};

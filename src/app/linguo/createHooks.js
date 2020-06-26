@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo } from 'react';
 import useSWR from 'swr';
-import { Linguo, Arbitrator } from '@kleros/contract-deployments/linguo';
+import { Linguo, LinguoToken, Arbitrator } from '@kleros/contract-deployments/linguo';
 import createError from '~/utils/createError';
 import createApiFacade from './createApiFacade';
 
@@ -31,19 +31,25 @@ const createApiInstance = async ({ web3, chainId }) => {
     };
   }
 
-  const address = Linguo.networks[chainId].address;
-  if (!address) {
+  const linguoAddress = Linguo.networks[chainId].address;
+  const linguoTokenAddress = LinguoToken.networks[chainId].address;
+
+  if (!linguoAddress || !linguoAddress) {
     return {
       tag: 'error',
-      error: new Error(`Linguo contract has no address for network ${chainId}`),
+      error: new Error(`Linguo contract has no linguoAddress for network ${chainId}`),
       api: apiPlaceholder,
     };
   }
 
   try {
-    const linguo = new web3.eth.Contract(Linguo.abi, address);
-    const arbitratorAddress = await linguo.methods.arbitrator().call();
-    const arbitrator = new web3.eth.Contract(Arbitrator.abi, arbitratorAddress);
+    const linguo = new web3.eth.Contract(Linguo.abi, linguoAddress);
+    const linguoArbitratorAddress = await linguo.methods.arbitrator().call();
+    const linguoArbitrator = new web3.eth.Contract(Linguo.abi, linguoArbitratorAddress);
+
+    const linguoToken = new web3.eth.Contract(LinguoToken.abi, linguoTokenAddress);
+    const linguoTokenArbitratorAddress = await linguoToken.methods.arbitrator().call();
+    const linguoTokenArbitrator = new web3.eth.Contract(Arbitrator.abi, linguoTokenArbitratorAddress);
 
     return {
       tag: 'ready',
@@ -52,11 +58,16 @@ const createApiInstance = async ({ web3, chainId }) => {
         web3,
         withEtherPayments: {
           linguo,
-          arbitrator,
+          arbitrator: linguoArbitrator,
+        },
+        withTokenPayments: {
+          linguo: linguoToken,
+          arbitrator: linguoTokenArbitrator,
         },
       }),
     };
   } catch (err) {
+    console.warn('Error creating Linguo API object', err);
     return {
       tag: 'error',
       error: createError('Could not create a Linguo contract instance', { cause: err }),

@@ -1,7 +1,13 @@
+import { Arbitrator, Linguo, LinguoToken } from '@kleros/contract-deployments/linguo';
 import { ADDRESS_ZERO } from './constants';
 import { createEthContractApi, createTokenContractApi } from './createContractApi';
 
-export default function createApiFacade({ web3, withEtherPayments, withTokenPayments }) {
+export default async function createApiFacade({ web3, chainId }) {
+  const [withEtherPayments, withTokenPayments] = await Promise.all([
+    getLinguoContracts({ web3, chainId, deployment: Linguo }),
+    getLinguoContracts({ web3, chainId, deployment: LinguoToken }),
+  ]);
+
   const linguoEtherAddress = withEtherPayments.linguo?.options.address;
   const linguoTokenAddress = withTokenPayments.linguo?.options.address;
 
@@ -100,4 +106,18 @@ export default function createApiFacade({ web3, withEtherPayments, withTokenPaym
   };
 
   return new Proxy(fullApi, propHandler);
+}
+
+async function getLinguoContracts({ web3, chainId, deployment }) {
+  const address = deployment.networks[chainId]?.address;
+
+  if (!address) {
+    throw new Error(`Could not find address for linguo contract on network ${chainId}`);
+  }
+
+  const linguo = new web3.eth.Contract(deployment.abi, address);
+  const arbitratorAddress = await linguo.methods.arbitrator().call();
+  const arbitrator = new web3.eth.Contract(Arbitrator.abi, arbitratorAddress);
+
+  return { linguo, arbitrator };
 }

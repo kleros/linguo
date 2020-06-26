@@ -1,12 +1,16 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { LinguoToken, Linguo } from '@kleros/contract-deployments/linguo';
+import { selectChainId } from '~/features/web3/web3Slice';
 
-const linguoSlice = createSlice({
-  name: 'linguo',
-  initialState: {
-    tokenAddress: '0x0000000000000000000000000000000000000000',
-  },
-});
+const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
-export default linguoSlice.reducer;
+export const selectLinguoTokenAddress = state => {
+  const chainId = selectChainId(state);
 
-export const selectLinguoTokenAddress = state => state.linguo.tokenAddress;
+  return LinguoToken.networks[chainId]?.address ?? ADDRESS_ZERO;
+};
+
+export const selectLinguoEtherAddress = state => {
+  const chainId = selectChainId(state);
+
+  return Linguo.networks[chainId]?.address ?? ADDRESS_ZERO;
+};

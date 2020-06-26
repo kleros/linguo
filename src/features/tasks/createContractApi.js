@@ -29,22 +29,14 @@ export function createEthContractApi({ web3, linguo, arbitrator }) {
       ...rest,
     });
 
-    try {
-      const contractCall = linguo.methods.createTask(deadline, minPrice, metaEvidence);
+    const tx = linguo.methods.createTask(deadline, minPrice, metaEvidence).send({
+      from,
+      gas,
+      gasPrice,
+      value: maxPrice,
+    });
 
-      const txn = contractCall.send({
-        from,
-        gas,
-        gasPrice,
-        value: maxPrice,
-      });
-
-      const receipt = await txn;
-      return receipt;
-    } catch (err) {
-      console.warn('Failed to create the translation task', err);
-      throw new Error('Failed to create the translation task');
-    }
+    return { tx };
   }
 
   return {
@@ -71,17 +63,11 @@ export function createTokenContractApi({ web3, linguo, arbitrator }) {
       ...rest,
     });
 
-    try {
-      const contractCall = linguo.methods.createTask(deadline, token, minPrice, maxPrice, metaEvidence);
+    const tx = linguo.methods
+      .createTask(deadline, token, minPrice, maxPrice, metaEvidence)
+      .send({ from, gas, gasPrice });
 
-      const tx = contractCall.send({ from, gas, gasPrice });
-
-      const receipt = await tx;
-      return receipt;
-    } catch (err) {
-      console.warn('Failed to create the translation task', err);
-      throw new Error('Failed to create the translation task');
-    }
+    return { tx };
   }
 
   return {
@@ -115,7 +101,7 @@ function createCommonApi({ web3, linguo, arbitrator }) {
     return tasks;
   }
 
-  async function getTranslatorTasks({ account, skills }) {
+  async function getTranslatorTasks({ account, skills = [] }) {
     account = account ?? ADDRESS_ZERO;
     skills = typeof skills === 'string' ? JSON.parse(skills) : skills;
 
@@ -554,84 +540,77 @@ function createCommonApi({ web3, linguo, arbitrator }) {
 
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
     const value = await getTranslatorDeposit({ ID });
-    const txn = linguo.methods.assignTask(ID).send({
+    const tx = linguo.methods.assignTask(ID).send({
       from,
       value,
       gas,
       gasPrice,
     });
 
-    const receipt = await txn;
-    return receipt;
+    return { tx };
   }
 
   async function submitTranslation({ ID, text }, { from, gas, gasPrice } = {}) {
-    const txn = linguo.methods.submitTranslation(ID, text).send({
+    const tx = linguo.methods.submitTranslation(ID, text).send({
       from,
       gas,
       gasPrice,
     });
 
-    const receipt = await txn;
-    return receipt;
+    return { tx };
   }
 
   async function approveTranslation({ ID }, { from, gas, gasPrice } = {}) {
-    const txn = linguo.methods.acceptTranslation(ID).send({
+    const tx = linguo.methods.acceptTranslation(ID).send({
       from,
       gas,
       gasPrice,
     });
 
-    const receipt = await txn;
-    return receipt;
+    return { tx };
   }
 
   async function reimburseRequester({ ID }, { from, gas, gasPrice } = {}) {
-    const txn = linguo.methods.reimburseRequester(ID).send({
+    const tx = linguo.methods.reimburseRequester(ID).send({
       from,
       gas,
       gasPrice,
     });
 
-    const receipt = await txn;
-    return receipt;
+    return { tx };
   }
 
   async function acceptTranslation({ ID }, { from, gas, gasPrice } = {}) {
-    const txn = linguo.methods.acceptTranslation(ID).send({
+    const tx = linguo.methods.acceptTranslation(ID).send({
       from,
       gas,
       gasPrice,
     });
 
-    const receipt = await txn;
-    return receipt;
+    return { tx };
   }
 
   async function challengeTranslation({ ID, evidence }, { from, gas, gasPrice } = {}) {
     const value = await getChallengerDeposit({ ID });
-    const txn = linguo.methods.challengeTranslation(ID, evidence).send({
+    const tx = linguo.methods.challengeTranslation(ID, evidence).send({
       from,
       value,
       gas,
       gasPrice,
     });
 
-    const receipt = await txn;
-    return receipt;
+    return { tx };
   }
 
   async function fundAppeal({ ID, side }, { from, value, gas, gasPrice } = {}) {
-    const txn = linguo.methods.fundAppeal(ID, side).send({
+    const tx = linguo.methods.fundAppeal(ID, side).send({
       from,
       value,
       gas,
       gasPrice,
     });
 
-    const receipt = await txn;
-    return receipt;
+    return { tx };
   }
 
   return {

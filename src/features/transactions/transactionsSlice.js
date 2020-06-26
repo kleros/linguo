@@ -2,14 +2,16 @@ import { createSlice } from '@reduxjs/toolkit';
 import { persistReducer, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { END } from 'redux-saga';
-import { take, call, put, select, all, spawn } from 'redux-saga/effects';
+import { all, call, delay, getContext, put, select, spawn, take } from 'redux-saga/effects';
 import serializerr from 'serializerr';
-import { notify, NotificationLevel } from '~/features/ui/notificationSlice';
+import { pick } from '~/features/shared/fp';
+import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import { getErrorMessage } from '~/features/web3';
+import { runOnceWhenReady } from '~/features/web3/runWithContext';
 import { getBlockExplorerTxUrl } from '~/features/web3/web3Slice';
-import TransactionState from './TransactionState';
 import createTransactionChannel from './createTransactionChannel';
 import createTtlChannel from './createTtlChannel';
+import TransactionState from './TransactionState';
 
 const _30_MINUTES_MS = 30 * 60 * 1000;
 const DEFAULT_TTL = _30_MINUTES_MS;
@@ -60,22 +62,6 @@ const transactionsSlice = createSlice({
       state.ids = state.ids.filter(item => item !== txHash);
       delete state.entities[txHash];
     },
-    removeExpired(state, action) {
-      const { expirationDate } = action.payload;
-
-      const idsToRemove = [];
-
-      state.ids.forEach(txHash => {
-        const tx = state.entities[txHash];
-
-        if (new Date(tx.expiresAt ?? null) < new Date(expirationDate)) {
-          idsToRemove.push(tx.txHash);
-          delete state.entities[tx.txHash];
-        }
-      });
-
-      state.ids = state.ids.filter(item => !idsToRemove.includes(item));
-    },
     setExpiration(state, action) {
       const { txHash, expiresAt } = action.payload;
       if (state.entities[txHash]) {
@@ -90,7 +76,7 @@ const transactionsSlice = createSlice({
         state.entities[txHash].receipt = receipt;
       }
     },
-    setError(state, action) {
+    fail(state, action) {
       const { txHash, error } = action.payload;
       if (state.entities[txHash]) {
         state.entities[txHash].txState = TransactionState.Failed;
@@ -100,7 +86,7 @@ const transactionsSlice = createSlice({
   },
 });
 
-export const { add, remove, removeExpired, setExpiration, confirm, setError } = transactionsSlice.actions;
+export const { add, remove, setExpiration, confirm, fail } = transactionsSlice.actions;
 
 export default createPersistedReducer(transactionsSlice.reducer);
 
@@ -112,14 +98,12 @@ export const selectAll = state => {
 export const selectExpired = expirationDate => state =>
   selectAll(state).filter(({ expiresAt }) => new Date(expirationDate) >= new Date(expiresAt));
 
+export const selectPending = state => selectAll(state).filter(({ txState }) => txState === TransactionState.Pending);
+
 export const selectByTxHash = txHash => state => state.transactions.entities[txHash];
+
 /**
  * Registers a transaction.
- *
- * @typedef {object} ShouldNotifyOption
- * @prop {boolean} [pending=true] whether it should notify on pending.
- * @prop {boolean} [success=true] whether it should notify on sucess.
- * @prop {boolean} [failure=true] whether it should notify on failure.
  *
  * @param {PromiEvent} tx the transaction PromiEvent from web3.js
  * @param {object} options the options object
@@ -158,7 +142,7 @@ export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL, shouldNot
 
       const ttlChannel = yield call(createTtlChannel, ttl, { txHash });
       // Schedules the removal of the transaction in the background
-      yield spawn(removeTxAfterTtl, ttlChannel);
+      yield spawn(removeTxAfterTtlSaga, ttlChannel);
       hasScheduledRemoval = true;
     }
 
@@ -177,7 +161,11 @@ export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL, shouldNot
   }
 }
 
-export function* removeExpiredTxsSaga() {
+/**
+ * This saga will run only after `redux-persist` REHYDRATE action, which means there
+ * was a page refresh or the app tab was open again after being closed.
+ */
+export function* removeAllExpiredTxsSaga() {
   while (true) {
     const { key } = yield take(REHYDRATE);
     if (key === PERSISTANCE_KEY) {
@@ -188,15 +176,97 @@ export function* removeExpiredTxsSaga() {
   }
 }
 
+export function* updateAllPendingTxsSaga() {
+  const web3 = yield getContext('library');
+
+  const pendingTxs = yield select(selectPending);
+
+  yield all(pendingTxs.map(tx => call(updatePendingTxSaga, { web3, txHash: tx.txHash })));
+}
+
+function* updatePendingTxSaga({ web3, txHash }) {
+  const MAX_ATTEMPTS = 10;
+  const INTERVAL = 10000;
+
+  const _1_HOUR_SECONDS = 3600;
+  const _10_SECONDS = 10;
+
+  let attempts = 0;
+  let data = null;
+
+  yield call(
+    createTxNotification,
+    { txHash },
+    {
+      level: NotificationLevel.info,
+      message: 'Transaction pending!',
+      duration: _1_HOUR_SECONDS,
+    }
+  );
+
+  do {
+    data = yield call([web3.eth, web3.eth.getTransactionReceipt], txHash);
+    attempts += 1;
+    // Tx is still pending
+    if (data === null) {
+      yield delay(INTERVAL);
+    }
+  } while (data === null && attempts < MAX_ATTEMPTS);
+
+  if (data === null) {
+    return;
+  }
+
+  if (data.status === true) {
+    // Tx was mined sucessfully
+    yield put(
+      confirm({
+        txHash,
+        number: 0,
+        receipt: pick(['from', 'to', 'transactionIndex', 'blockHash', 'blockNumber'], data),
+      })
+    );
+
+    yield call(
+      createTxNotification,
+      { txHash },
+      {
+        level: NotificationLevel.success,
+        message: 'Transaction mined!',
+        duration: _10_SECONDS,
+      }
+    );
+  } else {
+    // Tx failed
+    yield put(
+      fail({
+        txHash,
+        error: { message: 'Transaction failed with unknown reason.' },
+      })
+    );
+
+    yield call(
+      createTxNotification,
+      { txHash },
+      {
+        level: NotificationLevel.error,
+        message: 'Transaction failed!',
+        duration: _10_SECONDS,
+      }
+    );
+  }
+}
+
 export const sagas = {
-  removeExpiredTxsSaga,
+  removeAllExpiredTxsSaga,
+  updateAllPendingTxsSaga: runOnceWhenReady(updateAllPendingTxsSaga),
 };
 
 function getCurrentDate() {
   return new Date();
 }
 
-function* removeTxAfterTtl(ttlChannel) {
+function* removeTxAfterTtlSaga(ttlChannel) {
   const { txHash } = yield take(ttlChannel);
   yield put(remove({ txHash }));
 }
@@ -223,7 +293,7 @@ function createStoreUpdateSubscriber() {
         yield put(confirm(event.payload));
         break;
       case 'TX_ERROR':
-        yield put(setError(event.payload));
+        yield put(fail(event.payload));
         break;
     }
   };
@@ -238,47 +308,35 @@ function createNoticationSubscriber({ shouldNotify }) {
     }
 
     const txHash = event.payload?.txHash ?? null;
-    const url = txHash ? yield call(getBlockExplorerTxUrl, txHash) : null;
-    const notificationTemplateMixin = url
-      ? {
-          template: {
-            id: 'link',
-            params: {
-              text: 'View on Etherscan',
-              url,
-            },
-          },
-        }
-      : {};
 
     const _1_HOUR_SECONDS = 3600;
-    const _5_SECONDS = 5;
+    const _10_SECONDS = 10;
 
     switch (event.type) {
       case 'TX_HASH':
         if (shouldNotify.pending) {
-          yield put(
-            notify({
-              key: `tx/${txHash}`,
+          yield call(
+            createTxNotification,
+            { txHash },
+            {
               level: NotificationLevel.info,
               duration: _1_HOUR_SECONDS,
               message: 'Transaction pending!',
-              ...notificationTemplateMixin,
-            })
+            }
           );
         }
 
         break;
       case 'TX_CONFIRMATION':
         if (shouldNotify.success) {
-          yield put(
-            notify({
-              key: `tx/${txHash}`,
+          yield call(
+            createTxNotification,
+            { txHash },
+            {
               level: NotificationLevel.success,
               message: 'Transaction mined!',
-              duration: _5_SECONDS,
-              ...notificationTemplateMixin,
-            })
+              duration: _10_SECONDS,
+            }
           );
         }
 
@@ -286,13 +344,14 @@ function createNoticationSubscriber({ shouldNotify }) {
 
       case 'TX_ERROR':
         if (shouldNotify.failure) {
-          yield put(
-            notify({
-              key: `tx/${txHash}`,
+          yield call(
+            createTxNotification,
+            { txHash },
+            {
               level: NotificationLevel.error,
               message: getErrorMessage(event.payload.error ?? 'Unknown error'),
-              ...notificationTemplateMixin,
-            })
+              duration: _10_SECONDS,
+            }
           );
         }
 
@@ -312,3 +371,34 @@ function normalizeShouldNotify(shouldNotify) {
 
   return shouldNotify;
 }
+
+function* createTxNotification({ txHash }, { level = NotificationLevel.info, key = `tx/${txHash}`, ...rest } = {}) {
+  const url = txHash ? yield call(getBlockExplorerTxUrl, txHash) : null;
+  const notificationTemplateMixin = url
+    ? {
+        template: {
+          id: 'link',
+          params: {
+            text: 'View on Etherscan',
+            url,
+          },
+        },
+      }
+    : {};
+
+  yield put(
+    notify({
+      key,
+      level,
+      ...rest,
+      ...notificationTemplateMixin,
+    })
+  );
+}
+
+/**
+ * @typedef {object} ShouldNotifyOption
+ * @prop {boolean} [pending=true] whether it should notify on pending.
+ * @prop {boolean} [success=true] whether it should notify on sucess.
+ * @prop {boolean} [failure=true] whether it should notify on failure.
+ */

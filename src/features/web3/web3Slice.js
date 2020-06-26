@@ -1,12 +1,12 @@
-import { createReducer, createAction } from '@reduxjs/toolkit';
+import { createAction, createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
-import { put, take, all, call, fork, cancel, cancelled, setContext, select } from 'redux-saga/effects';
+import storage from 'redux-persist/lib/storage';
+import { put, select } from 'redux-saga/effects';
 import getErrorMessage from '~/adapters/web3React/getErrorMessage';
 import createStateMachineReducer from '~/features/shared/createStateMachineReducer';
-import { notify, NotificationLevel } from '~/features/ui/notificationSlice';
 import createWatchSaga from '~/features/shared/createWatchSaga';
+import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 
 /* -------------------- Action Creators -------------------- */
 export const activate = Object.assign(createAction(`web3/activate`), {
@@ -85,75 +85,6 @@ export const sagas = {
   watchNotifyError: createWatchSaga(notifyErrorSaga, setError),
   watchNotifyActivateError: createWatchSaga(notifyErrorSaga, activate.error),
 };
-
-/**
- * Runs sagas whose context depends upon the `library` object set by web3-react.
- * Since this object is non-serializable, we shouldn't hold it in the store or pass it around
- * in action payload.
- *
- * Since web3-react API is React-centric, is hard to get hold of its values.
- * We created a special action type `web3/changeLibrary`, which will be triggered whenever
- * web3-react `library` value changes.
- *
- * This function will create a saga which will watch for `web3/changeLibrary` events
- * and will spawn all `sagas` after setting their context with the return of `createContext`.
- *
- * Whenever a new `web3/changeLibrary` action is dispatched, all `sagas` registered here will
- * be cancelled and re-spawn again with the updated context.
- *
- * The returned saga SHOULD be exported in the consuming slice to be picked up by the root saga.
- *
- * @param {Generator[]} sagas an array of generator functions which should be aware of the context.
- * Usually these are the "watcher" sagas, which will watch for incomming actions, that is,
- * those ones with `takeLatest`, `takeEvery` or `debounce` in their body. Since those sagas usually
- * `fork` the "worker" sagas, the context will be available for them too.
- * @param {object} options to config
- * @param {({ library: any }) => ({ [prop]: any })} [options.createContext]
- * @returns Generator
- */
-export function runSagasWithContext(sagas, { createContext = ({ library }) => ({ library }) } = {}) {
-  return function* watchChangeLibrary() {
-    let tasks = [];
-
-    while (true) {
-      const action = yield take(`${changeLibrary}`);
-      const { library } = action.payload;
-
-      if (tasks) {
-        yield cancel(tasks);
-      }
-
-      if (!library) {
-        tasks = [];
-        continue;
-      }
-
-      const context = yield call(createContext, { library });
-      yield setContext(context);
-
-      tasks = yield all(
-        sagas.map(saga =>
-          fork(function* sagaWrapper() {
-            let isCancelled = false;
-
-            while (!isCancelled) {
-              try {
-                yield call(saga);
-              } catch (err) {
-                console.warn('Error in saga:', err);
-              } finally {
-                if (yield cancelled()) {
-                  console.info('Cancelling saga:', saga.name);
-                  isCancelled = true;
-                }
-              }
-            }
-          })
-        )
-      );
-    }
-  };
-}
 
 /* ------------------------- Other ------------------------- */
 function createFinalReducer() {

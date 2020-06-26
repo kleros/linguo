@@ -1,14 +1,19 @@
 import { takeEvery, takeLatest } from 'redux-saga/effects';
 
-const TakeType = {
+export const TakeType = {
+  every: 'every',
+  latest: 'latest',
+};
+
+const takeTypeEffectMap = {
   every: takeEvery,
   latest: takeLatest,
 };
 
 export default function createWatchSaga(saga, actionType, { takeType = 'every', additionalArgs = [] } = {}) {
-  const effect = TakeType[takeType];
+  const effect = takeTypeEffectMap[takeType];
   if (!effect) {
-    throw new Error(`Unknown take type "${takeType}". Should be one of ${Object.keys(TakeType)}.`);
+    throw new Error(`Unknown take type "${takeType}". Should be one of ${Object.keys(takeTypeEffectMap)}.`);
   }
   const watchSaga = function* watchSaga() {
     yield effect(`${actionType}`, saga, ...additionalArgs);

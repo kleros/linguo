@@ -10,6 +10,7 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
     let txHash = null;
 
     tx.once('transactionHash', _txHash => {
+      console.debug('Tx channel: transaction hash', _txHash);
       emit({ type: 'TX_HASH', payload: { txHash: _txHash } });
       txHash = _txHash;
 
@@ -22,6 +23,7 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
     });
 
     tx.on('confirmation', (number, receipt) => {
+      console.debug('Tx channel: transaction confirmation #', number);
       if (number <= confirmations) {
         emit({
           type: 'TX_CONFIRMATION',
@@ -45,6 +47,7 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
     });
 
     tx.on('error', error => {
+      console.debug('Tx channel: transaction error', error);
       emit({ type: 'TX_ERROR', payload: { txHash, error } });
       emit(END);
 
