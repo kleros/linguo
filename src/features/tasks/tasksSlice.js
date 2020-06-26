@@ -1,13 +1,21 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { call, cancelled, getContext, put, select } from 'redux-saga/effects';
+import { push } from 'connected-react-router';
+import { call, getContext, put, select, spawn, take } from 'redux-saga/effects';
+import * as r from '~/app/routes';
 import createAsyncAction from '~/features/shared/createAsyncAction';
-import createWatchSaga, { TakeType } from '~/features/shared/createWatchSaga';
+import createCancellableSaga from '~/features/shared/createCancellableSaga';
+import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
+import { confirm, matchTxResult, registerTxSaga } from '~/features/transactions/transactionsSlice';
+import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import { watchAll } from '~/features/web3/runWithContext';
 import { selectChainId } from '~/features/web3/web3Slice';
-import TaskParty from './entities/TaskParty';
 import createApiFacade from './createApiFacade';
 import createApiFacadePlaceholder from './createApiFacadePlaceholder';
+import TaskParty from './entities/TaskParty';
 
+export const INTERNAL_FETCH_KEY = '@@tasks/internal';
+
+export const create = createAsyncAction('tasks/create');
 export const fetchByParty = createAsyncAction('tasks/fetchByParty');
 export const fetchById = createAsyncAction('tasks/fetchById');
 
@@ -31,9 +39,6 @@ const tasksSlice = createSlice({
         state.push(id);
       }
     },
-    setLoadingState(state, action) {
-      state.loadingState = action.payload.loadingState;
-    },
   },
   extraReducers: builder => {
     builder.addCase(fetchByParty.fulfilled, (state, action) => {
@@ -53,21 +58,21 @@ const tasksSlice = createSlice({
     });
 
     builder.addMatcher(
-      action => /^tasks\/.*\/pending$/.test(action.type),
+      action => /^tasks\/fetch.*\/pending$/.test(action.type),
       state => {
         state.loadingState = 'loading';
       }
     );
 
     builder.addMatcher(
-      action => /^tasks\/.*\/fulfilled$/.test(action.type),
+      action => /^tasks\/fetch.*\/fulfilled$/.test(action.type),
       state => {
         state.loadingState = 'fetched';
       }
     );
 
     builder.addMatcher(
-      action => /^tasks\/.*\/rejected$/.test(action.type),
+      action => /^tasks\/fetch.*\/rejected$/.test(action.type),
       state => {
         state.loadingState = 'failed';
       }
@@ -76,8 +81,6 @@ const tasksSlice = createSlice({
 });
 
 export default tasksSlice.reducer;
-
-const { setLoadingState } = tasksSlice.actions;
 
 export const { add } = tasksSlice.actions;
 
@@ -126,12 +129,63 @@ export function* fetchByPartySaga(action) {
   }
 }
 
-const watchFetchTasksSaga = createWatchSaga(withResetLoadingStateOnCancel(fetchByPartySaga), fetchByParty, {
-  takeType: TakeType.latest,
-});
+const watchFetchTasksSaga = createWatcherSaga(
+  createCancellableSaga(fetchByPartySaga, fetchByParty.rejected, {
+    additionalArgs: action => ({ key: action.meta?.key }),
+  }),
+  fetchByParty,
+  { takeType: TakeType.latest }
+);
+
+export function* createTaskSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+
+  const { account, ...rest } = action.payload ?? {};
+  const redirect = action.meta?.redirect ?? true;
+
+  if (!account) {
+    yield put(
+      notify({
+        message: 'There is no requester account to use.',
+        level: NotificationLevel.error,
+      })
+    );
+    return;
+  }
+
+  try {
+    const { tx } = yield call([linguoApi, 'createTask'], { account, ...rest }, { from: account });
+    const { txHash } = yield call(registerTxSaga, tx);
+    if (redirect) {
+      yield put(push(r.TRANSLATION_DASHBOARD));
+    }
+
+    yield spawn(function* updateAfterTxMined() {
+      // Wait until the tx is confirmed or fails
+      const resultAction = yield take(matchTxResult({ txHash }));
+
+      // If the tx is successfull, fetch the tasks again
+      if (confirm.match(resultAction)) {
+        yield put(
+          fetchByParty(
+            {
+              account,
+              party: TaskParty.Requester,
+            },
+            { key: INTERNAL_FETCH_KEY }
+          )
+        );
+      }
+    });
+  } catch (err) {
+    // do nothing...
+  }
+}
+
+const watchCreateTaskSaga = createWatcherSaga(createTaskSaga, create, { takeType: 'leading' });
 
 export const sagas = {
-  mainLinguoSaga: watchAll([watchFetchTasksSaga], {
+  mainLinguoSaga: watchAll([watchFetchTasksSaga, watchCreateTaskSaga], {
     *createContext({ library: web3 }) {
       const chainId = yield select(selectChainId);
 
@@ -148,15 +202,3 @@ export const sagas = {
     },
   }),
 };
-
-export function withResetLoadingStateOnCancel(saga) {
-  return function* resetLoadingStateOnCancelSaga(...args) {
-    try {
-      yield call(saga, ...args);
-    } finally {
-      if (yield cancelled()) {
-        yield put(setLoadingState({ loadingState: 'idle' }));
-      }
-    }
-  };
-}

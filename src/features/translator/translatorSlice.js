@@ -1,10 +1,10 @@
-import { createSlice, createAction } from '@reduxjs/toolkit';
-import { ids, put } from 'redux-saga/effects';
-import { push, goBack } from 'connected-react-router';
+import { createAction, createSlice } from '@reduxjs/toolkit';
+import { goBack, push } from 'connected-react-router';
 import { normalize } from 'normalizr';
+import { put } from 'redux-saga/effects';
 import * as r from '~/app/routes';
-import { notify, NotificationLevel } from '~/features/ui/notificationSlice';
-import createWatchSaga from '~/features/shared/createWatchSaga';
+import createWatcherSaga from '~/features/shared/createWatcherSaga';
+import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import * as schemas from './schemas';
 
 const initialState = {
@@ -42,17 +42,16 @@ export const selectAllSkills = state =>
 export function* saveSettingsSaga(action) {
   yield put(updateSkills(action.payload.skills));
 
-  yield ids([
-    put(
-      notify({
-        key: `${saveSettings}/success`,
-        level: NotificationLevel.success,
-        message: "You've updated your language skills settings!",
-        duration: 10,
-      })
-    ),
-    put(push(r.TRANSLATOR_DASHBOARD)),
-  ]);
+  yield put(
+    notify({
+      key: `${saveSettings}/success`,
+      level: NotificationLevel.success,
+      message: "You've updated your language skills settings!",
+      duration: 10,
+    })
+  );
+
+  yield put(push(r.TRANSLATOR_DASHBOARD));
 }
 
 export function* cancelSaveSettingsSaga() {
@@ -60,6 +59,6 @@ export function* cancelSaveSettingsSaga() {
 }
 
 export const sagas = {
-  watchSaveSettings: createWatchSaga(saveSettingsSaga, saveSettings),
-  watchCancelSaveSettings: createWatchSaga(cancelSaveSettingsSaga, cancelSaveSettings),
+  watchSaveSettings: createWatcherSaga(saveSettingsSaga, saveSettings),
+  watchCancelSaveSettings: createWatcherSaga(cancelSaveSettingsSaga, cancelSaveSettings),
 };

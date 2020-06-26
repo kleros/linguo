@@ -4,9 +4,9 @@ import { nanoid } from 'nanoid';
 import { put, race, take } from 'redux-saga/effects';
 import * as r from '~/app/routes';
 import createAsyncAction from '~/features/shared/createAsyncAction';
-import createWatchSaga from '~/features/shared/createWatchSaga';
+import createWatcherSaga from '~/features/shared/createWatcherSaga';
 import { TaskParty } from '~/features/tasks';
-import { fetchByParty, selectAllFilterByIds } from '~/features/tasks/tasksSlice';
+import { fetchByParty, selectAllFilterByIds, INTERNAL_FETCH_KEY } from '~/features/tasks/tasksSlice';
 
 export const fetchTasks = createAsyncAction('requester/fetchTasks');
 
@@ -70,7 +70,7 @@ export function* fetchTasksSaga(action) {
     if (fulfilled && fulfilled.meta.key === key) {
       const tasks = fulfilled.payload?.data ?? [];
       const ids = tasks.map(({ id }) => id);
-      yield put(fetchTasks.fulfilled({ account, data: ids }));
+      yield put(fetchTasks.fulfilled({ account, data: ids }, { key }));
 
       if (ids.length === 0) {
         yield put(
@@ -82,19 +82,58 @@ export function* fetchTasksSaga(action) {
           })
         );
       }
+
       break;
     }
 
     if (rejected && rejected.meta.key === key) {
       const error = rejected.payload?.error;
-      yield put(fetchTasks.rejected({ account, data: error }));
+      yield put(fetchTasks.rejected({ account, data: error }, { key }));
+
       break;
     }
   }
 }
 
-export const watchFetchTasksSaga = createWatchSaga(fetchTasksSaga, fetchTasks);
+export const watchFetchTasksSaga = createWatcherSaga(fetchTasksSaga, fetchTasks);
+
+export function* processTasksFetchedInternallySaga(action) {
+  const { key } = action.meta ?? {};
+  const { account, party } = action.payload ?? {};
+
+  if (key !== INTERNAL_FETCH_KEY || party !== TaskParty.Requester) {
+    return;
+  }
+
+  while (true) {
+    const { fulfilled, rejected } = yield race({
+      fulfilled: take(fetchByParty.fulfilled.type),
+      rejected: take(fetchByParty.rejected.type),
+    });
+
+    if (fulfilled && fulfilled.meta.key === INTERNAL_FETCH_KEY) {
+      const tasks = fulfilled.payload?.data ?? [];
+      const ids = tasks.map(({ id }) => id);
+      yield put(fetchTasks.fulfilled({ account, data: ids }));
+
+      break;
+    }
+
+    if (rejected && rejected.meta.key === INTERNAL_FETCH_KEY) {
+      const error = rejected.payload?.error;
+      yield put(fetchTasks.rejected({ account, data: error }));
+
+      break;
+    }
+  }
+}
+
+export const watchProcessTasksFetchedInternallySaga = createWatcherSaga(
+  processTasksFetchedInternallySaga,
+  fetchByParty
+);
 
 export const sagas = {
   watchFetchTasksSaga,
+  watchProcessTasksFetchedInternallySaga,
 };

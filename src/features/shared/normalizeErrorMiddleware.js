@@ -1,4 +1,4 @@
-import serializerr from 'serializerr';
+import { serializeError } from 'serialize-error';
 
 const normalizeErrorMiddleware = () => next => action => next(normalizeError(action));
 
@@ -10,19 +10,19 @@ const normalizeError = action => {
   if (payload instanceof Error) {
     return {
       ...action,
-      payload: serializerr(payload),
+      payload: serializeError(payload),
       error: true,
     };
   }
 
-  const { error } = action.payload ?? {};
+  const { error, ...rest } = payload ?? {};
 
   if (error) {
     return {
       ...action,
       payload: {
-        ...payload,
-        error: serializerr(error),
+        ...rest,
+        error: serializeError(error),
       },
       error: true,
     };

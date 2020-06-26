@@ -13,7 +13,11 @@ import history from './history';
 const persistConfig = {
   key: 'root',
   storage,
-  // web3 has its own persist config, so it should be blacklisted here
+  /**
+   * It does not make sense to persist router and ui.
+   * All other blacklisted slices have their own persistance config.
+   */
+
   blacklist: ['router', 'ui', 'web3', 'tokens', 'transactions'],
 };
 

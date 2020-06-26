@@ -2,7 +2,7 @@ import { multicastChannel } from 'redux-saga';
 import { all, call, debounce, getContext, put, spawn, take } from 'redux-saga/effects';
 import ipfs from '~/app/ipfs';
 import createAsyncAction from '~/features/shared/createAsyncAction';
-import createWatchSaga from '~/features/shared/createWatchSaga';
+import createWatcherSaga from '~/features/shared/createWatcherSaga';
 import { mapValues } from '~/features/shared/fp';
 import createSliceWithTransactions from '~/features/transactions/createSliceWithTransactions';
 import { registerTxSaga, selectByTxHash } from '~/features/transactions/transactionsSlice';
@@ -99,7 +99,7 @@ export function* approveSaga(action) {
   }
 }
 
-export const watchApproveSaga = createWatchSaga(approveSaga, approve);
+export const watchApproveSaga = createWatcherSaga(approveSaga, approve);
 
 export const sagas = {
   ...tokensSlice.sagas,

@@ -2,8 +2,8 @@ import React from 'react';
 import t from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Spin } from '~/adapters/antd';
-import { selectHasError, selectError, selectIsConnected, selectIsConnecting } from './web3Slice';
 import getErrorMessage from '~/adapters/web3React/getErrorMessage';
+import { selectError, selectHasError, selectIsConnected, selectIsConnecting } from './web3Slice';
 
 function RequiredWeb3Gateway({ children, missing, error, renderError }) {
   const hasWeb3Error = useSelector(selectHasError);

@@ -1,11 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useHistory } from 'react-router-dom';
-import { Form, Row, Col, notification } from 'antd';
+import { useDispatch } from 'react-redux';
+import { Form, Row, Col } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import * as r from '~/app/routes';
 import { useWeb3React } from '~/features/web3';
-import { useLinguo } from '~/app/linguo';
+import { create as createTask } from '~/features/tasks/tasksSlice';
 import useStateMachine from '~/hooks/useStateMachine';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Spacer from '~/components/Spacer';
@@ -19,11 +18,10 @@ import TextField from './TextField';
 import OriginalSourceFields from './OriginalSourceFields';
 
 function TranslationRequestForm() {
-  const history = useHistory();
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [state, send] = useStateMachine(formStateMachine);
   const { account } = useWeb3React();
-  const linguo = useLinguo();
 
   const submitButtonProps =
     state === 'submitting'
@@ -38,44 +36,20 @@ function TranslationRequestForm() {
 
   const handleFinish = React.useCallback(
     async ({ originalTextFile, ...rest }) => {
-      if (linguo.error) {
-        notification.error({
-          placement: 'bottomRight',
-          message: linguo.error.message || 'Not ready to submit the request translation yet!',
-        });
-        return;
-      }
-
       send('SUBMIT');
+      const data = {
+        account,
+        originalTextFile: extractOriginalTextFilePath(originalTextFile),
+        ...rest,
+      };
+
       try {
-        await linguo.api.createTask(
-          {
-            account,
-            originalTextFile: extractOriginalTextFilePath(originalTextFile),
-            ...rest,
-          },
-          {
-            from: account,
-          }
-        );
-        send('SUCCESS');
-        notification.success({
-          placement: 'bottomRight',
-          message: 'Translation submitted!',
-        });
-        history.push(r.TRANSLATION_DASHBOARD);
-      } catch (err) {
-        send('ERROR');
-        notification.error({
-          placement: 'bottomRight',
-          message: 'Failed to submit the translation request!',
-          description: err.cause?.message,
-        });
-      } finally {
+        dispatch(createTask(data));
+      } catch {
         send('RESET');
       }
     },
-    [account, linguo.error, linguo.api, send, history]
+    [dispatch, account, send]
   );
 
   const handleFinishFailed = React.useCallback(
@@ -155,17 +129,6 @@ const formStateMachine = {
       },
     },
     submitting: {
-      on: {
-        SUCCESS: 'succeeded',
-        ERROR: 'failed',
-      },
-    },
-    succeeded: {
-      on: {
-        RESET: 'idle',
-      },
-    },
-    failed: {
       on: {
         RESET: 'idle',
       },

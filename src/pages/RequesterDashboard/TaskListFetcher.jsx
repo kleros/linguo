@@ -1,32 +1,16 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from 'antd';
-import { Spin } from '~/adapters/antd';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
 import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
 import { InfoIcon } from '~/components/icons';
-import withLoading from '~/features/shared/withLoading';
 import TaskList from '~/features/tasks/TaskList';
-import { fetchTasks, selectTasks, selectIsLoading } from '~/features/requester/requesterSlice';
+import { fetchTasks, selectTasks } from '~/features/requester/requesterSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import filters, { getFilter, useFilterName } from './filters';
 import { getComparator } from './sorting';
 
-const loadingEnhancer = withLoading({
-  fallback(Component, props) {
-    return (
-      <>
-        <Spin $centered spinning tip="Loading the translation tasks you created...">
-          <Component {...props} />
-        </Spin>
-      </>
-    );
-  },
-});
-
-const TaskListWithLoading = loadingEnhancer(TaskList);
-
-function TaskListFetcher() {
+export default function TaskListFetcher() {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
 
@@ -51,22 +35,13 @@ function TaskListFetcher() {
   const showFootnote = [filters.open].includes(filterName) && displayableData.length > 0;
   const showFilterDescription = displayableData.length > 0;
 
-  const isLoading = useSelector(selectIsLoading(account));
-
   return (
     <>
       {showFilterDescription && filterDescriptionMap[filterName]}
-      <TaskListWithLoading isLoading={isLoading} data={displayableData} showFootnote={showFootnote} />
+      <TaskList data={displayableData} showFootnote={showFootnote} />
     </>
   );
 }
-
-/**
- * ATTENTION: Order is important!
- * Since composition is evaluated right-to-left, `loadingEnhancer` should be declared
- * **AFTER** `errorBoundaryEnhancer`
- */
-export default TaskListFetcher;
 
 const sort = (data, comparator) => [...data].sort(comparator);
 const filter = (data, predicate) => data.filter(predicate);

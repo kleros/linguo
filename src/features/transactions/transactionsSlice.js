@@ -3,7 +3,7 @@ import { persistReducer, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { END } from 'redux-saga';
 import { all, call, delay, getContext, put, select, spawn, take } from 'redux-saga/effects';
-import serializerr from 'serializerr';
+import { serializeError } from 'serialize-error';
 import { pick } from '~/features/shared/fp';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import { getErrorMessage } from '~/features/web3';
@@ -154,11 +154,18 @@ export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL, shouldNot
       const { error, txHash } = result.payload;
 
       throw Object.assign(Object.create(Error.prototype), {
-        ...serializerr(error),
+        ...serializeError(error),
         context: { txHash },
       });
     }
   }
+}
+
+export function matchTxResult({ txHash }) {
+  const matchesActionType = action => [confirm, fail].some(({ match }) => match(action));
+  const matchesTxHash = action => action.payload?.txHash === txHash;
+
+  return action => matchesActionType(action) && matchesTxHash(action);
 }
 
 /**

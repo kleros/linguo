@@ -1,5 +1,5 @@
 import { eventChannel, channel, END } from 'redux-saga';
-import serializerr from 'serializerr';
+import { serializeError } from 'serialize-error';
 import { pick, mapValues } from '~/features/shared/fp';
 
 export default function createTransactionChannel(tx, { wait = false } = {}) {
@@ -55,7 +55,7 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
         type: 'REJECTED',
         payload: {
           txHash,
-          error: serializerr(error),
+          error: serializeError(error),
         },
       });
       resultChannel.put(END);

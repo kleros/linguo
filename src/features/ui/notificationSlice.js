@@ -4,7 +4,7 @@ import { notification } from 'antd';
 import { eventChannel, END } from 'redux-saga';
 import { call, put, take, cancelled } from 'redux-saga/effects';
 import { nanoid } from 'nanoid';
-import createWatchSaga from '~/features/shared/createWatchSaga';
+import createWatcherSaga from '~/features/shared/createWatcherSaga';
 import { NotificationWithLink as link } from './NotificationTemplates';
 
 export const NotificationLevel = {
@@ -98,6 +98,6 @@ export function* closeSaga(action) {
 }
 
 export const sagas = {
-  watchNotifiySaga: createWatchSaga(notifySaga, notify),
-  watchCloseSaga: createWatchSaga(closeSaga, close),
+  watchNotifiySaga: createWatcherSaga(notifySaga, notify),
+  watchCloseSaga: createWatcherSaga(closeSaga, close),
 };
