@@ -45,6 +45,7 @@ export const normalize = ({ ID, contract, reviewTimeout, task, metadata, lifecyc
   data.id = data.ID;
 
   data.parties = data.parties ?? {};
+  data.parties[TaskParty.Requester] = data.requester;
 
   data.wordCount = wordCount({ text: data.text });
 

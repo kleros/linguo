@@ -1,16 +1,16 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Typography, Tooltip } from 'antd';
+import { Tooltip, Typography } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
-import { useCacheCall, Task, TaskStatus } from '~/app/linguo';
+import { Task, TaskStatus, useCacheCall } from '~/app/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Card from '~/components/Card';
-import TaskLanguages from '~/components/TaskLanguages';
 import FormattedNumber from '~/components/FormattedNumber';
-import TaskInfoGrid from '~/components/TaskInfoGrid';
-import TaskPrice from '~/components/TaskPrice';
+import TaskLanguages from './TaskLanguages';
 import TaskCardFooter from './TaskCardFooter';
+import TaskInfoGrid from './TaskInfoGrid';
+import TaskPrice from './TaskPrice';
 import { selectById } from './tasksSlice';
 
 const StyledCard = styled(Card)`
@@ -106,7 +106,7 @@ function TaskCard({ id }) {
 }
 
 TaskCard.propTypes = {
-  id: t.oneOfType([t.number, t.string]).isRequired,
+  id: t.string.isRequired,
 };
 
 export default TaskCard;

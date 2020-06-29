@@ -1,36 +1,26 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider } from 'antd';
-import * as r from '~/app/routes';
-import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
-import { selectAllSkillLanguages } from '~/features/translator/translatorSlice';
+import { selectIsLoading } from '~/features/translator/translatorSlice';
+import TopLoadingBar from '~/features/shared/TopLoadingBar';
+import { selectAccount } from '~/features/web3/web3Slice';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListControls from './TaskListControls';
 import TaskListFetcher from './TaskListFetcher';
 
 export default function TranslatorDashboard() {
-  const languages = useSelector(selectAllSkillLanguages);
+  const account = useSelector(selectAccount);
+  const isLoading = useSelector(selectIsLoading(account));
 
-  return languages.length === 0 ? (
-    <Redirect
-      to={{
-        pathname: r.TRANSLATOR_SETTINGS,
-        state: {
-          message: 'Please set your language skills first.',
-        },
-      }}
-    />
-  ) : (
+  return (
     <MultiCardLayout>
+      <TopLoadingBar show={isLoading} />
       <TaskListControls />
       <StyledDivider />
-      <LinguoApiReadyGateway>
-        <StyledContentWrapper>
-          <TaskListFetcher />
-        </StyledContentWrapper>
-      </LinguoApiReadyGateway>
+      <StyledContentWrapper>
+        <TaskListFetcher />
+      </StyledContentWrapper>
     </MultiCardLayout>
   );
 }

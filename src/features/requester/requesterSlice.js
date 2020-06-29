@@ -8,48 +8,53 @@ import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga
 import { TaskParty } from '~/features/tasks';
 import { fetchByParty, selectAllFilterByIds, INTERNAL_FETCH_KEY } from '~/features/tasks/tasksSlice';
 
+export const initialState = {
+  tasks: {
+    byAccount: {},
+  },
+};
+
 export const fetchTasks = createAsyncAction('requester/fetchTasks');
 
 const requesterSlice = createSlice({
   name: 'requester',
-  initialState: {
-    byAccount: {},
-  },
+  initialState,
   extraReducers: builder => {
     builder.addCase(fetchTasks, (state, action) => {
       const account = action.payload?.account ?? null;
 
-      state.byAccount[account] = state.byAccount[account] ?? {
+      state.tasks.byAccount[account] = state.tasks.byAccount[account] ?? {
         loadingState: 'idle',
-        tasks: [],
+        data: [],
       };
-      state.byAccount[account].loadingState = 'loading';
+      state.tasks.byAccount[account].loadingState = 'loading';
     });
 
     builder.addCase(fetchTasks.rejected, (state, action) => {
       const account = action.payload?.account ?? null;
 
-      state.byAccount[account].loadingState = 'failed';
+      state.tasks.byAccount[account].loadingState = 'failed';
     });
 
     builder.addCase(fetchTasks.fulfilled, (state, action) => {
       const account = action.payload?.account ?? null;
       const data = action.payload?.data ?? [];
 
-      state.byAccount[account].loadingState = 'fetched';
-      state.byAccount[account].tasks = data;
+      state.tasks.byAccount[account].loadingState = 'fetched';
+      state.tasks.byAccount[account].data = data;
     });
   },
 });
 
-const selectLoadingState = (account = null) => state => state.requester.byAccount[account]?.loadingState ?? 'idle';
+const selectLoadingState = (account = null) => state =>
+  state.requester.tasks.byAccount[account]?.loadingState ?? 'idle';
 export const selectIsIdle = account => state => selectLoadingState(account)(state) === 'idle';
 export const selectIsLoading = account => state => selectLoadingState(account)(state) === 'loading';
 export const selectHasFetched = account => state => selectLoadingState(account)(state) === 'fetched';
 export const selectHasFailed = account => state => selectLoadingState(account)(state) === 'failed';
 
-export const selectTasks = ({ account }) => state => {
-  const taskIds = state.requester.byAccount[account]?.tasks ?? [];
+export const selectTasks = account => state => {
+  const taskIds = state.requester.tasks.byAccount[account]?.data ?? [];
   return selectAllFilterByIds(taskIds)(state);
 };
 
@@ -88,7 +93,7 @@ export function* fetchTasksSaga(action) {
 
     if (rejected && rejected.meta.key === key) {
       const error = rejected.payload?.error;
-      yield put(fetchTasks.rejected({ account, data: error }, { key }));
+      yield put(fetchTasks.rejected({ account, error }, { key }));
 
       break;
     }
@@ -127,7 +132,7 @@ export function* processTasksFetchedInternallySaga(action) {
 }
 
 export const sagas = {
-  watchFetchTasksSaga: createWatcherSaga({ takeType: TakeType.every }, fetchTasksSaga, fetchTasks.type),
+  watchFetchTasksSaga: createWatcherSaga({ takeType: TakeType.latest }, fetchTasksSaga, fetchTasks.type),
   watchProcessTasksFetchedInternallySaga: createWatcherSaga(
     { takeType: TakeType.every },
     processTasksFetchedInternallySaga,

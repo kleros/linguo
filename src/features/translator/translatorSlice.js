@@ -1,68 +1,33 @@
-import { createAction, createSlice } from '@reduxjs/toolkit';
-import { goBack, push } from 'connected-react-router';
-import { normalize } from 'normalizr';
-import { put } from 'redux-saga/effects';
-import * as r from '~/app/routes';
-import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
-import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
-import * as schemas from './schemas';
+import { combineReducers } from '@reduxjs/toolkit';
+import skillsReducer, * as skills from './translatorSkillsSlice';
+import tasksReducer, * as tasks from './translatorTasksSlice';
+import { selectAllFilterByIds } from '~/features/tasks/tasksSlice';
+import { mapValues } from '~/features/shared/fp';
 
-const initialState = {
-  skills: {
-    ids: [],
-    entities: {},
-  },
-};
-
-const translatorSlice = createSlice({
-  name: 'translator',
-  initialState,
-  reducers: {
-    updateSkills(state, action) {
-      const { entities, result } = normalize(action.payload, [schemas.skill]);
-      state.skills.entities = entities.skill;
-      state.skills.ids = result;
-    },
-    clearSkills(state, _) {
-      state.skills = initialState.skills;
-    },
-  },
+export default combineReducers({
+  skills: skillsReducer,
+  tasks: tasksReducer,
 });
 
-export default translatorSlice.reducer;
+export const { updateSkills, clearSkills, saveSettings, cancelSaveSettings } = skills.actions;
+export const { fetchTasks } = tasks.actions;
 
-export const { updateSkills, clearSkills } = translatorSlice.actions;
-export const saveSettings = createAction('translator/saveSettings');
-export const cancelSaveSettings = createAction('translator/cancelSaveSettings');
+export const { selectAllSkillLanguages, selectAllSkills } = mapValues(
+  selector => state => selector(state.translator.skills),
+  skills.selectors
+);
 
-export const selectAllSkillLanguages = state => state.translator.skills.ids;
-export const selectAllSkills = state =>
-  selectAllSkillLanguages(state).map(language => state.translator.skills.entities[language]);
+export const { selectIsIdle, selectIsLoading, selectHasFetched, selectHasFailed, selectTaskIds } = mapValues(
+  selector => account => state => selector(account)(state.translator.tasks),
+  tasks.selectors
+);
 
-export function* saveSettingsSaga(action) {
-  yield put(updateSkills(action.payload.skills));
-
-  yield put(
-    notify({
-      key: `${saveSettings}/success`,
-      level: NotificationLevel.success,
-      message: "You've updated your language skills settings!",
-      duration: 10,
-    })
-  );
-
-  yield put(push(r.TRANSLATOR_DASHBOARD));
-}
-
-export function* cancelSaveSettingsSaga() {
-  yield put(goBack());
-}
+export const selectTasks = account => state => {
+  const taskIds = selectTaskIds(account)(state);
+  return selectAllFilterByIds(taskIds)(state);
+};
 
 export const sagas = {
-  watchSaveSettings: createWatcherSaga({ takeType: TakeType.every }, saveSettingsSaga, saveSettings.type),
-  watchCancelSaveSettings: createWatcherSaga(
-    { takeType: TakeType.every },
-    cancelSaveSettingsSaga,
-    cancelSaveSettings.type
-  ),
+  ...skills.sagas,
+  ...tasks.sagas,
 };

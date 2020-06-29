@@ -129,7 +129,7 @@ function createCommonApi({ web3, linguo, arbitrator }) {
     });
 
     const currentBlockNumber = await web3.eth.getBlockNumber();
-    const unassignedTaskIDsPromise = _getUnassignedTaskIDs({ skills, currentBlockNumber });
+    const unassignedTaskIDsPromise = _getUnassignedTaskIDs({ account, skills, currentBlockNumber });
     const inReviewTaskIdsPromise = _getInReviewTaskIDs({ skills, currentBlockNumber });
 
     const taskIDs = (

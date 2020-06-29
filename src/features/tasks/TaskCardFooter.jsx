@@ -1,19 +1,21 @@
 import React from 'react';
 import t from 'prop-types';
-import { useSelector } from 'react-redux';
-import { LoadingOutlined } from '@ant-design/icons';
-import { Col, Row } from 'antd';
 import clsx from 'clsx';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Col, Row } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
 import { useImperativeRefresh } from '~/adapters/reactRouterDom';
-import { Task, TaskStatus, useLinguo } from '~/app/linguo';
+import { useLinguo } from '~/app/linguo';
 import * as r from '~/app/routes';
 import Button from '~/components/Button';
 import RemainingTime from '~/components/RemainingTime';
+import { Task, TaskStatus } from '~/features/tasks';
 import { selectAccount } from '~/features/web3/web3Slice';
 import wrapWithNotification from '~/utils/wrapWithNotification';
+import TaskParty from './entities/TaskParty';
 import { selectById } from './tasksSlice';
 
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
@@ -45,10 +47,13 @@ export default TaskCardFooter;
 
 function TaskFooterInfo(task) {
   const { id, status } = task;
+  const account = useSelector(selectAccount);
 
   const TaskFooterInfoPending = () => {
     if (Task.isIncomplete(task)) {
-      return (
+      const isRequester = task.parties[TaskParty.Requester] === account;
+
+      return isRequester ? (
         <RequestReimbursement
           id={id}
           buttonProps={{
@@ -56,7 +61,7 @@ function TaskFooterInfo(task) {
             variant: 'outlined',
           }}
         />
-      );
+      ) : null;
     }
 
     const currentDate = new Date();
@@ -122,8 +127,7 @@ const withNotification = wrapWithNotification({
   errorMessage: 'Failed to request the reimbursement!',
 });
 
-// TODO: see if we can merge this with TaskInteractionButton
-function RequestReimbursement({ id, buttonProps }) {
+const RequestReimbursement = function RequestReimbursement({ id, buttonProps }) {
   const account = useSelector(selectAccount);
   const linguo = useLinguo();
 
@@ -153,10 +157,10 @@ function RequestReimbursement({ id, buttonProps }) {
       Reimburse Me
     </Button>
   );
-}
+};
 
 RequestReimbursement.propTypes = {
-  id: t.oneOfType([t.number, t.string]).isRequired,
+  id: t.string.isRequired,
   buttonProps: t.object,
 };
 

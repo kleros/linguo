@@ -26,7 +26,7 @@ export default function TaskListFetcher() {
 
   const [filterName] = useFilterName();
 
-  const data = useShallowEqualSelector(selectTasks({ account }));
+  const data = useShallowEqualSelector(selectTasks(account));
   const displayableData = React.useMemo(() => sort(filter(data, getFilter(filterName)), getComparator(filterName)), [
     data,
     filterName,
