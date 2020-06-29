@@ -17,28 +17,30 @@ function Notifications() {
     <StyledPopover
       arrowPointAtCenter
       content={
-        <ContentBlocker
-          blocked
-          contentBlur={2}
-          overlayText={
-            <div
-              css={`
-                transform: rotate(-30deg);
-                color: ${p => p.theme.color.danger.default};
-                background-color: ${p => p.theme.color.background.light};
-                padding: 0.5rem 1rem;
-                border-radius: 0.75rem;
-                font-size: ${p => p.theme.fontSize.xxl};
-                text-align: center;
-                white-space: nowrap;
-              `}
-            >
-              Coming soon...
-            </div>
-          }
-        >
-          <StyledList dataSource={notifications} loading={false} locale={locale} renderItem={renderItem} />
-        </ContentBlocker>
+        <>
+          <ContentBlocker
+            blocked
+            contentBlur={2}
+            overlayText={
+              <div
+                css={`
+                  transform: rotate(-30deg);
+                  color: ${p => p.theme.color.danger.default};
+                  background-color: ${p => p.theme.color.background.light};
+                  padding: 0.5rem 1rem;
+                  border-radius: 0.75rem;
+                  font-size: ${p => p.theme.fontSize.xxl};
+                  text-align: center;
+                  white-space: nowrap;
+                `}
+              >
+                Coming soon...
+              </div>
+            }
+          >
+            <StyledList dataSource={notifications} loading={false} locale={locale} renderItem={renderItem} />
+          </ContentBlocker>
+        </>
       }
       placement="bottomRight"
       title="Notifications"
@@ -116,13 +118,15 @@ function Notification({ id, date, message, to, type, icon }) {
 
   return (
     <StyledListItem>
-      <Link id={id} to={to}>
-        <List.Item.Meta
-          avatar={<ItemIcon type={type} />}
-          description={<StyledTimeAgo type={type} date={date} />}
-          title={message}
-        />
-      </Link>
+      <List.Item.Meta
+        avatar={<ItemIcon $type={type} />}
+        description={<StyledTimeAgo $type={type} date={date} />}
+        title={
+          <Link id={id} to={to}>
+            {message}
+          </Link>
+        }
+      />
     </StyledListItem>
   );
 }
@@ -164,7 +168,7 @@ const iconNameToIcon = iconName => {
 };
 
 const itemIconStyles = css`
-  background-color: ${props => typeToColor(props.theme, props.type)};
+  background-color: ${props => typeToColor(props.theme, props.$type)};
   color: ${props => props.theme.color.text.inverted};
   border-radius: 100%;
 
@@ -196,6 +200,16 @@ const StyledListItem = styled(List.Item)`
   .ant-list-item-meta-title {
     font-weight: 400;
     color: ${props => props.theme.color.text.default};
+
+    > a {
+      display: block;
+      color: ${props => props.theme.color.text.light};
+
+      &:hover,
+      &:focus {
+        color: ${props => props.theme.color.text.default};
+      }
+    }
   }
 
   .ant-list-item-meta-description {
@@ -205,5 +219,5 @@ const StyledListItem = styled(List.Item)`
 `;
 
 const StyledTimeAgo = styled(TimeAgo)`
-  color: ${props => typeToColor(props.theme, props.type)};
+  color: ${props => typeToColor(props.theme, props.$type)};
 `;
