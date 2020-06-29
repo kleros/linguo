@@ -1,13 +1,13 @@
 import { call, cancelled, put } from 'redux-saga/effects';
 
-export default function createCancellableSaga(saga, cancelAction, { additionalArgs = () => ({}) } = {}) {
+export default function createCancellableSaga(saga, cancelActionCreator, { additionalArgs = () => ({}) } = {}) {
   function* withCancellationSaga(...args) {
     try {
       yield call(saga, ...args);
     } finally {
       if (yield cancelled()) {
         const finalAdditionalArgs = typeof additionalArgs === 'function' ? additionalArgs(...args) : additionalArgs;
-        yield put(cancelAction({ error: new Error('Saga was cancelled') }, finalAdditionalArgs));
+        yield put(cancelActionCreator({ error: new Error('Saga was cancelled') }, finalAdditionalArgs));
       }
     }
   }

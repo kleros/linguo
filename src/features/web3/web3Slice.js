@@ -5,7 +5,7 @@ import storage from 'redux-persist/lib/storage';
 import { put, select } from 'redux-saga/effects';
 import getErrorMessage from '~/adapters/web3React/getErrorMessage';
 import createStateMachineReducer from '~/features/shared/createStateMachineReducer';
-import createWatcherSaga from '~/features/shared/createWatcherSaga';
+import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 
 /* -------------------- Action Creators -------------------- */
@@ -82,8 +82,8 @@ export function* getBlockExplorerTxUrl(txHash) {
 }
 
 export const sagas = {
-  watchNotifyError: createWatcherSaga(notifyErrorSaga, setError),
-  watchNotifyActivateError: createWatcherSaga(notifyErrorSaga, activate.error),
+  watchNotifyError: createWatcherSaga({ takeType: TakeType.every }, notifyErrorSaga, setError.type),
+  watchNotifyActivateError: createWatcherSaga({ takeType: TakeType.every }, notifyErrorSaga, activate.error.type),
 };
 
 /* ------------------------- Other ------------------------- */

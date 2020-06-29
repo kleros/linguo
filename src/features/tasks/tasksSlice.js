@@ -7,7 +7,7 @@ import createCancellableSaga from '~/features/shared/createCancellableSaga';
 import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
 import { confirm, matchTxResult, registerTxSaga } from '~/features/transactions/transactionsSlice';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
-import { watchAll } from '~/features/web3/runWithContext';
+import { watchAllWithBuffer } from '~/features/web3/runWithContext';
 import { selectChainId } from '~/features/web3/web3Slice';
 import createApiFacade from './createApiFacade';
 import createApiFacadePlaceholder from './createApiFacadePlaceholder';
@@ -36,7 +36,7 @@ const tasksSlice = createSlice({
       state.entities[id] = action.payload;
 
       if (!state.ids.includes(id)) {
-        state.push(id);
+        state.ids.push(id);
       }
     },
   },
@@ -129,15 +129,7 @@ export function* fetchByPartySaga(action) {
   }
 }
 
-const watchFetchTasksSaga = createWatcherSaga(
-  createCancellableSaga(fetchByPartySaga, fetchByParty.rejected, {
-    additionalArgs: action => ({ key: action.meta?.key }),
-  }),
-  fetchByParty,
-  { takeType: TakeType.latest }
-);
-
-export function* createTaskSaga(action) {
+export function* createSaga(action) {
   const linguoApi = yield getContext('linguoApi');
 
   const { account, ...rest } = action.payload ?? {};
@@ -182,23 +174,35 @@ export function* createTaskSaga(action) {
   }
 }
 
-const watchCreateTaskSaga = createWatcherSaga(createTaskSaga, create, { takeType: 'leading' });
+const createWatchFetchByPartySaga = createWatcherSaga(
+  { takeType: TakeType.latest },
+  createCancellableSaga(fetchByPartySaga, fetchByParty.rejected, {
+    additionalArgs: action => ({ key: action.meta?.key }),
+  })
+);
+const createWatchCreateSaga = createWatcherSaga({ takeType: TakeType.leading }, createSaga);
 
 export const sagas = {
-  mainLinguoSaga: watchAll([watchFetchTasksSaga, watchCreateTaskSaga], {
-    *createContext({ library: web3 }) {
-      const chainId = yield select(selectChainId);
+  mainTasksSaga: watchAllWithBuffer(
+    [
+      [createWatchFetchByPartySaga, fetchByParty],
+      [createWatchCreateSaga, create],
+    ],
+    {
+      *createContext({ library: web3 }) {
+        const chainId = yield select(selectChainId);
 
-      if (!chainId || !web3) {
-        return { linguoApi: yield call(createApiFacadePlaceholder) };
-      }
+        if (!chainId || !web3) {
+          return { linguoApi: yield call(createApiFacadePlaceholder) };
+        }
 
-      try {
-        return { linguoApi: yield call(createApiFacade, { web3, chainId }) };
-      } catch (err) {
-        console.warn('Failed to create Linguo API Facade', err);
-        return { linguoApi: yield call(createApiFacadePlaceholder) };
-      }
-    },
-  }),
+        try {
+          return { linguoApi: yield call(createApiFacade, { web3, chainId }) };
+        } catch (err) {
+          console.warn('Failed to create Linguo API Facade', err);
+          return { linguoApi: yield call(createApiFacadePlaceholder) };
+        }
+      },
+    }
+  ),
 };

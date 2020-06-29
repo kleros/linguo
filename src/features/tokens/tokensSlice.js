@@ -1,8 +1,8 @@
 import { multicastChannel } from 'redux-saga';
-import { all, call, debounce, getContext, put, spawn, take } from 'redux-saga/effects';
+import { call, debounce, getContext, put, spawn, take } from 'redux-saga/effects';
 import ipfs from '~/app/ipfs';
 import createAsyncAction from '~/features/shared/createAsyncAction';
-import createWatcherSaga from '~/features/shared/createWatcherSaga';
+import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
 import { mapValues } from '~/features/shared/fp';
 import createSliceWithTransactions from '~/features/transactions/createSliceWithTransactions';
 import { registerTxSaga, selectByTxHash } from '~/features/transactions/transactionsSlice';
@@ -93,20 +93,23 @@ export function* approveSaga(action) {
 
   try {
     const { txHash } = yield call(registerTxSaga, tx);
-    yield all([put(addTx({ txHash })), call(trackInteraction, { key, txHash })]);
+    yield put(addTx({ txHash }));
+    yield call(trackInteraction, { key, txHash });
   } catch (err) {
     // Nothing to be done here...
   }
 }
 
-export const watchApproveSaga = createWatcherSaga(approveSaga, approve);
+export const watchApproveSaga = createWatcherSaga({ takeType: TakeType.leading }, approveSaga, approve.type);
 
 export const sagas = {
   ...tokensSlice.sagas,
   tokensRootSaga: watchAll([debounceCheckAllowanceSaga, watchApproveSaga], {
-    createContext: ({ library }) => ({
-      tokenApi: createTokenApi({ library }),
-    }),
+    *createContext({ library }) {
+      return {
+        tokenApi: yield call(createTokenApi, { library }),
+      };
+    },
   }),
 };
 

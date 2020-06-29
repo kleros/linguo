@@ -1,14 +1,25 @@
 import { changeLibrary } from './web3Slice';
-import { take, all, call, fork, cancel, cancelled, setContext } from 'redux-saga/effects';
+import { take, all, call, fork, cancel, cancelled, setContext, actionChannel } from 'redux-saga/effects';
 
 /**
- * Runs sagas whose context depends upon the `library` object set by web3-react.
- * Since this object is non-serializable, we shouldn't hold it in the store or pass it around
- * in action payload.
+ * @module runWithContext
  *
  * Because web3-react API is React-centric, is hard to get hold of its values.
  * We created a special action type `web3/changeLibrary`, which will be triggered whenever
  * web3-react `library` value changes.
+ *
+ * Since this object is non-serializable, we shouldn't hold it in the store or pass it around
+ * in action payload.
+ *
+ * Instead we use these helpers to put `library` and other modules that depend upon it
+ * into the saga context with `setContext`.
+ *
+ * Sagas are not reactive, they are basically state machines. Whenever `library` changes,
+ * we need to cancel any running sagas and launch new ones with a new context.
+ */
+
+/**
+ * Runs sagas whose context depends upon the `library` object set by web3-react.
  *
  * This function will create a saga which will watch for `web3/changeLibrary` events
  * and will spawn all `sagas` after setting their context with the return of `createContext`.
@@ -29,6 +40,81 @@ import { take, all, call, fork, cancel, cancelled, setContext } from 'redux-saga
  */
 export function watchAll(sagas, { createContext = ({ library }) => ({ library }) } = {}) {
   return function* watchChangeLibrary() {
+    let tasks = [];
+
+    while (true) {
+      const action = yield take(`${changeLibrary}`);
+      const { library } = action.payload;
+
+      if (tasks) {
+        yield cancel(tasks);
+      }
+
+      if (!library) {
+        tasks = [];
+        continue;
+      }
+
+      const context = yield call(createContext, { library });
+      yield setContext(context);
+
+      tasks = yield all(
+        sagas.map(saga =>
+          fork(function* sagaWrapper() {
+            let isCancelled = false;
+
+            while (!isCancelled) {
+              try {
+                yield call(saga);
+              } catch (err) {
+                console.warn('Error in saga:', err);
+              } finally {
+                if (yield cancelled()) {
+                  console.info('Cancelling saga:', saga.name);
+                  isCancelled = true;
+                }
+              }
+            }
+          })
+        )
+      );
+    }
+  };
+}
+
+/**
+ * This function will create a saga which will watch for `web3/changeLibrary` events
+ * and will spawn all `sagas` after setting their context with the return of `createContext`.
+ *
+ * Whenever a new `web3/changeLibrary` action is dispatched, all `sagas` registered here will
+ * be cancelled and re-spawn again with the updated context.
+ *
+ * While the sagas are being cancelled and re-spawn with the new context, all actions matching
+ * the action type they listen to will be buffered through an `actionChannel`.
+ *
+ * The returned saga SHOULD be exported in the consuming slice to be picked up by the root saga.
+ * @typedef {(channel: any) => Generator} SagaFactory
+ * @typedef {(action: any) => boolean|string} IndividualPattern
+ * @typedef {'*'|IndividualPattern|IndividualPattern[]} Pattern
+ * @typedef {[SagaFactory, Pattern]} WatchSagaDescriptor
+ *
+ *
+ * @param {WatchSagaDescriptor[]} sagaDescriptors an array objects containing the saga and the aciton type it listens to.
+ * Usually these are the "watcher" sagas, which will watch for incomming actions, that is,
+ * those ones with `takeLatest`, `takeEvery` or `debounce` in their body. Since those sagas
+ * usually `fork` the "worker" sagas, the context will be available for them too.
+ * @param {object} options to config
+ * @param {({ library: any }) => ({ [prop]: any })} [options.createContext]
+ * @returns Generator
+ */
+export function watchAllWithBuffer(sagaDescriptors, { createContext = ({ library }) => ({ library }) } = {}) {
+  return function* watchChangeLibrary() {
+    const sagas = yield all(
+      sagaDescriptors.map(function* ([sagaFactory, actionType]) {
+        return sagaFactory(yield actionChannel(`${actionType}`));
+      })
+    );
+
     let tasks = [];
 
     while (true) {

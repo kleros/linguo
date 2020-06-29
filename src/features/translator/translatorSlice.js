@@ -3,7 +3,7 @@ import { goBack, push } from 'connected-react-router';
 import { normalize } from 'normalizr';
 import { put } from 'redux-saga/effects';
 import * as r from '~/app/routes';
-import createWatcherSaga from '~/features/shared/createWatcherSaga';
+import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import * as schemas from './schemas';
 
@@ -59,6 +59,10 @@ export function* cancelSaveSettingsSaga() {
 }
 
 export const sagas = {
-  watchSaveSettings: createWatcherSaga(saveSettingsSaga, saveSettings),
-  watchCancelSaveSettings: createWatcherSaga(cancelSaveSettingsSaga, cancelSaveSettings),
+  watchSaveSettings: createWatcherSaga({ takeType: TakeType.every }, saveSettingsSaga, saveSettings.type),
+  watchCancelSaveSettings: createWatcherSaga(
+    { takeType: TakeType.every },
+    cancelSaveSettingsSaga,
+    cancelSaveSettings.type
+  ),
 };

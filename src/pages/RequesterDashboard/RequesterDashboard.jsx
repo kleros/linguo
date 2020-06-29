@@ -2,7 +2,6 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider } from 'antd';
-import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
 import { selectIsLoading } from '~/features/requester/requesterSlice';
 import TopLoadingBar from '~/features/shared/TopLoadingBar';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
@@ -20,13 +19,11 @@ function RequesterDashboard() {
       <TopLoadingBar show={isLoading} />
       <TaskListControls />
       <StyledDivider />
-      <LinguoApiReadyGateway>
-        <StyledContentWrapper>
-          <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
-            <TaskListFetcher />
-          </RequiredWalletGateway>
-        </StyledContentWrapper>
-      </LinguoApiReadyGateway>
+      <StyledContentWrapper>
+        <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
+          <TaskListFetcher />
+        </RequiredWalletGateway>
+      </StyledContentWrapper>
     </MultiCardLayout>
   );
 }

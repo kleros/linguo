@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 import { put, race, take } from 'redux-saga/effects';
 import * as r from '~/app/routes';
 import createAsyncAction from '~/features/shared/createAsyncAction';
-import createWatcherSaga from '~/features/shared/createWatcherSaga';
+import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
 import { TaskParty } from '~/features/tasks';
 import { fetchByParty, selectAllFilterByIds, INTERNAL_FETCH_KEY } from '~/features/tasks/tasksSlice';
 
@@ -95,8 +95,6 @@ export function* fetchTasksSaga(action) {
   }
 }
 
-export const watchFetchTasksSaga = createWatcherSaga(fetchTasksSaga, fetchTasks);
-
 export function* processTasksFetchedInternallySaga(action) {
   const { key } = action.meta ?? {};
   const { account, party } = action.payload ?? {};
@@ -128,12 +126,11 @@ export function* processTasksFetchedInternallySaga(action) {
   }
 }
 
-export const watchProcessTasksFetchedInternallySaga = createWatcherSaga(
-  processTasksFetchedInternallySaga,
-  fetchByParty
-);
-
 export const sagas = {
-  watchFetchTasksSaga,
-  watchProcessTasksFetchedInternallySaga,
+  watchFetchTasksSaga: createWatcherSaga({ takeType: TakeType.every }, fetchTasksSaga, fetchTasks.type),
+  watchProcessTasksFetchedInternallySaga: createWatcherSaga(
+    { takeType: TakeType.every },
+    processTasksFetchedInternallySaga,
+    fetchByParty.type
+  ),
 };
