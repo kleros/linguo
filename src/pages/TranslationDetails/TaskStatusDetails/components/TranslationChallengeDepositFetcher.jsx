@@ -7,10 +7,10 @@ import { withSuspense } from '~/adapters/react';
 import { useCacheCall } from '~/app/linguo';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
 import EthValue from '~/components/EthValue';
-import TaskContext from '../../TaskContext';
+import useTask from '../../useTask';
 
 function TranslationChallengeDepositFetcher() {
-  const { ID } = React.useContext(TaskContext);
+  const { ID } = useTask();
   const [{ data }] = useCacheCall(['getChallengerDeposit', ID], { suspense: true });
 
   return <TranslationChallengeDeposit amount={data} />;

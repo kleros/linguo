@@ -40,7 +40,7 @@ const requesterSlice = createSlice({
       const account = action.payload?.account ?? null;
       const data = action.payload?.data ?? [];
 
-      state.tasks.byAccount[account].loadingState = 'fetched';
+      state.tasks.byAccount[account].loadingState = 'succeeded';
       state.tasks.byAccount[account].data = data;
     });
   },
@@ -50,7 +50,7 @@ const selectLoadingState = (account = null) => state =>
   state.requester.tasks.byAccount[account]?.loadingState ?? 'idle';
 export const selectIsIdle = account => state => selectLoadingState(account)(state) === 'idle';
 export const selectIsLoading = account => state => selectLoadingState(account)(state) === 'loading';
-export const selectHasFetched = account => state => selectLoadingState(account)(state) === 'fetched';
+export const selectHasSucceeded = account => state => selectLoadingState(account)(state) === 'succeeded';
 export const selectHasFailed = account => state => selectLoadingState(account)(state) === 'failed';
 
 export const selectTasks = account => state => {

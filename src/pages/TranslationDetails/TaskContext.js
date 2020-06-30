@@ -14,7 +14,8 @@ export function TaskProvider({ task, children }) {
 
 TaskProvider.propTypes = {
   task: t.shape({
-    ID: t.oneOfType([t.number, t.string]).isRequired,
+    id: t.string.isRequired,
+    ID: t.string.isRequired,
     status: t.oneOf(Object.values(TaskStatus)).isRequired,
     title: t.string.isRequired,
     deadline: t.oneOfType([t.string, t.instanceOf(Date)]).isRequired,

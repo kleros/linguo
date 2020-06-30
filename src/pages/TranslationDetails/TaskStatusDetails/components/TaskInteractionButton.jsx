@@ -7,7 +7,7 @@ import { useWeb3React } from '~/features/web3';
 import useStateMachine from '~/hooks/useStateMachine';
 import wrapWithNotification from '~/utils/wrapWithNotification';
 import Button from '~/components/Button';
-import TaskContext from '../../TaskContext';
+import useTask from '../../useTask';
 
 const buttonStateMachine = {
   initial: 'idle',
@@ -69,7 +69,7 @@ const withNotification = wrapWithNotification({
 });
 
 function TaskInteractionButton({ interaction, content, buttonProps }) {
-  const { ID } = React.useContext(TaskContext);
+  const { ID } = useTask();
   const linguo = useLinguo();
   const { account } = useWeb3React();
   const [state, dispatch] = useStateMachine(buttonStateMachine);

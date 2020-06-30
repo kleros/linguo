@@ -4,6 +4,26 @@ import styled from 'styled-components';
 import { Layout } from 'antd';
 import Card from '~/components/Card';
 
+export default function SingleCardLayout({ title, beforeContent, children }) {
+  return (
+    <StyledLayout>
+      {beforeContent}
+      <StyledCard title={title}>{children}</StyledCard>
+    </StyledLayout>
+  );
+}
+
+SingleCardLayout.propTypes = {
+  title: t.node.isRequired,
+  beforeContent: t.node,
+  children: t.node,
+};
+
+SingleCardLayout.defaultProps = {
+  beforeContent: null,
+  children: null,
+};
+
 const StyledLayout = styled(Layout)`
   margin: 4rem;
   max-width: 68rem;
@@ -66,22 +86,3 @@ const StyledCard = styled(Card)`
     }
   }
 `;
-
-function SingleCardLayout({ title, children }) {
-  return (
-    <StyledLayout>
-      <StyledCard title={title}>{children}</StyledCard>
-    </StyledLayout>
-  );
-}
-
-SingleCardLayout.propTypes = {
-  title: t.string.isRequired,
-  children: t.node,
-};
-
-SingleCardLayout.defaultProps = {
-  children: null,
-};
-
-export default SingleCardLayout;

@@ -6,9 +6,9 @@ import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import promiseRetry from '~/utils/promiseRetry';
 import getFileUrl from './getFileUrl';
-import { normalize as normalizeTask } from './entities/Task';
-import { normalize as normalizeDispute } from './entities/Dispute';
-import { NON_PAYABLE_VALUE, ADDRESS_ZERO } from './constants';
+import { normalize as normalizeTask } from '../entities/Task';
+import { normalize as normalizeDispute } from '../entities/Dispute';
+import { NON_PAYABLE_VALUE, ADDRESS_ZERO } from '../constants';
 
 const { toWei, toBN } = Web3.utils;
 

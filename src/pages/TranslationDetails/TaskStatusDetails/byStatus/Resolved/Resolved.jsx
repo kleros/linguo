@@ -3,12 +3,12 @@ import { TaskParty, DisputeRuling } from '~/app/linguo';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
-import TaskContext from '../../../TaskContext';
+import useTask from '../../../useTask';
 import useCurrentParty from '../../hooks/useCurrentParty';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 
 function Resolved() {
-  const { hasDispute, ruling, requester, parties } = React.useContext(TaskContext);
+  const { hasDispute, ruling, requester, parties } = useTask();
   const party = useCurrentParty();
 
   const challengerIsRequester = requester === parties[TaskParty.Challenger];

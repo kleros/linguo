@@ -1,6 +1,8 @@
 import t from 'prop-types';
 
 function FormattedDate({ value, render, weekday, year, month, day, hour, minute, second, timeZoneName }) {
+  value = typeof value === 'string' ? new Date(value) : value;
+
   const df = new Intl.DateTimeFormat('en-us', { weekday, year, month, day, hour, minute, second, timeZoneName });
   const formattedValue = df.format(value);
 

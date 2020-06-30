@@ -3,7 +3,6 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Typography } from 'antd';
 import { FileTextOutlined, TranslationOutlined, LinkOutlined, PaperClipOutlined } from '@ant-design/icons';
-import { Task, TaskStatus, useCacheCall, getFileUrl } from '~/app/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
 import getLanguageFlag from '~/components/helpers/getLanguageFlag';
@@ -16,15 +15,14 @@ import TranslationQualityDefinition from '~/components/TranslationQualityDefinit
 import TaskInfoGrid from '~/components/TaskInfoGrid';
 import TaskPrice from '~/components/TaskPrice';
 import DownloadLink from '~/components/DownloadLink';
-import TaskContext from './TaskContext';
+import { Task, TaskStatus, getFileUrl } from '~/features/tasks';
+import useTask from './useTask';
 import TaskStatusDetails from './TaskStatusDetails';
 
-const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
+export default function TaskDetails() {
+  const task = useTask();
 
-function TaskDetails() {
-  const task = React.useContext(TaskContext);
   const {
-    ID,
     status,
     title,
     deadline,
@@ -39,19 +37,7 @@ function TaskDetails() {
     translatedTextUrl,
   } = task;
 
-  // const translatedTextUrl='';
-
-  const hasAssignedPrice = assignedPrice !== undefined;
-
-  const refreshInterval = hasAssignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
-  const shouldRevalidate = !hasAssignedPrice;
-
-  const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', ID], {
-    initialData: Task.currentPrice(task),
-    revalidateOnFocus: shouldRevalidate,
-    revalidateOnReconnect: shouldRevalidate,
-    refreshInterval,
-  });
+  const currentPrice = Task.currentPrice(task);
   const actualPrice = assignedPrice ?? currentPrice;
 
   const pricePerWord = Task.currentPricePerWord({
@@ -121,7 +107,9 @@ function TaskDetails() {
     <div
       css={`
         @media (min-width: 576px) {
-          margin-top: -2rem;
+          &:only-child {
+            margin-top: -2rem;
+          }
         }
       `}
     >
@@ -192,8 +180,6 @@ function TaskDetails() {
     </div>
   );
 }
-
-export default TaskDetails;
 
 const StyledTaskTitle = styled(Typography.Title)`
   && {

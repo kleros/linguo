@@ -1,5 +1,9 @@
 export { default as compose } from './compose';
 export { default as curry } from './curry';
-export { default as mapValues } from './mapValues';
+export { default as filter } from './filter';
+export { default as groupBy } from './groupBy';
 export { default as identity } from './identity';
+export { default as mapValues } from './mapValues';
 export { default as pick } from './pick';
+export { default as prop } from './prop';
+export { default as tap } from './tap';

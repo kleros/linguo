@@ -40,7 +40,7 @@ const StyledLogoWrapper = styled.div`
 
 function Navbar() {
   return (
-    <StyledHeader>
+    <StyledHeader id="main-navbar">
       <Row gutter={16}>
         <Col md={{ span: 4, offset: 0 }} sm={{ span: 10, offset: 2 }} xs={0}>
           <StyledLogoWrapper>

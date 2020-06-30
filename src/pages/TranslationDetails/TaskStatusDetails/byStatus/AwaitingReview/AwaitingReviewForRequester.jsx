@@ -2,7 +2,7 @@ import React from 'react';
 import { Task } from '~/app/linguo';
 import Spacer from '~/components/Spacer';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
-import TaskContext from '../../../TaskContext';
+import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
@@ -10,7 +10,7 @@ import ChallengeUploadButton from '../../components/ChallengeUploadButton';
 import TranslationChallengeDepositFetcher from '../../components/TranslationChallengeDepositFetcher';
 
 function AwaitingReviewForRequester() {
-  const task = React.useContext(TaskContext);
+  const task = useTask();
 
   const remainingTime = Task.remainingTimeForReview(task, { currentDate: new Date() });
 

@@ -1,60 +1,53 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { Spin, Alert } from 'antd';
-import { useCacheCall } from '~/app/linguo';
+import { Alert } from 'antd';
+import { Spin } from '~/adapters/antd';
+import { useShallowEqualSelector } from '~/adapters/reactRedux';
 import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
-import compose from '~/utils/fp/compose';
-import { withSuspense } from '~/adapters/react';
-import { withErrorBoundary } from '~/components/ErrorBoundary';
+import { fetchById, selectById, selectIsLoadingById, selectErrorById } from '~/features/tasks/tasksSlice';
+import Spacer from '~/features/shared/Spacer';
 import { TaskProvider } from './TaskContext';
 import TaskDetails from './TaskDetails';
 
-const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
+export default function TaskFetcher() {
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const isLoading = useSelector(selectIsLoadingById(id));
+  const data = useShallowEqualSelector(selectById(id));
+  const error = useShallowEqualSelector(selectErrorById(id));
 
-function TaskFetcher() {
-  const params = useParams();
-  const ID = params.id;
+  const doFetch = React.useCallback(() => {
+    dispatch(fetchById({ id }));
+  }, [dispatch, id]);
 
-  const [{ data }, refetch] = useCacheCall(['getTaskById', ID], {
-    suspense: true,
-    refreshInterval: _1_MINUTE_IN_MILISECONDS,
-  });
+  React.useEffect(() => {
+    doFetch();
+  }, [doFetch]);
 
-  useRefreshEffectOnce(refetch);
+  useRefreshEffectOnce(doFetch);
 
   return (
-    <TaskProvider task={data}>
-      <TaskDetails />
-    </TaskProvider>
+    <Spin $centered tip="Getting task details..." spinning={isLoading && !data}>
+      {error && (
+        <>
+          <Alert
+            type="warning"
+            message={error.message}
+            description={
+              data
+                ? 'You are currently viewing a cached version which not might reflect the current state in the blockchain.'
+                : null
+            }
+          />
+          <Spacer size={2} />
+        </>
+      )}
+      {data && (
+        <TaskProvider task={data}>
+          <TaskDetails />
+        </TaskProvider>
+      )}
+    </Spin>
   );
 }
-
-const errorBoundaryEnhancer = withErrorBoundary({
-  renderFallback: function ErrorBoundaryFallback(error) {
-    return <Alert type="error" message={error.message} />;
-  },
-});
-
-const suspenseEnhancer = withSuspense({
-  fallback: (
-    <Spin
-      spinning
-      tip="Loading the translation tasks details"
-      css={`
-        &&.ant-spin {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-      `}
-    />
-  ),
-});
-
-/**
- * ATTENTION: Order is important!
- * Since composition is evaluated right-to-left, `suspenseEnhancer` should be declared
- * **AFTER** `errorBoundaryEnhancer`
- */
-export default compose(errorBoundaryEnhancer, suspenseEnhancer)(TaskFetcher);

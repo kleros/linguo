@@ -3,7 +3,7 @@ import { Dispute, TaskParty } from '~/app/linguo';
 import { WarningIcon } from '~/components/icons';
 import EthValue from '~/components/EthValue';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
-import TaskContext from '../../../../TaskContext';
+import useTask from '../../../../useTask';
 import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../../hooks/useCurrentParty';
 import DisputeContext from '../DisputeContext';
@@ -58,7 +58,7 @@ function ForChallenger() {
   const dispute = React.useContext(DisputeContext);
   const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger });
 
-  const { requester, parties } = React.useContext(TaskContext);
+  const { requester, parties } = useTask();
   const challengerIsRequester = requester === parties[TaskParty.Challenger];
 
   const description = [

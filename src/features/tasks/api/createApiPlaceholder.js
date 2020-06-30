@@ -1,4 +1,4 @@
-export default function createApiFacadePlaceholer() {
+export default function createApiPlaceholder() {
   return new Proxy(
     {},
     {

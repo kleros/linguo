@@ -14,7 +14,7 @@ function RequiredWeb3Gateway({ children, missing, error, renderError }) {
   return hasWeb3Error ? (
     error ?? renderError({ error: getErrorMessage(web3Error) })
   ) : (
-    <Spin spinning={isConnecting} tip="Loading Web3...">
+    <Spin $centered spinning={isConnecting} tip="Loading Web3...">
       {isConnected ? children : missing}
     </Spin>
   );
@@ -22,7 +22,7 @@ function RequiredWeb3Gateway({ children, missing, error, renderError }) {
 
 RequiredWeb3Gateway.propTypes = {
   children: t.node,
-  missing: t.node.isRequired,
+  missing: t.node,
   error: t.node,
   renderError: t.func,
   render: t.func,

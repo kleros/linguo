@@ -1,5 +1,5 @@
 import { Arbitrator, Linguo, LinguoToken } from '@kleros/contract-deployments/linguo';
-import { ADDRESS_ZERO } from './constants';
+import { ADDRESS_ZERO } from '../constants';
 import { createEthContractApi, createTokenContractApi } from './createContractApi';
 
 export default async function createApiFacade({ web3, chainId }) {
@@ -66,6 +66,11 @@ export default async function createApiFacade({ web3, chainId }) {
         ];
 
         const actualInterface = interfaces[contract];
+
+        if (!actualInterface) {
+          throw new Error(`Task with ID ${ID} does not exist`);
+        }
+
         return actualInterface[name].apply(actualInterface, actualArgs);
       }
 
@@ -81,6 +86,11 @@ export default async function createApiFacade({ web3, chainId }) {
       ];
 
       const actualInterface = interfaces[contract];
+
+      if (!actualInterface) {
+        throw new Error(`Task with ID ${ID} does not exist`);
+      }
+
       return actualInterface[name].apply(actualInterface, actualArgs);
     },
   };

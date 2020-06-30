@@ -17,7 +17,7 @@ export const { selectAllSkillLanguages, selectAllSkills } = mapValues(
   skills.selectors
 );
 
-export const { selectIsIdle, selectIsLoading, selectHasFetched, selectHasFailed, selectTaskIds } = mapValues(
+export const { selectIsIdle, selectIsLoading, selectHasSucceeded, selectHasFailed, selectTaskIds } = mapValues(
   selector => account => state => selector(account)(state.translator.tasks),
   tasks.selectors
 );

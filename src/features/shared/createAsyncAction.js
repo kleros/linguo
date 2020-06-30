@@ -1,8 +1,11 @@
 import { createAction } from '@reduxjs/toolkit';
+import { curry } from './fp';
 
 /**
+ * Create async actions consisting of
  * @param {string} baseType
  * @param {PrepareOptions} prepare
+ * @return AsyncAction
  */
 export default function createAsyncAction(baseType, prepare = {}) {
   const preparePending = prepare.pending ?? defaultPrepare;
@@ -17,6 +20,27 @@ export default function createAsyncAction(baseType, prepare = {}) {
     rejected: createAction(`${baseType}/rejected`, prepareRejected),
   });
 }
+
+/**
+ *
+ * @param {any[]} actionCreators
+ * @param {'pending'|'fulfilled'|'rejected'} type
+ * @param {AnyAction} action
+ * @return {boolean}
+ */
+function _matchAnyAsyncType(actionCreators, type, action) {
+  return actionCreators.some(asyncActionCreator =>
+    typeof asyncActionCreator?.[type]?.match === 'function' ? asyncActionCreator?.[type]?.match(action) : false
+  );
+}
+
+export const matchAnyAsyncType = curry(_matchAnyAsyncType);
+
+/**
+ * @typedef {Function} AsyncAction
+ * @prop {any} pending
+ * @prop {any} fulfilled
+ * @prop {any} rejected
 
 /**
  * @function

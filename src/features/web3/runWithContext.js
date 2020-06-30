@@ -1,5 +1,5 @@
+import { all, call, cancel, cancelled, fork, setContext, take } from 'redux-saga/effects';
 import { changeLibrary } from './web3Slice';
-import { take, all, call, fork, cancel, cancelled, setContext, actionChannel } from 'redux-saga/effects';
 
 /**
  * @module runWithContext
@@ -35,7 +35,7 @@ import { take, all, call, fork, cancel, cancelled, setContext, actionChannel } f
  * usually `fork` the "worker" sagas, the context will be available for them too.
  *
  * @param {object} options to config
- * @param {({ library: any }) => ({ [prop]: any })} [options.createContext]
+ * @param {CreateContext} [options.createContext]
  * @returns Generator
  */
 export function watchAll(sagas, { createContext = ({ library }) => ({ library }) } = {}) {
@@ -93,10 +93,8 @@ export function watchAll(sagas, { createContext = ({ library }) => ({ library })
  * the action type they listen to will be buffered through an `actionChannel`.
  *
  * The returned saga SHOULD be exported in the consuming slice to be picked up by the root saga.
- * @typedef {(channel: any) => Generator} SagaFactory
- * @typedef {(action: any) => boolean|string} IndividualPattern
- * @typedef {'*'|IndividualPattern|IndividualPattern[]} Pattern
- * @typedef {[SagaFactory, Pattern]} WatchSagaDescriptor
+ * @typedef {(channel: Channel) => Generator} SagaFactory
+ * @typedef {[SagaFactory, ActionChannelEffect]} WatchSagaDescriptor
  *
  *
  * @param {WatchSagaDescriptor[]} sagaDescriptors an array objects containing the saga and the aciton type it listens to.
@@ -104,14 +102,14 @@ export function watchAll(sagas, { createContext = ({ library }) => ({ library })
  * those ones with `takeLatest`, `takeEvery` or `debounce` in their body. Since those sagas
  * usually `fork` the "worker" sagas, the context will be available for them too.
  * @param {object} options to config
- * @param {({ library: any }) => ({ [prop]: any })} [options.createContext]
+ * @param {CreateContext} [options.createContext]
  * @returns Generator
  */
 export function watchAllWithBuffer(sagaDescriptors, { createContext = ({ library }) => ({ library }) } = {}) {
   return function* watchChangeLibrary() {
     const sagas = yield all(
-      sagaDescriptors.map(function* ([sagaFactory, actionType]) {
-        return sagaFactory(yield actionChannel(`${actionType}`));
+      sagaDescriptors.map(function* ([sagaFactory, actionChannelEffect]) {
+        return sagaFactory(yield actionChannelEffect);
       })
     );
 
@@ -181,7 +179,7 @@ export function watchAllWithBuffer(sagaDescriptors, { createContext = ({ library
  *
  * @param {object} options to config
  * @param {any[]} [options.args] arguments to be passed to `saga` upon call.
- * @param {({ library: any }) => ({ [prop]: any })} [options.createContext]
+ * @param {CreateContext} [options.createContext]
  * @returns Generator
  */
 export function runOnceWhenReady(saga, { args = [], createContext = ({ library }) => ({ library }) } = {}) {
@@ -202,3 +200,7 @@ export function runOnceWhenReady(saga, { args = [], createContext = ({ library }
     }
   };
 }
+
+/**
+ * @typedef {({ library: any }) => ({ [prop]: any })} CreateContext
+ */

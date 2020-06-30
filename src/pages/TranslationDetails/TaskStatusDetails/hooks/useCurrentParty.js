@@ -1,7 +1,6 @@
-import { useContext } from 'react';
 import { TaskParty } from '~/app/linguo';
 import { useWeb3React } from '~/features/web3';
-import TaskContext from '../../TaskContext';
+import useTask from '../../useTask';
 
 const getCurrentParty = ({ account, requester, translator, challenger }) => {
   switch (account) {
@@ -25,7 +24,7 @@ const getCurrentParty = ({ account, requester, translator, challenger }) => {
 export default function useCurrentParty() {
   const { account } = useWeb3React();
 
-  const { requester, parties = {} } = useContext(TaskContext);
+  const { requester, parties = {} } = useTask();
   const translator = parties[TaskParty.Translator];
   const challenger = parties[TaskParty.Challenger];
 

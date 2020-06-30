@@ -1,22 +1,19 @@
 import React from 'react';
 import t from 'prop-types';
 import clsx from 'clsx';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Col, Row } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
-import { useImperativeRefresh } from '~/adapters/reactRouterDom';
-import { useLinguo } from '~/app/linguo';
 import * as r from '~/app/routes';
 import Button from '~/components/Button';
 import RemainingTime from '~/components/RemainingTime';
 import { Task, TaskStatus } from '~/features/tasks';
 import { selectAccount } from '~/features/web3/web3Slice';
-import wrapWithNotification from '~/utils/wrapWithNotification';
 import TaskParty from './entities/TaskParty';
-import { selectById } from './tasksSlice';
+import { selectById, selectIsLoadingById, reimburseRequester } from './tasksSlice';
 
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
@@ -54,7 +51,7 @@ function TaskFooterInfo(task) {
       const isRequester = task.parties[TaskParty.Requester] === account;
 
       return isRequester ? (
-        <RequestReimbursement
+        <RequestReimbursementButton
           id={id}
           buttonProps={{
             fullWidth: true,
@@ -122,33 +119,14 @@ function TaskFooterInfo(task) {
   return <Component />;
 }
 
-const withNotification = wrapWithNotification({
-  successMessage: 'Reimbursement requested with success!',
-  errorMessage: 'Failed to request the reimbursement!',
-});
-
-const RequestReimbursement = function RequestReimbursement({ id, buttonProps }) {
+const RequestReimbursementButton = function RequestReimbursement({ id, buttonProps }) {
+  const dispatch = useDispatch();
   const account = useSelector(selectAccount);
-  const linguo = useLinguo();
+  const isLoading = useSelector(selectIsLoadingById(id));
 
-  const [isLoading, setIsLoading] = React.useState(false);
-  const refresh = useImperativeRefresh();
-
-  const handleClick = React.useCallback(
-    withNotification(async () => {
-      if (id === undefined) {
-        throw new Error('Failed to reimburse the requester');
-      }
-
-      setIsLoading(true);
-      try {
-        await linguo.api.reimburseRequester({ id }, { from: account });
-        refresh();
-      } finally {
-        setIsLoading(false);
-      }
-    }, [linguo.api, id, account])
-  );
+  const handleClick = React.useCallback(() => {
+    dispatch(reimburseRequester({ id, account }));
+  }, [dispatch, id, account]);
 
   const icon = isLoading ? <LoadingOutlined /> : null;
 
@@ -159,12 +137,12 @@ const RequestReimbursement = function RequestReimbursement({ id, buttonProps }) 
   );
 };
 
-RequestReimbursement.propTypes = {
+RequestReimbursementButton.propTypes = {
   id: t.string.isRequired,
   buttonProps: t.object,
 };
 
-RequestReimbursement.defaultProps = {
+RequestReimbursementButton.defaultProps = {
   buttonProps: {},
 };
 

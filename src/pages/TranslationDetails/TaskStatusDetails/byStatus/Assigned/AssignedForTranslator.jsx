@@ -1,13 +1,13 @@
 import React from 'react';
 import Spacer from '~/components/Spacer';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
-import TaskContext from '../../../TaskContext';
+import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import TranslationUploadButton from '../../components/TranslationUploadButton';
 
 function AssignedForTranslator() {
-  const { reviewTimeout } = React.useContext(TaskContext);
+  const { reviewTimeout } = useTask();
   const props = {
     title: 'Deliver the translation file in plain text (*.txt)',
     description: [

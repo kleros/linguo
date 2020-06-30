@@ -9,7 +9,7 @@ import { useWeb3React } from '~/features/web3';
 import SingleFileUpload from '~/components/SingleFileUpload';
 import Button from '~/components/Button';
 import wrapWithNotification from '~/utils/wrapWithNotification';
-import TaskContext from '../../TaskContext';
+import useTask from '../../useTask';
 
 const StyledWrapper = styled.div`
   &,
@@ -51,7 +51,7 @@ const withNotification = wrapWithNotification({
 });
 
 function TranslationUploadButton({ buttonProps }) {
-  const { ID } = React.useContext(TaskContext);
+  const { ID } = useTask();
   const linguo = useLinguo();
   const { account } = useWeb3React();
 

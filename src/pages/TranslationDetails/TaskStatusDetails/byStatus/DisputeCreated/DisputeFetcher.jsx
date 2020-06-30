@@ -6,11 +6,11 @@ import { useCacheCall } from '~/app/linguo';
 import { withSuspense } from '~/adapters/react';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
 import compose from '~/utils/fp/compose';
-import TaskContext from '../../../TaskContext';
+import useTask from '../../../useTask';
 import { DisputeProvider } from './DisputeContext';
 
 function _DisputeFetcher({ children }) {
-  const { ID } = React.useContext(TaskContext);
+  const { ID } = useTask();
   const [{ data: dispute }] = useCacheCall(['getTaskDispute', ID], { suspense: true });
 
   return <DisputeProvider dispute={dispute}>{children}</DisputeProvider>;

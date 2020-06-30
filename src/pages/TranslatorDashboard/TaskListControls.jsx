@@ -1,18 +1,36 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Radio } from 'antd';
+import { Link } from 'react-router-dom';
+import { Radio, Tooltip } from 'antd';
+import * as r from '~/app/routes';
+import Button from '~/components/Button';
 import RadioButton from '~/components/RadioButton';
 import filters, { useFilterName } from './filters';
 
 function TaskListControls() {
   return (
     <StyledControls>
+      <TaskListActions />
       <TaskListFilters />
     </StyledControls>
   );
 }
 
 export default TaskListControls;
+
+function TaskListActions() {
+  return (
+    <StyledActions>
+      <Link to={r.TRANSLATOR_SETTINGS}>
+        <Tooltip title="You will see only tasks whose your self-declared skill is B2+ for both languages.">
+          <div>
+            <Button variant="filled">Update Skills</Button>
+          </div>
+        </Tooltip>
+      </Link>
+    </StyledActions>
+  );
+}
 
 function TaskListFilters() {
   const [filterName, setFilterName] = useFilterName();
@@ -130,7 +148,7 @@ const buttons = [
 
 const StyledControls = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
 
   ${StyledActions} {

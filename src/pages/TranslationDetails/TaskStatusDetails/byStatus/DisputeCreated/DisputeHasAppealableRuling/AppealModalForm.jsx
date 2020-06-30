@@ -17,7 +17,7 @@ import AccountingTable from '~/components/AccountingTable';
 import EthValue, { EthUnit, valueOf, parse, getBestDisplayUnit } from '~/components/EthValue';
 import wrapWithNotification from '~/utils/wrapWithNotification';
 import useStateMachine from '~/hooks/useStateMachine';
-import TaskContext from '../../../../TaskContext';
+import useTask from '../../../../useTask';
 import useCurrentParty from '../../../hooks/useCurrentParty';
 import useAppealStatus from './useAppealStatus';
 
@@ -106,7 +106,7 @@ function AppealModalForm({ trigger, forceClose }) {
 
   const [state, send] = useStateMachine(formStateMachine);
   const linguo = useLinguo();
-  const { ID } = React.useContext(TaskContext);
+  const { ID } = useTask();
   const { account } = useWeb3React();
 
   const disabled = state !== 'idle';

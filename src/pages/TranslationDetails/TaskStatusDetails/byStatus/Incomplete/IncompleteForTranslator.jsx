@@ -2,11 +2,11 @@ import React from 'react';
 import { Task } from '~/app/linguo';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
 import EthValue from '~/components/EthValue';
-import TaskContext from '../../../TaskContext';
+import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 
 function IncompleteForTranslator() {
-  const task = React.useContext(TaskContext);
+  const task = useTask();
   const isPending = Task.isPending(task);
 
   /*
@@ -25,11 +25,11 @@ function IncompleteForTranslator() {
         description: [
           <EthValue
             key="warning"
-            value={translatorDeposit}
+            amount={translatorDeposit}
             suffixType="short"
-            render={({ formattedValue }) =>
+            render={({ formattedValue, suffix }) =>
               `As a compensation for the requester, the value you deposited when assigned
-               to this task (${formattedValue}) will be sent to the requester's address.`
+               to this task (${formattedValue} ${suffix}) will be sent to the requester's address.`
             }
           />,
         ],
