@@ -1,54 +1,67 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { checkAllowanceChannel, checkAllowance } from '~/features/tokens/tokensSlice';
+import { checkAllowance } from '~/features/tokens/tokensSlice';
 import usePreviousMatching from '~/features/shared/usePreviousMatching';
 
 export const AllowanceValidationStatus = {
-  Idle: 'idle',
-  Pending: 'pending',
-  Valid: 'valid',
-  Invalid: 'invalid',
+  idle: 'idle',
+  pending: 'pending',
+  valid: 'valid',
+  invalid: 'invalid',
 };
 
 export default function useAllowanceValidation({ spender, shouldSkip }) {
   const dispatch = useDispatch();
 
-  const [status, setStatus] = useState(AllowanceValidationStatus.Idle);
+  const [status, setStatus] = useState(AllowanceValidationStatus.idle);
   const latestResult = usePreviousMatching(status, previous =>
-    [AllowanceValidationStatus.Valid, AllowanceValidationStatus.Invalid].includes(previous)
+    [AllowanceValidationStatus.valid, AllowanceValidationStatus.invalid].includes(previous)
   );
 
   const createValidator = ({ getFieldsValue }) => ({
     validator: async (_, value) => {
       if (!value) {
-        setStatus(AllowanceValidationStatus.Idle);
+        setStatus(AllowanceValidationStatus.idle);
         return;
       }
 
       const { token, account } = getFieldsValue(['token', 'account']);
 
       if (shouldSkip({ token, account })) {
-        setStatus(AllowanceValidationStatus.Valid);
+        setStatus(AllowanceValidationStatus.valid);
         return;
       }
 
-      dispatch(
-        checkAllowance({
-          amount: value,
-          tokenAddress: token,
-          owner: account,
-          spender,
-        })
-      );
+      const checkId = JSON.stringify({
+        amount: value,
+        tokenAddress: token,
+        owner: account,
+        spender,
+      });
 
-      setStatus(AllowanceValidationStatus.Pending);
-      try {
-        await getCheckAllowanceResponse();
-        setStatus(AllowanceValidationStatus.Valid);
-      } catch (err) {
-        setStatus(AllowanceValidationStatus.Invalid);
-        throw err;
-      }
+      setStatus(AllowanceValidationStatus.pending);
+      await dispatch(
+        checkAllowance(
+          {
+            amount: value,
+            tokenAddress: token,
+            owner: account,
+            spender,
+          },
+          {
+            meta: {
+              thunk: { id: checkId },
+            },
+          }
+        )
+      )
+        .then(() => {
+          setStatus(AllowanceValidationStatus.valid);
+        })
+        .catch(err => {
+          setStatus(AllowanceValidationStatus.invalid);
+          throw new Error(err.error.message);
+        });
     },
   });
 
@@ -57,30 +70,4 @@ export default function useAllowanceValidation({ spender, shouldSkip }) {
     latestResult,
     createValidator,
   };
-}
-
-function getCheckAllowanceResponse() {
-  let res;
-  let rej;
-
-  const promise = new Promise((resolve, reject) => {
-    res = resolve;
-    rej = reject;
-  });
-
-  checkAllowanceChannel.take(
-    action => {
-      if (checkAllowance.fulfilled.match(action)) {
-        return res();
-      }
-
-      if (checkAllowance.rejected.match(action)) {
-        const message = action.payload?.error?.message ?? 'Unknown error.';
-        return rej(new Error(message));
-      }
-    },
-    action => checkAllowance.fulfilled.match(action) || checkAllowance.rejected.match(action)
-  );
-
-  return promise;
 }

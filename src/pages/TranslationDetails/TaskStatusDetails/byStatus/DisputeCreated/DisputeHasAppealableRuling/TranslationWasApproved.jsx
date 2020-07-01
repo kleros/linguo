@@ -1,5 +1,6 @@
 import React from 'react';
-import { Dispute, TaskParty } from '~/app/linguo';
+import { TaskParty } from '~/features/tasks';
+import { Dispute } from '~/features/disputes';
 import { WarningIcon } from '~/components/icons';
 import EthValue from '~/components/EthValue';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';

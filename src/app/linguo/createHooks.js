@@ -45,7 +45,7 @@ const createApiInstance = async ({ web3, chainId }) => {
   try {
     const linguo = new web3.eth.Contract(Linguo.abi, linguoAddress);
     const linguoArbitratorAddress = await linguo.methods.arbitrator().call();
-    const linguoArbitrator = new web3.eth.Contract(Linguo.abi, linguoArbitratorAddress);
+    const linguoArbitrator = new web3.eth.Contract(Arbitrator.abi, linguoArbitratorAddress);
 
     const linguoToken = new web3.eth.Contract(LinguoToken.abi, linguoTokenAddress);
     const linguoTokenArbitratorAddress = await linguoToken.methods.arbitrator().call();

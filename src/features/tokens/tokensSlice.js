@@ -1,4 +1,3 @@
-import { multicastChannel } from 'redux-saga';
 import { call, debounce, getContext, put, spawn, take } from 'redux-saga/effects';
 import ipfs from '~/app/ipfs';
 import createAsyncAction from '~/features/shared/createAsyncAction';
@@ -65,19 +64,37 @@ export const selectTokenByTicker = ticker => state =>
 export const selectTokenByAddress = address => state =>
   Object.values(state.tokens.entities).find(token => token.address === address);
 
-export const checkAllowanceChannel = multicastChannel();
-
 export function* checkAllowanceSaga(action) {
   const tokenApi = yield getContext('tokenApi');
-  const { tokenAddress, owner, spender, amount } = action.payload;
-
-  yield put(checkAllowanceChannel, checkAllowance({ tokenAddress, owner, spender, amount }));
+  const { tokenAddress, owner, spender, amount } = action.payload ?? {};
+  const meta = action.meta;
 
   try {
     yield call([tokenApi, 'checkAllowance'], { tokenAddress, owner, spender, amount });
-    yield put(checkAllowanceChannel, checkAllowance.fulfilled({ tokenAddress, owner, spender, amount }));
+    yield put(
+      checkAllowance.fulfilled(
+        {
+          tokenAddress,
+          owner,
+          spender,
+          amount,
+        },
+        { meta }
+      )
+    );
   } catch (err) {
-    yield put(checkAllowanceChannel, checkAllowance.rejected({ tokenAddress, owner, spender, amount, error: err }));
+    yield put(
+      checkAllowance.rejected(
+        {
+          tokenAddress,
+          owner,
+          spender,
+          amount,
+          error: err,
+        },
+        { meta, error: true }
+      )
+    );
   }
 }
 

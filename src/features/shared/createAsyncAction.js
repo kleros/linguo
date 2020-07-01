@@ -46,10 +46,10 @@ export const matchAnyAsyncType = curry(_matchAnyAsyncType);
  * @function
  *
  * @param {any} payload
- * @param {object} meta
+ * @param {object} rest
  * @returns {ActionWithPayload}
  */
-const defaultPrepare = (payload, meta = {}) => ({ payload, meta });
+const defaultPrepare = (payload, rest = {}) => ({ payload, ...rest });
 
 /**
  * @typedef {object} ActionWithPayload

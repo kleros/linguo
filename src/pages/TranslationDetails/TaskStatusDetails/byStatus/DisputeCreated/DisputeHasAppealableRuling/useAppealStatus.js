@@ -1,5 +1,6 @@
 import React from 'react';
-import { Dispute, AppealSide, TaskParty } from '~/app/linguo';
+import { Dispute, AppealSide } from '~/features/disputes';
+import { TaskParty } from '~/features/tasks';
 import { useRemainingTime } from '~/components/RemainingTime';
 import DisputeContext from '../DisputeContext';
 

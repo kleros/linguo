@@ -2,10 +2,10 @@ import produce from 'immer';
 import dayjs from 'dayjs';
 import Web3 from 'web3';
 import ipfs from '~/app/ipfs';
+import { DisputeRuling } from '~/features/disputes';
 import TaskStatus from './TaskStatus';
 import TaskParty from './TaskParty';
 import TaskResolveReason from './TaskResolveReason';
-import DisputeRuling from './DisputeRuling';
 
 const { toBN, BN } = Web3.utils;
 
@@ -61,6 +61,8 @@ export const normalize = ({ ID, contract, reviewTimeout, task, metadata, lifecyc
   data.hasDispute = (data.lifecycleEvents.Dispute?.length ?? 0) > 0;
   if (!data.hasDispute) {
     delete data.disputeID;
+  } else {
+    data.disputeId = data.disputeID;
   }
   /**
    * If there was never a dispute, the `ruling` field of the task will not be set.

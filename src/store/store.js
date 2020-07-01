@@ -1,6 +1,7 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import createSagaMiddleware from 'redux-saga';
+import { middleware as sagaThunkMiddleware } from 'redux-saga-thunk';
 import { routerMiddleware } from 'connected-react-router';
 import actionIdMiddleware from '~/features/shared/actionIdMiddleware';
 import normalizeErrorMiddleware from '~/features/shared/normalizeErrorMiddleware';
@@ -21,6 +22,7 @@ const store = configureStore({
     actionIdMiddleware,
     normalizeErrorMiddleware,
     routerMiddleware(history),
+    sagaThunkMiddleware,
     sagaMiddleware,
     ...getDefaultMiddleware({
       thunk: false,

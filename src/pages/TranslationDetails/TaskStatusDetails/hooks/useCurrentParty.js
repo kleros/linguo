@@ -1,4 +1,4 @@
-import { TaskParty } from '~/app/linguo';
+import { TaskParty } from '~/features/tasks';
 import { useWeb3React } from '~/features/web3';
 import useTask from '../../useTask';
 

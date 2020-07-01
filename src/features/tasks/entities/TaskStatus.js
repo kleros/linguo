@@ -1,4 +1,4 @@
-import Enum from './utils/Enum';
+import { Enum } from '~/features/shared/entities/utils';
 
 /**
  * Task Status as represented in the smart contract.

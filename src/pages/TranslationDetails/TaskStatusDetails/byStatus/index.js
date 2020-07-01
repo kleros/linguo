@@ -1,4 +1,4 @@
-import { TaskStatus } from '~/app/linguo';
+import { TaskStatus } from '~/features/tasks';
 import Incomplete from './Incomplete';
 import Created from './Created';
 import Assigned from './Assigned';

@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
-import Web3 from 'web3';
 import deepMerge from 'deepmerge';
+import Web3 from 'web3';
 import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
+import { Dispute } from '~/features/disputes';
+import { Task } from '~/features/tasks';
 import promiseRetry from '~/utils/promiseRetry';
+import { ADDRESS_ZERO, NON_PAYABLE_VALUE } from './constants';
 import getFileUrl from './getFileUrl';
-import { normalize as normalizeTask } from '../entities/Task';
-import { normalize as normalizeDispute } from '../entities/Dispute';
-import { NON_PAYABLE_VALUE, ADDRESS_ZERO } from '../constants';
 
 const { toWei, toBN } = Web3.utils;
 
@@ -250,7 +250,7 @@ function createCommonApi({ web3, linguo, arbitrator }) {
             })
           : [];
 
-      return normalizeTask({
+      return Task.normalize({
         ID,
         contract: linguo.options.address,
         reviewTimeout,
@@ -391,7 +391,7 @@ function createCommonApi({ web3, linguo, arbitrator }) {
       latestRound,
     };
 
-    return normalizeDispute(aggregateDispute, task, rewardPoolParams);
+    return Dispute.normalize(aggregateDispute, task, rewardPoolParams);
   }
 
   async function _getTaskAndDisputeDetails({ ID }) {

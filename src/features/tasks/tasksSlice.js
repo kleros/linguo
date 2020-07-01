@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
-import { call, getContext, put, select, spawn, take, actionChannel } from 'redux-saga/effects';
+import { call, getContext, put, spawn, take, actionChannel } from 'redux-saga/effects';
 import deepMerge from 'deepmerge';
 import * as r from '~/app/routes';
 import createAsyncAction from '~/features/shared/createAsyncAction';
@@ -10,8 +10,7 @@ import { compose, groupBy, prop, filter, mapValues } from '~/features/shared/fp'
 import { confirm, matchTxResult, registerTxSaga } from '~/features/transactions/transactionsSlice';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import { watchAllWithBuffer } from '~/features/web3/runWithContext';
-import { selectChainId } from '~/features/web3/web3Slice';
-import { createApiFacade, createApiPlaceholder } from './api';
+import createLinguoApiContext from '~/features/linguo/createSagaApiContext';
 import TaskParty from './entities/TaskParty';
 import singleTaskReducer, * as singleTaskSlice from './singleTaskSlice';
 
@@ -95,7 +94,7 @@ const tasksSlice = createSlice({
 export default tasksSlice.reducer;
 
 export const { add } = tasksSlice.actions;
-export const { fetchById, reimburseRequester } = singleTaskSlice.actions;
+export const { fetchById, getChallengerDeposit, reimburseRequester } = singleTaskSlice.actions;
 
 export const selectAll = state => state.tasks.ids.map(id => state.tasks.entities[id].data);
 
@@ -184,7 +183,9 @@ export function* createSaga(action) {
               account,
               party: TaskParty.Requester,
             },
-            { key: INTERNAL_FETCH_KEY }
+            {
+              meta: { key: INTERNAL_FETCH_KEY },
+            }
           )
         );
       }
@@ -197,7 +198,7 @@ export function* createSaga(action) {
 const createWatchFetchByPartySaga = createWatcherSaga(
   { takeType: TakeType.latest },
   createCancellableSaga(fetchByPartySaga, fetchByParty.rejected, {
-    additionalArgs: action => ({ key: action.meta?.key }),
+    additionalArgs: action => ({ meta: { key: action.meta?.key } }),
   })
 );
 
@@ -210,21 +211,6 @@ export const sagas = {
       [createWatchFetchByPartySaga, actionChannel(fetchByParty.type)],
       [createWatchCreateSaga, actionChannel(create.type)],
     ],
-    {
-      *createContext({ library: web3 }) {
-        const chainId = yield select(selectChainId);
-
-        if (!chainId || !web3) {
-          return { linguoApi: yield call(createApiPlaceholder) };
-        }
-
-        try {
-          return { linguoApi: yield call(createApiFacade, { web3, chainId }) };
-        } catch (err) {
-          console.warn('Failed to create Linguo API Facade', err);
-          return { linguoApi: yield call(createApiPlaceholder) };
-        }
-      },
-    }
+    { createContext: createLinguoApiContext }
   ),
 };

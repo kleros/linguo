@@ -1,5 +1,6 @@
 import { connectRouter } from 'connected-react-router';
 import { persistCombineReducers } from 'redux-persist';
+import { reducer as sagaThunkReducer } from 'redux-saga-thunk';
 import requesterReducer from '~/features/requester/requesterSlice';
 import storage from 'redux-persist/lib/storage';
 import tasksReducer from '~/features/tasks/tasksSlice';
@@ -17,13 +18,14 @@ const persistConfig = {
    * It does not make sense to persist router and ui.
    * All other blacklisted slices have their own persistance config.
    */
-  blacklist: ['router', 'ui', 'web3', 'tokens', 'transactions'],
+  blacklist: ['router', 'thunk', 'ui', 'web3', 'tokens', 'transactions'],
 };
 
 export const createRootReducer = additionalReducers =>
   persistCombineReducers(persistConfig, {
     ...additionalReducers,
     router: connectRouter(history),
+    thunk: sagaThunkReducer,
     requester: requesterReducer,
     tasks: tasksReducer,
     tokens: tokenReducer,

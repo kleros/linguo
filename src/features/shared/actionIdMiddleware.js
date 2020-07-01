@@ -7,5 +7,14 @@ export default actionIdMiddleware;
 
 const assignId = produce(action => {
   action.meta = action.meta ?? {};
-  action.meta.id = action.meta?.id ?? nanoid(10);
+
+  const id = nanoid(10);
+
+  if (action.meta.id) {
+    action.meta.groupId = action.meta.id;
+    action.meta.id = id;
+  } else {
+    action.meta.groupId = id;
+    action.meta.id = id;
+  }
 });

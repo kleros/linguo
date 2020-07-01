@@ -7,7 +7,9 @@ import { LoadingOutlined, CheckOutlined, CloseCircleOutlined } from '@ant-design
 import { mutate } from 'swr';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import { subtract } from '~/adapters/bigNumber';
-import { TaskParty, Dispute, AppealSide, useLinguo } from '~/app/linguo';
+import { useLinguo } from '~/app/linguo';
+import { Dispute, AppealSide } from '~/features/disputes';
+import { TaskParty } from '~/features/tasks';
 import { useWeb3React } from '~/features/web3';
 import Button from '~/components/Button';
 import Spacer from '~/components/Spacer';

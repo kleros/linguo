@@ -1,5 +1,5 @@
 import React from 'react';
-import { Task, TaskStatus } from '~/app/linguo';
+import { Task, TaskStatus } from '~/features/tasks';
 import Spacer from '~/components/Spacer';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';

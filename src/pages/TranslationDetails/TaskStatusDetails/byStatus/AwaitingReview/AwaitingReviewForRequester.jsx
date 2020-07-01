@@ -1,5 +1,5 @@
 import React from 'react';
-import { Task } from '~/app/linguo';
+import { Task } from '~/features/tasks';
 import Spacer from '~/components/Spacer';
 import FormattedRelativeDate from '~/components/FormattedRelativeDate';
 import useTask from '../../../useTask';

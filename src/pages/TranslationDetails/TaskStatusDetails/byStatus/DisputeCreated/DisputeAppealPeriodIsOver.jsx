@@ -1,5 +1,6 @@
 import React from 'react';
-import { TaskParty, DisputeRuling } from '~/app/linguo';
+import { TaskParty } from '~/features/tasks';
+import { DisputeRuling } from '~/features/disputes';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';

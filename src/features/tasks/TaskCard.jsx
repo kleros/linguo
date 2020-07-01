@@ -3,7 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip, Typography } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
-import { Task, TaskStatus, useCacheCall } from '~/app/linguo';
+import { Task, TaskStatus } from '~/features/tasks';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Card from '~/components/Card';
 import FormattedNumber from '~/components/FormattedNumber';
@@ -31,23 +31,11 @@ const StyledTaskTitle = styled(Typography.Title)`
   }
 `;
 
-const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
-
 function TaskCard({ id }) {
   const task = useShallowEqualSelector(selectById(id));
   const { status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality, token } = task;
 
-  const hasAssignedPrice = assignedPrice !== undefined;
-
-  const shouldRevalidate = !(hasAssignedPrice || Task.isIncomplete(task));
-  const refreshInterval = shouldRevalidate ? _1_MINUTE_IN_MILLISECONDS : 0;
-
-  const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', id], {
-    initialData: Task.currentPrice(task),
-    revalidateOnFocus: shouldRevalidate,
-    revalidateOnReconnect: shouldRevalidate,
-    refreshInterval,
-  });
+  const currentPrice = Task.currentPrice(task);
   const actualPrice = assignedPrice ?? currentPrice;
 
   const pricePerWord = Task.currentPricePerWord({

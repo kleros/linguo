@@ -1,5 +1,5 @@
 import { Arbitrator, Linguo, LinguoToken } from '@kleros/contract-deployments/linguo';
-import { ADDRESS_ZERO } from '../constants';
+import { ADDRESS_ZERO } from './constants';
 import { createEthContractApi, createTokenContractApi } from './createContractApi';
 
 export default async function createApiFacade({ web3, chainId }) {

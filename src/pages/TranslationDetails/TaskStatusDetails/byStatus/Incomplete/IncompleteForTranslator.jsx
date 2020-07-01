@@ -1,5 +1,5 @@
 import React from 'react';
-import { Task } from '~/app/linguo';
+import { Task } from '~/features/tasks';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
 import EthValue from '~/components/EthValue';
 import useTask from '../../../useTask';

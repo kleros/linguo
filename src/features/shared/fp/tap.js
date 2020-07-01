@@ -2,9 +2,9 @@ import curry from './curry';
 
 const tap = (label, value) => {
   if (label) {
-    console.log(`${label}:`, value);
+    console.debug(`${label}:`, value);
   } else {
-    console.log(value);
+    console.debug(value);
   }
 
   return value;

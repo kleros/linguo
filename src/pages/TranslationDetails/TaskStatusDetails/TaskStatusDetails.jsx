@@ -1,8 +1,9 @@
 import React from 'react';
-import { Task } from '~/app/linguo';
+import ContentBlocker from '~/components/ContentBlocker';
+import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
+import { Task } from '~/features/tasks';
 import { useWeb3React } from '~/features/web3';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
-import ContentBlocker from '~/components/ContentBlocker';
 import useTask from '../useTask';
 import byStatus from './byStatus';
 
@@ -18,13 +19,15 @@ function TaskStatusDetails() {
   const content = <ContentBlocker blocked={contentBlocked}>{Component && <Component />}</ContentBlocker>;
 
   return (
-    <RequiredWalletGateway
-      message="To interact with this task you need an Ethereum wallet."
-      error={content}
-      missing={content}
-    >
-      {content}
-    </RequiredWalletGateway>
+    <LinguoApiReadyGateway>
+      <RequiredWalletGateway
+        message="To interact with this task you need an Ethereum wallet."
+        error={content}
+        missing={content}
+      >
+        {content}
+      </RequiredWalletGateway>
+    </LinguoApiReadyGateway>
   );
 }
 

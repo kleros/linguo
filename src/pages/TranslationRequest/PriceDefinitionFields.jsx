@@ -115,7 +115,7 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
           <StyledAsyncFormItem
             hasFeedback={
               paymentTokenAddress !== ethNativeToken.address &&
-              allowanceValidation.status === AllowanceValidationStatus.Pending
+              allowanceValidation.status === AllowanceValidationStatus.pending
             }
             label="Maximum Price"
             name="maxPrice"
@@ -143,7 +143,7 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
           </StyledAsyncFormItem>
         </Col>
       </Row>
-      {allowanceValidation.latestResult === AllowanceValidationStatus.Invalid && (
+      {allowanceValidation.latestResult === AllowanceValidationStatus.invalid && (
         <>
           <ApproveOptions
             status={allowanceValidation.status}
@@ -290,7 +290,7 @@ function ApproveOptions({ status, tokenAddress, tokenTicker, owner, spender, amo
   const previousTxState = usePreviousMatching(txState, previous =>
     [TransactionState.Mined, TransactionState.Failed].includes(previous)
   );
-  const shouldShowButtons = status === AllowanceValidationStatus.Invalid || previousTxState !== TransactionState.Mined;
+  const shouldShowButtons = status === AllowanceValidationStatus.invalid || previousTxState !== TransactionState.Mined;
 
   React.useEffect(() => {
     if (txState === TransactionState.Mined) {

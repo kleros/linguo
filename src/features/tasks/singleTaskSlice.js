@@ -14,10 +14,12 @@ export const initialState = {
 };
 
 const fetchById = createAsyncAction('tasks/fetchById');
+const getChallengerDeposit = createAsyncAction('tasks/getChallengerDeposit');
 const reimburseRequester = createAsyncAction('tasks/reimburseRequester');
 
 export const actions = {
   fetchById,
+  getChallengerDeposit,
   reimburseRequester,
 };
 
@@ -86,6 +88,23 @@ export function* fetchByIdSaga(action) {
   }
 }
 
+export function* getChallengerDepositSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+  const { id } = action.payload ?? {};
+  const meta = action.meta;
+
+  try {
+    const data = yield call([linguoApi, 'getChallengerDeposit'], { ID: id });
+    const result = getChallengerDeposit.fulfilled({ id, data }, { meta });
+
+    yield put(result);
+  } catch (err) {
+    const result = getChallengerDeposit.rejected({ id, error: err }, { meta, error: true });
+
+    yield put(result);
+  }
+}
+
 export function* reimburseRequesterSaga(action) {
   const linguoApi = yield getContext('linguoApi');
 
@@ -112,10 +131,15 @@ export function* reimburseRequesterSaga(action) {
 }
 
 export const createWatchFetchByIdSaga = createWatcherSaga(
-  { takeType: TakeType.every },
+  { takeType: TakeType.latest },
   createCancellableSaga(fetchByIdSaga, fetchById.rejected, {
     additionalPayload: action => ({ id: action.payload?.id }),
   })
+);
+
+export const createWatchGetChallengerDepositSaga = createWatcherSaga(
+  { takeType: TakeType.latest },
+  getChallengerDepositSaga
 );
 
 export const createWatchReimburseRequesterSaga = createWatcherSaga(
@@ -124,6 +148,7 @@ export const createWatchReimburseRequesterSaga = createWatcherSaga(
 );
 
 export const sagaDescriptors = [
-  [createWatchReimburseRequesterSaga, actionChannel(reimburseRequester.type)],
   [createWatchFetchByIdSaga, actionChannel(fetchById.type)],
+  [createWatchGetChallengerDepositSaga, actionChannel(getChallengerDeposit.type)],
+  [createWatchReimburseRequesterSaga, actionChannel(reimburseRequester.type)],
 ];

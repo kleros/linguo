@@ -1,6 +1,6 @@
 import React from 'react';
 import loadable from '@loadable/component';
-import { Dispute } from '~/app/linguo';
+import { Dispute } from '~/features/disputes';
 import Spinner from '../../components/Spinner';
 import DisputeContext from './DisputeContext';
 import { withDisputeFetcher } from './DisputeFetcher';

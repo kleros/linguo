@@ -1,7 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
-import { TaskStatus } from '~/app/linguo';
+import { TaskStatus } from '~/features/tasks';
 
 const TaskContext = React.createContext({});
 TaskContext.displayName = 'TaskContext';

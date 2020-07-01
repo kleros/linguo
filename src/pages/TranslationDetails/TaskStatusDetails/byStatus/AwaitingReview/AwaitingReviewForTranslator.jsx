@@ -1,5 +1,5 @@
 import React from 'react';
-import { Task } from '~/app/linguo';
+import { Task } from '~/features/tasks';
 import TaskAwaitingReviewAvatar from '~/assets/images/avatar-task-awaiting-review.svg';
 import Spacer from '~/components/Spacer';
 import useTask from '../../../useTask';

@@ -3,8 +3,7 @@ import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import produce from 'immer';
 import { percentage } from '~/adapters/bigNumber';
-import TaskParty from './TaskParty';
-import TaskStatus from './TaskStatus';
+import { TaskParty, TaskStatus } from '~/features/tasks';
 import DisputeStatus from './DisputeStatus';
 import DisputeRuling from './DisputeRuling';
 

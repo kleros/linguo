@@ -1,5 +1,5 @@
-import Enum from './utils/Enum';
-import TaskParty from './TaskParty';
+import { Enum } from '~/features/shared/entities/utils';
+import { TaskParty } from '~/features/tasks';
 import DisputeRuling from './DisputeRuling';
 
 /**

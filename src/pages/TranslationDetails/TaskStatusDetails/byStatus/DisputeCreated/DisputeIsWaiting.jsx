@@ -1,5 +1,5 @@
 import React from 'react';
-import { TaskParty } from '~/app/linguo';
+import { TaskParty } from '~/features/tasks';
 import TaskInDisputeAvatar from '~/assets/images/avatar-task-in-dispute.svg';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
