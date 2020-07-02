@@ -8,6 +8,7 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
   const txChannel = eventChannel(emit => {
     const confirmations = wait === false ? 0 : wait;
     let txHash = null;
+    let emittedConfirmation = false;
 
     tx.once('transactionHash', _txHash => {
       console.debug('Tx channel: transaction hash', _txHash);
@@ -36,10 +37,32 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
             },
           },
         });
+
+        emittedConfirmation = true;
       }
 
       if (number >= confirmations) {
         emit(END);
+
+        /**
+         * For some reason, on Kovan sometimes the confirmation #0 is not emitted,
+         * the first one to happen is confirmation #1.
+         * In such cases, we still want to emit the TX_CONFIRMATION event to update
+         * the state of the transaction accordingly even if `confirmations` is 0.
+         */
+        if (!emittedConfirmation) {
+          emit({
+            type: 'TX_CONFIRMATION',
+            payload: {
+              txHash,
+              number,
+              receipt: {
+                ...pick(['from', 'to', 'transactionIndex', 'blockHash', 'blockNumber'], receipt),
+                events: extractEventsReturnValues(receipt.events),
+              },
+            },
+          });
+        }
 
         resultChannel.put({ type: 'FULFILLED', payload: { txHash } });
         resultChannel.put(END);
