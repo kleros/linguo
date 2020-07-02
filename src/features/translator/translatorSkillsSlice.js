@@ -1,11 +1,10 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import { goBack, push } from 'connected-react-router';
-import { normalize } from 'normalizr';
 import { put } from 'redux-saga/effects';
 import * as r from '~/app/routes';
 import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
-import * as schemas from './schemas';
+import { groupBy, map, prop } from '~/features/shared/fp';
 
 export const initialState = {
   ids: [],
@@ -17,9 +16,11 @@ const translatorSkillsSlice = createSlice({
   initialState,
   reducers: {
     updateSkills(state, action) {
-      const { entities, result } = normalize(action.payload, [schemas.skill]);
-      state.entities = entities.skill;
-      state.ids = result;
+      const skills = action.payload?.skills ?? [];
+
+      const getLanguage = prop('language');
+      state.entities = groupBy(getLanguage, skills);
+      state.ids = map(getLanguage, skills);
     },
     clearSkills() {
       return initialState;

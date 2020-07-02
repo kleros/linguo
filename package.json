@@ -48,7 +48,6 @@
     "ipfs-http-client": "^42.0.0",
     "nanoid": "^3.1.9",
     "normalize.css": "^8.0.1",
-    "normalizr": "^3.6.0",
     "path-to-regexp": "^6.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",

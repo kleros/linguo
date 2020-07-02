@@ -1,10 +1,10 @@
 import curry from './curry';
 
-const groupBy = (getProp, arr) =>
+const groupBy = (getKey, arr) =>
   (arr ?? []).reduce(
     (acc, current) =>
       Object.assign(acc, {
-        [getProp(current)]: current,
+        [getKey(current)]: current,
       }),
     {}
   );
