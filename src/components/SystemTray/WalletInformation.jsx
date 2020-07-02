@@ -1,13 +1,103 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { useAsync, IfPending, IfFulfilled, IfRejected } from 'react-async';
 import { Row, Typography, Skeleton, Alert } from 'antd';
 import ReactBlockies from 'react-blockies';
-import { useWeb3React } from '~/features/web3';
 import EthLogo from '~/assets/images/logo-eth.svg';
 import EthAddress from '~/components/EthAddress';
 import EthValue from '~/components/EthValue';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectBalance, selectAccount, getBalance } from '~/features/web3/web3Slice';
+
+export default function WalletInformation() {
+  const dispatch = useDispatch();
+  const account = useSelector(selectAccount);
+  const balance = useSelector(selectBalance(account));
+
+  const [state, setState] = React.useState('idle');
+
+  const fetchBalance = React.useCallback(async () => {
+    setState('pending');
+    try {
+      await dispatch(
+        getBalance(
+          { account },
+          {
+            meta: {
+              thunk: { id: account },
+            },
+          }
+        )
+      );
+      setState('succeeded');
+    } catch (err) {
+      setState('failed');
+    }
+  }, [dispatch, account]);
+
+  React.useEffect(() => {
+    fetchBalance();
+  }, [fetchBalance]);
+
+  return account ? (
+    <>
+      <StyledSection>
+        <EthAccount address={account} />
+      </StyledSection>
+      <StyledSection>
+        <StyledBalanceInnerContainer>
+          <StyledBalanceTitle level={3}>Balance</StyledBalanceTitle>
+          {state === 'succeeded' && <EthBalance decimals={6} balance={balance} />}
+          {state === 'failed' && <StyledBalanceAlert type="error" message="Failed to get the balance" />}
+          {state === 'pending' && <Skeleton active paragraph={false} />}
+        </StyledBalanceInnerContainer>
+      </StyledSection>
+    </>
+  ) : null;
+}
+
+function EthAccount({ address }) {
+  return (
+    <StyledAccountRow>
+      <EthAddress
+        address={address}
+        css={`
+          display: flex;
+          align-items: center;
+        `}
+      >
+        <StyledReactBlockies seed={address} shape="round" size={10} scale={4} />
+        <StyledText>
+          {address.slice(0, 6)}...{address.slice(-4)}
+        </StyledText>
+      </EthAddress>
+    </StyledAccountRow>
+  );
+}
+
+EthAccount.propTypes = {
+  address: t.string.isRequired,
+};
+
+function EthBalance({ decimals, balance }) {
+  return (
+    <StyledBalanceRow>
+      <StyledEthLogo />
+      <StyledBalanceDisplay>
+        <EthValue amount={balance} decimals={decimals} suffixType="short" />
+      </StyledBalanceDisplay>
+    </StyledBalanceRow>
+  );
+}
+
+EthBalance.propTypes = {
+  balance: t.string,
+  decimals: t.number,
+};
+
+EthBalance.defaultProps = {
+  decimals: 18,
+};
 
 const StyledAccountRow = styled(Row)`
   align-items: center;
@@ -33,29 +123,6 @@ const StyledText = styled(Typography.Text)`
   color: inherit;
 `;
 
-function EthAccount({ address }) {
-  return (
-    <StyledAccountRow>
-      <EthAddress
-        address={address}
-        css={`
-          display: flex;
-          align-items: center;
-        `}
-      >
-        <StyledReactBlockies seed={address} shape="round" size={10} scale={4} />
-        <StyledText>
-          {address.slice(0, 6)}...{address.slice(-4)}
-        </StyledText>
-      </EthAddress>
-    </StyledAccountRow>
-  );
-}
-
-EthAccount.propTypes = {
-  address: t.string.isRequired,
-};
-
 const StyledBalanceRow = styled(Row)`
   flex-flow: row nowrap;
   justify-content: center;
@@ -78,36 +145,6 @@ const StyledBalanceAlert = styled(Alert)`
   margin-top: 1rem;
   width: 100%;
 `;
-
-function EthBalance({ decimals, ...state }) {
-  const balance = state.data || '0';
-
-  return (
-    <StyledBalanceRow>
-      <IfPending state={state}>
-        <Skeleton active paragraph={false} />
-      </IfPending>
-      <IfRejected state={state}>
-        <StyledBalanceAlert type="error" message="Failed to get the balance" />
-      </IfRejected>
-      <IfFulfilled state={state}>
-        <StyledEthLogo />
-        <StyledBalanceDisplay>
-          <EthValue amount={balance} decimals={decimals} suffixType="short" />
-        </StyledBalanceDisplay>
-      </IfFulfilled>
-    </StyledBalanceRow>
-  );
-}
-
-EthBalance.propTypes = {
-  data: t.string,
-  decimals: t.number,
-};
-
-EthBalance.defaultProps = {
-  decimals: 18,
-};
 
 const StyledSection = styled.section`
   margin: 1rem 0;
@@ -133,41 +170,3 @@ const StyledBalanceTitle = styled(Typography.Title)`
     margin-bottom: -0.5rem;
   }
 `;
-
-async function getBalance({ web3, account }) {
-  if (!account) {
-    throw new Error('Invalid account');
-  }
-
-  return web3.eth.getBalance(account);
-}
-
-function shouldUpdateBalance(current, prev) {
-  return current.account !== prev.account || current.chainId !== prev.chainId;
-}
-
-export default function WalletInformation() {
-  const { account, library: web3, chainId } = useWeb3React();
-
-  const balanceState = useAsync({
-    promiseFn: getBalance,
-    watchFn: shouldUpdateBalance,
-    web3,
-    chainId,
-    account,
-  });
-
-  return account ? (
-    <>
-      <StyledSection>
-        <EthAccount address={account} />
-      </StyledSection>
-      <StyledSection>
-        <StyledBalanceInnerContainer>
-          <StyledBalanceTitle level={3}>Balance</StyledBalanceTitle>
-          <EthBalance decimals={6} {...balanceState} />
-        </StyledBalanceInnerContainer>
-      </StyledSection>
-    </>
-  ) : null;
-}

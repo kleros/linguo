@@ -2,11 +2,13 @@ import { createAction, createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 import storage from 'redux-persist/lib/storage';
-import { put, select } from 'redux-saga/effects';
+import { call, put, select, actionChannel, getContext } from 'redux-saga/effects';
 import getErrorMessage from '~/adapters/web3React/getErrorMessage';
 import createStateMachineReducer from '~/features/shared/createStateMachineReducer';
+import createAsyncAction from '~/features/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
+import { watchAllWithBuffer } from './runWithContext';
 
 /* -------------------- Action Creators -------------------- */
 export const activate = Object.assign(createAction(`web3/activate`), {
@@ -15,15 +17,17 @@ export const activate = Object.assign(createAction(`web3/activate`), {
   error: createAction(`web3/activate/error`, errorPayloadCreator),
 });
 
-export const deactivate = createAction(`web3/deactivate`);
+export const deactivate = createAction('web3/deactivate');
 
-export const changeAccount = createAction(`web3/changeAccount`);
+export const changeAccount = createAction('web3/changeAccount');
 
-export const changeChainId = createAction(`web3/changeChainId`);
+export const changeChainId = createAction('web3/changeChainId');
 
-export const setError = createAction(`web3/setError`, errorPayloadCreator);
+export const setError = createAction('web3/setError', errorPayloadCreator);
 
-export const changeLibrary = createAction(`web3/changeLibrary`);
+export const changeLibrary = createAction('web3/changeLibrary');
+
+export const getBalance = createAsyncAction('web3/getBalance');
 
 /* ------------------------ Reducer ------------------------ */
 const reducer = createFinalReducer();
@@ -51,6 +55,8 @@ export const selectChainId = state => state.web3.context.chainId;
 export const selectError = state => state.web3.context.error;
 
 export const selectHasError = state => selectError(state) !== null;
+
+export const selectBalance = account => state => state.web3.context.balances?.[account] ?? '0';
 
 /* ------------------------- Sagas ------------------------- */
 export function* notifyErrorSaga(action) {
@@ -81,9 +87,26 @@ export function* getBlockExplorerTxUrl(txHash) {
   return `${baseUrl}/${txHash}`;
 }
 
+export function* getBalanceSaga(action) {
+  const web3 = yield getContext('library');
+
+  const account = action.payload?.account;
+  const meta = action.meta ?? {};
+
+  try {
+    const balance = yield call([web3.eth, 'getBalance'], account);
+    yield put(getBalance.fulfilled({ account, data: balance }, { meta }));
+  } catch (err) {
+    yield put(getBalance.rejected({ account, error: err }, { meta }));
+  }
+}
+
 export const sagas = {
   watchNotifyError: createWatcherSaga({ takeType: TakeType.every }, notifyErrorSaga, setError.type),
   watchNotifyActivateError: createWatcherSaga({ takeType: TakeType.every }, notifyErrorSaga, activate.error.type),
+  watchGetBalance: watchAllWithBuffer([
+    [createWatcherSaga({ takeType: TakeType.every }, getBalanceSaga), actionChannel(getBalance.type)],
+  ]),
 };
 
 /* ------------------------- Other ------------------------- */
@@ -118,6 +141,7 @@ function createFinalReducer() {
       error: null,
       account: null,
       chainId: -1,
+      balances: {},
     },
     states: {
       idle: {
@@ -140,6 +164,9 @@ function createFinalReducer() {
           [deactivate]: 'idle',
           [changeAccount]: 'connected',
           [changeChainId]: 'connected',
+          [getBalance.pending]: 'connected',
+          [getBalance.fulfilled]: 'connected',
+          [getBalance.rejected]: 'connected',
           [setError]: [
             {
               target: 'errored',
@@ -202,12 +229,21 @@ function createFinalReducer() {
       [setError]: (state, action) => {
         state.error = action.payload?.error ?? initialState.error;
       },
+      [getBalance.fulfilled]: (state, action) => {
+        const { account, data } = action.payload ?? {};
+
+        if (account && data) {
+          state.balances = state.balances ?? {};
+          state.balances[account] = data;
+        }
+      },
     });
 
   const persistConfig = {
     key: 'web3',
     storage,
     stateReconciler: hardSet,
+    blacklist: ['balances'],
   };
 
   return persistReducer(persistConfig, createStateMachineReducer(web3StateMachine, createContextReducer));

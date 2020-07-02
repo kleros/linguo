@@ -51,7 +51,6 @@
     "path-to-regexp": "^6.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
-    "react-async": "^10.0.0",
     "react-blockies": "^1.4.1",
     "react-dom": "npm:@hot-loader/react-dom",
     "react-hot-loader": "^4.12.19",
