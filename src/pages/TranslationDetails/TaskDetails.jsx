@@ -264,7 +264,7 @@ const StyledExpectedQuality = styled(StyledDefinitionList)`
 const indexedLanguages = languages.reduce((acc, item) => Object.assign(acc, { [item.code]: item }), {});
 
 function LanguageInfo({ language }) {
-  const languageName = indexedLanguages[language].name || '<Unknown>';
+  const languageName = indexedLanguages[language]?.name || '<Unknown>';
   const FlagIcon = getLanguageFlag(language);
 
   return (
