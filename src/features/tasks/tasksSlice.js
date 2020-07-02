@@ -1,13 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
-import { call, getContext, put, spawn, take, actionChannel } from 'redux-saga/effects';
+import { call, getContext, put, actionChannel } from 'redux-saga/effects';
 import deepMerge from 'deepmerge';
 import * as r from '~/app/routes';
 import createAsyncAction from '~/features/shared/createAsyncAction';
 import createCancellableSaga from '~/features/shared/createCancellableSaga';
 import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
 import { compose, groupBy, prop, filter, mapValues } from '~/features/shared/fp';
-import { confirm, matchTxResult, registerTxSaga } from '~/features/transactions/transactionsSlice';
+import { confirm, registerTxSaga } from '~/features/transactions/transactionsSlice';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import { watchAllWithBuffer } from '~/features/web3/runWithContext';
 import createLinguoApiContext from '~/features/linguo/createSagaApiContext';
@@ -94,7 +94,15 @@ const tasksSlice = createSlice({
 export default tasksSlice.reducer;
 
 export const { add } = tasksSlice.actions;
-export const { fetchById, getChallengerDeposit, reimburseRequester } = singleTaskSlice.actions;
+export const {
+  fetchById,
+  getChallengerDeposit,
+  assignTranslator,
+  submitTranslation,
+  challengeTranslation,
+  approveTranslation,
+  reimburseRequester,
+} = singleTaskSlice.actions;
 
 export const selectAll = state => state.tasks.ids.map(id => state.tasks.entities[id].data);
 
@@ -127,7 +135,7 @@ export function* fetchByPartySaga(action) {
   };
 
   const { account, party = TaskParty.Requester, skills } = action.payload ?? {};
-  const { key } = action.meta ?? {};
+  const meta = action.meta ?? {};
 
   const method = apiMethodByTaskParty[party];
   if (!method) {
@@ -141,10 +149,10 @@ export function* fetchByPartySaga(action) {
 
   try {
     const data = yield call([linguoApi, method], { account, skills });
-    yield put(fetchByParty.fulfilled({ data }, { key }));
+    yield put(fetchByParty.fulfilled({ data }, { meta }));
   } catch (err) {
     console.warn(err);
-    yield put(fetchByParty.rejected({ error: err }, { key }));
+    yield put(fetchByParty.rejected({ error: err }, { meta }));
   }
 }
 
@@ -152,7 +160,7 @@ export function* createSaga(action) {
   const linguoApi = yield getContext('linguoApi');
 
   const { account, ...rest } = action.payload ?? {};
-  const redirect = action.meta?.redirect ?? true;
+  const { redirect, tx: metaTx, ...meta } = action.meta ?? {};
 
   if (!account) {
     yield put(
@@ -166,32 +174,32 @@ export function* createSaga(action) {
 
   try {
     const { tx } = yield call([linguoApi, 'createTask'], { account, ...rest }, { from: account });
-    const { txHash } = yield call(registerTxSaga, tx);
+
+    yield call(registerTxSaga, tx, {
+      ...metaTx,
+      *onSuccess(resultAction) {
+        if (confirm.match(resultAction)) {
+          yield put(
+            fetchByParty(
+              { account, party: TaskParty.Requester },
+              {
+                meta: {
+                  key: INTERNAL_FETCH_KEY,
+                },
+              }
+            )
+          );
+        }
+      },
+    });
+
+    yield put(create.fulfilled({}, { meta }));
+
     if (redirect) {
       yield put(push(r.TRANSLATION_DASHBOARD));
     }
-
-    yield spawn(function* updateAfterTxMined() {
-      // Wait until the tx is confirmed or fails
-      const resultAction = yield take(matchTxResult({ txHash }));
-
-      // If the tx is successfull, fetch the tasks again
-      if (confirm.match(resultAction)) {
-        yield put(
-          fetchByParty(
-            {
-              account,
-              party: TaskParty.Requester,
-            },
-            {
-              meta: { key: INTERNAL_FETCH_KEY },
-            }
-          )
-        );
-      }
-    });
   } catch (err) {
-    // do nothing...
+    yield put(create.rejected({ error: err }, { meta }));
   }
 }
 

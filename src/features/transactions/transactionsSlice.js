@@ -115,7 +115,10 @@ export const selectByTxHash = txHash => state => state.transactions.entities[txH
  * in the store.
  * @param {boolean|ShouldNotifyOption} [options.shouldNotify=true] time in milliseconds which the transaction data should be kept
  */
-export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL, shouldNotify = true } = {}) {
+export function* registerTxSaga(
+  tx,
+  { wait = false, shouldNotify = true, onSuccess = () => {}, onFailure = () => {}, ttl = DEFAULT_TTL } = {}
+) {
   const txChannel = yield call(createTransactionChannel, tx, { wait });
 
   // Consumes all transaction events in the background
@@ -125,6 +128,7 @@ export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL, shouldNot
   ]);
 
   let hasScheduledRemoval = false;
+  const hasSpawnCallbacks = false;
 
   while (true) {
     const result = yield take(txChannel.result);
@@ -134,6 +138,10 @@ export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL, shouldNot
     }
 
     const { txHash } = result.payload ?? {};
+
+    if (!hasSpawnCallbacks && txHash) {
+      yield spawn(afterTxResultSaga, txHash, { onSuccess, onFailure });
+    }
 
     if (!hasScheduledRemoval && txHash) {
       const currentDate = yield call(getCurrentDate);
@@ -161,11 +169,17 @@ export function* registerTxSaga(tx, { wait = false, ttl = DEFAULT_TTL, shouldNot
   }
 }
 
-export function matchTxResult({ txHash }) {
+function* afterTxResultSaga(txHash, { onSuccess = () => {}, onFailure = () => {} }) {
   const matchesActionType = action => [confirm, fail].some(({ match }) => match(action));
   const matchesTxHash = action => action.payload?.txHash === txHash;
 
-  return action => matchesActionType(action) && matchesTxHash(action);
+  const resultAction = yield take(action => matchesActionType(action) && matchesTxHash(action));
+
+  if (confirm.match(resultAction)) {
+    yield call(onSuccess, resultAction);
+  } else {
+    yield call(onFailure, resultAction);
+  }
 }
 
 /**
@@ -244,7 +258,7 @@ function* updatePendingTxSaga({ web3, txHash }) {
       }
     );
   } else {
-    // Tx failed
+    // Tx onFailure
     yield put(
       fail({
         txHash,

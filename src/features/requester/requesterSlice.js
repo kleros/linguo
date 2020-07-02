@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
-import { nanoid } from 'nanoid';
-import { put, race, take } from 'redux-saga/effects';
+import { put, race, take, putResolve } from 'redux-saga/effects';
 import * as r from '~/app/routes';
 import createAsyncAction from '~/features/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
@@ -62,41 +61,28 @@ export default requesterSlice.reducer;
 
 export function* fetchTasksSaga(action) {
   const account = action.payload?.account ?? null;
-  const key = action.meta?.key ?? nanoid();
+  const thunk = action.meta?.thunk ?? { id: account };
+  const meta = { ...action.meta, thunk };
 
-  yield put(fetchByParty({ account, party: TaskParty.Requester }, { key }));
+  try {
+    const result = yield putResolve(fetchByParty({ account, party: TaskParty.Requester }, { meta }));
 
-  while (true) {
-    const { fulfilled, rejected } = yield race({
-      fulfilled: take(fetchByParty.fulfilled.type),
-      rejected: take(fetchByParty.rejected.type),
-    });
+    const tasks = result?.data ?? [];
+    const ids = tasks.map(({ id }) => id);
+    yield put(fetchTasks.fulfilled({ account, data: ids }, { meta }));
 
-    if (fulfilled && fulfilled.meta.key === key) {
-      const tasks = fulfilled.payload?.data ?? [];
-      const ids = tasks.map(({ id }) => id);
-      yield put(fetchTasks.fulfilled({ account, data: ids }, { key }));
-
-      if (ids.length === 0) {
-        yield put(
-          push({
-            pathname: r.TRANSLATION_REQUEST,
-            state: {
-              message: 'You have no translation requests yet! You can create one here.',
-            },
-          })
-        );
-      }
-
-      break;
+    if (ids.length === 0) {
+      yield put(
+        push({
+          pathname: r.TRANSLATION_REQUEST,
+          state: {
+            message: 'You have no translation requests yet! You can create one here.',
+          },
+        })
+      );
     }
-
-    if (rejected && rejected.meta.key === key) {
-      const error = rejected.payload?.error;
-      yield put(fetchTasks.rejected({ account, error }, { key }));
-
-      break;
-    }
+  } catch (err) {
+    yield put(fetchTasks.rejected({ account, error: err.error }, { meta }));
   }
 }
 
@@ -124,7 +110,7 @@ export function* processTasksFetchedInternallySaga(action) {
 
     if (rejected && rejected.meta.key === INTERNAL_FETCH_KEY) {
       const error = rejected.payload?.error;
-      yield put(fetchTasks.rejected({ account, data: error }));
+      yield put(fetchTasks.rejected({ account, error }));
 
       break;
     }

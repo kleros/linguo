@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
-import { nanoid } from 'nanoid';
-import { put, race, select, take } from 'redux-saga/effects';
+import { put, putResolve, select } from 'redux-saga/effects';
 import * as r from '~/app/routes';
 import createAsyncAction from '~/features/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
@@ -69,7 +68,8 @@ export const selectors = {
 
 export function* fetchTasksSaga(action) {
   const account = action.payload?.account ?? null;
-  const key = action.meta?.key ?? nanoid();
+  const thunk = action.meta?.thunk ?? { id: account };
+  const meta = { ...action.meta, thunk };
 
   const skills = yield select(selectAllSkills);
 
@@ -89,35 +89,21 @@ export function* fetchTasksSaga(action) {
           account,
           error: new Error('Cancelled because translator skills were not set'),
         },
-        { key }
+        { meta }
       )
     );
 
     return;
   }
 
-  yield put(fetchByParty({ account, skills, party: TaskParty.Translator }, { key }));
+  try {
+    const result = yield putResolve(fetchByParty({ account, skills, party: TaskParty.Translator }, { meta }));
 
-  while (true) {
-    const { fulfilled, rejected } = yield race({
-      fulfilled: take(fetchByParty.fulfilled.type),
-      rejected: take(fetchByParty.rejected.type),
-    });
-
-    if (fulfilled && fulfilled.meta.key === key) {
-      const tasks = fulfilled.payload?.data ?? [];
-      const ids = tasks.map(({ id }) => id);
-      yield put(fetchTasks.fulfilled({ account, data: ids }, { key }));
-
-      break;
-    }
-
-    if (rejected && rejected.meta.key === key) {
-      const error = rejected.payload?.error;
-      yield put(fetchTasks.rejected({ account, error }, { key }));
-
-      break;
-    }
+    const tasks = result?.data ?? [];
+    const ids = tasks.map(({ id }) => id);
+    yield put(fetchTasks.fulfilled({ account, data: ids }, { meta }));
+  } catch (err) {
+    yield put(fetchTasks.rejected({ account, error: err.error }, { meta }));
   }
 }
 

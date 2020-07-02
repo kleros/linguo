@@ -1,10 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { original } from 'immer';
-import { actionChannel, call, getContext, put, spawn, take } from 'redux-saga/effects';
+import { actionChannel, call, getContext, put } from 'redux-saga/effects';
 import createAsyncAction, { matchAnyAsyncType } from '~/features/shared/createAsyncAction';
 import createCancellableSaga from '~/features/shared/createCancellableSaga';
 import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
-import { confirm, matchTxResult, registerTxSaga } from '~/features/transactions/transactionsSlice';
+import { registerTxSaga } from '~/features/transactions/transactionsSlice';
 import { Task } from './entities';
 
 export const initialState = {
@@ -15,11 +15,19 @@ export const initialState = {
 
 const fetchById = createAsyncAction('tasks/fetchById');
 const getChallengerDeposit = createAsyncAction('tasks/getChallengerDeposit');
+const assignTranslator = createAsyncAction('tasks/assignTranslator');
+const submitTranslation = createAsyncAction('tasks/submitTranslation');
+const challengeTranslation = createAsyncAction('tasks/challengeTranslation');
+const approveTranslation = createAsyncAction('tasks/approveTranslation');
 const reimburseRequester = createAsyncAction('tasks/reimburseRequester');
 
 export const actions = {
   fetchById,
   getChallengerDeposit,
+  assignTranslator,
+  submitTranslation,
+  challengeTranslation,
+  approveTranslation,
   reimburseRequester,
 };
 
@@ -32,8 +40,44 @@ export default createReducer(initialState, builder => {
     }
   });
 
+  builder.addCase(assignTranslator.fulfilled, (state, action) => {
+    const { id, account } = action.payload ?? {};
+    const task = state.data;
+
+    if (task.id === id) {
+      state.data = Task.registerAssignment(original(task), { account });
+    }
+  });
+
+  builder.addCase(submitTranslation.fulfilled, (state, action) => {
+    const { id, path } = action.payload ?? {};
+    const task = state.data;
+
+    if (task.id === id) {
+      state.data = Task.registerSubmission(original(task), { translatedTextUrl: path });
+    }
+  });
+
+  builder.addCase(challengeTranslation.fulfilled, (state, action) => {
+    const { id, account, path } = action.payload ?? {};
+    const task = state.data;
+
+    if (task.id === id) {
+      state.data = Task.registerChallenge(original(task), { account, evidence: path });
+    }
+  });
+
+  builder.addCase(approveTranslation.fulfilled, (state, action) => {
+    const { id } = action.payload ?? {};
+    const task = state.data;
+
+    if (task.id === id) {
+      state.data = Task.registerApproval(original(task));
+    }
+  });
+
   builder.addCase(reimburseRequester.fulfilled, (state, action) => {
-    const id = action.payload?.id;
+    const { id } = action.payload ?? {};
     const task = state.data;
 
     if (task.id === id) {
@@ -76,7 +120,7 @@ export const selectors = {
   selectError,
 };
 
-export function* fetchByIdSaga(action) {
+function* fetchByIdSaga(action) {
   const linguoApi = yield getContext('linguoApi');
   const { id } = action.payload ?? {};
 
@@ -88,10 +132,10 @@ export function* fetchByIdSaga(action) {
   }
 }
 
-export function* getChallengerDepositSaga(action) {
+function* getChallengerDepositSaga(action) {
   const linguoApi = yield getContext('linguoApi');
   const { id } = action.payload ?? {};
-  const meta = action.meta;
+  const { meta } = action;
 
   try {
     const data = yield call([linguoApi, 'getChallengerDeposit'], { ID: id });
@@ -99,56 +143,157 @@ export function* getChallengerDepositSaga(action) {
 
     yield put(result);
   } catch (err) {
-    const result = getChallengerDeposit.rejected({ id, error: err }, { meta, error: true });
+    const result = getChallengerDeposit.rejected({ id, error: err }, { meta });
 
     yield put(result);
   }
 }
 
-export function* reimburseRequesterSaga(action) {
+function* assignTranslatorSaga(action) {
   const linguoApi = yield getContext('linguoApi');
 
-  const { account, id } = action.payload ?? {};
-  const { tx } = yield call([linguoApi, 'reimburseRequester'], { ID: id }, { from: account });
+  const { id, account } = action.payload ?? {};
+  const { tx: metaTx, ...meta } = action.meta ?? {};
+
+  const { tx } = yield call([linguoApi, 'assignTask'], { ID: id }, { from: account });
 
   try {
-    const { txHash } = yield call(registerTxSaga, tx);
-
-    yield spawn(function* updateAfterTxMined() {
-      // Wait until the tx is confirmed or fails
-      const resultAction = yield take(matchTxResult({ txHash }));
-
-      // If the tx is successfull, fetch the tasks again
-      if (confirm.match(resultAction)) {
-        yield put(reimburseRequester.fulfilled({ id }));
-      } else {
-        yield put(reimburseRequester.rejected({ id, error: resultAction.payload.error }));
-      }
+    yield call(registerTxSaga, tx, {
+      ...metaTx,
+      *onSuccess() {
+        yield put(assignTranslator.fulfilled({ id, account }, { meta }));
+      },
+      *onFailure(resultAction) {
+        const error = resultAction.payload?.error;
+        yield put(assignTranslator.rejected({ id, error }, { meta }));
+      },
     });
   } catch (err) {
-    yield put(reimburseRequester.rejected({ id, error: err }));
+    yield put(assignTranslator.rejected({ id, error: err }, { meta }));
   }
 }
 
-export const createWatchFetchByIdSaga = createWatcherSaga(
+function* submitTranslationSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+
+  const { id, account, path } = action.payload ?? {};
+  const { tx: metaTx, ...meta } = action.meta ?? {};
+
+  const { tx } = yield call([linguoApi, 'submitTranslation'], { ID: id, text: path }, { from: account });
+
+  try {
+    yield call(registerTxSaga, tx, {
+      ...metaTx,
+      *onSuccess() {
+        yield put(submitTranslation.fulfilled({ id, account, path }));
+      },
+      *onFailure(resultAction) {
+        const error = resultAction.payload?.error;
+        yield put(submitTranslation.rejected({ id, error }, { meta }));
+      },
+    });
+  } catch (err) {
+    yield put(submitTranslation.rejected({ id, error: err }, { meta }));
+  }
+}
+
+function* challengeTranslationSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+
+  const { id, account, path } = action.payload ?? {};
+  const { tx: metaTx, ...meta } = action.meta ?? {};
+
+  const { tx } = yield call([linguoApi, 'challengeTranslation'], { ID: id, evidence: path }, { from: account });
+
+  try {
+    yield call(registerTxSaga, tx, {
+      ...metaTx,
+      *onSuccess() {
+        yield put(challengeTranslation.fulfilled({ id, account, path }, { meta }));
+      },
+      *onFailure(resultAction) {
+        const error = resultAction.payload?.error;
+        yield put(challengeTranslation.rejected({ id, error }, { meta }));
+      },
+    });
+  } catch (err) {
+    yield put(challengeTranslation.rejected({ id, error: err }, { meta }));
+  }
+}
+
+function* approveTranslationSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+
+  const { id, account } = action.payload ?? {};
+  const { tx: metaTx, ...meta } = action.meta ?? {};
+
+  const { tx } = yield call([linguoApi, 'approveTranslation'], { ID: id }, { from: account });
+
+  try {
+    yield call(registerTxSaga, tx, {
+      ...metaTx,
+      *onSuccess() {
+        yield put(approveTranslation.fulfilled({ id, account }, { meta }));
+      },
+      *onFailure(resultAction) {
+        const error = resultAction.payload?.error;
+        yield put(approveTranslation.rejected({ id, error }, { meta }));
+      },
+    });
+  } catch (err) {
+    yield put(approveTranslation.rejected({ id, error: err }, { meta }));
+  }
+}
+
+function* reimburseRequesterSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+
+  const { id, account } = action.payload ?? {};
+  const { tx: metaTx, ...meta } = action.meta ?? {};
+
+  const { tx } = yield call([linguoApi, 'reimburseRequester'], { ID: id }, { from: account });
+
+  try {
+    yield call(registerTxSaga, tx, {
+      ...metaTx,
+      *onSuccess() {
+        yield put(reimburseRequester.fulfilled({ id, account }, { meta }));
+      },
+      *onFailure(resultAction) {
+        const error = resultAction.payload?.error;
+        yield put(reimburseRequester.rejected({ id, error }, { meta }));
+      },
+    });
+  } catch (err) {
+    yield put(reimburseRequester.rejected({ id, error: err }, { meta }));
+  }
+}
+
+const createWatchFetchByIdSaga = createWatcherSaga(
   { takeType: TakeType.latest },
   createCancellableSaga(fetchByIdSaga, fetchById.rejected, {
     additionalPayload: action => ({ id: action.payload?.id }),
   })
 );
 
-export const createWatchGetChallengerDepositSaga = createWatcherSaga(
-  { takeType: TakeType.latest },
-  getChallengerDepositSaga
-);
+const createWatchGetChallengerDepositSaga = createWatcherSaga({ takeType: TakeType.latest }, getChallengerDepositSaga);
 
-export const createWatchReimburseRequesterSaga = createWatcherSaga(
-  { takeType: TakeType.leading },
-  reimburseRequesterSaga
-);
+const createWatchAssignTranslatorSaga = createWatcherSaga({ takeType: TakeType.leading }, assignTranslatorSaga);
+
+const createWatchSubmitTranslationSaga = createWatcherSaga({ takeType: TakeType.leading }, submitTranslationSaga);
+
+const createWatchChallengeTranslationSaga = createWatcherSaga({ takeType: TakeType.leading }, challengeTranslationSaga);
+
+const createWatchApproveTranslationSaga = createWatcherSaga({ takeType: TakeType.leading }, approveTranslationSaga);
+
+const createWatchReimburseRequesterSaga = createWatcherSaga({ takeType: TakeType.leading }, reimburseRequesterSaga);
 
 export const sagaDescriptors = [
   [createWatchFetchByIdSaga, actionChannel(fetchById.type)],
   [createWatchGetChallengerDepositSaga, actionChannel(getChallengerDeposit.type)],
+  [createWatchAssignTranslatorSaga, actionChannel(assignTranslator.type)],
+  [createWatchSubmitTranslationSaga, actionChannel(submitTranslation.type)],
+  [createWatchChallengeTranslationSaga, actionChannel(challengeTranslation.type)],
+  [createWatchApproveTranslationSaga, actionChannel(approveTranslation.type)],
   [createWatchReimburseRequesterSaga, actionChannel(reimburseRequester.type)],
 ];

@@ -35,17 +35,22 @@ function TranslationRequestForm() {
         };
 
   const handleFinish = React.useCallback(
-    async ({ originalTextFile, ...rest }) => {
+    async ({ originalTextFile, deadline, ...rest }) => {
       send('SUBMIT');
       const data = {
         account,
+        deadline: new Date(deadline).toISOString(),
         originalTextFile: extractOriginalTextFilePath(originalTextFile),
         ...rest,
       };
 
       try {
-        dispatch(createTask(data));
-      } catch {
+        await dispatch(
+          createTask(data, {
+            meta: { redirect: true },
+          })
+        );
+      } finally {
         send('RESET');
       }
     },

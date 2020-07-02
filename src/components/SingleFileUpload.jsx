@@ -75,11 +75,11 @@ const defaultButtonContent = {
   },
 };
 
-function SingleFileUpload({ accept, beforeUpload, onChange, buttonContent, buttonProps }) {
+function SingleFileUpload({ accept, beforeUpload, disabled, onChange, buttonContent, buttonProps }) {
   const [state, send] = useStateMachine(uploadStateMachine);
 
-  const disabled = state !== 'idle';
-  const tooltip = disabled ? 'Remove the file from the list to be able to add another one' : '';
+  const finalDisabled = disabled || state !== 'idle';
+  const tooltip = finalDisabled ? 'Remove the file from the list to be able to add another one' : '';
 
   const handleBeforeUpload = React.useCallback(
     file => {
@@ -138,7 +138,7 @@ function SingleFileUpload({ accept, beforeUpload, onChange, buttonContent, butto
     >
       <Tooltip title={tooltip}>
         <span>
-          <Button {...buttonProps} icon={icon} disabled={disabled}>
+          <Button {...buttonProps} icon={icon} disabled={finalDisabled}>
             {text}
           </Button>
         </span>
@@ -155,6 +155,7 @@ const buttonContentShape = t.shape({
 SingleFileUpload.propTypes = {
   accept: t.string,
   beforeUpload: t.func,
+  disabled: t.bool,
   onChange: t.func,
   buttonContent: t.shape({
     idle: buttonContentShape,
@@ -168,6 +169,7 @@ SingleFileUpload.propTypes = {
 SingleFileUpload.defaultProps = {
   accept: '*/*',
   beforeUpload: () => true,
+  disabled: false,
   onChange: () => {},
   buttonContent: defaultButtonContent,
   buttonProps: {},

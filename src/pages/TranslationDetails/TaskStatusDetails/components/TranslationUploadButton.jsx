@@ -1,16 +1,87 @@
 import React from 'react';
 import t from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { mutate } from 'swr';
 import { notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { useLinguo } from '~/app/linguo';
-import { Task } from '~/features/tasks';
-import { useWeb3React } from '~/features/web3';
+import { submitTranslation } from '~/features/tasks/tasksSlice';
+import { selectAccount } from '~/features/web3/web3Slice';
 import SingleFileUpload from '~/components/SingleFileUpload';
 import Button from '~/components/Button';
-import wrapWithNotification from '~/utils/wrapWithNotification';
 import useTask from '../../useTask';
+
+export default function TranslationUploadButton({ buttonProps }) {
+  const dispatch = useDispatch();
+  const { id } = useTask();
+  const account = useSelector(selectAccount);
+
+  const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
+
+  const submitOnFileUpload = React.useCallback(
+    async ({ path }) => {
+      setHasPendingTxn(true);
+      try {
+        await dispatch(
+          submitTranslation(
+            { id, path, account },
+            {
+              meta: {
+                tx: { wait: 0 },
+                thunk: { id },
+              },
+            }
+          )
+        );
+      } finally {
+        setHasPendingTxn(false);
+      }
+    },
+    [dispatch, id, account]
+  );
+
+  const handleChange = React.useCallback(
+    async ({ fileList }) => {
+      const [file] = fileList;
+
+      if (file?.status === 'done' && !hasPendingTxn) {
+        const path = file.response?.path;
+        if (!path) {
+          throw new Error('Failed to upload the file. Please try again.');
+        }
+
+        submitOnFileUpload({ path });
+      }
+    },
+    [submitOnFileUpload, hasPendingTxn]
+  );
+
+  return (
+    <StyledWrapper>
+      {!hasPendingTxn && (
+        <SingleFileUpload
+          accept="text/plain"
+          forbidRedoAfterSuccess
+          beforeUpload={beforeUpload}
+          onChange={handleChange}
+          buttonProps={buttonProps}
+        />
+      )}
+      {hasPendingTxn && (
+        <Button {...buttonProps} disabled>
+          <LoadingOutlined /> Sending translation...
+        </Button>
+      )}
+    </StyledWrapper>
+  );
+}
+
+TranslationUploadButton.propTypes = {
+  buttonProps: t.object,
+};
+
+TranslationUploadButton.defaultProps = {
+  buttonProps: {},
+};
 
 const StyledWrapper = styled.div`
   &,
@@ -44,75 +115,3 @@ const beforeUpload = file => {
 
   return true;
 };
-
-const withNotification = wrapWithNotification({
-  errorMessage: 'Failed to submit the translation',
-  successMessage: 'Translation submitted successfuly',
-  duration: 10,
-});
-
-function TranslationUploadButton({ buttonProps }) {
-  const { ID } = useTask();
-  const linguo = useLinguo();
-  const { account } = useWeb3React();
-
-  const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
-
-  const submitTranslation = React.useCallback(
-    withNotification(async ({ ID, text, account }) => {
-      try {
-        setHasPendingTxn(true);
-        await linguo.api.submitTranslation({ ID, text }, { from: account });
-        mutate(['getTaskById', ID], task => Task.registerSubmission(task, { currentDate: new Date() }));
-      } finally {
-        setHasPendingTxn(false);
-      }
-    }),
-    [linguo.api]
-  );
-
-  const handleChange = React.useCallback(
-    async ({ fileList }) => {
-      const [file] = fileList;
-
-      if (file?.status === 'done' && !hasPendingTxn) {
-        const path = file.response?.path;
-        if (!path) {
-          throw new Error('Failed to upload the file. Please try again.');
-        }
-
-        submitTranslation({ ID, account, text: path });
-      }
-    },
-    [ID, account, submitTranslation, hasPendingTxn]
-  );
-
-  return (
-    <StyledWrapper>
-      {!hasPendingTxn && (
-        <SingleFileUpload
-          accept="text/plain"
-          forbidRedoAfterSuccess
-          beforeUpload={beforeUpload}
-          onChange={handleChange}
-          buttonProps={buttonProps}
-        />
-      )}
-      {hasPendingTxn && (
-        <Button {...buttonProps} disabled>
-          <LoadingOutlined /> Sending translation...
-        </Button>
-      )}
-    </StyledWrapper>
-  );
-}
-
-TranslationUploadButton.propTypes = {
-  buttonProps: t.object,
-};
-
-TranslationUploadButton.defaultProps = {
-  buttonProps: {},
-};
-
-export default TranslationUploadButton;

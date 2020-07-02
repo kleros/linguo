@@ -372,7 +372,7 @@ export const registerAppealFunding = (dispute, { deposit, party }) => {
 /**
  * @typedef {Object} Dispute The dispute info parts
  * @prop {number} ID The dispute ID
- * @prop {DisputeStatus} status The dispute status
+ * @prop {DisputeStatus} status Tid dispute status
  * @prop {DisputeRuling} ruling The dispute ruling
  * @prop {LatestRound} [latestRound] Information regarding the latest dispute round
  * @prop {Object} appealPeriod The dispute appeal period

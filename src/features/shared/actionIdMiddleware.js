@@ -10,11 +10,6 @@ const assignId = produce(action => {
 
   const id = nanoid(10);
 
-  if (action.meta.id) {
-    action.meta.groupId = action.meta.id;
-    action.meta.id = id;
-  } else {
-    action.meta.groupId = id;
-    action.meta.id = id;
-  }
+  action.meta.id = id;
+  action.meta.groupId = action.meta.groupId ?? id;
 });

@@ -13,7 +13,7 @@ import RemainingTime from '~/components/RemainingTime';
 import { Task, TaskStatus } from '~/features/tasks';
 import { selectAccount } from '~/features/web3/web3Slice';
 import TaskParty from './entities/TaskParty';
-import { selectById, selectIsLoadingById, reimburseRequester } from './tasksSlice';
+import { selectById, reimburseRequester } from './tasksSlice';
 
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
@@ -122,10 +122,26 @@ function TaskFooterInfo(task) {
 const RequestReimbursementButton = function RequestReimbursement({ id, buttonProps }) {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
-  const isLoading = useSelector(selectIsLoadingById(id));
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleClick = React.useCallback(() => {
-    dispatch(reimburseRequester({ id, account }));
+  const handleClick = React.useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      await dispatch(
+        reimburseRequester(
+          { id, account },
+          {
+            meta: {
+              thunk: { id },
+              tx: { wait: 0 },
+            },
+          }
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }, [dispatch, id, account]);
 
   const icon = isLoading ? <LoadingOutlined /> : null;

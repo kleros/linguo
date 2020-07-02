@@ -356,13 +356,15 @@ export const registerAssignment = produce((task, { account }) => {
  * @function
  *
  * @param {Task} task The task object
- * @param {Object} params The update params
- * @param {Date} params.currentDate The date in which the submission was made
+ * @param {object} params The update params
+ * @param {string} params.translatedText The date in which the submission was made
+ * @param {Date} [params.currentDate] The date in which the submission was made
  * @return {Task} The updated task object
  */
-export const registerSubmission = produce((task, { currentDate = new Date() } = {}) => {
+export const registerSubmission = produce((task, { translatedTextUrl, currentDate = new Date() } = {}) => {
   task.status = TaskStatus.AwaitingReview;
-  task.lastInteraction = currentDate;
+  task.translatedTextUrl = translatedTextUrl;
+  task.lastInteraction = dayjs(currentDate).toISOString();
 });
 
 /**
