@@ -10,7 +10,7 @@ export default function TaskList({ data, showFootnote }) {
   ) : (
     <>
       <StyledTaskCountText>
-        Total of {data.length} {pluralize(data.length, { single: 'task', many: 'tasks' })}
+        Showing {data.length} {pluralize(data.length, { single: 'task', many: 'tasks' })}
       </StyledTaskCountText>
       <StyledListWrapper>
         <StyledRow

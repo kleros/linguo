@@ -52,6 +52,7 @@ export default {
     md: '1rem',
     sm: '0.875rem',
     xs: '0.75rem',
+    xxs: '0.625rem',
   },
   transition: {
     slow: '0.5s cubic-bezier(0.77, 0, 0.175, 1)',
