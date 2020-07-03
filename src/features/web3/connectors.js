@@ -12,7 +12,11 @@ const defaultChainIdsPerEnv = {
 const defaultChainId = defaultChainIdsPerEnv[env] ?? 42;
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [1, 42],
+  /**
+   * 66 is for a bug in the latest metamask update, which is returning
+   * chain ID as hex number, while most of the libs consider it a decimal.
+   */
+  supportedChainIds: [1, 42, 66],
 });
 injected.name = 'injected';
 

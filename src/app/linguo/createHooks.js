@@ -31,6 +31,8 @@ const createApiInstance = async ({ web3, chainId }) => {
     };
   }
 
+  chainId = metamaskBugNetworkIdsMap[chainId] ?? chainId;
+
   const linguoAddress = Linguo.networks[chainId].address;
   const linguoTokenAddress = LinguoToken.networks[chainId].address;
 
@@ -172,3 +174,11 @@ export default function createHooks({ AppContext, useWeb3React }) {
 }
 
 const isPrimitive = arg => ['string', 'number', 'boolean', 'undefined', 'symbol'].includes(typeof arg);
+
+const metamaskBugNetworkIdsMap = {
+  1: 1, // Mainnet
+  3: 3, // Ropsten
+  4: 4, // Rinkeby
+  5: 5, // Goerli
+  66: 42, // Kovan
+};

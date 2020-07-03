@@ -224,7 +224,10 @@ function createFinalReducer() {
         state.account = action.payload?.account ?? initialState.account;
       },
       [changeChainId]: (state, action) => {
-        state.chainId = action.payload?.chainId ?? initialState.chainId;
+        const payloadChainId = action.payload?.chainId;
+        const chainId = metamaskBugNetworkIdsMap[payloadChainId] ?? payloadChainId;
+
+        state.chainId = chainId ?? initialState.chainId;
       },
       [setError]: (state, action) => {
         state.error = action.payload?.error ?? initialState.error;
@@ -269,3 +272,11 @@ function errorPayloadCreator(payload) {
 
   return { payload };
 }
+
+const metamaskBugNetworkIdsMap = {
+  1: 1, // Mainnet
+  3: 3, // Ropsten
+  4: 4, // Rinkeby
+  5: 5, // Goerli
+  66: 42, // Kovan
+};
