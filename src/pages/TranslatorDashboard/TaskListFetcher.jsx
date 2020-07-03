@@ -1,15 +1,15 @@
 import React from 'react';
-import { Alert } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
 import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
-import { InfoIcon } from '~/components/icons';
 import TaskList from '~/features/tasks/TaskList';
 import { fetchTasks, selectTasks } from '~/features/translator/translatorSlice';
+import DismissableAlert from '~/features/ui/DismissableAlert';
 import { selectAccount } from '~/features/web3/web3Slice';
-import TaskListWithSecondLevelFilters from './TaskListWithSecondLevelFilters';
 import filters, { getFilter, useFilterName } from './filters';
 import { getComparator } from './sorting';
+import TaskListWithSecondLevelFilters from './TaskListWithSecondLevelFilters';
 
 export default function TaskListFetcher() {
   const dispatch = useDispatch();
@@ -46,19 +46,24 @@ export default function TaskListFetcher() {
   );
 }
 
+const sort = (data, comparator) => [...data].sort(comparator);
+const filter = (data, predicate) => data.filter(predicate);
+
+const StyledDismissableAlert = styled(DismissableAlert)`
+  margin-bottom: 1rem;
+`;
+
 const filterDescriptionMap = {
+  [filters.open]: (
+    <StyledDismissableAlert
+      id="translator.filters.open"
+      message="You will only be able to see tasks whose both source and target language you have self-declared level B2 or higher."
+    />
+  ),
   [filters.incomplete]: (
-    <Alert
-      showIcon
-      css={`
-        margin-bottom: 1rem;
-      `}
-      icon={<InfoIcon />}
-      type="info"
+    <StyledDismissableAlert
+      id="translator.filters.incomplete"
       message="Incomplete taks are those which were not assigned to any translator or whose translator did not submit the translated text within the specified deadline."
     />
   ),
 };
-
-const sort = (data, comparator) => [...data].sort(comparator);
-const filter = (data, predicate) => data.filter(predicate);

@@ -12,7 +12,7 @@ export const initialState = {
 };
 
 const translatorSkillsSlice = createSlice({
-  name: 'translator',
+  name: 'translator/skills',
   initialState,
   reducers: {
     updateSkills(state, action) {
@@ -31,14 +31,14 @@ const translatorSkillsSlice = createSlice({
 export default translatorSkillsSlice.reducer;
 
 const { updateSkills, clearSkills } = translatorSkillsSlice.actions;
-const saveSettings = createAction('translator/saveSettings');
-const cancelSaveSettings = createAction('translator/cancelSaveSettings');
+const saveSkills = createAction('translator/skills/save');
+const cancelSaveSkills = createAction('translator/skills/cancelSave');
 
 export const actions = {
   updateSkills,
   clearSkills,
-  saveSettings,
-  cancelSaveSettings,
+  saveSkills,
+  cancelSaveSkills,
 };
 
 const selectAllSkillLanguages = state => state.ids;
@@ -54,7 +54,7 @@ function* saveSettingsSaga(action) {
 
   yield put(
     notify({
-      key: `${saveSettings}/success`,
+      key: `${saveSkills}/success`,
       level: NotificationLevel.success,
       message: "You've updated your language skills settings!",
       duration: 10,
@@ -69,10 +69,10 @@ function* cancelSaveSettingsSaga() {
 }
 
 export const sagas = {
-  watchSaveSettings: createWatcherSaga({ takeType: TakeType.every }, saveSettingsSaga, saveSettings.type),
+  watchSaveSettings: createWatcherSaga({ takeType: TakeType.every }, saveSettingsSaga, saveSkills.type),
   watchCancelSaveSettings: createWatcherSaga(
     { takeType: TakeType.every },
     cancelSaveSettingsSaga,
-    cancelSaveSettings.type
+    cancelSaveSkills.type
   ),
 };

@@ -15,7 +15,7 @@ export const NotificationLevel = {
 };
 
 export const notify = createAction(
-  'ui/notification/notify',
+  'ui/notifications/notify',
   ({ key = nanoid(10), duration = 10, placement = 'bottomRight', level = 'info', ...rest }) => ({
     payload: {
       key,
@@ -26,15 +26,17 @@ export const notify = createAction(
     },
   })
 );
-export const close = createAction('ui/notification/close');
+export const close = createAction('ui/notifications/close');
+
+export const actions = { notify, close };
 
 const notificationSlice = createSlice({
-  name: 'ui/notification',
+  name: 'ui/notifications',
   initialState: {},
   extraReducers: {
     [notify]: (state, action) => {
-      const { key } = action.payload;
-      state[key] = key;
+      const { key, ...rest } = action.payload;
+      state[key] = rest;
     },
     [close]: (state, action) => {
       const { key } = action.payload;

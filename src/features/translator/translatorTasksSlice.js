@@ -12,10 +12,10 @@ export const initialState = {
   byAccount: {},
 };
 
-export const fetchTasks = createAsyncAction('translator/fetchTasks');
+export const fetchTasks = createAsyncAction('translator/tasks/fetch');
 
 const translatorTasksSlice = createSlice({
-  name: 'translator',
+  name: 'translator/tasks',
   initialState,
   extraReducers: builder => {
     builder.addCase(fetchTasks, (state, action) => {

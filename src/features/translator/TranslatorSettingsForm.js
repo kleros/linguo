@@ -8,7 +8,7 @@ import { InfoIcon, AddIcon, RemoveIcon } from '~/components/icons';
 import Button from '~/components/Button';
 import { LanguageSelect, LevelSelect } from '~/components/LanguageSelect';
 import allLanguages from '~/assets/fixtures/languages';
-import { saveSettings, cancelSaveSettings, selectAllSkills } from './translatorSlice';
+import { saveSkills, cancelSaveSkills, selectAllSkills } from './translatorSlice';
 
 const emptyLevels = [];
 
@@ -42,12 +42,12 @@ export default function TranslatorSettingsForm() {
   const dispatch = useDispatch();
 
   const handleReturnClick = React.useCallback(() => {
-    dispatch(cancelSaveSettings());
+    dispatch(cancelSaveSkills());
   }, [dispatch]);
 
   const handleFinish = React.useCallback(
     values => {
-      dispatch(saveSettings(values));
+      dispatch(saveSkills(values));
     },
     [dispatch]
   );

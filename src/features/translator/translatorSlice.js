@@ -1,15 +1,15 @@
 import { combineReducers } from '@reduxjs/toolkit';
+import { mapValues } from '~/features/shared/fp';
+import { selectAllFilterByIds } from '~/features/tasks/tasksSlice';
 import skillsReducer, * as skills from './translatorSkillsSlice';
 import tasksReducer, * as tasks from './translatorTasksSlice';
-import { selectAllFilterByIds } from '~/features/tasks/tasksSlice';
-import { mapValues } from '~/features/shared/fp';
 
 export default combineReducers({
   skills: skillsReducer,
   tasks: tasksReducer,
 });
 
-export const { updateSkills, clearSkills, saveSettings, cancelSaveSettings } = skills.actions;
+export const { updateSkills, clearSkills, saveSkills, cancelSaveSkills } = skills.actions;
 export const { fetchTasks } = tasks.actions;
 
 export const { selectAllSkillLanguages, selectAllSkills } = mapValues(
