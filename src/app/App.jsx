@@ -6,22 +6,18 @@ import Web3 from 'web3';
 import { Web3ReactProvider } from '@web3-react/core';
 import { useWeb3ReactBootstrap, useWatchLibrary } from '~/features/web3';
 import theme from '~/features/ui/theme';
-import { AppContextProvider } from './AppContext';
-import { useCreateLinguoApiInstance } from './linguo';
 import MainRouter from './MainRouter';
 
 function App() {
   return (
-    <AppContextProvider>
-      <Web3ReactProvider getLibrary={getLibrary}>
-        <ThemeProvider theme={theme}>
-          <Initializer>
-            <GlobalStyle />
-            <MainRouter />
-          </Initializer>
-        </ThemeProvider>
-      </Web3ReactProvider>
-    </AppContextProvider>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <ThemeProvider theme={theme}>
+        <Initializer>
+          <GlobalStyle />
+          <MainRouter />
+        </Initializer>
+      </ThemeProvider>
+    </Web3ReactProvider>
   );
 }
 
@@ -30,9 +26,6 @@ export default hot(module)(App);
 function Initializer({ children }) {
   useWeb3ReactBootstrap();
   useWatchLibrary();
-
-  // Initialize Linguo API only once globally
-  useCreateLinguoApiInstance();
 
   return children;
 }

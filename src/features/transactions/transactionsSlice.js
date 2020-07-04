@@ -133,6 +133,8 @@ export function* registerTxSaga(
   while (true) {
     const result = yield take(txChannel.result);
 
+    console.log('from txChannel.result', result);
+
     if (result === END) {
       break;
     }
@@ -295,6 +297,7 @@ function* removeTxAfterTtlSaga(ttlChannel) {
 function* processTxEventsSaga(txChannel, subscribers = []) {
   while (true) {
     const event = yield take(txChannel);
+    console.log('processTxEvents', event);
 
     if (event === END) {
       break;
@@ -324,6 +327,8 @@ function createNoticationSubscriber({ shouldNotify }) {
   shouldNotify = normalizeShouldNotify(shouldNotify);
 
   return function* notificationSubscriber(event) {
+    console.log('notification subscriber', event);
+
     if (!shouldNotify) {
       return;
     }
