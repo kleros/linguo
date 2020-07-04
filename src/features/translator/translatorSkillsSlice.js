@@ -41,7 +41,7 @@ export const actions = {
   cancelSaveSkills,
 };
 
-const selectAllSkillLanguages = state => state.ids;
+const selectAllSkillLanguages = state => state.ids ?? [];
 const selectAllSkills = state => selectAllSkillLanguages(state).map(language => state.entities[language]);
 
 export const selectors = {
