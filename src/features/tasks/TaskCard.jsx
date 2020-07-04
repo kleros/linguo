@@ -3,13 +3,14 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip, Typography } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
-import { Task, TaskStatus } from '~/features/tasks';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Card from '~/components/Card';
 import FormattedNumber from '~/components/FormattedNumber';
-import TaskLanguages from './TaskLanguages';
+import useInterval from '~/features/shared/useInterval';
+import { Task, TaskStatus } from '~/features/tasks';
 import TaskCardFooter from './TaskCardFooter';
 import TaskInfoGrid from './TaskInfoGrid';
+import TaskLanguages from './TaskLanguages';
 import TaskPrice from './TaskPrice';
 import { selectById } from './tasksSlice';
 
@@ -31,11 +32,22 @@ const StyledTaskTitle = styled(Typography.Title)`
   }
 `;
 
+const _1_MINUTE_MS = 60 * 1000;
+
 function TaskCard({ id }) {
   const task = useShallowEqualSelector(selectById(id));
   const { status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality, token } = task;
 
-  const currentPrice = Task.currentPrice(task);
+  const getCurrentPrice = React.useCallback(() => Task.currentPrice(task), [task]);
+  const [currentPrice, setCurrentPrice] = React.useState(getCurrentPrice);
+
+  const updateCurrentPrice = React.useCallback(() => {
+    setCurrentPrice(getCurrentPrice());
+  }, [getCurrentPrice, setCurrentPrice]);
+
+  const interval = assignedPrice === undefined ? _1_MINUTE_MS : null;
+  useInterval(updateCurrentPrice, interval);
+
   const actualPrice = assignedPrice ?? currentPrice;
 
   const pricePerWord = Task.currentPricePerWord({

@@ -18,6 +18,9 @@ import DownloadLink from '~/components/DownloadLink';
 import { Task, TaskStatus, getFileUrl } from '~/features/tasks';
 import useTask from './useTask';
 import TaskStatusDetails from './TaskStatusDetails';
+import useInterval from '~/features/shared/useInterval';
+
+const _1_MINUTE_MS = 60 * 1000;
 
 export default function TaskDetails() {
   const task = useTask();
@@ -37,7 +40,16 @@ export default function TaskDetails() {
     translatedTextUrl,
   } = task;
 
-  const currentPrice = Task.currentPrice(task);
+  const getCurrentPrice = React.useCallback(() => Task.currentPrice(task), [task]);
+  const [currentPrice, setCurrentPrice] = React.useState(getCurrentPrice);
+
+  const updateCurrentPrice = React.useCallback(() => {
+    setCurrentPrice(getCurrentPrice());
+  }, [getCurrentPrice, setCurrentPrice]);
+
+  const interval = assignedPrice === undefined ? _1_MINUTE_MS : null;
+  useInterval(updateCurrentPrice, interval);
+
   const actualPrice = assignedPrice ?? currentPrice;
 
   const pricePerWord = Task.currentPricePerWord({
