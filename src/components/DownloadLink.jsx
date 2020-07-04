@@ -48,7 +48,11 @@ DownloadLinkFromText.propTypes = {
 const useObjectUrlForContent = content => {
   const [url, setUrl] = React.useState('data:text/plain,');
   React.useEffect(() => {
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    /**
+     * By prepending '\ufeff' to the content, the text will be displayed with the proper charset.
+     * @see { @link https://stackoverflow.com/a/17879474/1798341 }
+     */
+    const blob = new Blob(['\ufeff', content], { type: 'text/plain;charset=utf-8' });
     const dataUrl = URL.createObjectURL(blob);
     setUrl(dataUrl);
 
