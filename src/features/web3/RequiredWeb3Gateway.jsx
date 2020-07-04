@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Spin } from '~/adapters/antd';
-import getErrorMessage from '~/adapters/web3React/getErrorMessage';
+import getErrorMessage from '~/adapters/web3-react/getErrorMessage';
 import { selectError, selectHasError, selectIsConnected, selectIsConnecting } from './web3Slice';
 
 function RequiredWeb3Gateway({ children, missing, error, renderError }) {

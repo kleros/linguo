@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Col, Row } from 'antd';
-import { useShallowEqualSelector } from '~/adapters/reactRedux';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import * as r from '~/app/routes';
 import Button from '~/shared/Button';
 import RemainingTime from '~/shared/RemainingTime';

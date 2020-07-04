@@ -6,7 +6,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { css } from 'styled-components';
 import { InputNumberWithAddons } from '~/adapters/antd';
-import { subtract } from '~/adapters/bigNumber';
+import { subtract } from '~/adapters/big-number';
 import { AppealSide } from '~/features/disputes';
 import { fundAppeal } from '~/features/disputes/disputesSlice';
 import { TaskParty } from '~/features/tasks';

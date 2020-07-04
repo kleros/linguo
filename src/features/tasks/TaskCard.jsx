@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip, Typography } from 'antd';
-import { useShallowEqualSelector } from '~/adapters/reactRedux';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Card from '~/shared/Card';
 import FormattedNumber from '~/shared/FormattedNumber';

@@ -2,7 +2,7 @@ import Web3 from 'web3';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import produce from 'immer';
-import { percentage } from '~/adapters/bigNumber';
+import { percentage } from '~/adapters/big-number';
 import { TaskParty, TaskStatus } from '~/features/tasks';
 import DisputeStatus from './DisputeStatus';
 import DisputeRuling from './DisputeRuling';

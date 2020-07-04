@@ -5,7 +5,7 @@ import { Row, Col, Progress } from 'antd';
 import { CheckCircleOutlined, DislikeOutlined, LikeOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { AppealSide } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
-import { percentage, greaterThanOrEqual } from '~/adapters/bigNumber';
+import { percentage, greaterThanOrEqual } from '~/adapters/big-number';
 import { InfoIcon, WarningIcon, DisputeIcon } from '~/shared/icons';
 import Button from '~/shared/Button';
 import Deadline from '~/shared/Deadline';

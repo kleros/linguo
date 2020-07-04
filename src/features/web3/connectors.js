@@ -1,6 +1,6 @@
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
-import { FortmaticConnector } from '~/adapters/web3React/connectors';
+import { FortmaticConnector } from '~/adapters/web3-react/connectors';
 
 const env = process.env.NODE_ENV ?? 'development';
 

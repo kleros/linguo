@@ -27,14 +27,14 @@ export default function createHooks({ connectors = {} } = {}) {
   if (!connectors.injected) {
     throw new Error(`
       The 'injected' connector is required.
-      Please check the call to 'createHooks' from ~/adapters/web3React module
+      Please check the call to 'createHooks' from ~/adapters/web3-react module
     `);
   }
 
   if (!connectors.network) {
     throw new Error(`
       The 'network' connector is required.
-      Please check the call to 'createHooks' from ~/adapters/web3React module
+      Please check the call to 'createHooks' from ~/adapters/web3-react module
     `);
   }
 

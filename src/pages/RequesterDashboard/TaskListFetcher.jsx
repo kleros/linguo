@@ -1,8 +1,8 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { useShallowEqualSelector } from '~/adapters/reactRedux';
-import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { useRefreshEffectOnce } from '~/adapters/react-router-dom';
 import TaskList from '~/features/tasks/TaskList';
 import { fetchTasks, selectTasks } from '~/features/requester/requesterSlice';
 import DismissableAlert from '~/features/ui/DismissableAlert';

@@ -7,7 +7,7 @@ import Spacer from '~/shared/Spacer';
 import useTask from '../../../useTask';
 import { DisputeProvider } from './DisputeContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { useShallowEqualSelector } from '~/adapters/reactRedux';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import {
   selectIsLoadingByTaskId,
   selectByTaskId,

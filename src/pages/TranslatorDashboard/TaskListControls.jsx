@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Badge, Radio, Tooltip } from 'antd';
-import { useShallowEqualSelector } from '~/adapters/reactRedux';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import * as r from '~/app/routes';
 import Button from '~/shared/Button';
 import RadioButton from '~/shared/RadioButton';

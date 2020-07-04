@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useShallowEqualSelector } from '~/adapters/reactRedux';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { selectById } from '~/features/tasks/tasksSlice';
 import TaskContext from './TaskContext';
 

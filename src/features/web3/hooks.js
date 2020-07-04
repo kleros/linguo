@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useWeb3React } from '@web3-react/core';
-import { createHooks } from '~/adapters/web3React';
+import { createHooks } from '~/adapters/web3-react';
 import { changeLibrary } from './web3Slice';
 import { injected, network, fortmatic } from './connectors';
 

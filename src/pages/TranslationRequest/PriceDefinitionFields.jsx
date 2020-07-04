@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid';
 import { LoadingOutlined, UnlockOutlined } from '@ant-design/icons';
 import { Col, Form, Input, Row, Select, Typography } from 'antd';
 import { InputNumberWithAddons } from '~/adapters/antd';
-import { useShallowEqualSelector } from '~/adapters/reactRedux';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import Button from '~/shared/Button';
 import FormattedNumber from '~/shared/FormattedNumber';
 import { InfoIcon } from '~/shared/icons';

@@ -1,7 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 import Web3 from 'web3';
-import { useShallowEqualSelector } from '~/adapters/reactRedux';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import FormattedNumber from '~/shared/FormattedNumber';
 import { ADDRESS_ZERO } from './constants';
 import { selectTokenByAddress } from './tokensSlice';

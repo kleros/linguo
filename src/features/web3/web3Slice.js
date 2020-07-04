@@ -3,7 +3,7 @@ import { persistReducer } from 'redux-persist';
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 import storage from 'redux-persist/lib/storage';
 import { call, put, select, actionChannel, getContext } from 'redux-saga/effects';
-import getErrorMessage from '~/adapters/web3React/getErrorMessage';
+import getErrorMessage from '~/adapters/web3-react/getErrorMessage';
 import createStateMachineReducer from '~/shared/createStateMachineReducer';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
