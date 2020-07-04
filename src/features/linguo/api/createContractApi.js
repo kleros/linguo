@@ -505,9 +505,7 @@ function createCommonApi({ web3, linguo, arbitrator }) {
     try {
       return await arbitrator.methods.appealCost(disputeID, '0x0').call();
     } catch (err) {
-      if (!/VM execution error/i.test(err.message)) {
-        console.warn('Could not get dispute appeal cost', err);
-      }
+      console.warn('Could not get dispute appeal cost', err);
       return NON_PAYABLE_VALUE;
     }
   }

@@ -2,18 +2,53 @@ import React from 'react';
 import t from 'prop-types';
 import { Alert, Spin } from 'antd';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { useCacheCall } from '~/app/linguo';
-import { withSuspense } from '~/adapters/react';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
-import compose from '~/utils/fp/compose';
+import Spacer from '~/features/shared/Spacer';
 import useTask from '../../../useTask';
 import { DisputeProvider } from './DisputeContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { useShallowEqualSelector } from '~/adapters/reactRedux';
+import {
+  selectIsLoadingByTaskId,
+  selectByTaskId,
+  selectErrorByTaskId,
+  fetchByTaskId,
+} from '~/features/disputes/disputesSlice';
 
 function _DisputeFetcher({ children }) {
-  const { ID } = useTask();
-  const [{ data: dispute }] = useCacheCall(['getTaskDispute', ID], { suspense: true });
+  const { id: taskId } = useTask();
+  const dispatch = useDispatch();
+  const isLoading = useSelector(selectIsLoadingByTaskId(taskId));
+  const data = useShallowEqualSelector(selectByTaskId(taskId));
+  const error = useShallowEqualSelector(selectErrorByTaskId(taskId));
 
-  return <DisputeProvider dispute={dispute}>{children}</DisputeProvider>;
+  const doFetch = React.useCallback(() => {
+    dispatch(fetchByTaskId({ taskId }));
+  }, [dispatch, taskId]);
+
+  React.useEffect(() => {
+    doFetch();
+  }, [doFetch]);
+
+  return (
+    <Spin tip="Loading translation dispute details..." spinning={isLoading && !data}>
+      {error && (
+        <>
+          <Alert
+            type="warning"
+            message={error.message}
+            description={
+              data
+                ? 'You are currently viewing a cached version which not might reflect the current state in the blockchain.'
+                : null
+            }
+          />
+          <Spacer size={2} />
+        </>
+      )}
+      {data && <DisputeProvider dispute={data}>{children}</DisputeProvider>}
+    </Spin>
+  );
 }
 
 _DisputeFetcher.propTypes = {
@@ -26,30 +61,7 @@ const errorBoundaryEnhancer = withErrorBoundary({
   },
 });
 
-const suspenseEnhancer = withSuspense({
-  fallback: (
-    <div
-      css={`
-        position: relative;
-      `}
-    >
-      <Spin
-        spinning
-        tip="Loading translation dispute details..."
-        css={`
-          &&.ant-spin {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-          }
-        `}
-      />
-    </div>
-  ),
-});
-
-const DisputeFetcher = compose(errorBoundaryEnhancer, suspenseEnhancer)(_DisputeFetcher);
+const DisputeFetcher = errorBoundaryEnhancer(_DisputeFetcher);
 
 export default DisputeFetcher;
 

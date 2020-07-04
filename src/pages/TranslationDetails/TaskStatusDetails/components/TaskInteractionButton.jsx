@@ -5,7 +5,7 @@ import { CheckOutlined, LoadingOutlined, SendOutlined } from '@ant-design/icons'
 import Button from '~/components/Button';
 import { approveTranslation, assignTranslator, reimburseRequester } from '~/features/tasks/tasksSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
-import useStateMachine from '~/hooks/useStateMachine';
+import useStateMachine from '~/features/shared/useStateMachine';
 import useTask from '../../useTask';
 
 const buttonStateMachine = {

@@ -61,7 +61,7 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
         [DisputeRuling.TranslationApproved]: [
           'You received your deposit back + the escrow payment (minus arbitration fees).',
         ],
-        [DisputeRuling.TranslationRejected]: ['Your deposit was sent to the requester.'],
+        [DisputeRuling.TranslationRejected]: ['Your deposit was sent to the challenger.'],
       },
     },
     [TaskParty.Challenger]: {

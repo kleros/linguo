@@ -97,6 +97,7 @@ export const { add } = tasksSlice.actions;
 export const {
   fetchById,
   getChallengerDeposit,
+  getTranslatorDeposit,
   assignTranslator,
   submitTranslation,
   challengeTranslation,
@@ -151,7 +152,7 @@ export function* fetchByPartySaga(action) {
     const data = yield call([linguoApi, method], { account, skills });
     yield put(fetchByParty.fulfilled({ data }, { meta }));
   } catch (err) {
-    console.warn(err);
+    console.warn('Failed to fetch tasks:', err);
     yield put(fetchByParty.rejected({ error: err }, { meta }));
   }
 }
@@ -206,7 +207,7 @@ export function* createSaga(action) {
 const createWatchFetchByPartySaga = createWatcherSaga(
   { takeType: TakeType.latest },
   createCancellableSaga(fetchByPartySaga, fetchByParty.rejected, {
-    additionalArgs: action => ({ meta: { key: action.meta?.key } }),
+    additionalArgs: action => ({ meta: action.meta }),
   })
 );
 

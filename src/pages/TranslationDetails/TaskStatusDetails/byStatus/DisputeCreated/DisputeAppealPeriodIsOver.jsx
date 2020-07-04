@@ -36,7 +36,9 @@ const getDescription = ({ party, ruling, challengerIsRequester }) => {
     [TaskParty.Requester]: {
       [DisputeRuling.RefuseToRule]: ['You will receive the escrow payment back.'],
       [DisputeRuling.TranslationApproved]: ['The escrow payment will go to the translator.'],
-      [DisputeRuling.TranslationRejected]: ['You will receive the escrow payment back.'],
+      [DisputeRuling.TranslationRejected]: [
+        'You will receive the escrow payment back + the translator deposit (minus arbitration fees).',
+      ],
     },
     [TaskParty.Translator]: {
       [DisputeRuling.RefuseToRule]: ['You will receive the escrow payment back (minus arbitration fees).'],
@@ -56,6 +58,14 @@ const getDescription = ({ party, ruling, challengerIsRequester }) => {
         challengerIsRequester
           ? 'You will receive your escrow payment + your challenge deposit back + the translator deposit (minus arbitration fees).'
           : 'Your will receive your challenge deposit back + the translator deposit (minus arbitration fees).',
+      ],
+    },
+    [TaskParty.Other]: {
+      [DisputeRuling.RefuseToRule]: ['The requester will receive the escrow payment back.'],
+      [DisputeRuling.TranslationApproved]: ['The escrow payment will go to the translator.'],
+      [DisputeRuling.TranslationRejected]: [
+        'The requester will receive the escrow payment back.',
+        'The challenger will receive the translator deposit (minus arbitration fees).',
       ],
     },
   };

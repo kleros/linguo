@@ -21,9 +21,10 @@ function DisputeCreated() {
   if (Dispute.isWaiting(dispute)) {
     Component = componentsByDisputeStatus.waiting;
   } else if (Dispute.isAppealable(dispute)) {
-    Component = Dispute.isWithinAppealPeriod(dispute)
-      ? componentsByDisputeStatus.appealable
-      : componentsByDisputeStatus.appealPeriodIsOver;
+    // Component = Dispute.isWithinAppealPeriod(dispute)
+    //   ? componentsByDisputeStatus.appealable
+    //   : componentsByDisputeStatus.appealPeriodIsOver;
+    Component = componentsByDisputeStatus.appealable;
   } else {
     console.error('This should not happen!!!!');
     Component = componentsByDisputeStatus.solved;

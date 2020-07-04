@@ -4,9 +4,9 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
-import EthValue from '~/components/EthValue';
+import EthValue, { EthUnit } from '~/components/EthValue';
+import { compose } from '~/features/shared/fp';
 import { getChallengerDeposit } from '~/features/tasks/tasksSlice';
-import compose from '~/utils/fp/compose';
 import useTask from '../../useTask';
 
 function TranslationChallengeDepositFetcher() {
@@ -16,7 +16,16 @@ function TranslationChallengeDepositFetcher() {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    dispatch(getChallengerDeposit({ id }, { meta: { thunk: { id } } }))
+    dispatch(
+      getChallengerDeposit(
+        { id },
+        {
+          meta: {
+            thunk: { id },
+          },
+        }
+      )
+    )
       .then(({ data }) => setDeposit(data))
       .catch(err => {
         console.warn('Failed to get the deposit value:', err);
@@ -48,7 +57,7 @@ function TranslationChallengeDeposit({ amount }) {
   return (
     <StyledWrapper>
       <span>
-        <EthValue amount={amount} suffixType="short" /> Deposit
+        <EthValue amount={amount} unit={EthUnit.ether} suffixType="short" /> Deposit
       </span>
     </StyledWrapper>
   );

@@ -14,6 +14,7 @@ export const initialState = {
 };
 
 const fetchById = createAsyncAction('tasks/fetchById');
+const getTranslatorDeposit = createAsyncAction('tasks/getTranslatorDeposit');
 const getChallengerDeposit = createAsyncAction('tasks/getChallengerDeposit');
 const assignTranslator = createAsyncAction('tasks/assignTranslator');
 const submitTranslation = createAsyncAction('tasks/submitTranslation');
@@ -23,6 +24,7 @@ const reimburseRequester = createAsyncAction('tasks/reimburseRequester');
 
 export const actions = {
   fetchById,
+  getTranslatorDeposit,
   getChallengerDeposit,
   assignTranslator,
   submitTranslation,
@@ -129,6 +131,23 @@ function* fetchByIdSaga(action) {
     yield put(fetchById.fulfilled({ id, data }));
   } catch (err) {
     yield put(fetchById.rejected({ id, error: err }));
+  }
+}
+
+function* getTranslatorDepositSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+  const { id } = action.payload ?? {};
+  const { meta } = action;
+
+  try {
+    const data = yield call([linguoApi, 'getTranslatorDeposit'], { ID: id });
+    const result = getTranslatorDeposit.fulfilled({ id, data }, { meta });
+
+    yield put(result);
+  } catch (err) {
+    const result = getTranslatorDeposit.rejected({ id, error: err }, { meta });
+
+    yield put(result);
   }
 }
 
@@ -278,6 +297,8 @@ const createWatchFetchByIdSaga = createWatcherSaga(
 
 const createWatchGetChallengerDepositSaga = createWatcherSaga({ takeType: TakeType.latest }, getChallengerDepositSaga);
 
+const createWatchGetTranslatorDepositSaga = createWatcherSaga({ takeType: TakeType.latest }, getTranslatorDepositSaga);
+
 const createWatchAssignTranslatorSaga = createWatcherSaga({ takeType: TakeType.leading }, assignTranslatorSaga);
 
 const createWatchSubmitTranslationSaga = createWatcherSaga({ takeType: TakeType.leading }, submitTranslationSaga);
@@ -290,6 +311,7 @@ const createWatchReimburseRequesterSaga = createWatcherSaga({ takeType: TakeType
 
 export const sagaDescriptors = [
   [createWatchFetchByIdSaga, actionChannel(fetchById.type)],
+  [createWatchGetTranslatorDepositSaga, actionChannel(getTranslatorDeposit.type)],
   [createWatchGetChallengerDepositSaga, actionChannel(getChallengerDeposit.type)],
   [createWatchAssignTranslatorSaga, actionChannel(assignTranslator.type)],
   [createWatchSubmitTranslationSaga, actionChannel(submitTranslation.type)],

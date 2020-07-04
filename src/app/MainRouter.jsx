@@ -12,7 +12,7 @@ import { DrawerMenu } from '~/components/Menu';
 import { history } from '~/store';
 import * as r from './routes';
 
-const fallback = <Spin $centered tip="Loading contents of the page..." />;
+const fallback = <Spin $centered tip="Loading page content..." />;
 
 const Home = loadable(() => import('~/pages/Home'), { fallback });
 const TranslatorDashboard = loadable(() => import('~/pages/TranslatorDashboard'), { fallback });

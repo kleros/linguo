@@ -33,8 +33,8 @@ export const normalize = (dispute, task, rewardPoolParams) => {
       status: DisputeStatus.None,
       ruling: DisputeRuling.None,
       appealPeriod: {
-        start: new Date(0),
-        end: new Date(0),
+        start: new Date(0).toISOString(),
+        end: new Date(0).toISOString(),
       },
       appealCost: NON_PAYABLE_VALUE,
       rewardPool: {
@@ -48,13 +48,17 @@ export const normalize = (dispute, task, rewardPoolParams) => {
   const status = DisputeStatus.of(dispute.status);
   const appealCost = dispute.appealCost ?? NON_PAYABLE_VALUE;
 
+  const id = Number(task.disputeID);
+
   return {
-    ID: Number(task.disputeID),
+    id,
+    ID: id,
+    taskId: task.id,
     status,
     ruling,
     appealPeriod: {
-      start: dayjs.unix(dispute.appealPeriod?.start ?? 0).toDate(),
-      end: dayjs.unix(dispute.appealPeriod?.end ?? 0).toDate(),
+      start: dayjs.unix(dispute.appealPeriod?.start ?? 0).toISOString(),
+      end: dayjs.unix(dispute.appealPeriod?.end ?? 0).toISOString(),
     },
     latestRound: normalizeRound(dispute.latestRound),
     appealCost,
@@ -315,21 +319,52 @@ export const isSolved = ({ status }) => {
   return DisputeStatus.Solved === status;
 };
 
-export const registerAppealFunding = (dispute, { deposit, party }) => {
+export const registerAppealFunding = produce((dispute, { deposit, party }) => {
   deposit = toBN(deposit);
-  return produce(dispute, draft => {
-    if (draft?.latestRound?.parties?.[party] === undefined) {
-      return;
-    }
 
-    const totalRequiredFees = toBN(totalAppealCost(draft, { party }));
-    const currentlyPaidFees = toBN(draft.latestRound.parties[party].paidFees ?? '0');
-    const updatedPaidFees = currentlyPaidFees.add(deposit);
+  if (dispute?.latestRound?.parties?.[party] === undefined) {
+    return;
+  }
 
-    draft.latestRound.parties[party].paidFees = String(updatedPaidFees);
-    draft.latestRound.parties[party].hasPaid = updatedPaidFees.gte(totalRequiredFees);
-  });
-};
+  const totalRequiredFees = toBN(totalAppealCost(dispute, { party }));
+  const currentlyPaidFees = toBN(dispute.latestRound.parties[party].paidFees ?? '0');
+  const updatedPaidFees = currentlyPaidFees.add(deposit);
+
+  dispute.latestRound.parties[party].paidFees = String(updatedPaidFees);
+  dispute.latestRound.parties[party].hasPaid = updatedPaidFees.gte(totalRequiredFees);
+
+  const parties = dispute.latestRound.parties;
+
+  // The appeal is now fully funded, so a new round will start
+  if (parties[TaskParty.Translator].hasPaid && parties[TaskParty.Challenger].hasPaid) {
+    Object.assign(dispute, {
+      status: DisputeStatus.Waiting,
+      ruling: DisputeRuling.None,
+      appealPeriod: {
+        start: dayjs(0).toISOString(),
+        end: dayjs(0).toISOString(),
+      },
+      latestRound: {
+        parties: {
+          [TaskParty.Translator]: {
+            hasPaid: false,
+            paidFees: '0',
+          },
+          [TaskParty.Challenger]: {
+            hasPaid: false,
+            paidFees: '0',
+          },
+        },
+        feeRewards: '0',
+      },
+      appealCost: NON_PAYABLE_VALUE,
+      rewardPool: {
+        [TaskParty.Translator]: NON_PAYABLE_VALUE,
+        [TaskParty.Challenger]: NON_PAYABLE_VALUE,
+      },
+    });
+  }
+});
 
 /**
  * @typedef {Object} RewardPoolParamsInput The arbitration cost parameters
@@ -376,8 +411,8 @@ export const registerAppealFunding = (dispute, { deposit, party }) => {
  * @prop {DisputeRuling} ruling The dispute ruling
  * @prop {LatestRound} [latestRound] Information regarding the latest dispute round
  * @prop {Object} appealPeriod The dispute appeal period
- * @prop {Date} appealPeriod.start The dispute appeal period start
- * @prop {Date} appealPeriod.end The dispute appeal period end
+ * @prop {string} appealPeriod.start The dispute appeal period start
+ * @prop {string} appealPeriod.end The dispute appeal period end
  * @prop {string} appealCost The cost of the appeal
  * @prop {Object} rewardPool The arbitration cost for each party
  * @prop {string} rewardPool[TaskParty.Translator] The arbitration cost for translator

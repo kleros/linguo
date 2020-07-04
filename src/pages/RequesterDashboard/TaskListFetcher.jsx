@@ -54,7 +54,7 @@ const filterDescriptionMap = {
   [filters.incomplete]: (
     <StyledDismissableAlert
       id="requester.filters.incomplete"
-      message="Incomplete taks are those which were not assigned to any translator or whose translator did not submit the translated text within the specified deadline."
+      message="Incomplete task are those which were not assigned to any translator or whose translator did not submit the translated text within the specified deadline."
     />
   ),
 };

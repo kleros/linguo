@@ -1,6 +1,6 @@
 import t from 'prop-types';
 import dayjs from 'dayjs';
-import useCountdownTimer from '~/hooks/useCountdownTimer';
+import useCountdownTimer from '~/features/shared/useCountdownTimer';
 
 const _1_SECOND_IN_MILISECONDS = 1000;
 const _5_MINUTES_IN_MILISECONDS = 5 * 60 * 1000;

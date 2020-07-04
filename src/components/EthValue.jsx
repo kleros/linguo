@@ -25,8 +25,11 @@ const availableUnits = [
 ];
 
 const indexedAvailableUnits = availableUnits.reduce((acc, info) => Object.assign(acc, { [info.unit]: info }), {});
+const availableUnitNames = Object.keys(indexedAvailableUnits).reduce((acc, key) => Object.assign(acc, { [key]: key }), {
+  auto: 'auto',
+});
 
-export { indexedAvailableUnits as EthUnit };
+export { availableUnitNames as EthUnit };
 
 /**
  * Check if it's possible to display a given `amount` of Wei
@@ -98,7 +101,7 @@ EthValue.propTypes = {
   amount: t.oneOfType([t.string, t.number]).isRequired,
   maxIntDigits: t.number,
   decimals: t.number,
-  unit: t.oneOf(['auto', ...Object.keys(indexedAvailableUnits)]),
+  unit: t.oneOf(Object.keys(availableUnitNames)),
   suffixType: t.oneOf(['none', 'short', 'long']),
   render: t.func,
 };
@@ -108,7 +111,7 @@ EthValue.defaultProps = {
   decimals: 2,
   suffixType: 'none',
   render: defaultRender,
-  unit: 'auto',
+  unit: availableUnitNames.auto,
 };
 
 export default EthValue;
