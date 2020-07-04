@@ -1,6 +1,6 @@
 import { eventChannel, channel, END } from 'redux-saga';
 import { serializeError } from 'serialize-error';
-import { pick, mapValues } from '~/features/shared/fp';
+import { pick, mapValues } from '~/shared/fp';
 
 export default function createTransactionChannel(tx, { wait = false } = {}) {
   const resultChannel = channel();

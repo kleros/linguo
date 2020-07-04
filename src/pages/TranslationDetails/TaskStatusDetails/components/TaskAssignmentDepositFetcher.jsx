@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
 import EthValue, { EthUnit } from '~/components/EthValue';
-import { compose } from '~/features/shared/fp';
+import { compose } from '~/shared/fp';
 import { getTranslatorDeposit } from '~/features/tasks/tasksSlice';
 import useTask from '../../useTask';
 

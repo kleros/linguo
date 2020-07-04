@@ -4,7 +4,7 @@ import storage from 'redux-persist/lib/storage';
 import { END } from 'redux-saga';
 import { all, call, delay, getContext, put, select, spawn, take } from 'redux-saga/effects';
 import { serializeError } from 'serialize-error';
-import { pick } from '~/features/shared/fp';
+import { pick } from '~/shared/fp';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import { getErrorMessage } from '~/features/web3';
 import { runOnceWhenReady } from '~/features/web3/runWithContext';

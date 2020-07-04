@@ -4,7 +4,7 @@ import { Upload, Tooltip } from 'antd';
 import { UploadOutlined, LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import ipfs from '~/app/ipfs';
 import Button from '~/components/Button';
-import useStateMachine from '~/features/shared/useStateMachine';
+import useStateMachine from '~/shared/useStateMachine';
 
 export async function validator(fileList) {
   const { status, path } = fileList?.[fileList.length - 1]?.response || {};

@@ -1,4 +1,4 @@
-import { Enum } from '~/features/shared/entities/utils';
+import { Enum } from '~/shared/entities/utils';
 
 /**
  * IMPORTANT: this is NOT a 1:1 map to Task.parties on linguo contract.

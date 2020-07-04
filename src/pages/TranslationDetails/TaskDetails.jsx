@@ -18,7 +18,7 @@ import DownloadLink from '~/components/DownloadLink';
 import { Task, TaskStatus, getFileUrl } from '~/features/tasks';
 import useTask from './useTask';
 import TaskStatusDetails from './TaskStatusDetails';
-import useInterval from '~/features/shared/useInterval';
+import useInterval from '~/shared/useInterval';
 
 const _1_MINUTE_MS = 60 * 1000;
 

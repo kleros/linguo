@@ -14,7 +14,7 @@ import Modal from '~/components/Modal';
 import Deadline from '~/components/Deadline';
 import AccountingTable from '~/components/AccountingTable';
 import EthValue, { EthUnit, valueOf, parse, getBestDisplayUnit } from '~/components/EthValue';
-import useStateMachine from '~/features/shared/useStateMachine';
+import useStateMachine from '~/shared/useStateMachine';
 import useTask from '../../../../useTask';
 import useCurrentParty from '../../../hooks/useCurrentParty';
 import useAppealStatus from './useAppealStatus';

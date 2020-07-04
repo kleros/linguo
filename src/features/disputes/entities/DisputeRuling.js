@@ -1,4 +1,4 @@
-import { Enum } from '~/features/shared/entities/utils';
+import { Enum } from '~/shared/entities/utils';
 
 /**
  * Dispute Ruling.

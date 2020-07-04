@@ -6,7 +6,7 @@ import { useShallowEqualSelector } from '~/adapters/reactRedux';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Card from '~/components/Card';
 import FormattedNumber from '~/components/FormattedNumber';
-import useInterval from '~/features/shared/useInterval';
+import useInterval from '~/shared/useInterval';
 import { Task, TaskStatus } from '~/features/tasks';
 import TaskCardFooter from './TaskCardFooter';
 import TaskInfoGrid from './TaskInfoGrid';

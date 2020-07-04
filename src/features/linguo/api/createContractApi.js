@@ -6,7 +6,7 @@ import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import { Dispute } from '~/features/disputes';
 import { Task } from '~/features/tasks';
-import promiseRetry from '~/features/shared/promiseRetry';
+import promiseRetry from '~/shared/promiseRetry';
 import { ADDRESS_ZERO, NON_PAYABLE_VALUE } from './constants';
 import getFileUrl from './getFileUrl';
 

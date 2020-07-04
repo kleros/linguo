@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import TopLoadingBar from '~/features/shared/TopLoadingBar';
+import TopLoadingBar from '~/shared/TopLoadingBar';
 import { selectIsLoadingById } from '~/features/tasks/tasksSlice';
 import { selectIsLoadingByTaskId } from '~/features/disputes/disputesSlice';
 import RequiredWeb3Gateway from '~/features/web3/RequiredWeb3Gateway';

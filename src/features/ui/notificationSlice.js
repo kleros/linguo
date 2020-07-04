@@ -4,7 +4,7 @@ import { notification } from 'antd';
 import { eventChannel, END } from 'redux-saga';
 import { call, put, take, cancelled } from 'redux-saga/effects';
 import { nanoid } from 'nanoid';
-import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
+import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { NotificationWithLink as link } from './NotificationTemplates';
 
 export const NotificationLevel = {

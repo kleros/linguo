@@ -1,14 +1,14 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
-import { persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
+import { routerMiddleware } from 'connected-react-router';
+import { persistStore, FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import createSagaMiddleware from 'redux-saga';
 import { middleware as sagaThunkMiddleware } from 'redux-saga-thunk';
-import { routerMiddleware } from 'connected-react-router';
-import actionIdMiddleware from '~/features/shared/actionIdMiddleware';
-import normalizeErrorMiddleware from '~/features/shared/normalizeErrorMiddleware';
 import { changeLibrary } from '~/features/web3/web3Slice';
+import actionIdMiddleware from '~/shared/actionIdMiddleware';
+import normalizeErrorMiddleware from '~/shared/normalizeErrorMiddleware';
+import history from './history';
 import { createRootReducer } from './rootReducer';
 import rootSaga from './rootSaga';
-import history from './history';
 
 const sagaMiddleware = createSagaMiddleware();
 

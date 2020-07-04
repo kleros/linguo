@@ -5,7 +5,7 @@ import { Alert, Spin } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
 import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
 import { fetchById, selectById, selectIsLoadingById, selectErrorById } from '~/features/tasks/tasksSlice';
-import Spacer from '~/features/shared/Spacer';
+import Spacer from '~/shared/Spacer';
 import { TaskProvider } from './TaskContext';
 import TaskDetails from './TaskDetails';
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { checkAllowance } from '~/features/tokens/tokensSlice';
-import usePreviousMatching from '~/features/shared/usePreviousMatching';
+import usePreviousMatching from '~/shared/usePreviousMatching';
 
 export const AllowanceValidationStatus = {
   idle: 'idle',

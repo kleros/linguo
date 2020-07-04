@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider } from 'antd';
 import { selectIsLoading } from '~/features/translator/translatorSlice';
-import TopLoadingBar from '~/features/shared/TopLoadingBar';
+import TopLoadingBar from '~/shared/TopLoadingBar';
 import { selectAccount } from '~/features/web3/web3Slice';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListControls from './TaskListControls';

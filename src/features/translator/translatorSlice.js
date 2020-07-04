@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import { mapValues } from '~/features/shared/fp';
+import { mapValues } from '~/shared/fp';
 import { selectAllFilterByIds } from '~/features/tasks/tasksSlice';
 import skillsReducer, * as skills from './translatorSkillsSlice';
 import tasksReducer, * as tasks from './translatorTasksSlice';

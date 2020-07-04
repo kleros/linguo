@@ -5,7 +5,7 @@ import { Form, Row, Col } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useWeb3React } from '~/features/web3';
 import { create as createTask } from '~/features/tasks/tasksSlice';
-import useStateMachine from '~/features/shared/useStateMachine';
+import useStateMachine from '~/shared/useStateMachine';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Spacer from '~/components/Spacer';
 import Button from '~/components/Button';

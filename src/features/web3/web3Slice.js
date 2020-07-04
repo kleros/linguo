@@ -4,9 +4,9 @@ import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 import storage from 'redux-persist/lib/storage';
 import { call, put, select, actionChannel, getContext } from 'redux-saga/effects';
 import getErrorMessage from '~/adapters/web3React/getErrorMessage';
-import createStateMachineReducer from '~/features/shared/createStateMachineReducer';
-import createAsyncAction from '~/features/shared/createAsyncAction';
-import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
+import createStateMachineReducer from '~/shared/createStateMachineReducer';
+import createAsyncAction from '~/shared/createAsyncAction';
+import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import { watchAllWithBuffer } from './runWithContext';
 

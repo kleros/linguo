@@ -3,7 +3,7 @@ import t from 'prop-types';
 import { Alert, Spin } from 'antd';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import { withErrorBoundary } from '~/components/ErrorBoundary';
-import Spacer from '~/features/shared/Spacer';
+import Spacer from '~/shared/Spacer';
 import useTask from '../../../useTask';
 import { DisputeProvider } from './DisputeContext';
 import { useDispatch, useSelector } from 'react-redux';

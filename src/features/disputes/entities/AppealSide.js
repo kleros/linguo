@@ -1,4 +1,4 @@
-import { Enum } from '~/features/shared/entities/utils';
+import { Enum } from '~/shared/entities/utils';
 import { TaskParty } from '~/features/tasks';
 import DisputeRuling from './DisputeRuling';
 

@@ -1,9 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { original } from 'immer';
 import { actionChannel, call, getContext, put } from 'redux-saga/effects';
-import createAsyncAction, { matchAnyAsyncType } from '~/features/shared/createAsyncAction';
-import createCancellableSaga from '~/features/shared/createCancellableSaga';
-import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
+import createAsyncAction, { matchAnyAsyncType } from '~/shared/createAsyncAction';
+import createCancellableSaga from '~/shared/createCancellableSaga';
+import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { registerTxSaga } from '~/features/transactions/transactionsSlice';
 import { Task } from './entities';
 

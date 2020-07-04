@@ -2,9 +2,9 @@ import { createAction, createSlice } from '@reduxjs/toolkit';
 import { goBack, push } from 'connected-react-router';
 import { put } from 'redux-saga/effects';
 import * as r from '~/app/routes';
-import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
+import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
-import { groupBy, map, prop } from '~/features/shared/fp';
+import { groupBy, map, prop } from '~/shared/fp';
 
 export const initialState = {
   ids: [],

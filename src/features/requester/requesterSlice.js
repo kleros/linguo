@@ -2,8 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
 import { put, race, take, putResolve } from 'redux-saga/effects';
 import * as r from '~/app/routes';
-import createAsyncAction from '~/features/shared/createAsyncAction';
-import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
+import createAsyncAction from '~/shared/createAsyncAction';
+import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { TaskParty } from '~/features/tasks';
 import { fetchByParty, selectAllFilterByIds, INTERNAL_FETCH_KEY } from '~/features/tasks/tasksSlice';
 

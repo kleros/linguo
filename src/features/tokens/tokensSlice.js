@@ -1,8 +1,8 @@
 import { call, debounce, getContext, put, spawn, take } from 'redux-saga/effects';
 import ipfs from '~/app/ipfs';
-import createAsyncAction from '~/features/shared/createAsyncAction';
-import createWatcherSaga, { TakeType } from '~/features/shared/createWatcherSaga';
-import { mapValues } from '~/features/shared/fp';
+import createAsyncAction from '~/shared/createAsyncAction';
+import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
+import { mapValues } from '~/shared/fp';
 import createSliceWithTransactions from '~/features/transactions/createSliceWithTransactions';
 import { registerTxSaga, selectByTxHash } from '~/features/transactions/transactionsSlice';
 import { watchAll } from '~/features/web3/runWithContext';

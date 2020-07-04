@@ -11,7 +11,7 @@ import Button from '~/components/Button';
 import FormattedNumber from '~/components/FormattedNumber';
 import { InfoIcon } from '~/components/icons';
 import Spacer from '~/components/Spacer';
-import usePreviousMatching from '~/features/shared/usePreviousMatching';
+import usePreviousMatching from '~/shared/usePreviousMatching';
 import { selectLinguoTokenAddress } from '~/features/linguo/linguoSlice';
 import {
   approve,
