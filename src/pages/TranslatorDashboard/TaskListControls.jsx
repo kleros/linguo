@@ -1,18 +1,40 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { Radio } from 'antd';
-import RadioButton from '~/components/RadioButton';
-import filters, { useFilterName } from './filters';
+import { Badge, Radio, Tooltip } from 'antd';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
+import * as r from '~/app/routes';
+import Button from '~/shared/Button';
+import RadioButton from '~/shared/RadioButton';
+import { selectTasks } from '~/features/translator/translatorSlice';
+import { selectAccount } from '~/features/web3/web3Slice';
+import filters, { getFilter, useFilterName } from './filters';
 
 function TaskListControls() {
   return (
     <StyledControls>
+      <TaskListActions />
       <TaskListFilters />
     </StyledControls>
   );
 }
 
 export default TaskListControls;
+
+function TaskListActions() {
+  return (
+    <StyledActions>
+      <Link to={r.TRANSLATOR_SETTINGS}>
+        <Tooltip title="You will only be able to see tasks whose both source and target language you have self-declared level B2 or higher.">
+          <div>
+            <Button variant="filled">Update Skills</Button>
+          </div>
+        </Tooltip>
+      </Link>
+    </StyledActions>
+  );
+}
 
 function TaskListFilters() {
   const [filterName, setFilterName] = useFilterName();
@@ -25,14 +47,21 @@ function TaskListFilters() {
     [setFilterName]
   );
 
+  const account = useSelector(selectAccount);
+  const data = useShallowEqualSelector(selectTasks(account));
+
   return (
     <StyledFilters>
       <StyledRadioGroup onChange={handleFilterChange} value={filterName}>
-        {buttons.map(({ value, text }) => (
-          <StyledRadioButton key={value} value={value}>
-            {text}
-          </StyledRadioButton>
-        ))}
+        {buttons.map(({ value, text }) => {
+          const count = data.filter(getFilter(value)).length;
+
+          return (
+            <StyledRadioButton key={value} value={value}>
+              <StyledBadge count={count}>{text}</StyledBadge>
+            </StyledRadioButton>
+          );
+        })}
       </StyledRadioGroup>
     </StyledFilters>
   );
@@ -62,6 +91,8 @@ const StyledRadioGroup = styled(Radio.Group)`
 
 const StyledRadioButton = styled(RadioButton)`
   && {
+    overflow: visible;
+
     @media (max-width: 767.98px) {
       font-size: ${props => props.theme.fontSize.sm};
       height: 2.5rem;
@@ -130,7 +161,7 @@ const buttons = [
 
 const StyledControls = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
 
   ${StyledActions} {
@@ -160,5 +191,27 @@ const StyledControls = styled.div`
 
   @media (max-width: 575.98px) {
     padding: 1.5rem;
+  }
+`;
+
+const StyledBadge = styled(Badge)`
+  .ant-scroll-number {
+    font-size: ${p => p.theme.fontSize.xxs};
+    padding: 0;
+    min-width: 0.875rem;
+    height: 0.875rem;
+    line-height: 0.875rem;
+    right: -0.375rem;
+    border: none;
+    box-shadow: none;
+    background-color: ${p => p.theme.color.secondary.default};
+
+    > .ant-scroll-number-only {
+      &,
+      > .ant-scroll-number-only-unit {
+        font-weight: 500;
+        height: 0.875rem;
+      }
+    }
   }
 `;

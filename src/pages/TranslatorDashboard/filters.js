@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useQuery } from '~/adapters/reactRouterDom';
-import { Task, TaskStatus } from '~/app/linguo';
+import { useQuery } from '~/adapters/react-router-dom';
+import { Task, TaskStatus } from '~/features/tasks';
 
 const filterMap = {
   all: () => true,

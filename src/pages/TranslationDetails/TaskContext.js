@@ -1,7 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
-import { TaskStatus } from '~/app/linguo';
+import { TaskStatus } from '~/features/tasks';
 
 const TaskContext = React.createContext({});
 TaskContext.displayName = 'TaskContext';
@@ -14,7 +14,8 @@ export function TaskProvider({ task, children }) {
 
 TaskProvider.propTypes = {
   task: t.shape({
-    ID: t.number.isRequired,
+    id: t.string.isRequired,
+    ID: t.string.isRequired,
     status: t.oneOf(Object.values(TaskStatus)).isRequired,
     title: t.string.isRequired,
     deadline: t.oneOfType([t.string, t.instanceOf(Date)]).isRequired,

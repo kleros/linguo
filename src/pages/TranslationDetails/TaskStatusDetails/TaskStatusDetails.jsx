@@ -1,13 +1,13 @@
 import React from 'react';
-import { Task } from '~/app/linguo';
-import { useWeb3React } from '~/app/web3React';
-import RequiredWalletGateway from '~/components/RequiredWalletGateway';
-import ContentBlocker from '~/components/ContentBlocker';
-import TaskContext from '../TaskContext';
+import ContentBlocker from '~/shared/ContentBlocker';
+import { Task } from '~/features/tasks';
+import { useWeb3React } from '~/features/web3';
+import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
+import useTask from '../useTask';
 import byStatus from './byStatus';
 
 function TaskStatusDetails() {
-  const task = React.useContext(TaskContext);
+  const task = useTask();
   const isIncomplete = Task.isIncomplete(task);
 
   const Component = isIncomplete ? byStatus.Incomplete : byStatus[task.status];

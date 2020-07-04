@@ -1,21 +1,34 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider } from 'antd';
-import LinguoApiReadyGateway from '~/components/LinguoApiReadyGateway';
-import RequiredWalletGateway from '~/components/RequiredWalletGateway';
+import { selectIsLoading } from '~/features/requester/requesterSlice';
+import TopLoadingBar from '~/shared/TopLoadingBar';
+import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
+import { selectAccount } from '~/features/web3/web3Slice';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListControls from './TaskListControls';
 import TaskListFetcher from './TaskListFetcher';
 
-const StyledDivider = styled(Divider)`
-  border-top-color: ${props => props.theme.color.primary.default};
-  margin: 2.5rem 0;
+function RequesterDashboard() {
+  const account = useSelector(selectAccount);
+  const isLoading = useSelector(selectIsLoading(account));
 
-  @media (max-width: 575.98px) {
-    background: none;
-    margin: 0 0 1rem;
-  }
-`;
+  return (
+    <MultiCardLayout>
+      <TopLoadingBar show={isLoading} />
+      <TaskListControls />
+      <StyledDivider />
+      <StyledContentWrapper>
+        <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
+          <TaskListFetcher />
+        </RequiredWalletGateway>
+      </StyledContentWrapper>
+    </MultiCardLayout>
+  );
+}
+
+export default RequesterDashboard;
 
 const StyledContentWrapper = styled.div`
   @media (max-width: 575.98px) {
@@ -23,20 +36,12 @@ const StyledContentWrapper = styled.div`
   }
 `;
 
-function RequesterDashboard() {
-  return (
-    <MultiCardLayout>
-      <TaskListControls />
-      <StyledDivider />
-      <LinguoApiReadyGateway>
-        <StyledContentWrapper>
-          <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
-            <TaskListFetcher />
-          </RequiredWalletGateway>
-        </StyledContentWrapper>
-      </LinguoApiReadyGateway>
-    </MultiCardLayout>
-  );
-}
+const StyledDivider = styled(Divider)`
+  border-top-color: ${props => props.theme.color.primary.default};
+  margin: 2.5rem 0;
 
-export default RequesterDashboard;
+  @media (max-width: 575.98px) {
+    border-top-color: transparent;
+    margin: 0 0 1rem;
+  }
+`;

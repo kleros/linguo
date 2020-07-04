@@ -1,14 +1,14 @@
 import React from 'react';
-import { Task, TaskStatus } from '~/app/linguo';
+import { Task, TaskStatus } from '~/features/tasks';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
-import Spacer from '~/components/Spacer';
-import TaskContext from '../../../TaskContext';
+import Spacer from '~/shared/Spacer';
+import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
 
 function IncompleteForRequester() {
-  const task = React.useContext(TaskContext);
+  const task = useTask();
   const isPending = Task.isPending(task);
   const isAssigned = task.status === TaskStatus.Assigned;
 

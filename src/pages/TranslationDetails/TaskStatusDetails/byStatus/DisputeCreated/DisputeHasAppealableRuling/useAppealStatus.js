@@ -1,6 +1,7 @@
 import React from 'react';
-import { Dispute, AppealSide, TaskParty } from '~/app/linguo';
-import { useRemainingTime } from '~/components/RemainingTime';
+import { Dispute, AppealSide } from '~/features/disputes';
+import { TaskParty } from '~/features/tasks';
+import { useRemainingTime } from '~/shared/RemainingTime';
 import DisputeContext from '../DisputeContext';
 
 export default function useAppealStatus() {

@@ -1,13 +1,12 @@
 import React from 'react';
 import t from 'prop-types';
-import { mutate } from 'swr';
-import { SendOutlined, LoadingOutlined, CheckOutlined } from '@ant-design/icons';
-import { Task, useLinguo } from '~/app/linguo';
-import { useWeb3React } from '~/app/web3React';
-import useStateMachine from '~/hooks/useStateMachine';
-import wrapWithNotification from '~/utils/wrapWithNotification';
-import Button from '~/components/Button';
-import TaskContext from '../../TaskContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { CheckOutlined, LoadingOutlined, SendOutlined } from '@ant-design/icons';
+import Button from '~/shared/Button';
+import { approveTranslation, assignTranslator, reimburseRequester } from '~/features/tasks/tasksSlice';
+import { selectAccount } from '~/features/web3/web3Slice';
+import useStateMachine from '~/shared/useStateMachine';
+import useTask from '../../useTask';
 
 const buttonStateMachine = {
   initial: 'idle',
@@ -35,16 +34,10 @@ const TaskInteraction = {
   Reimburse: 'reimburse',
 };
 
-const interactionToApiMethodMap = {
-  [TaskInteraction.Assign]: 'assignTask',
-  [TaskInteraction.Approve]: 'approveTranslation',
-  [TaskInteraction.Reimburse]: 'reimburseRequester',
-};
-
-const interactionToMutationMap = {
-  [TaskInteraction.Assign]: ({ account }) => task => Task.registerAssignment(task, { account }),
-  [TaskInteraction.Approve]: () => task => Task.registerApproval(task),
-  [TaskInteraction.Reimburse]: () => task => Task.registerReimbursement(task),
+const interactionToActionCreator = {
+  [TaskInteraction.Assign]: assignTranslator,
+  [TaskInteraction.Approve]: approveTranslation,
+  [TaskInteraction.Reimburse]: reimburseRequester,
 };
 
 const defaultButtonContent = {
@@ -62,43 +55,45 @@ const defaultButtonContent = {
   },
 };
 
-const withNotification = wrapWithNotification({
-  errorMessage: 'Failed to submit the transaction',
-  successMessage: 'Transaction submitted sucessfuly',
-  duration: 10,
-});
-
 function TaskInteractionButton({ interaction, content, buttonProps }) {
-  const { ID } = React.useContext(TaskContext);
-  const linguo = useLinguo();
-  const { account } = useWeb3React();
-  const [state, dispatch] = useStateMachine(buttonStateMachine);
+  const dispatch = useDispatch();
+  const { id } = useTask();
+  const account = useSelector(selectAccount);
 
-  const apiMethod = interactionToApiMethodMap[interaction];
-  const updateTaskParams = interactionToMutationMap[interaction]({ account });
+  const [state, send] = useStateMachine(buttonStateMachine);
+  const actionCreator = interactionToActionCreator[interaction];
 
-  const disabled = state !== 'idle';
-
-  const handleClick = React.useCallback(
-    withNotification(async evt => {
-      evt.preventDefault();
-
-      try {
-        dispatch('START');
-        const result = await linguo.api[apiMethod]({ ID }, { from: account });
-        await mutate(['getTaskById', ID], updateTaskParams);
-        dispatch('SUCCESS');
-        return result;
-      } catch (err) {
-        console.warn(err);
-        dispatch('ERROR');
-        throw err;
-      } finally {
-      }
-    }),
-    [dispatch, linguo.api, apiMethod, ID, account, history, location]
+  const action = React.useMemo(
+    () =>
+      actionCreator(
+        { id, account },
+        {
+          meta: {
+            tx: { wait: 0 },
+            thunk: { id },
+          },
+        }
+      ),
+    [actionCreator, id, account]
   );
 
+  const handleClick = React.useCallback(
+    async evt => {
+      evt.preventDefault();
+
+      send('START');
+      try {
+        await dispatch(action);
+        send('SUCCESS');
+      } catch (err) {
+        console.warn('Failed to submit:', err);
+        send('ERROR');
+      }
+    },
+    [dispatch, action, send]
+  );
+
+  const disabled = state !== 'idle';
   const icon = content[state] ? content[state].icon ?? null : defaultButtonContent[state].icon;
   const text = content[state]?.text ?? defaultButtonContent[state].text;
 

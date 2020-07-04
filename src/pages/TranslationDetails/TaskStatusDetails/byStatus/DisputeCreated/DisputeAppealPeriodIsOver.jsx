@@ -1,16 +1,17 @@
 import React from 'react';
-import { TaskParty, DisputeRuling } from '~/app/linguo';
+import { TaskParty } from '~/features/tasks';
+import { DisputeRuling } from '~/features/disputes';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
-import TaskContext from '../../../TaskContext';
+import useTask from '../../../useTask';
 import useCurrentParty from '../../hooks/useCurrentParty';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import DisputeContext from './DisputeContext';
 
 function DisputeAppealPeriodIsOver() {
   const { ruling } = React.useContext(DisputeContext);
-  const { requester, parties } = React.useContext(TaskContext);
+  const { requester, parties } = useTask();
   const party = useCurrentParty();
 
   const challengerIsRequester = requester === parties[TaskParty.Challenger];
@@ -35,7 +36,9 @@ const getDescription = ({ party, ruling, challengerIsRequester }) => {
     [TaskParty.Requester]: {
       [DisputeRuling.RefuseToRule]: ['You will receive the escrow payment back.'],
       [DisputeRuling.TranslationApproved]: ['The escrow payment will go to the translator.'],
-      [DisputeRuling.TranslationRejected]: ['You will receive the escrow payment back.'],
+      [DisputeRuling.TranslationRejected]: [
+        'You will receive the escrow payment back + the translator deposit (minus arbitration fees).',
+      ],
     },
     [TaskParty.Translator]: {
       [DisputeRuling.RefuseToRule]: ['You will receive the escrow payment back (minus arbitration fees).'],
@@ -55,6 +58,14 @@ const getDescription = ({ party, ruling, challengerIsRequester }) => {
         challengerIsRequester
           ? 'You will receive your escrow payment + your challenge deposit back + the translator deposit (minus arbitration fees).'
           : 'Your will receive your challenge deposit back + the translator deposit (minus arbitration fees).',
+      ],
+    },
+    [TaskParty.Other]: {
+      [DisputeRuling.RefuseToRule]: ['The requester will receive the escrow payment back.'],
+      [DisputeRuling.TranslationApproved]: ['The escrow payment will go to the translator.'],
+      [DisputeRuling.TranslationRejected]: [
+        'The requester will receive the escrow payment back.',
+        'The challenger will receive the translator deposit (minus arbitration fees).',
       ],
     },
   };

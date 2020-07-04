@@ -1,14 +1,14 @@
 import React from 'react';
-import { Task } from '~/app/linguo';
+import { Task } from '~/features/tasks';
 import TaskAwaitingReviewAvatar from '~/assets/images/avatar-task-awaiting-review.svg';
-import Spacer from '~/components/Spacer';
-import TaskContext from '../../../TaskContext';
+import Spacer from '~/shared/Spacer';
+import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
 
 function AwaitingReviewForTranslator() {
-  const task = React.useContext(TaskContext);
+  const task = useTask();
 
   const title = (
     <TaskDeadline

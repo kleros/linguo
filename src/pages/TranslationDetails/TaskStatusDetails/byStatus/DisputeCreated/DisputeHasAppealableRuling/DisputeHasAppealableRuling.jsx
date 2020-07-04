@@ -1,7 +1,7 @@
 import React from 'react';
 import loadable from '@loadable/component';
-import { DisputeRuling } from '~/app/linguo';
-import Spacer from '~/components/Spacer';
+import { DisputeRuling } from '~/features/disputes';
+import Spacer from '~/shared/Spacer';
 import DisputeContext from '../DisputeContext';
 import AppealStatus from './AppealStatus';
 

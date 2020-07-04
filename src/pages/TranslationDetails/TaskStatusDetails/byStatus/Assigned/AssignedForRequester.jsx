@@ -1,11 +1,11 @@
 import React from 'react';
 import TaskAssignedAvatar from '~/assets/images/avatar-task-assigned.svg';
-import FormattedRelativeDate from '~/components/FormattedRelativeDate';
-import TaskContext from '../../../TaskContext';
+import FormattedRelativeDate from '~/shared/FormattedRelativeDate';
+import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 
 function AssignedForRequester() {
-  const { reviewTimeout } = React.useContext(TaskContext);
+  const { reviewTimeout } = useTask();
 
   const props = {
     title: 'This translation task was assigned by a translator',

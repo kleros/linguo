@@ -1,4 +1,4 @@
-import { Task, TaskParty } from '~/app/linguo';
+import { Task, TaskParty } from '~/features/tasks';
 import Web3 from 'web3';
 
 const { toBN } = Web3.utils;

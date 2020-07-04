@@ -1,15 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useHistory } from 'react-router-dom';
-import { Form, Row, Col, notification } from 'antd';
+import { useDispatch } from 'react-redux';
+import { Form, Row, Col } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import * as r from '~/app/routes';
-import { useWeb3React } from '~/app/web3React';
-import { useLinguo } from '~/app/linguo';
-import useStateMachine from '~/hooks/useStateMachine';
+import { useWeb3React } from '~/features/web3';
+import { create as createTask } from '~/features/tasks/tasksSlice';
+import useStateMachine from '~/shared/useStateMachine';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
-import Spacer from '~/components/Spacer';
-import Button from '~/components/Button';
+import Spacer from '~/shared/Spacer';
+import Button from '~/shared/Button';
 import TitleField from './TitleField';
 import DeadlineField from './DeadlineField';
 import PriceDefinitionFields from './PriceDefinitionFields';
@@ -18,14 +17,94 @@ import ExpectedQualityField from './ExpectedQualityField';
 import TextField from './TextField';
 import OriginalSourceFields from './OriginalSourceFields';
 
-const StyledForm = styled(Form)`
-  && {
-    .ant-input-number,
-    .ant-picker {
-      width: 100%;
-    }
-  }
-`;
+function TranslationRequestForm() {
+  const dispatch = useDispatch();
+  const [form] = Form.useForm();
+  const [state, send] = useStateMachine(formStateMachine);
+  const { account } = useWeb3React();
+
+  const submitButtonProps =
+    state === 'submitting'
+      ? {
+          icon: <LoadingOutlined />,
+          disabled: true,
+          children: 'Submitting...',
+        }
+      : {
+          children: 'Request the translation',
+        };
+
+  const handleFinish = React.useCallback(
+    async ({ originalTextFile, deadline, ...rest }) => {
+      send('SUBMIT');
+      const data = {
+        account,
+        deadline: new Date(deadline).toISOString(),
+        originalTextFile: extractOriginalTextFilePath(originalTextFile),
+        ...rest,
+      };
+
+      try {
+        await dispatch(
+          createTask(data, {
+            meta: { redirect: true },
+          })
+        );
+      } finally {
+        send('RESET');
+      }
+    },
+    [dispatch, account, send]
+  );
+
+  const handleFinishFailed = React.useCallback(
+    ({ errorFields }) => {
+      form.scrollToField(errorFields[0].name);
+    },
+    [form]
+  );
+
+  return (
+    <StyledForm
+      hideRequiredMark
+      layout="vertical"
+      form={form}
+      initialValues={initialValues}
+      onFinish={handleFinish}
+      onFinishFailed={handleFinishFailed}
+    >
+      <Row gutter={rowGutter}>
+        <LanguagesSelectionFields setFieldsValue={form.setFieldsValue} />
+      </Row>
+      <Row gutter={rowGutter}>
+        <ExpectedQualityField initialValue={initialValues.expectedQuality} />
+      </Row>
+      <Spacer />
+      <Row gutter={rowGutter}>
+        <TitleField />
+      </Row>
+      <Spacer />
+      <Row gutter={rowGutter}>
+        <TextField />
+      </Row>
+      <Row gutter={rowGutter}>
+        <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
+      </Row>
+      <Row gutter={rowGutter}>
+        <DeadlineField />
+      </Row>
+      <PriceDefinitionFields getFieldValue={form.getFieldValue} validateFields={form.validateFields} />
+      <Spacer />
+      <Row gutter={rowGutter} justify="end">
+        <Col>
+          <Button {...submitButtonProps} htmlType="submit" />
+        </Col>
+      </Row>
+    </StyledForm>
+  );
+}
+
+export default TranslationRequestForm;
 
 const extractOriginalTextFilePath = originalTextFile => {
   if (originalTextFile?.length > 0) {
@@ -56,116 +135,17 @@ const formStateMachine = {
     },
     submitting: {
       on: {
-        SUCCESS: 'succeeded',
-        ERROR: 'failed',
-      },
-    },
-    succeeded: {
-      on: {
-        RESET: 'idle',
-      },
-    },
-    failed: {
-      on: {
         RESET: 'idle',
       },
     },
   },
 };
 
-function TranslationRequestForm() {
-  const history = useHistory();
-  const [form] = Form.useForm();
-  const [state, send] = useStateMachine(formStateMachine);
-  const { account } = useWeb3React();
-  const linguo = useLinguo();
-
-  const submitButtonProps =
-    state === 'submitting'
-      ? {
-          icon: <LoadingOutlined />,
-          disabled: true,
-          children: 'Submitting...',
-        }
-      : {
-          children: 'Request the translation',
-        };
-
-  const handleFinish = React.useCallback(
-    async ({ originalTextFile, ...rest }) => {
-      if (linguo.error) {
-        notification.error({
-          placement: 'bottomRight',
-          message: linguo.error.message || 'Not ready to submit the request translation yet!',
-        });
-        return;
-      }
-
-      send('SUBMIT');
-      try {
-        await linguo.api.createTask(
-          {
-            account,
-            originalTextFile: extractOriginalTextFilePath(originalTextFile),
-            ...rest,
-          },
-          {
-            from: account,
-          }
-        );
-        send('SUCCESS');
-        notification.success({
-          placement: 'bottomRight',
-          message: 'Translation submitted!',
-        });
-        history.push(r.TRANSLATION_DASHBOARD);
-      } catch (err) {
-        send('ERROR');
-        notification.error({
-          placement: 'bottomRight',
-          message: 'Failed to submit the translation request!',
-          description: err.cause?.message,
-        });
-      } finally {
-        send('RESET');
-      }
-    },
-    [account, linguo.error, linguo.api, send, history]
-  );
-
-  return (
-    <StyledForm hideRequiredMark layout="vertical" form={form} initialValues={initialValues} onFinish={handleFinish}>
-      <Row gutter={rowGutter}>
-        <LanguagesSelectionFields setFieldsValue={form.setFieldsValue} />
-      </Row>
-      <Row gutter={rowGutter}>
-        <ExpectedQualityField initialValue={initialValues.expectedQuality} />
-      </Row>
-      <Spacer />
-      <Row gutter={rowGutter}>
-        <TitleField />
-      </Row>
-      <Spacer />
-      <Row gutter={rowGutter}>
-        <TextField />
-      </Row>
-      <Row gutter={rowGutter}>
-        <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
-      </Row>
-      <Row gutter={rowGutter}>
-        <DeadlineField />
-      </Row>
-      <Row gutter={rowGutter}>
-        <PriceDefinitionFields />
-      </Row>
-      <Spacer />
-      <Row gutter={rowGutter} justify="end">
-        <Col>
-          <Button {...submitButtonProps} htmlType="submit" />
-        </Col>
-      </Row>
-    </StyledForm>
-  );
-}
-
-export default TranslationRequestForm;
+const StyledForm = styled(Form)`
+  && {
+    .ant-input-number,
+    .ant-picker {
+      width: 100%;
+    }
+  }
+`;

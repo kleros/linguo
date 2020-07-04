@@ -3,28 +3,29 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Typography } from 'antd';
 import { FileTextOutlined, TranslationOutlined, LinkOutlined, PaperClipOutlined } from '@ant-design/icons';
-import { Task, TaskStatus, useCacheCall, getFileUrl } from '~/app/linguo';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
-import getLanguageFlag from '~/components/helpers/getLanguageFlag';
-import { CalendarIcon } from '~/components/icons';
-import Button from '~/components/Button';
-import Spacer from '~/components/Spacer';
-import FormattedDate from '~/components/FormattedDate';
-import FormattedNumber from '~/components/FormattedNumber';
-import TranslationQualityDefinition from '~/components/TranslationQualityDefinition';
-import TaskInfoGrid from '~/components/TaskInfoGrid';
-import TaskPrice from '~/components/TaskPrice';
-import DownloadLink from '~/components/DownloadLink';
-import TaskContext from './TaskContext';
+import getLanguageFlag from '~/shared/helpers/getLanguageFlag';
+import { CalendarIcon } from '~/shared/icons';
+import Button from '~/shared/Button';
+import Spacer from '~/shared/Spacer';
+import FormattedDate from '~/shared/FormattedDate';
+import FormattedNumber from '~/shared/FormattedNumber';
+import TranslationQualityDefinition from '~/shared/TranslationQualityDefinition';
+import TaskInfoGrid from '~/shared/TaskInfoGrid';
+import TaskPrice from '~/shared/TaskPrice';
+import DownloadLink from '~/shared/DownloadLink';
+import { Task, TaskStatus, getFileUrl } from '~/features/tasks';
+import useTask from './useTask';
 import TaskStatusDetails from './TaskStatusDetails';
+import useInterval from '~/shared/useInterval';
 
-const _1_MINUTE_IN_MILLISECONDS = 60 * 1000;
+const _1_MINUTE_MS = 60 * 1000;
 
-function TaskDetails() {
-  const task = React.useContext(TaskContext);
+export default function TaskDetails() {
+  const task = useTask();
+
   const {
-    ID,
     status,
     title,
     deadline,
@@ -39,19 +40,16 @@ function TaskDetails() {
     translatedTextUrl,
   } = task;
 
-  // const translatedTextUrl='';
+  const getCurrentPrice = React.useCallback(() => Task.currentPrice(task), [task]);
+  const [currentPrice, setCurrentPrice] = React.useState(getCurrentPrice);
 
-  const hasAssignedPrice = assignedPrice !== undefined;
+  const updateCurrentPrice = React.useCallback(() => {
+    setCurrentPrice(getCurrentPrice());
+  }, [getCurrentPrice, setCurrentPrice]);
 
-  const refreshInterval = hasAssignedPrice || Task.isIncomplete(task) ? 0 : _1_MINUTE_IN_MILLISECONDS;
-  const shouldRevalidate = !hasAssignedPrice;
+  const interval = assignedPrice === undefined ? _1_MINUTE_MS : null;
+  useInterval(updateCurrentPrice, interval);
 
-  const [{ data: currentPrice }] = useCacheCall(['getTaskPrice', ID], {
-    initialData: Task.currentPrice(task),
-    revalidateOnFocus: shouldRevalidate,
-    revalidateOnReconnect: shouldRevalidate,
-    refreshInterval,
-  });
   const actualPrice = assignedPrice ?? currentPrice;
 
   const pricePerWord = Task.currentPricePerWord({
@@ -121,7 +119,9 @@ function TaskDetails() {
     <div
       css={`
         @media (min-width: 576px) {
-          margin-top: -2rem;
+          &:only-child {
+            margin-top: -2rem;
+          }
         }
       `}
     >
@@ -192,8 +192,6 @@ function TaskDetails() {
     </div>
   );
 }
-
-export default TaskDetails;
 
 const StyledTaskTitle = styled(Typography.Title)`
   && {
@@ -278,7 +276,7 @@ const StyledExpectedQuality = styled(StyledDefinitionList)`
 const indexedLanguages = languages.reduce((acc, item) => Object.assign(acc, { [item.code]: item }), {});
 
 function LanguageInfo({ language }) {
-  const languageName = indexedLanguages[language].name || '<Unknown>';
+  const languageName = indexedLanguages[language]?.name || '<Unknown>';
   const FlagIcon = getLanguageFlag(language);
 
   return (

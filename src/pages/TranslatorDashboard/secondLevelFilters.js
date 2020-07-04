@@ -1,4 +1,4 @@
-import { TaskParty } from '~/app/linguo';
+import { TaskParty } from '~/features/tasks';
 import filters from './filters';
 
 const secondLevelFilters = {

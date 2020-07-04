@@ -1,15 +1,93 @@
 import React from 'react';
 import t from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { mutate } from 'swr';
 import { notification } from 'antd';
-import { LoadingOutlined, FlagOutlined } from '@ant-design/icons';
-import { Task, useLinguo } from '~/app/linguo';
-import { useWeb3React } from '~/app/web3React';
-import SingleFileUpload from '~/components/SingleFileUpload';
-import Button from '~/components/Button';
-import wrapWithNotification from '~/utils/wrapWithNotification';
-import TaskContext from '../../TaskContext';
+import { LoadingOutlined } from '@ant-design/icons';
+import { selectAccount } from '~/features/web3/web3Slice';
+import { challengeTranslation } from '~/features/tasks/tasksSlice';
+import SingleFileUpload from '~/shared/SingleFileUpload';
+import Button from '~/shared/Button';
+import Spacer from '~/shared/Spacer';
+import useTask from '../../useTask';
+
+export default function ChallengeUploadButton({ buttonProps }) {
+  const { id } = useTask();
+  const dispatch = useDispatch();
+  const account = useSelector(selectAccount);
+
+  const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
+
+  const [path, setPath] = React.useState(null);
+
+  const handleFileChange = React.useCallback(async ({ fileList }) => {
+    const [file] = fileList;
+
+    if (!file) {
+      setPath(null);
+    } else if (file.status === 'done') {
+      const path = file.response?.path;
+      if (!path) {
+        throw new Error('Failed to upload the file. Please try again.');
+      }
+
+      setPath(path);
+    }
+  }, []);
+
+  const handleSubmitChallenge = React.useCallback(async () => {
+    setHasPendingTxn(true);
+    try {
+      await dispatch(
+        challengeTranslation(
+          { id, account, path },
+          {
+            meta: {
+              tx: { wait: 0 },
+              thunk: { id },
+            },
+          }
+        )
+      );
+    } finally {
+      setHasPendingTxn(false);
+    }
+  }, [dispatch, id, account, path]);
+
+  const icon = hasPendingTxn ? <LoadingOutlined /> : null;
+
+  return (
+    <StyledWrapper>
+      <SingleFileUpload
+        forbidRedoAfterSuccess
+        disabled={hasPendingTxn}
+        beforeUpload={beforeUpload}
+        onChange={handleFileChange}
+        buttonContent={{
+          idle: {
+            text: 'Evidence for Challenge',
+          },
+        }}
+        buttonProps={{
+          fullWidth: true,
+          variant: 'outlined',
+        }}
+      />
+      <Spacer />
+      <Button {...buttonProps} icon={icon} disabled={!path || hasPendingTxn} onClick={handleSubmitChallenge}>
+        {hasPendingTxn ? <>Submitting challenge...</> : <>Challenge It</>}
+      </Button>
+    </StyledWrapper>
+  );
+}
+
+ChallengeUploadButton.propTypes = {
+  buttonProps: t.object,
+};
+
+ChallengeUploadButton.defaultProps = {
+  buttonProps: {},
+};
 
 const StyledWrapper = styled.div`
   &,
@@ -34,80 +112,3 @@ const beforeUpload = file => {
 
   return true;
 };
-
-const withNotification = wrapWithNotification({
-  errorMessage: 'Failed to submit the challenge!',
-  successMessage: 'You challenged this translation!',
-  duration: 10,
-});
-
-function ChallengeUploadButton({ buttonProps }) {
-  const { ID } = React.useContext(TaskContext);
-  const linguo = useLinguo();
-  const { account } = useWeb3React();
-
-  const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
-
-  const challengeTranslation = React.useCallback(
-    withNotification(async ({ ID, evidence, account }) => {
-      try {
-        setHasPendingTxn(true);
-        await linguo.api.challengeTranslation({ ID, evidence }, { from: account });
-        mutate(['getTaskById', ID], task => Task.registerChallenge(task, { account }));
-      } finally {
-        setHasPendingTxn(false);
-      }
-    }),
-    [linguo.api]
-  );
-
-  const handleChange = React.useCallback(
-    async ({ fileList }) => {
-      const [file] = fileList;
-
-      if (file?.status === 'done' && !hasPendingTxn) {
-        const path = file.response?.path;
-        if (!path) {
-          throw new Error('Failed to upload the file. Please try again.');
-        }
-
-        challengeTranslation({ ID, account, evidence: path });
-      }
-    },
-    [ID, account, challengeTranslation, hasPendingTxn]
-  );
-
-  return (
-    <StyledWrapper>
-      {!hasPendingTxn && (
-        <SingleFileUpload
-          forbidRedoAfterSuccess
-          beforeUpload={beforeUpload}
-          onChange={handleChange}
-          buttonContent={{
-            idle: {
-              text: 'Challenge it',
-              icon: <FlagOutlined />,
-            },
-          }}
-          buttonProps={buttonProps}
-        />
-      )}
-      {hasPendingTxn && (
-        <Button {...buttonProps} disabled>
-          <LoadingOutlined /> Submitting challenge...
-        </Button>
-      )}
-    </StyledWrapper>
-  );
-}
-
-ChallengeUploadButton.propTypes = {
-  buttonProps: t.object,
-};
-
-ChallengeUploadButton.defaultProps = {
-  buttonProps: {},
-};
-
-export default ChallengeUploadButton;

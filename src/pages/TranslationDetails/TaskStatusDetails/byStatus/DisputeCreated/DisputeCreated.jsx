@@ -1,6 +1,6 @@
 import React from 'react';
 import loadable from '@loadable/component';
-import { Dispute } from '~/app/linguo';
+import { Dispute } from '~/features/disputes';
 import Spinner from '../../components/Spinner';
 import DisputeContext from './DisputeContext';
 import { withDisputeFetcher } from './DisputeFetcher';
@@ -21,9 +21,10 @@ function DisputeCreated() {
   if (Dispute.isWaiting(dispute)) {
     Component = componentsByDisputeStatus.waiting;
   } else if (Dispute.isAppealable(dispute)) {
-    Component = Dispute.isWithinAppealPeriod(dispute)
-      ? componentsByDisputeStatus.appealable
-      : componentsByDisputeStatus.appealPeriodIsOver;
+    // Component = Dispute.isWithinAppealPeriod(dispute)
+    //   ? componentsByDisputeStatus.appealable
+    //   : componentsByDisputeStatus.appealPeriodIsOver;
+    Component = componentsByDisputeStatus.appealable;
   } else {
     console.error('This should not happen!!!!');
     Component = componentsByDisputeStatus.solved;

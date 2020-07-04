@@ -1,23 +1,24 @@
-import React from 'react';
-import t from 'prop-types';
+import { CheckOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Alert, Col, Form, Radio, Row } from 'antd';
 import clsx from 'clsx';
+import t from 'prop-types';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled, { css } from 'styled-components';
-import { Form, Radio, Row, Col, Alert } from 'antd';
-import { LoadingOutlined, CheckOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { mutate } from 'swr';
 import { InputNumberWithAddons } from '~/adapters/antd';
-import { subtract } from '~/adapters/bigNumber';
-import { TaskParty, Dispute, AppealSide, useLinguo } from '~/app/linguo';
-import { useWeb3React } from '~/app/web3React';
-import Button from '~/components/Button';
-import Spacer from '~/components/Spacer';
-import Modal from '~/components/Modal';
-import Deadline from '~/components/Deadline';
-import AccountingTable from '~/components/AccountingTable';
-import EthValue, { EthUnit, valueOf, parse, getBestDisplayUnit } from '~/components/EthValue';
-import wrapWithNotification from '~/utils/wrapWithNotification';
-import useStateMachine from '~/hooks/useStateMachine';
-import TaskContext from '../../../../TaskContext';
+import { subtract } from '~/adapters/big-number';
+import { AppealSide } from '~/features/disputes';
+import { fundAppeal } from '~/features/disputes/disputesSlice';
+import { TaskParty } from '~/features/tasks';
+import { selectAccount } from '~/features/web3/web3Slice';
+import AccountingTable from '~/shared/AccountingTable';
+import Button from '~/shared/Button';
+import Deadline from '~/shared/Deadline';
+import EthValue, { EthUnit, getBestDisplayUnit, parse, valueOf } from '~/shared/EthValue';
+import Modal from '~/shared/Modal';
+import Spacer from '~/shared/Spacer';
+import useStateMachine from '~/shared/useStateMachine';
+import useTask from '../../../../useTask';
 import useCurrentParty from '../../../hooks/useCurrentParty';
 import useAppealStatus from './useAppealStatus';
 
@@ -105,29 +106,38 @@ function AppealModalForm({ trigger, forceClose }) {
   }, [form]);
 
   const [state, send] = useStateMachine(formStateMachine);
-  const linguo = useLinguo();
-  const { ID } = React.useContext(TaskContext);
-  const { account } = useWeb3React();
+  const dispatch = useDispatch();
+  const account = useSelector(selectAccount);
+  const { id: taskId } = useTask();
 
   const disabled = state !== 'idle';
-  const handleFinish = withNotification(async values => {
-    const deposit = values.deposit.parsed;
-    const party = values.appealParty;
+  const handleFinish = React.useCallback(
+    async values => {
+      const deposit = values.deposit.parsed;
+      const party = values.appealParty;
 
-    send('SUBMIT');
-    try {
-      await linguo.api.fundAppeal({ ID, side: party }, { from: account, value: deposit });
-      send('SUCCESS');
-      mutate(['getTaskDispute', ID], dispute => Dispute.registerAppealFunding(dispute, { deposit, party }));
-      handleReset();
-    } catch (err) {
-      send('ERROR');
-      console.warn(err);
-      throw err;
-    } finally {
-      send('RESET');
-    }
-  });
+      send('SUBMIT');
+      try {
+        await dispatch(
+          fundAppeal(
+            { taskId, account, party, deposit },
+            {
+              meta: {
+                thunk: { id: taskId },
+              },
+            }
+          )
+        );
+        send('SUCCESS');
+        handleReset();
+      } catch (err) {
+        send('ERROR');
+      } finally {
+        send('RESET');
+      }
+    },
+    [dispatch, handleReset, send, account, taskId]
+  );
 
   const availableAppealParties = [TaskParty.Translator, TaskParty.Challenger].includes(party)
     ? [party]
@@ -165,9 +175,12 @@ function AppealModalForm({ trigger, forceClose }) {
               <StyledButton variant="outlined" htmlType="reset">
                 Return
               </StyledButton>
-              <StyledButton variant="filled" htmlType="submit" disabled={disabled}>
-                {submitButtonContentByState[state]}
-              </StyledButton>
+              <StyledButton
+                variant="filled"
+                htmlType="submit"
+                disabled={disabled}
+                {...submitButtonPropsByState[state]}
+              />
             </StyledButtonWrapper>
           </StyledForm>
         ) : (
@@ -197,11 +210,6 @@ AppealModalForm.defaultProps = {
 
 export default AppealModalForm;
 
-const withNotification = wrapWithNotification({
-  successMessage: 'You contributed to the appeal!',
-  errorMessage: 'Failed contribute to the appeal!',
-});
-
 const formStateMachine = {
   name: 'Appeal Modal Form',
   initial: 'idle',
@@ -230,23 +238,22 @@ const formStateMachine = {
   },
 };
 
-const submitButtonContentByState = {
-  idle: 'Fund',
-  submitting: (
-    <>
-      <LoadingOutlined /> Submitting...
-    </>
-  ),
-  success: (
-    <>
-      <CheckOutlined /> Done!
-    </>
-  ),
-  failed: (
-    <>
-      <CloseCircleOutlined /> Failed!
-    </>
-  ),
+const submitButtonPropsByState = {
+  idle: {
+    children: 'Fund',
+  },
+  submitting: {
+    icon: <LoadingOutlined />,
+    children: 'Submitting...',
+  },
+  success: {
+    icon: <CheckOutlined />,
+    children: 'Done!',
+  },
+  failed: {
+    icon: <CloseCircleOutlined />,
+    children: 'Failed!',
+  },
 };
 
 const StyledForm = styled(Form)`
@@ -525,7 +532,16 @@ const StyledTitleCaption = styled.span`
 `;
 
 function FundingSummary({ totalAppealCost, paidFees }) {
-  const { unit } = totalAppealCost === '0' ? EthUnit.ether.unit : getBestDisplayUnit({ amount: totalAppealCost });
+  const { unit } =
+    totalAppealCost === '0'
+      ? {
+          unit: EthUnit.ether,
+          suffix: {
+            short: 'ETH',
+            long: 'Ether',
+          },
+        }
+      : getBestDisplayUnit({ amount: totalAppealCost });
   const remainingCost = subtract(totalAppealCost, paidFees);
 
   const disabled = totalAppealCost === '0';
@@ -587,7 +603,16 @@ const StyledFundingTitle = styled.h4`
 const StyledAccountingTable = styled(AccountingTable)``;
 
 const getRemainingCost = ({ totalAppealCost = '0', paidFees = '0' } = {}) => {
-  const { unit, suffix } = totalAppealCost === '0' ? EthUnit.ether : getBestDisplayUnit({ amount: totalAppealCost });
+  const { unit, suffix } =
+    totalAppealCost === '0'
+      ? {
+          unit: EthUnit.ether,
+          suffix: {
+            short: 'ETH',
+            long: 'Ether',
+          },
+        }
+      : getBestDisplayUnit({ amount: totalAppealCost });
   const remainingCost = subtract(totalAppealCost, paidFees);
   const remainingCostAsNumber = valueOf({ amount: remainingCost, unit });
 
@@ -611,7 +636,7 @@ function useDepositField({ form, totalAppealCost = '0', paidFees = '0' } = {}) {
 
   const handleChange = React.useCallback(
     value => {
-      const parsedValue = parse({ amount: value, unit });
+      const parsedValue = parse({ amount: value || '0', unit });
 
       setValue({
         numeric: value,

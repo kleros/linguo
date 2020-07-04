@@ -1,61 +1,60 @@
 import React from 'react';
-import { Alert, Spin } from 'antd';
-import { useRefreshEffectOnce } from '~/adapters/reactRouterDom';
-import { useWeb3React } from '~/app/web3React';
-import { useCacheCall } from '~/app/linguo';
-import compose from '~/utils/fp/compose';
-import { withSuspense } from '~/adapters/react';
-import { withErrorBoundary } from '~/components/ErrorBoundary';
-import { TaskListProvider } from './TaskListContext';
-import TaskList from './TaskList';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { useRefreshEffectOnce } from '~/adapters/react-router-dom';
+import TaskList from '~/features/tasks/TaskList';
+import { fetchTasks, selectTasks } from '~/features/requester/requesterSlice';
+import DismissableAlert from '~/features/ui/DismissableAlert';
+import { selectAccount } from '~/features/web3/web3Slice';
+import filters, { getFilter, useFilterName } from './filters';
+import { getComparator } from './sorting';
 
-const emptyTaskList = [];
-const _1_MINUTE_IN_MILISECONDS = 60 * 1000;
+export default function TaskListFetcher() {
+  const dispatch = useDispatch();
+  const account = useSelector(selectAccount);
 
-function TaskListFetcher() {
-  const { account } = useWeb3React();
+  const doFetchTasks = React.useCallback(() => {
+    dispatch(fetchTasks({ account }));
+  }, [dispatch, account]);
 
-  const [{ data }, refetch] = useCacheCall(['getRequesterTasks', account], {
-    suspense: true,
-    initialData: emptyTaskList,
-    refreshInterval: _1_MINUTE_IN_MILISECONDS,
-  });
+  React.useEffect(() => {
+    doFetchTasks();
+  }, [doFetchTasks]);
 
-  useRefreshEffectOnce(refetch);
+  useRefreshEffectOnce(doFetchTasks);
+
+  const [filterName] = useFilterName();
+
+  const data = useShallowEqualSelector(selectTasks(account));
+  const displayableData = React.useMemo(() => sort(filter(data, getFilter(filterName)), getComparator(filterName)), [
+    data,
+    filterName,
+  ]);
+
+  const showFootnote = [filters.open].includes(filterName) && displayableData.length > 0;
+  const showFilterDescription = displayableData.length > 0;
 
   return (
-    <TaskListProvider taskList={data}>
-      <TaskList />
-    </TaskListProvider>
+    <>
+      {showFilterDescription && filterDescriptionMap[filterName]}
+      <TaskList data={displayableData} showFootnote={showFootnote} />
+    </>
   );
 }
 
-const errorBoundaryEnhancer = withErrorBoundary({
-  renderFallback: function ErrorBoundaryFallback(error) {
-    return <Alert type="error" message={error.message} />;
-  },
-});
+const sort = (data, comparator) => [...data].sort(comparator);
+const filter = (data, predicate) => data.filter(predicate);
 
-const suspenseEnhancer = withSuspense({
-  fallback: (
-    <Spin
-      spinning
-      tip="Loading the translation tasks you created..."
-      css={`
-        &&.ant-spin {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-      `}
+const StyledDismissableAlert = styled(DismissableAlert)`
+  margin-bottom: 1rem;
+`;
+
+const filterDescriptionMap = {
+  [filters.incomplete]: (
+    <StyledDismissableAlert
+      id="requester.filters.incomplete"
+      message="Incomplete task are those which were not assigned to any translator or whose translator did not submit the translated text within the specified deadline."
     />
   ),
-});
-
-/**
- * ATTENTION: Order is important!
- * Since composition is evaluated right-to-left, `suspenseEnhancer` should be declared
- * **AFTER** `errorBoundaryEnhancer`
- */
-export default compose(errorBoundaryEnhancer, suspenseEnhancer)(TaskListFetcher);
+};

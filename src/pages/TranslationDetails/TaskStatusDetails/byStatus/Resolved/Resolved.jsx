@@ -1,14 +1,15 @@
 import React from 'react';
-import { TaskParty, DisputeRuling } from '~/app/linguo';
+import { TaskParty } from '~/features/tasks';
+import { DisputeRuling } from '~/features/disputes';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
-import TaskContext from '../../../TaskContext';
+import useTask from '../../../useTask';
 import useCurrentParty from '../../hooks/useCurrentParty';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 
 function Resolved() {
-  const { hasDispute, ruling, requester, parties } = React.useContext(TaskContext);
+  const { hasDispute, ruling, requester, parties } = useTask();
   const party = useCurrentParty();
 
   const challengerIsRequester = requester === parties[TaskParty.Challenger];
@@ -60,7 +61,7 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
         [DisputeRuling.TranslationApproved]: [
           'You received your deposit back + the escrow payment (minus arbitration fees).',
         ],
-        [DisputeRuling.TranslationRejected]: ['Your deposit was sent to the requester.'],
+        [DisputeRuling.TranslationRejected]: ['Your deposit was sent to the challenger.'],
       },
     },
     [TaskParty.Challenger]: {

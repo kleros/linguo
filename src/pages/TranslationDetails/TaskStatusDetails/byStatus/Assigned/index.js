@@ -1,6 +1,6 @@
 import React from 'react';
 import loadable from '@loadable/component';
-import { TaskParty } from '~/app/linguo';
+import { TaskParty } from '~/features/tasks';
 import Spinner from '../../components/Spinner';
 import withResolveComponentByParty from '../withResolveComponentByParty';
 

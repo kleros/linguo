@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Form, Row, Col, Input, message } from 'antd';
-import SingleFileUpload, { validator as singleFileUploadValidator } from '~/components/SingleFileUpload';
+import SingleFileUpload, { validator as singleFileUploadValidator } from '~/shared/SingleFileUpload';
 
 const StyledMiddleCol = styled(Col)`
   display: flex;

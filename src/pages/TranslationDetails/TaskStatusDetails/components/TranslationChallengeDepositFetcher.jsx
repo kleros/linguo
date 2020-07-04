@@ -1,19 +1,51 @@
 import React from 'react';
 import t from 'prop-types';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
-import compose from '~/utils/fp/compose';
-import { withSuspense } from '~/adapters/react';
-import { useCacheCall } from '~/app/linguo';
-import { withErrorBoundary } from '~/components/ErrorBoundary';
-import EthValue from '~/components/EthValue';
-import TaskContext from '../../TaskContext';
+import { withErrorBoundary } from '~/shared/ErrorBoundary';
+import EthValue, { EthUnit } from '~/shared/EthValue';
+import { compose } from '~/shared/fp';
+import { getChallengerDeposit } from '~/features/tasks/tasksSlice';
+import useTask from '../../useTask';
 
 function TranslationChallengeDepositFetcher() {
-  const { ID } = React.useContext(TaskContext);
-  const [{ data }] = useCacheCall(['getChallengerDeposit', ID], { suspense: true });
+  const { id } = useTask();
 
-  return <TranslationChallengeDeposit amount={data} />;
+  const [deposit, setDeposit] = React.useState(null);
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    dispatch(
+      getChallengerDeposit(
+        { id },
+        {
+          meta: {
+            thunk: { id },
+          },
+        }
+      )
+    )
+      .then(({ data }) => setDeposit(data))
+      .catch(err => {
+        console.warn('Failed to get the deposit value:', err);
+        throw new Error('Failed to get the deposit value.');
+      });
+  }, [dispatch, id]);
+
+  return deposit ? (
+    <TranslationChallengeDeposit amount={deposit} />
+  ) : (
+    <StyledWrapper>
+      <span
+        css={`
+          color: ${p => p.theme.color.text.light};
+        `}
+      >
+        <LoadingOutlined /> Calculating deposit value...
+      </span>
+    </StyledWrapper>
+  );
 }
 
 const StyledWrapper = styled.div`
@@ -25,7 +57,7 @@ function TranslationChallengeDeposit({ amount }) {
   return (
     <StyledWrapper>
       <span>
-        <EthValue amount={amount} suffixType="short" /> Deposit
+        <EthValue amount={amount} unit={EthUnit.ether} suffixType="short" /> Deposit
       </span>
     </StyledWrapper>
   );
@@ -51,23 +83,4 @@ const errorBoundaryEnhancer = withErrorBoundary({
   },
 });
 
-const suspenseEnhancer = withSuspense({
-  fallback: (
-    <StyledWrapper>
-      <span
-        css={`
-          color: ${p => p.theme.color.text.light};
-        `}
-      >
-        <LoadingOutlined /> Calculating deposit value...
-      </span>
-    </StyledWrapper>
-  ),
-});
-
-/**
- * ATTENTION: Order is important!
- * Since composition is evaluated right-to-left, `suspenseEnhancer` should be declared
- * **AFTER** `errorBoundaryEnhancer`
- */
-export default compose(errorBoundaryEnhancer, suspenseEnhancer)(TranslationChallengeDepositFetcher);
+export default compose(errorBoundaryEnhancer)(TranslationChallengeDepositFetcher);

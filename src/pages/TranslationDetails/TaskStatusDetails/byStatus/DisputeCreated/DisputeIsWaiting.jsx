@@ -1,14 +1,14 @@
 import React from 'react';
-import { TaskParty } from '~/app/linguo';
+import { TaskParty } from '~/features/tasks';
 import TaskInDisputeAvatar from '~/assets/images/avatar-task-in-dispute.svg';
-import TaskContext from '../../../TaskContext';
+import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../hooks/useCurrentParty';
 
 function DisputeIsWaiting() {
   const party = useCurrentParty();
 
-  const { requester, parties } = React.useContext(TaskContext);
+  const { requester, parties } = useTask();
   const challengerIsRequester = requester === parties?.[TaskParty.Challenger];
 
   const props = contentByParty[party]({ challengerIsRequester });

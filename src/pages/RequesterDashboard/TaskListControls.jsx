@@ -1,12 +1,16 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Radio } from 'antd';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { Badge, Radio } from 'antd';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import * as r from '~/app/routes';
-import Button from '~/components/Button';
-import RadioButton from '~/components/RadioButton';
-import { AddIcon } from '~/components/icons';
-import filters, { useFilterName } from './filters';
+import Button from '~/shared/Button';
+import { AddIcon } from '~/shared/icons';
+import RadioButton from '~/shared/RadioButton';
+import { selectTasks } from '~/features/requester/requesterSlice';
+import { selectAccount } from '~/features/web3/web3Slice';
+import filters, { getFilter, useFilterName } from './filters';
 
 function TaskListControls() {
   return (
@@ -42,14 +46,21 @@ function TaskListFilters() {
     [setFilterName]
   );
 
+  const account = useSelector(selectAccount);
+  const data = useShallowEqualSelector(selectTasks(account));
+
   return (
     <StyledFilters>
       <StyledRadioGroup onChange={handleFilterChange} value={filterName}>
-        {buttons.map(({ value, text }) => (
-          <StyledRadioButton key={value} value={value}>
-            {text}
-          </StyledRadioButton>
-        ))}
+        {buttons.map(({ value, text }) => {
+          const count = data.filter(getFilter(value)).length;
+
+          return (
+            <StyledRadioButton key={value} value={value}>
+              <StyledBadge count={count}>{text}</StyledBadge>
+            </StyledRadioButton>
+          );
+        })}
       </StyledRadioGroup>
     </StyledFilters>
   );
@@ -79,6 +90,8 @@ const StyledRadioGroup = styled(Radio.Group)`
 
 const StyledRadioButton = styled(RadioButton)`
   && {
+    overflow: visible;
+
     @media (max-width: 767.98px) {
       font-size: ${props => props.theme.fontSize.sm};
       height: 2.5rem;
@@ -177,5 +190,27 @@ const StyledControls = styled.div`
 
   @media (max-width: 575.98px) {
     padding: 1.5rem;
+  }
+`;
+
+const StyledBadge = styled(Badge)`
+  .ant-scroll-number {
+    font-size: ${p => p.theme.fontSize.xxs};
+    padding: 0 0.2rem;
+    min-width: 0.875rem;
+    height: 0.875rem;
+    line-height: 0.875rem;
+    right: -0.375rem;
+    border: none;
+    box-shadow: none;
+    background-color: ${p => p.theme.color.secondary.default};
+
+    > .ant-scroll-number-only {
+      &,
+      > .ant-scroll-number-only-unit {
+        font-weight: 500;
+        height: 0.875rem;
+      }
+    }
   }
 `;
