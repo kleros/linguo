@@ -2,9 +2,9 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Form, Checkbox, Input, Row, notification } from 'antd';
-import Button from '~/components/Button';
-import ContentBlocker from '~/components/ContentBlocker';
-import { EmailIcon } from '~/components/icons';
+import Button from '~/shared/Button';
+import ContentBlocker from '~/shared/ContentBlocker';
+import { EmailIcon } from '~/shared/icons';
 import { Popover, Button as TrayButton, withToolbarStylesIcon } from './adapters';
 
 const StyledForm = styled(Form)`

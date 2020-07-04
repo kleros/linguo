@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import languages from '~/assets/fixtures/languages';
-import getLanguageFlag from '~/components/helpers/getLanguageFlag';
+import getLanguageFlag from '~/shared/helpers/getLanguageFlag';
 
 function TaskLanguages({ source, target, fullWidth }) {
   const SourceLanguageFlag = getLanguageFlag(source);

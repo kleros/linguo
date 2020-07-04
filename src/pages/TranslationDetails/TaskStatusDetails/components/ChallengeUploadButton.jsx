@@ -6,9 +6,9 @@ import { notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { selectAccount } from '~/features/web3/web3Slice';
 import { challengeTranslation } from '~/features/tasks/tasksSlice';
-import SingleFileUpload from '~/components/SingleFileUpload';
-import Button from '~/components/Button';
-import Spacer from '~/components/Spacer';
+import SingleFileUpload from '~/shared/SingleFileUpload';
+import Button from '~/shared/Button';
+import Spacer from '~/shared/Spacer';
 import useTask from '../../useTask';
 
 export default function ChallengeUploadButton({ buttonProps }) {

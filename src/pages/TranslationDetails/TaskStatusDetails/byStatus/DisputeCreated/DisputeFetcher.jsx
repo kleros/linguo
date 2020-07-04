@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import { Alert, Spin } from 'antd';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { withErrorBoundary } from '~/components/ErrorBoundary';
+import { withErrorBoundary } from '~/shared/ErrorBoundary';
 import Spacer from '~/shared/Spacer';
 import useTask from '../../../useTask';
 import { DisputeProvider } from './DisputeContext';

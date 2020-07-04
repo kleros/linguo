@@ -6,12 +6,12 @@ import { CheckCircleOutlined, DislikeOutlined, LikeOutlined, MinusCircleOutlined
 import { AppealSide } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
 import { percentage, greaterThanOrEqual } from '~/adapters/bigNumber';
-import { InfoIcon, WarningIcon, DisputeIcon } from '~/components/icons';
-import Button from '~/components/Button';
-import Deadline from '~/components/Deadline';
-import Spacer from '~/components/Spacer';
-import FormattedNumber from '~/components/FormattedNumber';
-import EthValue from '~/components/EthValue';
+import { InfoIcon, WarningIcon, DisputeIcon } from '~/shared/icons';
+import Button from '~/shared/Button';
+import Deadline from '~/shared/Deadline';
+import Spacer from '~/shared/Spacer';
+import FormattedNumber from '~/shared/FormattedNumber';
+import EthValue from '~/shared/EthValue';
 import BoxWrapper from '../../../components/BoxWrapper';
 import BoxTitle from '../../../components/BoxTitle';
 import BoxParagraph from '../../../components/BoxParagraph';

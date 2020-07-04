@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Layout, Typography, Row, Col } from 'antd';
-import Button from '~/components/Button';
+import Button from '~/shared/Button';
 import LinguoAvatar from '~/assets/images/avatar-linguo-bot.svg';
 import WorkAsATranslatorAvatar from '~/assets/images/avatar-work-as-a-translator.svg';
 import RequestTranslationAvatar from '~/assets/images/avatar-request-translation.svg';

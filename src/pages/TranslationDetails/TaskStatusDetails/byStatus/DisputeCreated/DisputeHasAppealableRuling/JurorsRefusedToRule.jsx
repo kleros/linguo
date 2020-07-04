@@ -1,8 +1,8 @@
 import React from 'react';
 import { Dispute } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
-import { WarningIcon } from '~/components/icons';
-import EthValue from '~/components/EthValue';
+import { WarningIcon } from '~/shared/icons';
+import EthValue from '~/shared/EthValue';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
 import useTask from '../../../../useTask';
 import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';

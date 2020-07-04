@@ -1,8 +1,8 @@
 import React from 'react';
 import { useWeb3React } from '~/features/web3';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
-import WithRouteMessage from '~/components/WithRouteMessage';
-import ContentBlocker from '~/components/ContentBlocker';
+import WithRouteMessage from '~/shared/WithRouteMessage';
+import ContentBlocker from '~/shared/ContentBlocker';
 import SingleCardLayout from '../layouts/SingleCardLayout';
 import TranslationRequestForm from './TranslationRequestForm';
 

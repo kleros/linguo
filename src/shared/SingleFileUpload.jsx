@@ -3,7 +3,7 @@ import t from 'prop-types';
 import { Upload, Tooltip } from 'antd';
 import { UploadOutlined, LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import ipfs from '~/app/ipfs';
-import Button from '~/components/Button';
+import Button from '~/shared/Button';
 import useStateMachine from '~/shared/useStateMachine';
 
 export async function validator(fileList) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Alert } from 'antd';
-import Button from '~/components/Button';
+import Button from '~/shared/Button';
 import getErrorMessage from '~/adapters/web3React/getErrorMessage';
 import WalletConnectionButton from './WalletConnectionButton';
 import { selectError, deactivate } from './web3Slice';

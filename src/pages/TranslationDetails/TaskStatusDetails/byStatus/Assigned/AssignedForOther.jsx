@@ -1,6 +1,6 @@
 import React from 'react';
 import TaskAssignedAvatar from '~/assets/images/avatar-task-assigned.svg';
-import FormattedRelativeDate from '~/components/FormattedRelativeDate';
+import FormattedRelativeDate from '~/shared/FormattedRelativeDate';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 

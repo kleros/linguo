@@ -3,9 +3,9 @@ import t from 'prop-types';
 import styled, { css } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { List } from 'antd';
-import TimeAgo from '~/components/TimeAgo';
-import ContentBlocker from '~/components/ContentBlocker';
-import { NotificationIcon, DisputeIcon, CheckIcon } from '~/components/icons';
+import TimeAgo from '~/shared/TimeAgo';
+import ContentBlocker from '~/shared/ContentBlocker';
+import { NotificationIcon, DisputeIcon, CheckIcon } from '~/shared/icons';
 import { Popover, Button, Badge, withToolbarStylesIcon } from './adapters';
 
 function Notifications() {

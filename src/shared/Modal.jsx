@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Modal as BaseModal } from 'antd';
-import { RemoveIcon } from '~/components/icons';
+import { RemoveIcon } from '~/shared/icons';
 
 const StyledRemoveIcon = styled(RemoveIcon)`
   width: 1.75rem;

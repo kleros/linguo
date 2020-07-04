@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Form, Col, Input } from 'antd';
-import FormattedNumber from '~/components/FormattedNumber';
+import FormattedNumber from '~/shared/FormattedNumber';
 import { Task } from '~/features/tasks';
 
 const StyledFormItem = styled(Form.Item)`

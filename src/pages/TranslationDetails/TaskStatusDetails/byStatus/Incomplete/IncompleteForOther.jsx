@@ -1,7 +1,7 @@
 import React from 'react';
 import { Task, TaskStatus } from '~/features/tasks';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
-import Spacer from '~/components/Spacer';
+import Spacer from '~/shared/Spacer';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskInteractionButton from '../../components/TaskInteractionButton';

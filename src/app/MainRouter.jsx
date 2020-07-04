@@ -6,9 +6,9 @@ import loadable from '@loadable/component';
 import { Layout } from 'antd';
 import { Spin } from '~/adapters/antd';
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
-import Navbar from '~/components/Navbar';
-import Footer from '~/components/Footer';
-import { DrawerMenu } from '~/components/Menu';
+import Navbar from '~/shared/Navbar';
+import Footer from '~/shared/Footer';
+import { DrawerMenu } from '~/shared/Menu';
 import { history } from '~/store';
 import * as r from './routes';
 

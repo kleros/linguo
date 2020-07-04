@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Form, Radio, Row, Col } from 'antd';
-import TranslationQualityDefinition from '~/components//TranslationQualityDefinition';
+import TranslationQualityDefinition from '~/shared//TranslationQualityDefinition';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 
 const StyledFormItem = styled(Form.Item)`

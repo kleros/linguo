@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import produce from 'immer';
 import styled from 'styled-components';
 import { Row, Col, Form, Typography, Alert } from 'antd';
-import { InfoIcon, AddIcon, RemoveIcon } from '~/components/icons';
-import Button from '~/components/Button';
-import { LanguageSelect, LevelSelect } from '~/components/LanguageSelect';
+import { InfoIcon, AddIcon, RemoveIcon } from '~/shared/icons';
+import Button from '~/shared/Button';
+import { LanguageSelect, LevelSelect } from '~/shared/LanguageSelect';
 import allLanguages from '~/assets/fixtures/languages';
 import { saveSkills, cancelSaveSkills, selectAllSkills } from './translatorSlice';
 

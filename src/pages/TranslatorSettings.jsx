@@ -1,6 +1,6 @@
 import React from 'react';
 import TranslatorSettingsForm from '~/features/translator/TranslatorSettingsForm';
-import WithRouteMessage from '~/components/WithRouteMessage';
+import WithRouteMessage from '~/shared/WithRouteMessage';
 import SingleCardLayout from './layouts/SingleCardLayout';
 
 function TranslatorSettings() {

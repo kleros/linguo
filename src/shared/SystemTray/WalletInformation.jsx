@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { Row, Typography, Skeleton, Alert } from 'antd';
 import ReactBlockies from 'react-blockies';
 import EthLogo from '~/assets/images/logo-eth.svg';
-import EthAddress from '~/components/EthAddress';
-import EthValue from '~/components/EthValue';
+import EthAddress from '~/shared/EthAddress';
+import EthValue from '~/shared/EthValue';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectBalance, selectAccount, getBalance } from '~/features/web3/web3Slice';
 

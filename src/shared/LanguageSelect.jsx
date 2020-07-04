@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Select } from 'antd';
-import getLanguageFlag from '~/components/helpers/getLanguageFlag';
+import getLanguageFlag from '~/shared/helpers/getLanguageFlag';
 
 const StyledBaseSelect = styled(Select)`
   &&& {

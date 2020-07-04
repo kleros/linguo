@@ -6,8 +6,8 @@ import { notification } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { submitTranslation } from '~/features/tasks/tasksSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
-import SingleFileUpload from '~/components/SingleFileUpload';
-import Button from '~/components/Button';
+import SingleFileUpload from '~/shared/SingleFileUpload';
+import Button from '~/shared/Button';
 import useTask from '../../useTask';
 
 export default function TranslationUploadButton({ buttonProps }) {

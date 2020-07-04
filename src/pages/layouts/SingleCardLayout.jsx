@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Layout } from 'antd';
-import Card from '~/components/Card';
+import Card from '~/shared/Card';
 
 export default function SingleCardLayout({ title, beforeContent, children }) {
   return (

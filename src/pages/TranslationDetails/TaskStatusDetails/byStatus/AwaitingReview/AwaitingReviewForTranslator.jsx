@@ -1,7 +1,7 @@
 import React from 'react';
 import { Task } from '~/features/tasks';
 import TaskAwaitingReviewAvatar from '~/assets/images/avatar-task-awaiting-review.svg';
-import Spacer from '~/components/Spacer';
+import Spacer from '~/shared/Spacer';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';

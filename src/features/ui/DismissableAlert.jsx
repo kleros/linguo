@@ -3,7 +3,7 @@ import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { Alert } from 'antd';
-import { InfoIcon, WarningIcon } from '~/components/icons';
+import { InfoIcon, WarningIcon } from '~/shared/icons';
 import { dismissAlert, selectAlertIsVisible } from './uiSlice';
 
 export default function DismissableAlert({ id, type, showIcon, message, description, className }) {

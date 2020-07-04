@@ -3,7 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import { Alert } from 'antd';
-import { InfoIcon } from '~/components/icons';
+import { InfoIcon } from '~/shared/icons';
 
 const StyledAlert = styled(Alert)`
   && {

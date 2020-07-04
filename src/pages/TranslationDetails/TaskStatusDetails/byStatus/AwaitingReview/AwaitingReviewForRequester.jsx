@@ -1,7 +1,7 @@
 import React from 'react';
 import { Task } from '~/features/tasks';
-import Spacer from '~/components/Spacer';
-import FormattedRelativeDate from '~/components/FormattedRelativeDate';
+import Spacer from '~/shared/Spacer';
+import FormattedRelativeDate from '~/shared/FormattedRelativeDate';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';

@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckOutlined, LoadingOutlined, SendOutlined } from '@ant-design/icons';
-import Button from '~/components/Button';
+import Button from '~/shared/Button';
 import { approveTranslation, assignTranslator, reimburseRequester } from '~/features/tasks/tasksSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import useStateMachine from '~/shared/useStateMachine';

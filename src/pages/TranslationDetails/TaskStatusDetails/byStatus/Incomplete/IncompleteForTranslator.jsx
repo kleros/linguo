@@ -1,7 +1,7 @@
 import React from 'react';
 import { Task } from '~/features/tasks';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
-import EthValue from '~/components/EthValue';
+import EthValue from '~/shared/EthValue';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Layout, Row, Col } from 'antd';
 import LinguoLogo from '~/assets/images/logo-linguo-white.svg';
 import * as r from '~/app/routes';
-import { MainMenu } from '~/components/Menu';
+import { MainMenu } from '~/shared/Menu';
 import SystemTray from './SystemTray';
 
 const StyledHeader = styled(Layout.Header)`

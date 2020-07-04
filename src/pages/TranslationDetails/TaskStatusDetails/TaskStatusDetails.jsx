@@ -1,5 +1,5 @@
 import React from 'react';
-import ContentBlocker from '~/components/ContentBlocker';
+import ContentBlocker from '~/shared/ContentBlocker';
 import { Task } from '~/features/tasks';
 import { useWeb3React } from '~/features/web3';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';

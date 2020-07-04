@@ -7,10 +7,10 @@ import { LoadingOutlined, UnlockOutlined } from '@ant-design/icons';
 import { Col, Form, Input, Row, Select, Typography } from 'antd';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import { useShallowEqualSelector } from '~/adapters/reactRedux';
-import Button from '~/components/Button';
-import FormattedNumber from '~/components/FormattedNumber';
-import { InfoIcon } from '~/components/icons';
-import Spacer from '~/components/Spacer';
+import Button from '~/shared/Button';
+import FormattedNumber from '~/shared/FormattedNumber';
+import { InfoIcon } from '~/shared/icons';
+import Spacer from '~/shared/Spacer';
 import usePreviousMatching from '~/shared/usePreviousMatching';
 import { selectLinguoTokenAddress } from '~/features/linguo/linguoSlice';
 import {

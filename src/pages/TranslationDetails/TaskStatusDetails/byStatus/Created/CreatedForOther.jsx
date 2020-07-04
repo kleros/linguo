@@ -1,5 +1,5 @@
 import React from 'react';
-import Spacer from '~/components/Spacer';
+import Spacer from '~/shared/Spacer';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';

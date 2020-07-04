@@ -3,9 +3,9 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Form, Col } from 'antd';
 import { SwapOutlined } from '@ant-design/icons';
-import { LanguageSelect } from '~/components/LanguageSelect';
+import { LanguageSelect } from '~/shared/LanguageSelect';
 import languages from '~/assets/fixtures/languages';
-import Button from '~/components/Button';
+import Button from '~/shared/Button';
 
 const StyledWrapper = styled.div`
   position: relative;

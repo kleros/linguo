@@ -4,7 +4,7 @@ import { Badge } from 'antd';
 import { useSelector } from 'react-redux';
 import { useWeb3React, useDisconnectFromProvider } from '~/features/web3';
 import { selectState } from '~/features/web3/web3Slice';
-import Button from '~/components/Button';
+import Button from '~/shared/Button';
 import WalletConnectionModal from './WalletConnectionModal';
 
 const stateToPropsMap = {
