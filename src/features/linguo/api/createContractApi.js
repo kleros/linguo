@@ -3,6 +3,7 @@ import deepMerge from 'deepmerge';
 import Web3 from 'web3';
 import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
+import challengeEvidenceTemplate from '~/assets/fixtures/challengeEvidenceTemplate.json';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import { Dispute } from '~/features/disputes';
 import { Task } from '~/features/tasks';
@@ -12,7 +13,7 @@ import getFileUrl from './getFileUrl';
 
 const { toWei, toBN } = Web3.utils;
 
-export function createEthContractApi({ web3, linguo, arbitrator }) {
+export function createEthContractApi({ web3, archon, linguo, arbitrator }) {
   async function createTask(
     { account, deadline, minPrice, maxPrice, ...rest },
     { from = account, gas, gasPrice } = {}
@@ -40,12 +41,12 @@ export function createEthContractApi({ web3, linguo, arbitrator }) {
   }
 
   return {
-    ...createCommonApi({ web3, linguo, arbitrator }),
+    ...createCommonApi({ web3, archon, linguo, arbitrator }),
     createTask,
   };
 }
 
-export function createTokenContractApi({ web3, linguo, arbitrator }) {
+export function createTokenContractApi({ web3, archon, linguo, arbitrator }) {
   async function createTask(
     { account, deadline, minPrice, maxPrice, token, ...rest },
     { from = account, gas, gasPrice } = {}
@@ -71,12 +72,12 @@ export function createTokenContractApi({ web3, linguo, arbitrator }) {
   }
 
   return {
-    ...createCommonApi({ web3, linguo, arbitrator }),
+    ...createCommonApi({ web3, archon, linguo, arbitrator }),
     createTask,
   };
 }
 
-function createCommonApi({ web3, linguo, arbitrator }) {
+function createCommonApi({ web3, archon, linguo, arbitrator }) {
   async function getRequesterTasks({ account }) {
     const events = await _getPastEvents(linguo, 'TaskCreated', {
       filter: { _requester: account },
@@ -536,6 +537,12 @@ function createCommonApi({ web3, linguo, arbitrator }) {
     return linguo.methods.getRoundInfo(ID, totalRounds - 1).call();
   }
 
+  async function getTaskDisputeEvidences({ ID }) {
+    const evidences = await archon.arbitrable.getEvidence(linguo.options.address, arbitrator.options.address, ID);
+
+    return evidences;
+  }
+
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
     const value = await getTranslatorDeposit({ ID });
     const tx = linguo.methods.assignTask(ID).send({
@@ -588,7 +595,23 @@ function createCommonApi({ web3, linguo, arbitrator }) {
     return { tx };
   }
 
-  async function challengeTranslation({ ID, evidence }, { from, gas, gasPrice } = {}) {
+  async function challengeTranslation({ ID, uploadedFile }, { from, gas, gasPrice } = {}) {
+    const { path, hash } = uploadedFile ?? {};
+
+    if (!path || !hash) {
+      throw new Error('Cannot submit a challenge without an evidence file');
+    }
+
+    const evidence = await publishEvidence({
+      name: `linguo-challenge-${ID}.json`,
+      template: challengeEvidenceTemplate,
+      overrides: {
+        fileURI: path,
+        fileTypeExtension: getFileTypeFromPath(path),
+        fileHash: hash,
+      },
+    });
+
     const value = await getChallengerDeposit({ ID });
     const tx = linguo.methods.challengeTranslation(ID, evidence).send({
       from,
@@ -619,6 +642,7 @@ function createCommonApi({ web3, linguo, arbitrator }) {
     getTranslatorDeposit,
     getChallengerDeposit,
     getTaskDispute,
+    getTaskDisputeEvidences,
     assignTask,
     submitTranslation,
     approveTranslation,
@@ -637,10 +661,25 @@ const publishMetaEvidence = async ({ account, ...metadata }) => {
     metadata,
   });
 
-  const { path } = await ipfs.publish('linguo-evidence.json', JSON.stringify(metaEvidence));
+  const { path } = await ipfs.publish('linguo-meta-evidence.json', JSON.stringify(metaEvidence));
 
   return path;
 };
+
+const encoder = new TextEncoder();
+
+const publishEvidence = async ({ name, template, overrides }) => {
+  const challengeEvidence = {
+    ...template,
+    ...overrides,
+  };
+
+  const { path } = await ipfs.publish(name, encoder.encode(JSON.stringify(challengeEvidence)));
+
+  return path;
+};
+
+const getFileTypeFromPath = path => (path ?? '').split('.').slice(-1)?.[0];
 
 const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
   console.debug('Fetching MetaEvidence', events);

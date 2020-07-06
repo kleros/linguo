@@ -1,8 +1,11 @@
 import { Arbitrator, Linguo, LinguoToken } from '@kleros/contract-deployments/linguo';
+import { withProvider } from '~/app/archon';
 import { ADDRESS_ZERO } from './constants';
 import { createEthContractApi, createTokenContractApi } from './createContractApi';
 
 export default async function createApiFacade({ web3, chainId }) {
+  const archon = withProvider(web3.currentProvider);
+
   const [withEtherPayments, withTokenPayments] = await Promise.all([
     getLinguoContracts({ web3, chainId, deployment: Linguo }),
     getLinguoContracts({ web3, chainId, deployment: LinguoToken }),
@@ -12,8 +15,8 @@ export default async function createApiFacade({ web3, chainId }) {
   const linguoTokenAddress = withTokenPayments.linguo?.options.address;
 
   const interfaces = {
-    [linguoEtherAddress]: createEthContractApi({ web3, ...withEtherPayments }),
-    [linguoTokenAddress]: createTokenContractApi({ web3, ...withTokenPayments }),
+    [linguoEtherAddress]: createEthContractApi({ web3, archon, ...withEtherPayments }),
+    [linguoTokenAddress]: createTokenContractApi({ web3, archon, ...withTokenPayments }),
   };
 
   const fullApi = {
@@ -24,6 +27,7 @@ export default async function createApiFacade({ web3, chainId }) {
     getTranslatorDeposit() {},
     getChallengerDeposit() {},
     getTaskDispute() {},
+    getTaskDisputeEvidences() {},
     createTask() {},
     assignTask() {},
     submitTranslation() {},

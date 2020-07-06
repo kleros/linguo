@@ -7,6 +7,10 @@ const archon = new Archon(undefined, ipfsHostAddress);
 
 export default archon;
 
+export function withProvider(provider) {
+  return new Archon(provider, ipfsHostAddress);
+}
+
 export function useSyncArchonProvider({ provider }) {
   useEffect(() => {
     if (provider) {

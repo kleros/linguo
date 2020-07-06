@@ -61,11 +61,11 @@ export default createReducer(initialState, builder => {
   });
 
   builder.addCase(challengeTranslation.fulfilled, (state, action) => {
-    const { id, account, path } = action.payload ?? {};
+    const { id, account, uploadedFile } = action.payload ?? {};
     const task = state.data;
 
     if (task.id === id) {
-      state.data = Task.registerChallenge(original(task), { account, evidence: path });
+      state.data = Task.registerChallenge(original(task), { account, evidence: uploadedFile?.path });
     }
   });
 
@@ -219,16 +219,16 @@ function* submitTranslationSaga(action) {
 function* challengeTranslationSaga(action) {
   const linguoApi = yield getContext('linguoApi');
 
-  const { id, account, path } = action.payload ?? {};
+  const { id, account, uploadedFile } = action.payload ?? {};
   const { tx: metaTx, ...meta } = action.meta ?? {};
 
-  const { tx } = yield call([linguoApi, 'challengeTranslation'], { ID: id, evidence: path }, { from: account });
+  const { tx } = yield call([linguoApi, 'challengeTranslation'], { ID: id, uploadedFile }, { from: account });
 
   try {
     yield call(registerTxSaga, tx, {
       ...metaTx,
       *onSuccess() {
-        yield put(challengeTranslation.fulfilled({ id, account, path }, { meta }));
+        yield put(challengeTranslation.fulfilled({ id, account, uploadedFile }, { meta }));
       },
       *onFailure(resultAction) {
         const error = resultAction.payload?.error;
