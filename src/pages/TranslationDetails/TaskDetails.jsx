@@ -18,6 +18,7 @@ import DownloadLink from '~/shared/DownloadLink';
 import { Task, TaskStatus, getFileUrl } from '~/features/tasks';
 import useTask from './useTask';
 import TaskStatusDetails from './TaskStatusDetails';
+import Evidences from './Evidences';
 import useInterval from '~/shared/useInterval';
 
 const _1_MINUTE_MS = 60 * 1000;
@@ -38,6 +39,7 @@ export default function TaskDetails() {
     originalTextUrl,
     originalTextFile,
     translatedTextUrl,
+    hasDispute,
   } = task;
 
   const getCurrentPrice = React.useCallback(() => Task.currentPrice(task), [task]);
@@ -189,6 +191,12 @@ export default function TaskDetails() {
       </StyledDownloadTextWrapper>
       <Spacer size={3} />
       <TaskStatusDetails />
+      {hasDispute && (
+        <>
+          <Spacer size={3} />
+          <Evidences />
+        </>
+      )}
     </div>
   );
 }

@@ -18,20 +18,20 @@ export default function ChallengeUploadButton({ buttonProps }) {
 
   const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
 
-  const [path, setPath] = React.useState(null);
+  const [uploadedFile, setUploadedFile] = React.useState(null);
 
   const handleFileChange = React.useCallback(async ({ fileList }) => {
     const [file] = fileList;
 
     if (!file) {
-      setPath(null);
+      setUploadedFile(null);
     } else if (file.status === 'done') {
-      const path = file.response?.path;
+      const { path, hash } = file.response;
       if (!path) {
         throw new Error('Failed to upload the file. Please try again.');
       }
 
-      setPath(path);
+      setUploadedFile({ path, hash });
     }
   }, []);
 
@@ -40,7 +40,7 @@ export default function ChallengeUploadButton({ buttonProps }) {
     try {
       await dispatch(
         challengeTranslation(
-          { id, account, path },
+          { id, account, uploadedFile },
           {
             meta: {
               tx: { wait: 0 },
@@ -52,7 +52,7 @@ export default function ChallengeUploadButton({ buttonProps }) {
     } finally {
       setHasPendingTxn(false);
     }
-  }, [dispatch, id, account, path]);
+  }, [dispatch, id, account, uploadedFile]);
 
   const icon = hasPendingTxn ? <LoadingOutlined /> : null;
 
@@ -74,8 +74,8 @@ export default function ChallengeUploadButton({ buttonProps }) {
         }}
       />
       <Spacer />
-      <Button {...buttonProps} icon={icon} disabled={!path || hasPendingTxn} onClick={handleSubmitChallenge}>
-        {hasPendingTxn ? <>Submitting challenge...</> : <>Challenge It</>}
+      <Button {...buttonProps} icon={icon} disabled={!uploadedFile || hasPendingTxn} onClick={handleSubmitChallenge}>
+        {hasPendingTxn ? 'Submitting Challenge...' : 'Challenge It'}
       </Button>
     </StyledWrapper>
   );

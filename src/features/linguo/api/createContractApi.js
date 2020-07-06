@@ -540,7 +540,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
   async function getTaskDisputeEvidences({ ID }) {
     const evidences = await archon.arbitrable.getEvidence(linguo.options.address, arbitrator.options.address, ID);
 
-    return evidences;
+    return evidences.filter(({ fileValid }) => fileValid);
   }
 
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {

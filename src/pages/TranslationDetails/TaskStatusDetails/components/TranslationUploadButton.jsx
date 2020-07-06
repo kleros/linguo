@@ -67,8 +67,8 @@ export default function TranslationUploadButton({ buttonProps }) {
         />
       )}
       {hasPendingTxn && (
-        <Button {...buttonProps} disabled>
-          <LoadingOutlined /> Sending translation...
+        <Button {...buttonProps} icon={<LoadingOutlined />} disabled>
+          Sending translation...
         </Button>
       )}
     </StyledWrapper>

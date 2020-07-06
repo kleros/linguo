@@ -53,7 +53,6 @@ export const normalize = (dispute, task, rewardPoolParams) => {
   return {
     id,
     ID: id,
-    taskId: task.id,
     status,
     ruling,
     appealPeriod: {

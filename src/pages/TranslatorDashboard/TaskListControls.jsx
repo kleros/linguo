@@ -26,7 +26,7 @@ function TaskListActions() {
   return (
     <StyledActions>
       <Link to={r.TRANSLATOR_SETTINGS}>
-        <Tooltip title="You will only be able to see tasks whose both source and target language you have self-declared level B2 or higher.">
+        <Tooltip title="You will only be able to see tasks whose both source and target languages you have self-declared level B2 or higher.">
           <div>
             <Button variant="filled">Update Skills</Button>
           </div>

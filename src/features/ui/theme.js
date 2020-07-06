@@ -36,6 +36,7 @@ export default {
     },
     shadow: {
       default: 'rgba(24, 0, 255, 0.5)',
+      light: 'rgba(24, 0, 255, 0.25)',
       ui: 'rgba(0, 67, 197, 0.5);',
     },
     glow: {
