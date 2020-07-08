@@ -1,12 +1,14 @@
 import dayjs from 'dayjs';
 import deepMerge from 'deepmerge';
 import Web3 from 'web3';
+import { nanoid } from 'nanoid';
 import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
-import challengeEvidenceTemplate from '~/assets/fixtures/challengeEvidenceTemplate.json';
+import challengeEvidenceTemplate from '~/assets/fixtures/challengeEvidenceTemplate';
+import evidenceTemplate from '~/assets/fixtures/evidenceTemplate';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import { Dispute } from '~/features/disputes';
-import { Task } from '~/features/tasks';
+import { Task, TaskParty } from '~/features/tasks';
 import promiseRetry from '~/shared/promiseRetry';
 import { ADDRESS_ZERO, NON_PAYABLE_VALUE } from './constants';
 import getFileUrl from './getFileUrl';
@@ -540,7 +542,8 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
   async function getTaskDisputeEvidences({ ID }) {
     const evidences = await archon.arbitrable.getEvidence(linguo.options.address, arbitrator.options.address, ID);
 
-    return evidences.filter(({ fileValid }) => fileValid);
+    // return evidences.filter(({ fileValid }) => fileValid);
+    return evidences.filter(({ evidenceJSONValid }) => !!evidenceJSONValid);
   }
 
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
@@ -606,6 +609,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
       name: `linguo-challenge-${ID}.json`,
       template: challengeEvidenceTemplate,
       overrides: {
+        supportingSide: TaskParty.Challenger,
         fileURI: path,
         fileTypeExtension: getFileTypeFromPath(path),
         fileHash: hash,
@@ -634,6 +638,42 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     return { tx };
   }
 
+  async function submitEvidence({ ID, supportingSide, name, description, uploadedFile }, { from, gas, gasPrice } = {}) {
+    if (![TaskParty.Translator, TaskParty.Challenger].includes(supportingSide)) {
+      throw new Error('Evidence must either support the translator or the challenger');
+    }
+
+    const { path, hash } = uploadedFile ?? {};
+
+    const fileOverrides =
+      path && hash
+        ? {
+            fileURI: path,
+            fileTypeExtension: getFileTypeFromPath(path),
+            fileHash: hash,
+          }
+        : {};
+
+    const evidence = await publishEvidence({
+      name: `linguo-evidence-${nanoid(10)}.json`,
+      template: evidenceTemplate,
+      overrides: {
+        name,
+        description,
+        supportingSide,
+        ...fileOverrides,
+      },
+    });
+
+    const tx = linguo.methods.submitEvidence(ID, evidence).send({
+      from,
+      gas,
+      gasPrice,
+    });
+
+    return { tx };
+  }
+
   return {
     getRequesterTasks,
     getTranslatorTasks,
@@ -650,6 +690,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     acceptTranslation,
     challengeTranslation,
     fundAppeal,
+    submitEvidence,
   };
 }
 

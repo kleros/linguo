@@ -36,6 +36,7 @@ export default async function createApiFacade({ web3, chainId }) {
     acceptTranslation() {},
     challengeTranslation() {},
     fundAppeal() {},
+    submitEvidence() {},
   };
 
   const propHandler = {

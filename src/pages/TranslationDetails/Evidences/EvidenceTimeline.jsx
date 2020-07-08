@@ -22,19 +22,25 @@ import { getFileUrl } from '~/features/evidences';
 import { TaskParty } from '~/features/tasks';
 
 export default function EvidenceTimeline({ data, lastItemRef, firstItemRef }) {
-  return data.length === 0 ? (
+  /**
+   * Evidences must be in descending order
+   */
+  const sortedData = [...data].sort((a, b) => b.submittedAt - a.submittedAt);
+
+  return sortedData.length === 0 ? (
     <StyledEmptyList>Wow, such empty!</StyledEmptyList>
   ) : (
     <StyledEvidenceList>
-      {data.map(({ transactionHash, submittedAt, submittedBy, evidenceJSON }, index) => {
-        // Assumes evidences are in descending order
+      {sortedData.map(({ transactionHash, submittedAt, submittedBy, evidenceJSON }, index) => {
         const isLast = index === 0;
         const isFirst = index === data.length - 1;
+        const ref = composeRefs(isLast ? lastItemRef : null, isFirst ? firstItemRef : null);
 
-        const ref = composeRefs(isLast && lastItemRef, isFirst && firstItemRef);
+        const position = data.length - index;
+
         return (
           <StyledEvidenceListItem key={transactionHash} ref={ref}>
-            <EvidenceCard {...evidenceJSON} index={index + 1} submittedAt={submittedAt} submittedBy={submittedBy} />
+            <EvidenceCard {...evidenceJSON} position={position} submittedAt={submittedAt} submittedBy={submittedBy} />
           </StyledEvidenceListItem>
         );
       })}
@@ -52,7 +58,7 @@ function EvidenceCard({
   submittedAt,
   submittedBy,
   name,
-  index,
+  position,
   description,
   supportingSide,
   fileURI,
@@ -74,7 +80,7 @@ function EvidenceCard({
         </StyledAvatar>
         <StyledMetadata>
           <p>
-            <strong>#{index}</strong> submitted by <EthAddress address={submittedBy} /> in favor of:{' '}
+            <strong>#{position}</strong> submitted by <EthAddress address={submittedBy} /> in favor of:{' '}
             <strong>{supportingSideText}</strong>
           </p>
           <time dateTime={submittedAtDate.toISOString()}>
@@ -87,12 +93,14 @@ function EvidenceCard({
             />
           </time>
         </StyledMetadata>
-        <StyledDownloadFile>
-          <StyledDownloadFileButton href={getFileUrl(fileURI)} target="_blank" rel="noopener noreferrer">
-            {fileTypeIcons[fileTypeExtension] ?? fileTypeIcons.default}
-            <span className="sr-only">Download File</span>
-          </StyledDownloadFileButton>
-        </StyledDownloadFile>
+        {fileURI && (
+          <StyledDownloadFile>
+            <StyledDownloadFileButton href={getFileUrl(fileURI)} target="_blank" rel="noopener noreferrer">
+              {fileTypeIcons[fileTypeExtension] ?? fileTypeIcons.default}
+              <span className="sr-only">Download File</span>
+            </StyledDownloadFileButton>
+          </StyledDownloadFile>
+        )}
       </StyledCardFooter>
     </StyledCardSurface>
   );
@@ -101,11 +109,11 @@ function EvidenceCard({
 EvidenceCard.propTypes = {
   submittedAt: t.oneOfType([t.string, t.number, t.instanceOf(Date)]).isRequired,
   submittedBy: t.string.isRequired,
-  index: t.number.isRequired,
+  position: t.number.isRequired,
   name: t.string.isRequired,
   description: t.string.isRequired,
-  supportingSide: t.oneOf(Object.values(TaskParty)),
-  fileURI: t.string.isRequired,
+  supportingSide: t.oneOf(Object.values(TaskParty)).isRequired,
+  fileURI: t.string,
   fileTypeExtension: t.string,
 };
 
@@ -170,6 +178,8 @@ const StyledCardDescription = styled(Typography.Paragraph)`
     font-weight: 400;
     margin-bottom: 0;
     color: inherit;
+    max-height: 50vh;
+    overflow: hidden auto;
   }
 `;
 

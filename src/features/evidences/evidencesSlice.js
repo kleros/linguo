@@ -5,6 +5,7 @@ import { watchAllWithBuffer } from '~/features/web3/runWithContext';
 import createAsyncAction, { matchAnyAsyncType } from '~/shared/createAsyncAction';
 import createCancellableSaga from '~/shared/createCancellableSaga';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
+import { registerTxSaga } from '../transactions/transactionsSlice';
 
 export const initialState = {
   byTaskId: {},
@@ -23,19 +24,6 @@ const evidencesSlice = createSlice({
   name: 'evidences',
   initialState,
   extraReducers: builder => {
-    builder.addCase(fetchByTaskId.pending, (state, action) => {
-      const { taskId } = action.payload ?? {};
-
-      if (taskId) {
-        state.byTaskId[taskId] = state.byTaskId[taskId] ?? {};
-
-        state.byTaskId[taskId].loadingState = 'loading';
-        state.byTaskId[taskId].error = null;
-
-        state.taskIds = [...new Set([...state.taskIds, taskId])];
-      }
-    });
-
     builder.addCase(fetchByTaskId.fulfilled, (state, action) => {
       const { taskId, data } = action.payload ?? {};
 
@@ -45,20 +33,6 @@ const evidencesSlice = createSlice({
         state.byTaskId[taskId].loadingState = 'succeeded';
         state.byTaskId[taskId].data = data;
         state.byTaskId[taskId].error = null;
-
-        state.taskIds = [...new Set([...state.taskIds, taskId])];
-      }
-    });
-
-    builder.addCase(fetchByTaskId.rejected, (state, action) => {
-      const { taskId, error } = action.payload ?? {};
-
-      if (taskId && error) {
-        state.byTaskId[taskId] = state.byTaskId[taskId] ?? {};
-
-        state.byTaskId[taskId].loadingState = 'failed';
-        state.byTaskId[taskId].data = null;
-        state.byTaskId[taskId].error = error;
 
         state.taskIds = [...new Set([...state.taskIds, taskId])];
       }
@@ -85,11 +59,12 @@ const evidencesSlice = createSlice({
     builder.addMatcher(createMatcher('rejected'), (state, action) => {
       const { taskId, error } = action.payload ?? {};
 
-      if (state.byTaskId[taskId]) {
-        state.byTaskId[taskId].loadingState = 'failed';
-
+      if (error && state.byTaskId[taskId]) {
         if (error && error.name !== 'CancellationError') {
           state.byTaskId[taskId].error = error;
+          state.byTaskId[taskId].loadingState = 'failed';
+        } else {
+          state.byTaskId[taskId].loadingState = 'idle';
         }
       }
     });
@@ -120,15 +95,50 @@ export function* fetchByTaskIdSaga(action) {
   }
 }
 
+export function* submitSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+
+  const { account, taskId, supportingSide, name, description, uploadedFile } = action.payload ?? {};
+  const { metaTx, ...meta } = action.meta ?? {};
+
+  try {
+    const { tx } = yield call(
+      [linguoApi, 'submitEvidence'],
+      { ID: taskId, supportingSide, name, description, uploadedFile },
+      { from: account }
+    );
+
+    yield call(registerTxSaga, tx, {
+      ...metaTx,
+      *onSuccess() {
+        yield put(fetchByTaskId({ taskId }));
+      },
+    });
+
+    yield put(submit.fulfilled({ taskId }, { meta }));
+  } catch (err) {
+    yield put(submit.rejected({ taskId, error: err }, { meta }));
+  }
+}
+
 const createWatchFetchByTaskIdSaga = createWatcherSaga(
   { takeType: TakeType.latest },
   createCancellableSaga(fetchByTaskIdSaga, fetchByTaskId.rejected, {
+    additionalPayload: action => ({ taskId: action.payload?.taskId }),
     additionalArgs: action => ({ meta: action.meta }),
   })
 );
 
+const createWatchSubmitSaga = createWatcherSaga({ takeType: TakeType.leading }, submitSaga);
+
 export const sagas = {
-  metaEvidencesSaga: watchAllWithBuffer([[createWatchFetchByTaskIdSaga, actionChannel(fetchByTaskId.type)]], {
-    createContext: createLinguoApiContext,
-  }),
+  metaEvidencesSaga: watchAllWithBuffer(
+    [
+      [createWatchFetchByTaskIdSaga, actionChannel(fetchByTaskId.type)],
+      [createWatchSubmitSaga, actionChannel(submit.type)],
+    ],
+    {
+      createContext: createLinguoApiContext,
+    }
+  ),
 };

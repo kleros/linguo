@@ -1,7 +1,6 @@
 import { useSelector } from 'react-redux';
 import { TaskParty } from '~/features/tasks';
 import { selectAccount } from '~/features/web3/web3Slice';
-import useTask from '../../useTask';
 
 const getCurrentParty = ({ account, requester, translator, challenger }) => {
   switch (account) {
@@ -22,10 +21,10 @@ const getCurrentParty = ({ account, requester, translator, challenger }) => {
   }
 };
 
-export default function useCurrentParty() {
+export default function useCurrentParty(task) {
   const account = useSelector(selectAccount);
 
-  const { requester, parties = {} } = useTask();
+  const { requester, parties = {} } = task;
   const translator = parties[TaskParty.Translator];
   const challenger = parties[TaskParty.Challenger];
 

@@ -22,13 +22,15 @@ import useTask from '../../../../useTask';
 import useCurrentParty from '../../../hooks/useCurrentParty';
 import useAppealStatus from './useAppealStatus';
 
-function AppealModalForm({ trigger, forceClose }) {
+export default function AppealModalForm({ trigger, forceClose }) {
   const [visible, setVisible] = React.useState(false);
+
   React.useEffect(() => {
     if (forceClose) {
       setVisible(false);
     }
   }, [forceClose]);
+
   const handleTriggerClick = React.useCallback(evt => {
     evt.preventDefault();
     setVisible(true);
@@ -207,8 +209,6 @@ AppealModalForm.propTypes = {
 AppealModalForm.defaultProps = {
   forceClose: false,
 };
-
-export default AppealModalForm;
 
 const formStateMachine = {
   name: 'Appeal Modal Form',

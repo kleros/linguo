@@ -292,6 +292,7 @@ const createWatchFetchByIdSaga = createWatcherSaga(
   { takeType: TakeType.latest },
   createCancellableSaga(fetchByIdSaga, fetchById.rejected, {
     additionalPayload: action => ({ id: action.payload?.id }),
+    additionalArgs: action => ({ meta: action.meta }),
   })
 );
 

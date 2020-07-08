@@ -60,7 +60,6 @@ const disputesSlice = createSlice({
         state.byTaskId[taskId] = state.byTaskId[taskId] ?? {};
 
         state.byTaskId[taskId].loadingState = 'failed';
-        state.byTaskId[taskId].data = null;
         state.byTaskId[taskId].error = error;
 
         state.taskIds = [...new Set([...state.taskIds, taskId])];
@@ -113,7 +112,7 @@ export default disputesSlice.reducer;
 const selectLoadingState = taskId => state => state.disputes.byTaskId[taskId]?.loadingState ?? 'idle';
 export const selectIsLoadingByTaskId = taskId => state => selectLoadingState(taskId)(state) === 'loading';
 
-export const selectByTaskId = taskId => state => state.disputes.byTaskId[taskId]?.data ?? null;
+export const selectByTaskId = taskId => state => state.disputes.byTaskId[taskId]?.data ?? {};
 export const selectErrorByTaskId = taskId => state => state.disputes.byTaskId[taskId]?.error ?? null;
 
 export function* fetchByTaskIdSaga(action) {
@@ -160,6 +159,7 @@ export function* fundAppealSaga(action) {
 const createWatchFetchByTaskIdSaga = createWatcherSaga(
   { takeType: TakeType.latest },
   createCancellableSaga(fetchByTaskIdSaga, fetchByTaskId.rejected, {
+    additionalPayload: action => ({ taskId: action.payload?.taskId }),
     additionalArgs: action => ({ meta: action.meta }),
   })
 );

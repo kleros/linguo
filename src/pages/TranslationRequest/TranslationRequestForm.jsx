@@ -1,21 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-import { Form, Row, Col } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { useWeb3React } from '~/features/web3';
-import { create as createTask } from '~/features/tasks/tasksSlice';
-import useStateMachine from '~/shared/useStateMachine';
+import { Col, Form, Row } from 'antd';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
-import Spacer from '~/shared/Spacer';
+import { create as createTask } from '~/features/tasks/tasksSlice';
+import { useWeb3React } from '~/features/web3';
 import Button from '~/shared/Button';
-import TitleField from './TitleField';
+import Spacer from '~/shared/Spacer';
+import useStateMachine from '~/shared/useStateMachine';
 import DeadlineField from './DeadlineField';
-import PriceDefinitionFields from './PriceDefinitionFields';
-import LanguagesSelectionFields from './LanguagesSelectionFields';
 import ExpectedQualityField from './ExpectedQualityField';
-import TextField from './TextField';
+import LanguagesSelectionFields from './LanguagesSelectionFields';
 import OriginalSourceFields from './OriginalSourceFields';
+import PriceDefinitionFields from './PriceDefinitionFields';
+import TextField from './TextField';
+import TitleField from './TitleField';
 
 function TranslationRequestForm() {
   const dispatch = useDispatch();

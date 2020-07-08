@@ -27,11 +27,15 @@ function composeTwoRefs(ref1, ref2) {
     return composedRef;
   }
 
-  if (!ref1) {
-    return ref2;
-  } else {
+  if (ref1) {
     return ref1;
   }
+
+  if (ref2) {
+    return ref2;
+  }
+
+  return null;
 }
 
 function updateRef(ref, instance) {
