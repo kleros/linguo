@@ -10,41 +10,7 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
     let txHash = null;
     let emittedConfirmation = false;
 
-    if (confirmations === 0) {
-      console.debug('fallback mode activated', tx);
-      tx.then(receipt => {
-        emit({
-          type: 'TX_CONFIRMATION',
-          payload: {
-            txHash,
-            number: 0,
-            receipt: {
-              ...pick(['from', 'to', 'transactionIndex', 'blockHash', 'blockNumber'], receipt),
-              events: extractEventsReturnValues(receipt.events),
-            },
-          },
-        });
-        emit(END);
-
-        resultChannel.put({ type: 'FULFILLED', payload: { txHash } });
-        resultChannel.put(END);
-      }).catch(err => {
-        emit({ type: 'TX_ERROR', payload: { txHash, error: err } });
-        emit(END);
-
-        resultChannel.put({
-          type: 'REJECTED',
-          payload: {
-            txHash,
-            error: serializeError(err),
-          },
-        });
-        resultChannel.put(END);
-      });
-    }
-
     tx.once('transactionHash', _txHash => {
-      console.debug('Tx channel: transaction hash', _txHash);
       emit({ type: 'TX_HASH', payload: { txHash: _txHash } });
       txHash = _txHash;
 
@@ -57,8 +23,6 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
     });
 
     tx.once('receipt', receipt => {
-      console.debug('Tx channel: transaction receipt', { txHash, receipt });
-
       emit({
         type: 'TX_CONFIRMATION',
         payload: {
@@ -78,7 +42,6 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
     });
 
     tx.on('confirmation', (number, receipt) => {
-      console.debug('Tx channel: transaction confirmation #', number);
       if (number <= confirmations) {
         emit({
           type: 'TX_CONFIRMATION',
@@ -124,7 +87,6 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
     });
 
     tx.on('error', error => {
-      console.debug('Tx channel: transaction error', error);
       emit({ type: 'TX_ERROR', payload: { txHash, error } });
       emit(END);
 
@@ -139,7 +101,6 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
     });
 
     return () => {
-      console.debug('Tx channel cleanup');
       tx.off('confirmation');
       tx.off('error');
     };
