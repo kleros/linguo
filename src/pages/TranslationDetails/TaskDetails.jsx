@@ -82,41 +82,6 @@ export default function TaskDetails() {
     },
   ];
 
-  const viewOriginalText = (
-    <>
-      <DownloadLink
-        download={{
-          content: text,
-        }}
-      >
-        <JumboButton fullWidth={true} variant="filled" icon={<FileTextOutlined />}>
-          View Original Text
-        </JumboButton>
-      </DownloadLink>
-      {(originalTextUrl || originalTextFile) && (
-        <>
-          <Spacer size={1} />
-          <StyledLinkList>
-            {originalTextUrl ? (
-              <StyledLinkListItem>
-                <a href={originalTextUrl} target="_blank" rel="noopener noreferrer external">
-                  <LinkOutlined /> Source of the original text
-                </a>
-              </StyledLinkListItem>
-            ) : null}
-            {originalTextFile ? (
-              <StyledLinkListItem>
-                <a href={getFileUrl(originalTextFile)} target="_blank" rel="noopener noreferrer external">
-                  <PaperClipOutlined /> File of the original text
-                </a>
-              </StyledLinkListItem>
-            ) : null}
-          </StyledLinkList>
-        </>
-      )}
-    </>
-  );
-
   return (
     <div
       css={`
@@ -170,23 +135,50 @@ export default function TaskDetails() {
       </StyledExpectedQuality>
       <Spacer size={3} />
       <StyledDownloadTextWrapper>
-        {!translatedTextUrl ? (
-          <div className="col">{viewOriginalText}</div>
-        ) : (
-          <>
-            <div className="col">{viewOriginalText}</div>
-            <div className="col">
-              <DownloadLink
-                download={{
-                  url: translatedTextUrl,
-                }}
-              >
-                <JumboButton fullWidth={true} variant="outlined" icon={<TranslationOutlined />}>
-                  View Translated Text
-                </JumboButton>
-              </DownloadLink>
-            </div>
-          </>
+        <div className="col">
+          <DownloadLink
+            download={{
+              content: text,
+            }}
+          >
+            <JumboButton fullWidth={true} variant="filled" icon={<FileTextOutlined />}>
+              View Original Text
+            </JumboButton>
+          </DownloadLink>
+          {(originalTextUrl || originalTextFile) && (
+            <>
+              <Spacer size={1} />
+              <StyledLinkList>
+                {originalTextUrl ? (
+                  <StyledLinkListItem>
+                    <a href={originalTextUrl} target="_blank" rel="noopener noreferrer external">
+                      <LinkOutlined /> Source of the original text
+                    </a>
+                  </StyledLinkListItem>
+                ) : null}
+                {originalTextFile ? (
+                  <StyledLinkListItem>
+                    <a href={getFileUrl(originalTextFile)} target="_blank" rel="noopener noreferrer external">
+                      <PaperClipOutlined /> File of the original text
+                    </a>
+                  </StyledLinkListItem>
+                ) : null}
+              </StyledLinkList>
+            </>
+          )}
+        </div>
+        {translatedTextUrl && (
+          <div className="col">
+            <DownloadLink
+              download={{
+                url: translatedTextUrl,
+              }}
+            >
+              <JumboButton fullWidth={true} variant="outlined" icon={<TranslationOutlined />}>
+                View Translated Text
+              </JumboButton>
+            </DownloadLink>
+          </div>
         )}
       </StyledDownloadTextWrapper>
       <Spacer size={3} />

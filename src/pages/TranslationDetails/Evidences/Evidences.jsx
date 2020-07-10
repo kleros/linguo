@@ -1,42 +1,22 @@
 import React from 'react';
-import styled from 'styled-components';
-import clsx from 'clsx';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
-import { Typography } from 'antd';
-import { PlusOutlined, MinusOutlined, ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
+import styled from 'styled-components';
+import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import scrollIntoView from 'scroll-into-view-if-needed';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
-import Button from '~/shared/Button';
-import Spacer from '~/shared/Spacer';
-import TopLoadingBar from '~/shared/TopLoadingBar';
+import { DisputeStatus } from '~/features/disputes';
 import { selectByTaskId as selectDispute } from '~/features/disputes/disputesSlice';
 import { selectIsLoadingByTaskId as selectEvidenceIsLoading } from '~/features/evidences/evidencesSlice';
-import { DisputeStatus } from '~/features/disputes';
+import Button from '~/shared/Button';
+import CollapsibleSection from '~/shared/CollapsibleSection';
+import Spacer from '~/shared/Spacer';
+import TopLoadingBar from '~/shared/TopLoadingBar';
 import EvidenceFetcher from './EvidenceFetcher';
 import EvidenceTimeline from './EvidenceTimeline';
 import SubmitEvidenceModalForm from './SubmitEvidenceModalForm';
 
 export default function Evidences() {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const handleToggleOpen = React.useCallback(() => {
-    setIsOpen(open => !open);
-  }, []);
-
-  const icon = isOpen ? <MinusOutlined /> : <PlusOutlined />;
-
-  return (
-    <StyledDetails>
-      <StyledSummary tabIndex={100} onClick={handleToggleOpen} className={clsx({ open: isOpen, closed: !isOpen })}>
-        <Typography.Title level={3}>Evidence</Typography.Title>
-        {icon}
-      </StyledSummary>
-      <EvidencesContent />
-    </StyledDetails>
-  );
-}
-
-function EvidencesContent() {
   const { id: taskId } = useParams();
 
   const dispute = useShallowEqualSelector(selectDispute(taskId));
@@ -61,11 +41,7 @@ function EvidencesContent() {
   };
 
   return (
-    <div
-      css={`
-        position: relative;
-      `}
-    >
+    <CollapsibleSection title="Evidence" titleLevel={3} tabIndex={100}>
       <TopLoadingBar show={isLoadingEvidences} />
       <StyledContent>
         <StyledActionsContainer>
@@ -96,46 +72,9 @@ function EvidencesContent() {
           </StyledScrollAnchor>
         </StyledActionsContainer>
       </StyledContent>
-    </div>
+    </CollapsibleSection>
   );
 }
-
-const StyledDetails = styled.details`
-  border-radius: 0.1875rem;
-`;
-
-const StyledSummary = styled.summary`
-  background-color: ${p => p.theme.color.primary.default};
-  height: 3rem;
-  padding: 0 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: ${p => p.theme.color.text.inverted};
-  cursor: pointer;
-
-  &.open {
-    border-top-left-radius: 0.1875rem;
-    border-top-right-radius: 0.1875rem;
-  }
-
-  &.closed {
-    border-radius: 0.1875rem;
-  }
-
-  .ant-typography {
-    color: inherit;
-    font-size: ${p => p.theme.fontSize.sm};
-    font-weight: 500;
-    margin: 0;
-    padding: 0;
-  }
-
-  ::marker {
-    content: '';
-    display: none;
-  }
-`;
 
 const StyledContent = styled.article`
   padding: 2rem;
