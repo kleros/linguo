@@ -99,11 +99,15 @@ export default createReducer(initialState, builder => {
   });
 
   builder.addMatcher(createMatcher('rejected'), (state, action) => {
-    state.loadingState = 'failed';
     const error = action.payload?.error;
 
-    if (error && error.name !== 'CancellationError') {
-      state.error = error;
+    if (error) {
+      if (error.name === 'CancellationError') {
+        state.loadingState = 'failed';
+        state.error = error;
+      } else {
+        state.loadingState = 'idle';
+      }
     }
   });
 });

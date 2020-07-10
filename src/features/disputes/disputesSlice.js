@@ -26,19 +26,6 @@ const disputesSlice = createSlice({
   name: 'disputes',
   initialState,
   extraReducers: builder => {
-    builder.addCase(fetchByTaskId.pending, (state, action) => {
-      const { taskId } = action.payload ?? {};
-
-      if (taskId) {
-        state.byTaskId[taskId] = state.byTaskId[taskId] ?? {};
-
-        state.byTaskId[taskId].loadingState = 'loading';
-        state.byTaskId[taskId].error = null;
-
-        state.taskIds = [...new Set([...state.taskIds, taskId])];
-      }
-    });
-
     builder.addCase(fetchByTaskId.fulfilled, (state, action) => {
       const { taskId, data } = action.payload ?? {};
 
@@ -53,34 +40,24 @@ const disputesSlice = createSlice({
       }
     });
 
-    builder.addCase(fetchByTaskId.rejected, (state, action) => {
-      const { taskId, error } = action.payload ?? {};
-
-      if (taskId && error) {
-        state.byTaskId[taskId] = state.byTaskId[taskId] ?? {};
-
-        state.byTaskId[taskId].loadingState = 'failed';
-        state.byTaskId[taskId].error = error;
-
-        state.taskIds = [...new Set([...state.taskIds, taskId])];
-      }
-    });
-
     builder.addCase(fundAppeal.fulfilled, (state, action) => {
       const { taskId, deposit, party } = action.payload ?? {};
       const dispute = state.byTaskId[taskId]?.data;
 
       if (dispute) {
         state.byTaskId[taskId].data = Dispute.registerAppealFunding(original(dispute), { deposit, party });
+        state.byTaskId[taskId].error = null;
       }
     });
 
     const createMatcher = matchAnyAsyncType(Object.values(actions));
+
     builder.addMatcher(createMatcher('pending'), (state, action) => {
       const { taskId } = action.payload ?? {};
 
       if (state.byTaskId[taskId]) {
         state.byTaskId[taskId].loadingState = 'loading';
+        state.byTaskId[taskId].error = null;
       }
     });
 
@@ -96,11 +73,12 @@ const disputesSlice = createSlice({
     builder.addMatcher(createMatcher('rejected'), (state, action) => {
       const { taskId, error } = action.payload ?? {};
 
-      if (state.byTaskId[taskId]) {
-        state.byTaskId[taskId].loadingState = 'failed';
-
-        if (error && error.name !== 'CancellationError') {
+      if (error && state.byTaskId[taskId]) {
+        if (error.name !== 'CancellationError') {
           state.byTaskId[taskId].error = error;
+          state.byTaskId[taskId].loadingState = 'failed';
+        } else {
+          state.byTaskId[taskId].loadingState = 'idle';
         }
       }
     });

@@ -44,6 +44,7 @@ const evidencesSlice = createSlice({
 
       if (state.byTaskId[taskId]) {
         state.byTaskId[taskId].loadingState = 'loading';
+        state.byTaskId[taskId].error = null;
       }
     });
 
@@ -60,7 +61,7 @@ const evidencesSlice = createSlice({
       const { taskId, error } = action.payload ?? {};
 
       if (error && state.byTaskId[taskId]) {
-        if (error && error.name !== 'CancellationError') {
+        if (error.name !== 'CancellationError') {
           state.byTaskId[taskId].error = error;
           state.byTaskId[taskId].loadingState = 'failed';
         } else {
