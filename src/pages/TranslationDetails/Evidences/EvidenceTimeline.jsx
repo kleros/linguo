@@ -9,7 +9,7 @@ import {
   FileImageFilled,
   FileExcelFilled,
   FileMarkdownFilled,
-  FileGifFilled,
+  FileGifOutlined,
   FileUnknownFilled,
   FileWordFilled,
 } from '@ant-design/icons';
@@ -121,7 +121,7 @@ const fileTypeIcons = {
   pdf: <FilePdfFilled />,
   txt: <FileTextFilled />,
   zip: <FileZipFilled />,
-  gif: <FileGifFilled />,
+  gif: <FileGifOutlined />,
   png: <FileImageFilled />,
   jpg: <FileImageFilled />,
   jpeg: <FileImageFilled />,

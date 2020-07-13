@@ -43,7 +43,7 @@ function MainRouter() {
               <Route exact path={r.TRANSLATION_REQUEST}>
                 <TranslationRequest />
               </Route>
-              <Route exact path={r.TRANSLATION_DASHBOARD}>
+              <Route exact path={r.REQUESTER_DASHBOARD}>
                 <RequesterDashboard />
               </Route>
               <Route exact path={r.TRANSLATION_TASK_DETAILS}>

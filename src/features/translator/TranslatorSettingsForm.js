@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Row, Col, Form, Typography, Alert } from 'antd';
 import { InfoIcon, AddIcon, RemoveIcon } from '~/shared/icons';
 import Button from '~/shared/Button';
+import Spacer from '~/shared/Spacer';
 import { LanguageSelect, LevelSelect } from '~/shared/LanguageSelect';
 import allLanguages from '~/assets/fixtures/languages';
 import { saveSkills, cancelSaveSkills, selectAllSkills } from './translatorSlice';
@@ -120,14 +121,18 @@ export default function TranslatorSettingsForm() {
               </a>
               .
             </p>
+            <p>
+              <strong>IMPORTANT:</strong> You will only be able to see tasks whose both source and target languages you
+              have self-declared level B2 or higher.
+            </p>
           </>
         }
       />
-
+      <Spacer />
       <StyledDisclaimer>
         <InfoIcon /> You can update your language level or add more languages anytime in settings.
       </StyledDisclaimer>
-
+      <Spacer size={3} />
       <Row gutter={16} justify="space-between">
         <Col lg={6} md={8} sm={10} xs={12}>
           <Button fullWidth htmlType="button" variant="outlined" onClick={handleReturnClick}>
@@ -152,7 +157,6 @@ const StyledJumboButton = styled(Button)`
 
 const StyledDisclaimer = styled(Typography.Text)`
   display: block;
-  margin: 4rem 0 2rem;
   color: ${props => props.theme.color.text.default};
   font-weight: 400;
 `;

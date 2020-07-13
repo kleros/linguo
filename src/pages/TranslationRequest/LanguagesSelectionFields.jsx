@@ -47,19 +47,7 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
         <StyledDismissableAlert
           id="task.create.language-pairing"
           message="Currently it is only possible to request translations from or to English."
-          description={
-            <>
-              <p>
-                If you need a translation for a pair of languages other than English, you need to first create a task
-                from the source language to English, then, after it is delivered, create another from English to the
-                target Language.
-              </p>
-              <p>
-                The reason is that it is currently hard to find specialized jurors to evaluate direct translations for
-                an arbitrary pair of languages. This might change in the future if there is enough demand.
-              </p>
-            </>
-          }
+          description="More language pairs will be added in the future"
         />
       </Col>
       <StyledWrapper>

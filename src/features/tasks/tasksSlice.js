@@ -197,7 +197,7 @@ export function* createSaga(action) {
     yield put(create.fulfilled({}, { meta }));
 
     if (redirect) {
-      yield put(push(r.TRANSLATION_DASHBOARD));
+      yield put(push(r.REQUESTER_DASHBOARD));
     }
   } catch (err) {
     yield put(create.rejected({ error: err }, { meta }));

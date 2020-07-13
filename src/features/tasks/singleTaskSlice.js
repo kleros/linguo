@@ -102,7 +102,7 @@ export default createReducer(initialState, builder => {
     const error = action.payload?.error;
 
     if (error) {
-      if (error.name === 'CancellationError') {
+      if (error.name !== 'CancellationError') {
         state.loadingState = 'failed';
         state.error = error;
       } else {
