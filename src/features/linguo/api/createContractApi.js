@@ -104,7 +104,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     return tasks;
   }
 
-  async function getTranslatorTasks({ account, skills = [] }) {
+  async function getTranslatorTasks({ account, skills = null }) {
     account = account ?? ADDRESS_ZERO;
     skills = typeof skills === 'string' ? JSON.parse(skills) : skills;
 

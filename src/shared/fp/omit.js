@@ -1,10 +1,10 @@
 import curry from './curry';
 import reduce from './reduce';
 
-const pick = (props, obj) =>
+const omit = (props, obj) =>
   reduce(
     (acc, prop) =>
-      Object.prototype.hasOwnProperty.call(obj, prop)
+      !Object.prototype.hasOwnProperty.call(obj, prop)
         ? Object.assign(acc, {
             [prop]: obj[prop],
           })
@@ -13,4 +13,4 @@ const pick = (props, obj) =>
     props
   );
 
-export default curry(pick);
+export default curry(omit);
