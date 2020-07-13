@@ -15,3 +15,14 @@ try {
 }
 
 export default languageGroupPairs;
+
+export function isSupportedLanguageGroupPair(langGroupPairLike) {
+  if (!langGroupPairLike) {
+    return false;
+  }
+
+  const langGroupPair =
+    langGroupPairLike.constructor === LanguageGroupPair ? langGroupPairLike : LanguageGroupPair.of(langGroupPairLike);
+
+  return languageGroupPairs.some(item => item.equals(langGroupPair));
+}

@@ -1,5 +1,6 @@
 import languages from '~/assets/fixtures/languages';
-import languageGroupPairs from './availableLanguageGroupPairs';
+import languageGroupPairs from './supportedLanguageGroupPairs';
+import getLanguageGroup from './getLanguageGroup';
 
 export default function getAvailableLanguagePairing(languageCode) {
   if (!languageCode) {
@@ -17,5 +18,3 @@ export default function getAvailableLanguagePairing(languageCode) {
     return group !== innerGroup && currentLanguageGroups.has(innerGroup);
   });
 }
-
-const getLanguageGroup = language => String(language).split('-')[0];

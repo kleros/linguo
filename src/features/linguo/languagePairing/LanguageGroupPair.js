@@ -17,13 +17,13 @@ export default function LanguageGroupPair(first, second) {
   }
 
   if (first === second) {
-    throw new Error('Language group pairs must contain different languages');
+    throw new Error('Language group pairs must contain different language groups');
   }
 
   /**
    * Here we sort to make sure that both en-US|pt-BR and pt-BR|en-US are the same
    */
-  const pair = [first, second].sort();
+  const pair = [first, second].map(String).sort();
 
   return Object.create(null, {
     constructor: {
@@ -40,18 +40,35 @@ export default function LanguageGroupPair(first, second) {
       },
     },
     contains: {
-      value: function contains(language) {
-        return pair.includes(language);
+      value: function contains(languageGroup) {
+        return pair.includes(languageGroup);
+      },
+    },
+    clone: {
+      value: function clone() {
+        return LanguageGroupPair(...pair);
+      },
+    },
+    equals: {
+      value: function equals(obj) {
+        try {
+          const [objFirst, objSecond] = [...obj];
+          const [thisFirst, thisSecond] = [...pair];
+
+          return obj.constructor === LanguageGroupPair && thisFirst === objFirst && thisSecond === objSecond;
+        } catch (err) {
+          return false;
+        }
       },
     },
     inspect: {
       value: function inspect() {
-        return `LanguagePair {${pair[0]}, ${pair[1]}}`;
+        return `LanguageGroupPair {${pair[0]}, ${pair[1]}}`;
       },
     },
     [Symbol.toStringTag]: {
       value: function toString() {
-        return `LanguagePair`;
+        return `LanguageGroupPair`;
       },
     },
     [Symbol.iterator]: {
@@ -72,10 +89,27 @@ Object.defineProperties(LanguageGroupPair, {
   fromArray: {
     value: ([first, second]) => LanguageGroupPair(first, second),
   },
+  of: {
+    value: arg => {
+      if (arg.constructor === LanguageGroupPair) {
+        return arg.clone();
+      }
+
+      if (typeof arg === 'string') {
+        return LanguageGroupPair.fromString(arg);
+      }
+
+      if (Array.isArray(arg)) {
+        return LanguageGroupPair.fromArray(arg);
+      }
+
+      throw new Error(`Cannot create LanguageGroupPair from arg: ${arg}`);
+    },
+  },
 });
 
 /**
- * @typedef {object} LanguagePair
+ * @typedef {object} LanguageGroupPair
  * @prop {Function} constructor
  * @prop {() => string} toString
  * @prop {() => string} toJSON
