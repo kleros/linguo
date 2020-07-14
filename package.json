@@ -16,7 +16,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "parcel build src/index.html --public-url ./",
+    "build": "parcel build src/index.html",
     "clean": "rm -rf .cache dist",
     "lint:css": "stylelint 'src/**/*.js{,x}'",
     "lint:js": "eslint --ext .js,.jsx src/",
