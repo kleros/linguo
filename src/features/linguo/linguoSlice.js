@@ -1,4 +1,5 @@
 import { selectChainId } from '~/features/web3/web3Slice';
+import { compose, flatMap, uniq } from '~/shared/fp';
 import { LanguageGroupPair, getLanguageGroup } from './languagePairing';
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
@@ -14,6 +15,14 @@ const selectAddresses = ({ sourceLanguage, targetLanguage }) => state => {
   const addresses = byChainId[chainId][langGroupPair];
 
   return addresses;
+};
+
+export const selectAllAddresses = state => {
+  const chainId = selectChainId(state);
+
+  const byLanguageGroupPair = byChainId[chainId];
+
+  return compose(uniq, flatMap(Object.values), Object.values)(byLanguageGroupPair);
 };
 
 export const selectLinguoTokenAddress = ({ sourceLanguage, targetLanguage }) => state => {
