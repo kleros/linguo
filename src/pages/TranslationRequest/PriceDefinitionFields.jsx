@@ -42,8 +42,6 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
   const allTokens = useShallowEqualSelector(selectAllTokens);
   const ethNativeToken = useSelector(selectTokenByTicker('ETH'));
 
-  console.log(allTokens);
-
   const [paymentTokenAddress, setPaymentTokenAddress] = React.useState(ethNativeToken.address);
   const handleChangePaymentTokenAddress = React.useCallback(value => {
     setPaymentTokenAddress(value);

@@ -139,10 +139,8 @@ export function* fetchAllSaga(action) {
 
   try {
     const data = yield call([tokenApi, 'fetchTokens'], { chainId });
-    console.log(data);
     yield put(fetchAll.fulfilled({ chainId, data }, { meta }));
   } catch (err) {
-    console.warn(err);
     yield put(fetchAll.rejected({ chainId, error: err }, { meta }));
   }
 }
