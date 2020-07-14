@@ -56,12 +56,18 @@ const secondLevelFiltersDisplayNames = {
 const StyledTabs = styled(Tabs)`
   && {
     margin-top: -2rem;
+    .ant-tabs-tab,
+    .ant-tabs-tab-active,
+    .ant-tabs-tab:hover {
+      font-weight: 500;
+    }
+
     .ant-tabs-tab-active,
     .ant-tabs-tab:hover {
       color: ${p => p.theme.color.primary.default};
     }
 
-    .ant-tabs-bar {
+    .ant-tabs-nav::before {
       border-bottom-color: transparent;
     }
 

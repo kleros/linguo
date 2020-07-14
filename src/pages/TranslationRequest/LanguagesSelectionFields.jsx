@@ -47,7 +47,7 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
         <StyledDismissableAlert
           id="task.create.language-pairing"
           message="Currently it is only possible to request translations from or to English."
-          description="More language pairs will be added in the future"
+          description="More language pairs will be added in the future."
         />
       </Col>
       <StyledWrapper>
