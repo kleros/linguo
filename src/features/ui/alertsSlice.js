@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export const initialState = {};
 
-const translatorUiSlice = createSlice({
+const alertsSlice = createSlice({
   name: 'ui/alerts',
   initialState,
   reducers: {
@@ -17,9 +17,9 @@ const translatorUiSlice = createSlice({
   },
 });
 
-export default translatorUiSlice.reducer;
+export default alertsSlice.reducer;
 
-export const actions = translatorUiSlice.actions;
+export const actions = alertsSlice.actions;
 
 export const selectors = {
   selectIsVisible: id => state => state?.[id] ?? true,

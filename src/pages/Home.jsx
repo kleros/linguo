@@ -1,12 +1,105 @@
 import React from 'react';
-import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Layout, Typography, Row, Col } from 'antd';
-import Button from '~/shared/Button';
-import LinguoAvatar from '~/assets/images/avatar-linguo-bot.svg';
-import WorkAsATranslatorAvatar from '~/assets/images/avatar-work-as-a-translator.svg';
-import RequestTranslationAvatar from '~/assets/images/avatar-request-translation.svg';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Col, Layout, Row, Switch, Typography } from 'antd';
+import styled from 'styled-components';
 import * as r from '~/app/routes';
+import LinguoAvatar from '~/assets/images/avatar-linguo-bot.svg';
+import RequestTranslationAvatar from '~/assets/images/avatar-request-translation.svg';
+import ReviewTranslationsAvatar from '~/assets/images/avatar-task-awaiting-review.svg';
+import WorkAsATranslatorAvatar from '~/assets/images/avatar-work-as-a-translator.svg';
+import { selectPreference, setPreference } from '~/features/ui/uiSlice';
+import Button from '~/shared/Button';
+import Spacer from '~/shared/Spacer';
+
+export default function Home() {
+  const dispatch = useDispatch();
+  const defaultPage = useSelector(selectPreference('page.default'));
+
+  const createClickHandler = page => checked => {
+    const value = checked ? page : null;
+
+    dispatch(
+      setPreference({
+        key: 'page.default',
+        value,
+      })
+    );
+  };
+
+  return (
+    <StyledLayout>
+      <StyledPageHeader>
+        <StyledLinguoAvatar />
+      </StyledPageHeader>
+      <Spacer />
+      <StyledLayoutContent>
+        <StyledTitle>Welcome!</StyledTitle>
+        <Spacer size={3} />
+        <StyledRow gutter={[16, 16]}>
+          <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 0 }} sm={{ span: 18, offset: 3 }} xs={24}>
+            <Link to={r.REQUESTER_DASHBOARD}>
+              <StyledButton fullWidth>
+                <RequestTranslationAvatar />
+                <span className="text">My Translations</span>
+              </StyledButton>
+            </Link>
+            <Spacer />
+            <StyledSwitchWrapper>
+              <Switch
+                size="small"
+                checkedChildren={<CheckOutlined />}
+                unCheckedChildren={<CloseOutlined />}
+                checked={defaultPage === r.REQUESTER_DASHBOARD}
+                onClick={createClickHandler(r.REQUESTER_DASHBOARD)}
+              />
+              Set as default page for Linguo
+            </StyledSwitchWrapper>
+          </Col>
+          <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 0 }} sm={{ span: 18, offset: 3 }} xs={24}>
+            <Link to={r.TRANSLATOR_DASHBOARD}>
+              <StyledButton fullWidth>
+                <WorkAsATranslatorAvatar />
+                <span className="text">Work as a Translator</span>
+              </StyledButton>
+            </Link>
+            <Spacer />
+            <StyledSwitchWrapper>
+              <Switch
+                size="small"
+                checkedChildren={<CheckOutlined />}
+                unCheckedChildren={<CloseOutlined />}
+                checked={defaultPage === r.TRANSLATOR_DASHBOARD}
+                onClick={createClickHandler(r.TRANSLATOR_DASHBOARD)}
+              />
+              Set as default page for Linguo
+            </StyledSwitchWrapper>
+          </Col>
+          <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 6 }} sm={{ span: 18, offset: 3 }} xs={24}>
+            <Link to={`${r.TRANSLATOR_DASHBOARD}?filter=inReview`}>
+              <StyledButton fullWidth>
+                <ReviewTranslationsAvatar />
+                <span className="text">Review Translations</span>
+              </StyledButton>
+            </Link>
+            <Spacer />
+            <StyledSwitchWrapper>
+              <Switch
+                size="small"
+                checkedChildren={<CheckOutlined />}
+                unCheckedChildren={<CloseOutlined />}
+                checked={defaultPage === `${r.TRANSLATOR_DASHBOARD}?filter=inReview`}
+                onClick={createClickHandler(`${r.TRANSLATOR_DASHBOARD}?filter=inReview`)}
+              />
+              Set as default page for Linguo
+            </StyledSwitchWrapper>
+          </Col>
+        </StyledRow>
+      </StyledLayoutContent>
+    </StyledLayout>
+  );
+}
 
 const StyledLayout = styled(Layout)`
   margin: 4rem;
@@ -15,6 +108,7 @@ const StyledLayout = styled(Layout)`
   background-color: ${props => props.theme.color.background.light};
   box-shadow: 0 0.375rem 5.625rem ${props => props.theme.color.shadow.default};
   border-radius: 0.75rem;
+  align-self: stretch;
 
   @media (max-width: 575.98px) {
     margin: 0;
@@ -27,7 +121,6 @@ const StyledPageHeader = styled.div`
   display: flex;
   justify-content: center;
   position: relative;
-  margin-bottom: 4rem;
   ::before {
     content: '';
     display: block;
@@ -58,7 +151,6 @@ const StyledTitle = styled(Typography.Title)`
     font-size: ${props => props.theme.fontSize.xxl};
     font-weight: 500;
     text-align: center;
-    margin-bottom: 2rem;
   }
 `;
 
@@ -93,7 +185,6 @@ const StyledButton = styled(Button)`
 
       .text {
         margin-bottom: 1rem;
-        padding: 0 2rem;
         word-break: normal;
         white-space: normal;
         max-width: 12rem;
@@ -102,33 +193,12 @@ const StyledButton = styled(Button)`
   }
 `;
 
-export default function Home() {
-  return (
-    <StyledLayout>
-      <StyledPageHeader>
-        <StyledLinguoAvatar />
-      </StyledPageHeader>
-      <StyledLayoutContent>
-        <StyledTitle>Welcome!</StyledTitle>
-        <StyledRow gutter={[8, 16]}>
-          <Col xl={{ span: 10, offset: 2 }} lg={{ span: 11, offset: 1 }} md={{ span: 12, offset: 0 }} xs={24}>
-            <Link to={r.REQUESTER_DASHBOARD}>
-              <StyledButton fullWidth>
-                <RequestTranslationAvatar />
-                <span className="text">My Translations</span>
-              </StyledButton>
-            </Link>
-          </Col>
-          <Col xl={10} lg={11} md={12} xs={24}>
-            <Link to={r.TRANSLATOR_DASHBOARD}>
-              <StyledButton fullWidth>
-                <WorkAsATranslatorAvatar />
-                <span className="text">Work as a Translator</span>
-              </StyledButton>
-            </Link>
-          </Col>
-        </StyledRow>
-      </StyledLayoutContent>
-    </StyledLayout>
-  );
-}
+const StyledSwitchWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  color: ${p => p.theme.color.text.light};
+  font-size: ${p => p.theme.fontSize.sm};
+  font-weight: 400;
+`;

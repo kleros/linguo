@@ -1,6 +1,7 @@
 import { compile } from 'path-to-regexp';
 
-export const HOME = '/';
+export const ROOT = '/';
+export const HOME = '/home';
 export const TRANSLATOR_DASHBOARD = '/translator';
 export const TRANSLATOR_SETTINGS = '/translator/settings';
 export const REQUESTER_DASHBOARD = '/requester';

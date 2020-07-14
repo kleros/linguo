@@ -7,10 +7,8 @@ import Settings from './Settings';
 
 const StyledRow = styled(Row)`
   height: 4rem;
-  display: grid;
-  grid: 1fr / repeat(3, 1fr);
-  column-gap: 0.75rem;
-  justify-content: space-evenly;
+  display: flex;
+  gap: 0.75rem;
   align-items: center;
 `;
 

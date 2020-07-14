@@ -103,11 +103,7 @@ const StyledAccountRow = styled(Row)`
   align-items: center;
 
   a {
-    color: ${props => props.theme.color.text.default};
-  }
-
-  a:hover {
-    text-decoration: underline;
+    color: ${props => props.theme.color.primary.default};
   }
 `;
 

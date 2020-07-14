@@ -6,11 +6,11 @@ const StyledKlerosFooter = styled(KlerosFooter)`
   background-color: #0043c5;
 
   a {
-    color: #fff;
+    color: ${p => p.theme.color.text.inverted};
 
     &:hover {
-      color: #fff;
-      text-decoration: underline;
+      color: ${p => p.theme.color.text.inverted};
+      text-shadow: 0 0 5px ${p => p.theme.hexToRgba(p.theme.color.text.inverted, 0.25)};
     }
   }
 `;

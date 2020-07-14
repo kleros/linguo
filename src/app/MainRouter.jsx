@@ -1,14 +1,16 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
-import { ConnectedRouter } from 'connected-react-router';
-import { Switch, Route } from 'react-router-dom';
 import loadable from '@loadable/component';
 import { Layout } from 'antd';
+import { ConnectedRouter } from 'connected-react-router';
 import { Spin } from '~/adapters/antd';
+import { selectPreference } from '~/features/ui/uiSlice';
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
-import Navbar from '~/shared/Navbar';
 import Footer from '~/shared/Footer';
 import { DrawerMenu } from '~/shared/Menu';
+import Navbar from '~/shared/Navbar';
 import { history } from '~/store';
 import * as r from './routes';
 
@@ -22,6 +24,8 @@ const TranslationRequest = loadable(() => import('~/pages/TranslationRequest'), 
 const TranslationDetails = loadable(() => import('~/pages/TranslationDetails'), { fallback });
 
 function MainRouter() {
+  const defaultPage = useSelector(selectPreference('page.default'));
+
   return (
     <ConnectedRouter history={history} noInitialPop>
       <Layout>
@@ -31,6 +35,9 @@ function MainRouter() {
           <Web3ErrorAlert />
           <StyledContent>
             <Switch>
+              <Route exact path={r.ROOT}>
+                <Redirect to={defaultPage ?? r.HOME} />
+              </Route>
               <Route exact path={r.HOME}>
                 <Home />
               </Route>

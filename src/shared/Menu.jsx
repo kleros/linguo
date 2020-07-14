@@ -11,6 +11,16 @@ const MenuItems = [
   <Menu.Item key="work-as-translator">
     <NavLink to={r.TRANSLATOR_DASHBOARD}>Work as a Translator</NavLink>
   </Menu.Item>,
+  <Menu.Item key="review-translations">
+    <NavLink
+      to={{
+        pathname: r.TRANSLATOR_DASHBOARD,
+        search: 'filter=inReview',
+      }}
+    >
+      Review Translations
+    </NavLink>
+  </Menu.Item>,
 ];
 
 const StyledLayoutSider = styled(Layout.Sider)`
@@ -25,12 +35,17 @@ const StyledLayoutSider = styled(Layout.Sider)`
   &.ant-layout-sider {
     background-color: ${props => props.theme.color.primary.default};
 
-    .ant-menu-dark {
+    .ant-menu {
       background-color: transparent;
+      border-right: none;
+    }
+
+    .ant-menu-item {
+      background: transparent;
     }
 
     .ant-menu-item-selected {
-      background-color: transparent;
+      background: ${props => props.theme.color.secondary.default};
     }
 
     .ant-layout-sider-zero-width-trigger {
@@ -52,10 +67,11 @@ const menuAnchorMixin = css`
   && {
     a {
       font-size: 1rem;
-      color: #fff;
+      color: ${p => p.theme.color.text.inverted};
 
       &:hover {
-        text-decoration: underline;
+        color: ${p => p.theme.color.text.inverted};
+        text-shadow: 0 0 5px ${p => p.theme.hexToRgba(p.theme.color.text.inverted, 0.25)};
       }
     }
   }
@@ -68,7 +84,7 @@ const StyledDrawerMenu = styled(Menu)`
 export function DrawerMenu() {
   return (
     <StyledLayoutSider breakpoint="md" collapsedWidth="0">
-      <StyledDrawerMenu theme="dark">{MenuItems}</StyledDrawerMenu>
+      <StyledDrawerMenu>{MenuItems}</StyledDrawerMenu>
     </StyledLayoutSider>
   );
 }
@@ -80,24 +96,44 @@ const StyledMainMenu = styled(Menu)`
   ${menuAnchorMixin}
 
   && {
-    &.ant-menu-dark {
+    &.ant-menu {
       background: transparent;
+      color: ${p => p.theme.color.text.inverted};
     }
 
     .ant-menu-item-selected {
       background-color: transparent;
+    }
+
+    .ant-menu-submenu-title {
+      color: ${p => p.theme.color.text.inverted};
+
+      :hover {
+        color: ${p => p.theme.color.text.inverted};
+        text-shadow: 0 0 5px ${p => p.theme.hexToRgba(p.theme.color.text.inverted, 0.25)};
+      }
     }
   }
 `;
 
 export function MainMenu() {
   return (
-    <StyledMainMenu mode="horizontal" theme="dark">
+    <StyledMainMenu mode="horizontal">
       <Menu.Item>
         <NavLink to={r.REQUESTER_DASHBOARD}>My Translations</NavLink>
       </Menu.Item>
       <Menu.Item>
         <NavLink to={r.TRANSLATOR_DASHBOARD}>Work as a Translator</NavLink>
+      </Menu.Item>
+      <Menu.Item>
+        <NavLink
+          to={{
+            pathname: r.TRANSLATOR_DASHBOARD,
+            search: 'filter=inReview',
+          }}
+        >
+          Review Translations
+        </NavLink>
       </Menu.Item>
     </StyledMainMenu>
   );
