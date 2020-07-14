@@ -280,7 +280,7 @@ async function getContractInstancesForRequester({ chainId, account, web3, apiIns
   const endBlock = await web3.eth.getBlockNumber();
   const startBlock = subtract(endBlock, BLOCKS_IN_60_DAYS);
 
-  const url = `http://${subdomain}.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${process.env.ETHERSCAN_API_KEY}`;
+  const url = `//${subdomain}.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${process.env.ETHERSCAN_API_KEY}`;
 
   const response = await fetch(url);
 
