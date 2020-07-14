@@ -54,7 +54,7 @@ export default async function createApiFacade({ web3, chainId }) {
     ]);
 
     return createContractApis({ web3, archon, withEthPayments, withTokenPayments });
-  }, getAddressesByLanguageGroupPair({ chainId }));
+  }, getLanguageGrouPairsByChainId({ chainId }));
 
   const addressesByLanguageGroupPair = mapValues(
     ({ linguo, linguoToken }) => [linguo.address, linguoToken.address],
@@ -213,7 +213,7 @@ async function getLinguoContracts({ web3, chainId, address, deployment }) {
   return { linguo, arbitrator };
 }
 
-function getAddressesByLanguageGroupPair({ chainId }) {
+function getLanguageGrouPairsByChainId({ chainId }) {
   try {
     const addresses = JSON.parse(process.env.LINGUO_CONTRACT_ADDRESSES);
     return addresses[chainId];

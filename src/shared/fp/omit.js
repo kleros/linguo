@@ -3,14 +3,14 @@ import reduce from './reduce';
 
 const omit = (props, obj) =>
   reduce(
-    (acc, prop) =>
-      !Object.prototype.hasOwnProperty.call(obj, prop)
+    (acc, [key, value]) =>
+      !props.includes(key)
         ? Object.assign(acc, {
-            [prop]: obj[prop],
+            [key]: value,
           })
         : acc,
     {},
-    props
+    Object.entries(obj)
   );
 
 export default curry(omit);
