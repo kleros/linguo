@@ -4,7 +4,7 @@ import { put } from 'redux-saga/effects';
 import * as r from '~/app/routes';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
-import { groupBy, map, prop } from '~/shared/fp';
+import { indexBy, map, prop } from '~/shared/fp';
 
 export const initialState = {
   ids: [],
@@ -19,7 +19,7 @@ const translatorSkillsSlice = createSlice({
       const skills = action.payload?.skills ?? [];
 
       const getLanguage = prop('language');
-      state.entities = groupBy(getLanguage, skills);
+      state.entities = indexBy(getLanguage, skills);
       state.ids = map(getLanguage, skills);
     },
     clearSkills() {

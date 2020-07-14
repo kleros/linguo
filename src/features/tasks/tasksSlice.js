@@ -6,7 +6,7 @@ import * as r from '~/app/routes';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createCancellableSaga from '~/shared/createCancellableSaga';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
-import { compose, groupBy, prop, filter, mapValues } from '~/shared/fp';
+import { compose, indexBy, prop, filter, mapValues } from '~/shared/fp';
 import { confirm, registerTxSaga } from '~/features/transactions/transactionsSlice';
 import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
 import { watchAllWithBuffer } from '~/features/web3/runWithContext';
@@ -47,7 +47,7 @@ const tasksSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(fetchByParty.fulfilled, (state, action) => {
       const tasks = compose(
-        groupBy(prop('id')),
+        indexBy(prop('id')),
         filter(task => task.id !== undefined)
       )(action.payload?.data ?? []);
 

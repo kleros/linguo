@@ -6,7 +6,7 @@ import storage from 'redux-persist/lib/storage';
 import disputesReducer from '~/features/disputes/disputesSlice';
 import evidencesReducer from '~/features/evidences/evidencesSlice';
 import tasksReducer from '~/features/tasks/tasksSlice';
-import tokenReducer from '~/features/tokens/tokensSlice';
+import tokensReducer from '~/features/tokens/tokensSlice';
 import transactionsReducer from '~/features/transactions/transactionsSlice';
 import translatorReducer from '~/features/translator/translatorSlice';
 import uiReducer from '~/features/ui/uiSlice';
@@ -32,7 +32,7 @@ export const createRootReducer = additionalReducers =>
     evidences: evidencesReducer,
     requester: requesterReducer,
     tasks: tasksReducer,
-    tokens: tokenReducer,
+    tokens: tokensReducer,
     transactions: transactionsReducer,
     translator: translatorReducer,
     ui: uiReducer,

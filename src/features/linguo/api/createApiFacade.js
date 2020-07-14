@@ -7,7 +7,7 @@ import {
   compose,
   filter,
   flatten,
-  groupBy,
+  indexBy,
   map,
   mapValues,
   omit,
@@ -282,7 +282,7 @@ async function getContractInstancesForRequester({ chainId, account, web3, apiIns
    * To actually be able to compare them, we need to convert everything to lowercase
    * and then back when returning.
    */
-  const addressesLowercaseKey = groupBy(addr => String(addr).toLowerCase(), Object.keys(apiInstancesByAddress));
+  const addressesLowercaseKey = indexBy(addr => String(addr).toLowerCase(), Object.keys(apiInstancesByAddress));
 
   const addresses = compose(
     map(lowercaseAddr => addressesLowercaseKey[lowercaseAddr]),

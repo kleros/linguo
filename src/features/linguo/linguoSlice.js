@@ -20,7 +20,7 @@ const selectAddresses = ({ sourceLanguage, targetLanguage }) => state => {
 export const selectAllAddresses = state => {
   const chainId = selectChainId(state);
 
-  const byLanguageGroupPair = byChainId[chainId];
+  const byLanguageGroupPair = byChainId[chainId] ?? {};
 
   return compose(uniq, flatMap(Object.values), Object.values)(byLanguageGroupPair);
 };

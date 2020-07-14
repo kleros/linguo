@@ -1,7 +1,7 @@
 import curry from './curry';
 import reduce from './reduce';
 
-const groupBy = (getKey, arr) =>
+const indexBy = (getKey, arr) =>
   reduce(
     (acc, current) =>
       Object.assign(acc, {
@@ -11,4 +11,4 @@ const groupBy = (getKey, arr) =>
     arr ?? []
   );
 
-export default curry(groupBy);
+export default curry(indexBy);

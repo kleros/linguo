@@ -34,7 +34,7 @@ const reducer = createFinalReducer();
 export default reducer;
 
 /* ----------------------- Selectors ----------------------- */
-export const selectState = state => state.web3.state;
+export const selectState = state => state.web3?.state;
 
 export const selectIsConnecting = state => selectState(state) === 'connecting';
 
@@ -44,19 +44,19 @@ export const selectIsIdle = state => selectState(state) === 'idle';
 
 export const selectIsErrored = state => selectState(state) === 'errored';
 
-export const selectCurrentConnector = state => state.web3.context.currentConnector;
+export const selectCurrentConnector = state => state.web3?.context.currentConnector;
 
-export const selectActivatingConnector = state => state.web3.context.activatingConnector;
+export const selectActivatingConnector = state => state.web3?.context.activatingConnector;
 
-export const selectAccount = state => state.web3.context.account;
+export const selectAccount = state => state.web3?.context.account;
 
-export const selectChainId = state => state.web3.context.chainId;
+export const selectChainId = state => state.web3?.context.chainId;
 
-export const selectError = state => state.web3.context.error;
+export const selectError = state => state.web3?.context.error;
 
 export const selectHasError = state => selectError(state) !== null;
 
-export const selectBalance = account => state => state.web3.context.balances?.[account] ?? '0';
+export const selectBalance = account => state => state.web3?.context.balances?.[account] ?? '0';
 
 /* ------------------------- Sagas ------------------------- */
 export function* notifyErrorSaga(action) {

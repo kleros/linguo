@@ -1,11 +1,12 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Col, Form, Row } from 'antd';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import { create as createTask } from '~/features/tasks/tasksSlice';
-import { useWeb3React } from '~/features/web3';
+import { fetchAll } from '~/features/tokens/tokensSlice';
+import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import useStateMachine from '~/shared/useStateMachine';
@@ -21,7 +22,12 @@ function TranslationRequestForm() {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [state, send] = useStateMachine(formStateMachine);
-  const { account } = useWeb3React();
+  const account = useSelector(selectAccount);
+  const chainId = useSelector(selectChainId);
+
+  React.useEffect(() => {
+    dispatch(fetchAll({ chainId }));
+  }, [dispatch, chainId]);
 
   const submitButtonProps =
     state === 'submitting'

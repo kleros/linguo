@@ -24,7 +24,7 @@ export default function Footer() {
 }
 
 function getRandomElement(arr) {
-  return arr[getRandomInt(0, arr.length - 1)];
+  return arr[getRandomInt(0, arr.length - 1)] ?? '0x0000000000000000000000000000000000000000';
 }
 
 function getRandomInt(min, max) {

@@ -2,16 +2,11 @@ import React from 'react';
 import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { nanoid } from 'nanoid';
 import { LoadingOutlined, UnlockOutlined } from '@ant-design/icons';
 import { Col, Form, Input, Row, Select, Typography } from 'antd';
+import { nanoid } from 'nanoid';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
-import Button from '~/shared/Button';
-import FormattedNumber from '~/shared/FormattedNumber';
-import { InfoIcon } from '~/shared/icons';
-import Spacer from '~/shared/Spacer';
-import usePreviousMatching from '~/shared/usePreviousMatching';
 import { selectLinguoTokenAddress } from '~/features/linguo/linguoSlice';
 import {
   approve,
@@ -22,6 +17,11 @@ import {
 } from '~/features/tokens/tokensSlice';
 import TransactionState from '~/features/transactions/TransactionState';
 import { selectAccount } from '~/features/web3/web3Slice';
+import Button from '~/shared/Button';
+import FormattedNumber from '~/shared/FormattedNumber';
+import { InfoIcon } from '~/shared/icons';
+import Spacer from '~/shared/Spacer';
+import usePreviousMatching from '~/shared/usePreviousMatching';
 import useAllowanceValidation, { AllowanceValidationStatus } from './useAllowanceValidation';
 
 export default function PriceDefinitionFieldsWrapper() {
@@ -39,8 +39,10 @@ export default function PriceDefinitionFieldsWrapper() {
 }
 
 function PriceDefinitionFields({ getFieldValue, validateFields }) {
+  const allTokens = useShallowEqualSelector(selectAllTokens);
   const ethNativeToken = useSelector(selectTokenByTicker('ETH'));
-  const allTokens = useSelector(selectAllTokens);
+
+  console.log(allTokens);
 
   const [paymentTokenAddress, setPaymentTokenAddress] = React.useState(ethNativeToken.address);
   const handleChangePaymentTokenAddress = React.useCallback(value => {
