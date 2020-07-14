@@ -24,6 +24,20 @@ import TransactionState from '~/features/transactions/TransactionState';
 import { selectAccount } from '~/features/web3/web3Slice';
 import useAllowanceValidation, { AllowanceValidationStatus } from './useAllowanceValidation';
 
+export default function PriceDefinitionFieldsWrapper() {
+  return (
+    <Form.Item
+      noStyle
+      dependencies={['sourceLanguage', 'targetLanguage']}
+      shouldUpdate={(prev, current) =>
+        prev.sourceLanguage !== current.sourceLanguage || prev.targetLanguage !== current.targetLanguage
+      }
+    >
+      {form => <PriceDefinitionFields {...form} />}
+    </Form.Item>
+  );
+}
+
 function PriceDefinitionFields({ getFieldValue, validateFields }) {
   const ethNativeToken = useSelector(selectTokenByTicker('ETH'));
   const allTokens = useSelector(selectAllTokens);
@@ -36,7 +50,12 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
   const paymentToken = useSelector(selectTokenByAddress(paymentTokenAddress));
 
   const account = useSelector(selectAccount);
-  const linguoTokenAddress = useSelector(selectLinguoTokenAddress);
+  const linguoTokenAddress = useSelector(
+    selectLinguoTokenAddress({
+      sourceLanguage: getFieldValue('sourceLanguage'),
+      targetLanguage: getFieldValue('targetLanguage'),
+    })
+  );
 
   const allowanceValidation = useAllowanceValidation({
     spender: linguoTokenAddress,
@@ -164,8 +183,6 @@ PriceDefinitionFields.propTypes = {
   getFieldValue: t.func.isRequired,
   validateFields: t.func.isRequired,
 };
-
-export default PriceDefinitionFields;
 
 const StyledDisclaimerText = styled(Typography.Paragraph)`
   && {
