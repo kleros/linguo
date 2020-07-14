@@ -9,7 +9,6 @@ import { useShallowEqualSelector } from '~/adapters/react-redux';
 export default function Footer() {
   const chainId = useSelector(selectChainId);
   const addresses = useShallowEqualSelector(selectAllAddresses);
-  console.log(addresses);
   const address = getRandomElement(addresses);
 
   const explorerBaseUrl = chainId === 42 ? 'kovan.etherscan.io' : 'etherscan.io';
