@@ -13,6 +13,5 @@ const methodHandler = {
 };
 
 const methodPlaceholder = async () => {
-  throw new Error(`API not properly initialized.
-    Did you forget to wrap the calling component into a <LinguoApiReadyGateway> component?`);
+  throw new Error(`Linguo API not properly initialized.`);
 };

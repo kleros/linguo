@@ -1,6 +1,6 @@
 import { Arbitrator, Linguo, LinguoToken } from '@kleros/contract-deployments/linguo';
 import { withProvider } from '~/app/archon';
-import { combination } from '~/shared/combinatorics';
+import { combination } from '~/adapters/js-combinatorics';
 import {
   asyncMap,
   asyncMapValues,
@@ -196,25 +196,19 @@ export default async function createApiFacade({ web3, chainId }) {
   return new Proxy(apiSkeleton, propHandler);
 }
 
-const contractInstancesCache = {};
-
 async function getLinguoContracts({ web3, chainId, address, deployment }) {
+  // set the max listeners warning threshold
+  web3.eth.maxListenersWarningThreshold = 1000;
+
   address = deployment.networks[chainId]?.address;
 
   if (!address) {
     throw new Error(`Could not find address for linguo contract on network ${chainId}`);
   }
 
-  if (contractInstancesCache[chainId]?.[address]) {
-    return contractInstancesCache[chainId]?.[address];
-  }
-
   const linguo = new web3.eth.Contract(deployment.abi, address);
   const arbitratorAddress = await linguo.methods.arbitrator().call();
   const arbitrator = new web3.eth.Contract(Arbitrator.abi, arbitratorAddress);
-
-  contractInstancesCache[chainId] = contractInstancesCache[chainId] ?? {};
-  contractInstancesCache[chainId][address] = { linguo, arbitrator };
 
   return { linguo, arbitrator };
 }
@@ -228,28 +222,20 @@ function getAddressesByLanguageGroupPair({ chainId }) {
   }
 }
 
-const apiInstancesCache = {};
-
 function createContractApis({ web3, archon, withEthPayments, withTokenPayments }) {
   const linguoAddress = withEthPayments.linguo.options.address;
-  const linguo = apiInstancesCache[linguoAddress] ?? {
+  const linguo = {
     address: linguoAddress,
     api: createEthContractApi({ web3, archon, ...withEthPayments }),
   };
 
   const linguoTokenAddress = withTokenPayments.linguo.options.address;
-  const linguoToken = apiInstancesCache[linguoTokenAddress] ?? {
+  const linguoToken = {
     address: linguoTokenAddress,
     api: createTokenContractApi({ web3, archon, ...withTokenPayments }),
   };
 
-  apiInstancesCache[linguoAddress] = linguo;
-  apiInstancesCache[linguoTokenAddress] = linguoToken;
-
-  return {
-    linguo,
-    linguoToken,
-  };
+  return { linguo, linguoToken };
 }
 
 function getContractInstancesForTranslator({ skills, addressesByLanguageGroupPair, apiInstancesByAddress }) {
