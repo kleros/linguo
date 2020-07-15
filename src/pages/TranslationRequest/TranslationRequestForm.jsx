@@ -53,7 +53,10 @@ function TranslationRequestForm() {
       try {
         await dispatch(
           createTask(data, {
-            meta: { redirect: true },
+            meta: {
+              thunk: true,
+              redirect: true,
+            },
           })
         );
       } finally {
