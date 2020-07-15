@@ -11,6 +11,7 @@ import Button from '~/shared/Button';
 import Deadline from '~/shared/Deadline';
 import Spacer from '~/shared/Spacer';
 import FormattedNumber from '~/shared/FormattedNumber';
+import { useRemainingTime } from '~/shared/RemainingTime';
 import EthValue from '~/shared/EthValue';
 import BoxWrapper from '../../../components/BoxWrapper';
 import BoxTitle from '../../../components/BoxTitle';
@@ -126,10 +127,12 @@ function AppealFundingSummary({
 
   const isFullyFunded = greaterThanOrEqual(paidFees, totalAppealCost);
 
+  const remainingTimeCountdown = useRemainingTime(remainingTime);
+
   let status;
   if (percent >= 100) {
     status = 'success';
-  } else if (remainingTime > 0 && isOngoing) {
+  } else if (remainingTimeCountdown > 0 && isOngoing) {
     status = 'active';
   } else if (finalAppealSide === AppealSide.Winner) {
     status = 'success';
@@ -229,7 +232,7 @@ function AppealFundingSummary({
           )}
           {!isFullyFunded && (
             <Deadline
-              seconds={remainingTime}
+              seconds={remainingTimeCountdown}
               render={({ formattedValue, icon, endingSoon }) => (
                 <StyledDeadlineContent gutter={8} className={endingSoon ? 'ending-soon' : ''}>
                   <Col>{icon}</Col>

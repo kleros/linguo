@@ -1,7 +1,6 @@
 import React from 'react';
 import { Dispute, AppealSide } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
-import { useRemainingTime } from '~/shared/RemainingTime';
 import DisputeContext from '../DisputeContext';
 
 export default function useAppealStatus() {
@@ -9,18 +8,15 @@ export default function useAppealStatus() {
 
   const currentDate = new Date();
 
-  const remainingTimeForTranslator = useRemainingTime(
-    Dispute.remainingTimeForAppeal(dispute, {
-      currentDate,
-      party: TaskParty.Translator,
-    })
-  );
-  const remainingTimeForChallenger = useRemainingTime(
-    Dispute.remainingTimeForAppeal(dispute, {
-      currentDate,
-      party: TaskParty.Challenger,
-    })
-  );
+  const remainingTimeForTranslator = Dispute.remainingTimeForAppeal(dispute, {
+    currentDate,
+    party: TaskParty.Translator,
+  });
+
+  const remainingTimeForChallenger = Dispute.remainingTimeForAppeal(dispute, {
+    currentDate,
+    party: TaskParty.Challenger,
+  });
 
   const appealIsOngoing = Dispute.isAppealOngoing(dispute, {
     remainingTime: {
