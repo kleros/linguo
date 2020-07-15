@@ -2,11 +2,17 @@
   "extends": [
     "prettier-standard/prettier-file",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:import/recommended",
     "plugin:import/react",
     "plugin:security/recommended"
   ],
-  "plugins": ["react", "react-hooks", "security", "import"],
+  "plugins": [
+    "react",
+    "react-hooks",
+    "security",
+    "import"
+  ],
   "env": {
     "browser": true,
     "es6": true,
@@ -32,7 +38,13 @@
     "import/resolver": {
       "parcel": {
         "rootDir": "src",
-        "extensions": [".js", ".jsx", ".svg", ".png", ".jpeg"]
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".svg",
+          ".png",
+          ".jpeg"
+        ]
       }
     }
   },
@@ -40,12 +52,21 @@
     "no-unused-vars": [
       "error",
       {
-        "varsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)",
-        "argsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)"
+        "varsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)|(^ignored)",
+        "argsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)|(^ignored)"
       }
     ],
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error",
+          "info",
+          "debug"
+        ]
+      }
+    ],
     "security/detect-object-injection": "off",
     "security/detect-non-literal-fs-filename": "off",
     "import/extensions": [
