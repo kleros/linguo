@@ -3,7 +3,12 @@ import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckOutlined, LoadingOutlined, SendOutlined } from '@ant-design/icons';
 import Button from '~/shared/Button';
-import { approveTranslation, assignTranslator, reimburseRequester } from '~/features/tasks/tasksSlice';
+import {
+  approveTranslation,
+  assignTranslator,
+  reimburseRequester,
+  withdrawAllFeesAndRewards,
+} from '~/features/tasks/tasksSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import useStateMachine from '~/shared/useStateMachine';
 import useTask from '../../useTask';
@@ -32,12 +37,14 @@ const TaskInteraction = {
   Assign: 'assign',
   Approve: 'approve',
   Reimburse: 'reimburse',
+  Withdraw: 'withdraw',
 };
 
 const interactionToActionCreator = {
   [TaskInteraction.Assign]: assignTranslator,
   [TaskInteraction.Approve]: approveTranslation,
   [TaskInteraction.Reimburse]: reimburseRequester,
+  [TaskInteraction.Withdraw]: withdrawAllFeesAndRewards,
 };
 
 const defaultButtonContent = {
@@ -55,7 +62,7 @@ const defaultButtonContent = {
   },
 };
 
-function TaskInteractionButton({ interaction, content, buttonProps }) {
+export default function TaskInteractionButton({ interaction, content, buttonProps, onSuccess, onFailure }) {
   const dispatch = useDispatch();
   const { id } = useTask();
   const account = useSelector(selectAccount);
@@ -83,14 +90,16 @@ function TaskInteractionButton({ interaction, content, buttonProps }) {
 
       send('START');
       try {
-        await dispatch(action);
+        const result = await dispatch(action);
+        onSuccess(result);
         send('SUCCESS');
       } catch (err) {
         console.warn('Failed to submit:', err);
+        onFailure(err);
         send('ERROR');
       }
     },
-    [dispatch, action, send]
+    [dispatch, action, send, onSuccess, onFailure]
   );
 
   const disabled = state !== 'idle';
@@ -117,13 +126,15 @@ TaskInteractionButton.propTypes = {
     succeeded: contentItemShape,
   }),
   buttonProps: t.object,
+  onSuccess: t.func,
+  onFailure: t.func,
 };
 
 TaskInteractionButton.defaultProps = {
   buttonProps: {},
   content: {},
+  onSuccess: () => {},
+  onFailure: () => {},
 };
 
 TaskInteractionButton.Interaction = TaskInteraction;
-
-export default TaskInteractionButton;

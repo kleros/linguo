@@ -98,11 +98,13 @@ export const {
   fetchById,
   getChallengerDeposit,
   getTranslatorDeposit,
+  getWithdrawableAmount,
   assignTranslator,
   submitTranslation,
   challengeTranslation,
   approveTranslation,
   reimburseRequester,
+  withdrawAllFeesAndRewards,
 } = singleTaskSlice.actions;
 
 export const selectAll = state => state.tasks.ids.map(id => state.tasks.entities[id].data);

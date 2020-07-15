@@ -34,6 +34,7 @@ const apiSkeleton = {
   getChallengerDeposit() {},
   getTaskDispute() {},
   getTaskDisputeEvidences() {},
+  getWithdrawableAmount() {},
   assignTask() {},
   submitTranslation() {},
   approveTranslation() {},
@@ -42,6 +43,7 @@ const apiSkeleton = {
   challengeTranslation() {},
   fundAppeal() {},
   submitEvidence() {},
+  withdrawAllFeesAndRewards() {},
 };
 
 export default async function createApiFacade({ web3, chainId }) {

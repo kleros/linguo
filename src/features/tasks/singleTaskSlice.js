@@ -16,21 +16,25 @@ export const initialState = {
 const fetchById = createAsyncAction('tasks/fetchById');
 const getTranslatorDeposit = createAsyncAction('tasks/getTranslatorDeposit');
 const getChallengerDeposit = createAsyncAction('tasks/getChallengerDeposit');
+const getWithdrawableAmount = createAsyncAction('tasks/getWithdrawableAmount');
 const assignTranslator = createAsyncAction('tasks/assignTranslator');
 const submitTranslation = createAsyncAction('tasks/submitTranslation');
 const challengeTranslation = createAsyncAction('tasks/challengeTranslation');
 const approveTranslation = createAsyncAction('tasks/approveTranslation');
 const reimburseRequester = createAsyncAction('tasks/reimburseRequester');
+const withdrawAllFeesAndRewards = createAsyncAction('tasks/withdrawAllFeesAndRewards');
 
 export const actions = {
   fetchById,
   getTranslatorDeposit,
   getChallengerDeposit,
+  getWithdrawableAmount,
   assignTranslator,
   submitTranslation,
   challengeTranslation,
   approveTranslation,
   reimburseRequester,
+  withdrawAllFeesAndRewards,
 };
 
 export default createReducer(initialState, builder => {
@@ -172,6 +176,23 @@ function* getChallengerDepositSaga(action) {
   }
 }
 
+function* getWithdrawableAmountSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+  const { id, account } = action.payload ?? {};
+  const { meta } = action;
+
+  try {
+    const data = yield call([linguoApi, 'getWithdrawableAmount'], { ID: id, account });
+    const result = getWithdrawableAmount.fulfilled({ id, data }, { meta });
+
+    yield put(result);
+  } catch (err) {
+    const result = getWithdrawableAmount.rejected({ id, error: err }, { meta });
+
+    yield put(result);
+  }
+}
+
 function* assignTranslatorSaga(action) {
   const linguoApi = yield getContext('linguoApi');
 
@@ -292,6 +313,30 @@ function* reimburseRequesterSaga(action) {
   }
 }
 
+function* withdrawAllFeesAndRewardsSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+
+  const { id, account } = action.payload ?? {};
+  const { tx: metaTx, ...meta } = action.meta ?? {};
+
+  const { tx } = yield call([linguoApi, 'withdrawAllFeesAndRewards'], { ID: id, account }, { from: account });
+
+  try {
+    yield call(registerTxSaga, tx, {
+      ...metaTx,
+      *onSuccess() {
+        yield put(withdrawAllFeesAndRewards.fulfilled({ id, account }, { meta }));
+      },
+      *onFailure(resultAction) {
+        const error = resultAction.payload?.error;
+        yield put(withdrawAllFeesAndRewards.rejected({ id, account, error }, { meta }));
+      },
+    });
+  } catch (err) {
+    yield put(withdrawAllFeesAndRewards.rejected({ id, account, error: err }, { meta }));
+  }
+}
+
 const createWatchFetchByIdSaga = createWatcherSaga(
   { takeType: TakeType.latest },
   createCancellableSaga(fetchByIdSaga, fetchById.rejected, {
@@ -300,9 +345,14 @@ const createWatchFetchByIdSaga = createWatcherSaga(
   })
 );
 
+const createWatchGetTranslatorDepositSaga = createWatcherSaga({ takeType: TakeType.latest }, getTranslatorDepositSaga);
+
 const createWatchGetChallengerDepositSaga = createWatcherSaga({ takeType: TakeType.latest }, getChallengerDepositSaga);
 
-const createWatchGetTranslatorDepositSaga = createWatcherSaga({ takeType: TakeType.latest }, getTranslatorDepositSaga);
+const createWatchGetWithdrawableAmountSaga = createWatcherSaga(
+  { takeType: TakeType.latest },
+  getWithdrawableAmountSaga
+);
 
 const createWatchAssignTranslatorSaga = createWatcherSaga({ takeType: TakeType.leading }, assignTranslatorSaga);
 
@@ -314,13 +364,20 @@ const createWatchApproveTranslationSaga = createWatcherSaga({ takeType: TakeType
 
 const createWatchReimburseRequesterSaga = createWatcherSaga({ takeType: TakeType.leading }, reimburseRequesterSaga);
 
+const createWatchWithdrawAllFeesAndRewardsSaga = createWatcherSaga(
+  { takeType: TakeType.every },
+  withdrawAllFeesAndRewardsSaga
+);
+
 export const sagaDescriptors = [
   [createWatchFetchByIdSaga, actionChannel(fetchById.type)],
   [createWatchGetTranslatorDepositSaga, actionChannel(getTranslatorDeposit.type)],
   [createWatchGetChallengerDepositSaga, actionChannel(getChallengerDeposit.type)],
+  [createWatchGetWithdrawableAmountSaga, actionChannel(getWithdrawableAmount.type)],
   [createWatchAssignTranslatorSaga, actionChannel(assignTranslator.type)],
   [createWatchSubmitTranslationSaga, actionChannel(submitTranslation.type)],
   [createWatchChallengeTranslationSaga, actionChannel(challengeTranslation.type)],
   [createWatchApproveTranslationSaga, actionChannel(approveTranslation.type)],
   [createWatchReimburseRequesterSaga, actionChannel(reimburseRequester.type)],
+  [createWatchWithdrawAllFeesAndRewardsSaga, actionChannel(withdrawAllFeesAndRewards.type)],
 ];

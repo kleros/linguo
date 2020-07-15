@@ -546,54 +546,39 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     return evidences.filter(({ evidenceJSONValid }) => !!evidenceJSONValid);
   }
 
+  async function getWithdrawableAmount({ ID, account }) {
+    const amount = await linguo.methods.amountWithdrawable(ID, account).call();
+
+    return amount;
+  }
+
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
     const value = await getTranslatorDeposit({ ID });
-    const tx = linguo.methods.assignTask(ID).send({
-      from,
-      value,
-      gas,
-      gasPrice,
-    });
+    const tx = linguo.methods.assignTask(ID).send({ from, value, gas, gasPrice });
 
     return { tx };
   }
 
   async function submitTranslation({ ID, text }, { from, gas, gasPrice } = {}) {
-    const tx = linguo.methods.submitTranslation(ID, text).send({
-      from,
-      gas,
-      gasPrice,
-    });
+    const tx = linguo.methods.submitTranslation(ID, text).send({ from, gas, gasPrice });
 
     return { tx };
   }
 
   async function approveTranslation({ ID }, { from, gas, gasPrice } = {}) {
-    const tx = linguo.methods.acceptTranslation(ID).send({
-      from,
-      gas,
-      gasPrice,
-    });
+    const tx = linguo.methods.acceptTranslation(ID).send({ from, gas, gasPrice });
 
     return { tx };
   }
 
   async function reimburseRequester({ ID }, { from, gas, gasPrice } = {}) {
-    const tx = linguo.methods.reimburseRequester(ID).send({
-      from,
-      gas,
-      gasPrice,
-    });
+    const tx = linguo.methods.reimburseRequester(ID).send({ from, gas, gasPrice });
 
     return { tx };
   }
 
   async function acceptTranslation({ ID }, { from, gas, gasPrice } = {}) {
-    const tx = linguo.methods.acceptTranslation(ID).send({
-      from,
-      gas,
-      gasPrice,
-    });
+    const tx = linguo.methods.acceptTranslation(ID).send({ from, gas, gasPrice });
 
     return { tx };
   }
@@ -617,23 +602,13 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     });
 
     const value = await getChallengerDeposit({ ID });
-    const tx = linguo.methods.challengeTranslation(ID, evidence).send({
-      from,
-      value,
-      gas,
-      gasPrice,
-    });
+    const tx = linguo.methods.challengeTranslation(ID, evidence).send({ from, value, gas, gasPrice });
 
     return { tx };
   }
 
   async function fundAppeal({ ID, side }, { from, value, gas, gasPrice } = {}) {
-    const tx = linguo.methods.fundAppeal(ID, side).send({
-      from,
-      value,
-      gas,
-      gasPrice,
-    });
+    const tx = linguo.methods.fundAppeal(ID, side).send({ from, value, gas, gasPrice });
 
     return { tx };
   }
@@ -665,11 +640,13 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
       },
     });
 
-    const tx = linguo.methods.submitEvidence(ID, evidence).send({
-      from,
-      gas,
-      gasPrice,
-    });
+    const tx = linguo.methods.submitEvidence(ID, evidence).send({ from, gas, gasPrice });
+
+    return { tx };
+  }
+
+  function withdrawAllFeesAndRewards({ ID, account }, { from = account, gas, gasPrice } = {}) {
+    const tx = linguo.methods.batchRoundWithdraw(account, ID, '0', '0').send({ from, gas, gasPrice });
 
     return { tx };
   }
@@ -683,6 +660,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     getChallengerDeposit,
     getTaskDispute,
     getTaskDisputeEvidences,
+    getWithdrawableAmount,
     assignTask,
     submitTranslation,
     approveTranslation,
@@ -691,6 +669,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     challengeTranslation,
     fundAppeal,
     submitEvidence,
+    withdrawAllFeesAndRewards,
   };
 }
 
