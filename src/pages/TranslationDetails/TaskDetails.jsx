@@ -67,7 +67,7 @@ export default function TaskDetails() {
   const taskInfo = [
     {
       title: 'Price per word',
-      content: <TaskPrice showTooltip value={pricePerWord} />,
+      content: <TaskPrice showTooltip token={token} value={pricePerWord} />,
     },
     {
       title: 'Number of words',
