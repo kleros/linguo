@@ -14,27 +14,9 @@ import TaskLanguages from './TaskLanguages';
 import TaskPrice from './TaskPrice';
 import { selectById } from './tasksSlice';
 
-const StyledCard = styled(Card)`
-  && {
-    height: 100%;
-  }
-`;
-
-const StyledTaskTitle = styled(Typography.Title)`
-  && {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: ${props => props.theme.color.text.light};
-    font-size: ${props => props.theme.fontSize.md};
-    font-weight: 500;
-    margin-bottom: 1rem;
-  }
-`;
-
 const _1_MINUTE_MS = 60 * 1000;
 
-function TaskCard({ id }) {
+export default function TaskCard({ id }) {
   const task = useShallowEqualSelector(selectById(id));
   const { status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality, token } = task;
 
@@ -71,8 +53,8 @@ function TaskCard({ id }) {
       content: (
         <TaskPrice
           showTooltip
-          token={token}
           showFootnoteMark={status === TaskStatus.Created && !Task.isIncomplete(task)}
+          token={token}
           value={currentPrice}
         />
       ),
@@ -109,4 +91,20 @@ TaskCard.propTypes = {
   id: t.string.isRequired,
 };
 
-export default TaskCard;
+const StyledCard = styled(Card)`
+  && {
+    height: 100%;
+  }
+`;
+
+const StyledTaskTitle = styled(Typography.Title)`
+  && {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: ${props => props.theme.color.text.light};
+    font-size: ${props => props.theme.fontSize.md};
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+`;

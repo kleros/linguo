@@ -40,6 +40,7 @@ export default function TaskDetails() {
     originalTextFile,
     translatedTextUrl,
     hasDispute,
+    token,
   } = task;
 
   const getCurrentPrice = React.useCallback(() => Task.currentPrice(task), [task]);
@@ -74,7 +75,7 @@ export default function TaskDetails() {
     },
     {
       title: 'Total Price',
-      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={actualPrice} />,
+      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} token={token} value={actualPrice} />,
     },
     {
       title: name,

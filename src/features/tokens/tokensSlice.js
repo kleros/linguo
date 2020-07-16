@@ -22,14 +22,14 @@ function createPersistedReducer(reducer) {
     version: 1,
     storage,
     migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
-    blacklist: ['byChainId'],
+    blacklist: ['interactions'],
   };
 
   return persistReducer(persistConfig, reducer);
 }
 
-const normalize = ([ID, name, ticker, address, logo, status, decimals]) => ({
-  ID,
+const normalize = ([id, name, ticker, address, logo, status, decimals]) => ({
+  id,
   name,
   ticker,
   address,
@@ -46,7 +46,7 @@ const initialState = {
       error: null,
       data: mapValues(normalize, data),
     }),
-    fixtures.byChainId
+    fixtures.byChainId ?? {}
   ),
   interactions: {},
 };
