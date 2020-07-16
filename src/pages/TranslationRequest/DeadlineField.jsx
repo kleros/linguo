@@ -1,16 +1,19 @@
 import React from 'react';
 import dayjs from 'dayjs';
-import advancedFormat from 'dayjs/plugin/advancedFormat';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import utc from 'dayjs/plugin/utc';
 import { Form, Col } from 'antd';
 import { DatePicker } from '~/adapters/antd';
 
-dayjs.extend(advancedFormat);
+dayjs.extend(localizedFormat);
+dayjs.extend(utc);
 
 function DeadlineField() {
   return (
     <>
       <Col xs={24} sm={24} md={24} lg={12}>
         <Form.Item
+          initialValue={dayjs().utc().endOf('day')}
           label="Deadline"
           name="deadline"
           rules={[
@@ -34,13 +37,7 @@ function DeadlineField() {
             disabledDate={isBeforeToday}
             showToday={false}
             showNow={false}
-            showTime={{
-              defaultValue: dayjs('00:00:00', 'HH'),
-              format: 'HH',
-              showNow: false,
-              use12Hours: false,
-            }}
-            format="MMMM Do[,] YYYY [at] HH:mm:ss [(Local Time)]"
+            format="lll [(UTC)]"
           />
         </Form.Item>
       </Col>

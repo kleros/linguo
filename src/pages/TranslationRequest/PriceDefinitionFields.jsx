@@ -175,7 +175,7 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
               {
                 validator: async () => {
                   if (linguoTokenAddress === ADDRESS_ZERO) {
-                    throw new Error('Please select languages first.');
+                    throw new Error('Please select the languages first.');
                   }
                 },
               },
