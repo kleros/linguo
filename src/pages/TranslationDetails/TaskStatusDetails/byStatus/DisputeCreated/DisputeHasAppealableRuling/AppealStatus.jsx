@@ -430,6 +430,5 @@ const StyledDeadlineContent = styled(Row)`
 const StyledFootnote = styled.p`
   margin-bottom: 0;
   font-size: ${p => p.theme.fontSize.sm};
-  font-weight: 400;
   color: ${p => p.theme.color.text.light};
 `;
