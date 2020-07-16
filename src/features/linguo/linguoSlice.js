@@ -27,12 +27,12 @@ export const selectAllAddresses = state => {
 
 export const selectLinguoTokenAddress = ({ sourceLanguage, targetLanguage }) => state => {
   const addresses = selectAddresses({ sourceLanguage, targetLanguage })(state);
-  return addresses?.linguo ?? ADDRESS_ZERO;
+  return addresses?.linguoToken ?? ADDRESS_ZERO;
 };
 
 export const selectLinguoEtherAddress = ({ sourceLanguage, targetLanguage }) => state => {
   const addresses = selectAddresses({ sourceLanguage, targetLanguage })(state);
-  return addresses?.linguoToken ?? ADDRESS_ZERO;
+  return addresses?.linguo ?? ADDRESS_ZERO;
 };
 
 let byChainId = [];
