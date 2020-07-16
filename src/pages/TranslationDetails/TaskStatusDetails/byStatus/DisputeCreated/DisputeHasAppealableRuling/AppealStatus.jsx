@@ -209,7 +209,7 @@ function AppealFundingSummary({
               <CheckCircleOutlined />
             </StyledFundingCompleteWrapper>
           ) : (
-            <StyledRewardBoxWrapper>
+            <>
               <StyledRewardBox>
                 <StyledSectionTitle>For third party contributors</StyledSectionTitle>
                 <Spacer baseSize="sm" size={0.25} />
@@ -228,7 +228,7 @@ function AppealFundingSummary({
                 />
               </StyledRewardBox>
               <Spacer baseSize="sm" size={2} />
-            </StyledRewardBoxWrapper>
+            </>
           )}
           {!isFullyFunded && (
             <Deadline
@@ -343,14 +343,6 @@ const StyledFundingCompleteWrapper = styled.div`
       width: 100%;
       height: 100%;
     }
-  }
-`;
-
-const StyledRewardBoxWrapper = styled.div`
-  ${p => (p.visuallyHidden ? 'visibility: hidden;' : undefined)}
-
-  @media(max-width: 767.98px) {
-    ${p => (p.visuallyHidden ? 'display: none;' : undefined)}
   }
 `;
 
