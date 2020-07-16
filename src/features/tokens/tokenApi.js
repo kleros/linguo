@@ -70,9 +70,13 @@ export default function createTokenApi({ library: web3 }) {
     const contract = erc20Token.clone();
     contract.options.address = tokenAddress;
 
+    let balance;
     let allowance;
     try {
-      allowance = await contract.methods.allowance(owner, spender).call({ from: owner });
+      [allowance, balance] = await Promise.all([
+        contract.methods.allowance(owner, spender).call({ from: owner }),
+        contract.methods.balanceOf(owner).call({ from: owner }),
+      ]);
     } catch (err) {
       console.warn('Failed to get allowance amount:', err);
       throw new Error('Failed to check spending limit.');
@@ -80,11 +84,23 @@ export default function createTokenApi({ library: web3 }) {
 
     amount = toBN(toWei(String(amount)));
 
-    if (amount.lte(toBN(allowance))) {
-      return;
+    if (amount.gt(toBN(balance))) {
+      throw Object.create(new Error('Not enough balance.'), {
+        name: {
+          value: 'NotEnoughBalanceError',
+          enumerable: true,
+        },
+      });
     }
 
-    throw new Error('Not allowed to spend this amount.');
+    if (amount.gt(toBN(allowance))) {
+      throw Object.create(new Error('Not allowed to spend this amount.'), {
+        name: {
+          value: 'NotEnoughAllowanceError',
+          enumerable: true,
+        },
+      });
+    }
   }
 
   async function approve({ tokenAddress, spender, owner, amount }) {

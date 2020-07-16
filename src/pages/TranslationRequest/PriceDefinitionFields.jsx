@@ -27,6 +27,8 @@ import Spacer from '~/shared/Spacer';
 import usePreviousMatching from '~/shared/usePreviousMatching';
 import useAllowanceValidation, { AllowanceValidationStatus } from './useAllowanceValidation';
 
+const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
+
 export default function PriceDefinitionFieldsWrapper() {
   return (
     <Form.Item
@@ -169,6 +171,13 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
                 type: 'number',
                 min: minMaxPrice,
                 message: `Maximum price must be at least ${minMaxPrice} ${paymentToken.ticker}.`,
+              },
+              {
+                validator: async () => {
+                  if (linguoTokenAddress === ADDRESS_ZERO) {
+                    throw new Error('Please select languages first.');
+                  }
+                },
               },
               allowanceValidation.createValidator,
             ]}

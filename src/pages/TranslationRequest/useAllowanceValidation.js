@@ -8,6 +8,7 @@ export const AllowanceValidationStatus = {
   pending: 'pending',
   valid: 'valid',
   invalid: 'invalid',
+  notApplyed: 'notApplyed',
 };
 
 export default function useAllowanceValidation({ spender, shouldSkip }) {
@@ -15,7 +16,9 @@ export default function useAllowanceValidation({ spender, shouldSkip }) {
 
   const [status, setStatus] = useState(AllowanceValidationStatus.idle);
   const latestResult = usePreviousMatching(status, previous =>
-    [AllowanceValidationStatus.valid, AllowanceValidationStatus.invalid].includes(previous)
+    [AllowanceValidationStatus.notApplyed, AllowanceValidationStatus.valid, AllowanceValidationStatus.invalid].includes(
+      previous
+    )
   );
 
   const createValidator = ({ getFieldsValue }) => ({
@@ -40,28 +43,32 @@ export default function useAllowanceValidation({ spender, shouldSkip }) {
       });
 
       setStatus(AllowanceValidationStatus.pending);
-      await dispatch(
-        checkAllowance(
-          {
-            amount: value,
-            tokenAddress: token,
-            owner: account,
-            spender,
-          },
-          {
-            meta: {
-              thunk: { id: checkId },
+
+      try {
+        await dispatch(
+          checkAllowance(
+            {
+              amount: value,
+              tokenAddress: token,
+              owner: account,
+              spender,
             },
-          }
-        )
-      )
-        .then(() => {
-          setStatus(AllowanceValidationStatus.valid);
-        })
-        .catch(err => {
+            {
+              meta: {
+                thunk: { id: checkId },
+              },
+            }
+          )
+        );
+        setStatus(AllowanceValidationStatus.valid);
+      } catch (err) {
+        if (err.error.name === 'NotEnoughAllowanceError') {
           setStatus(AllowanceValidationStatus.invalid);
-          throw new Error(err.error.message);
-        });
+        } else {
+          setStatus(AllowanceValidationStatus.notApplyed);
+        }
+        throw new Error(err.error.message);
+      }
     },
   });
 

@@ -1,10 +1,10 @@
 import { createMigrate, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { call, debounce, getContext, put, spawn, take } from 'redux-saga/effects';
+import { call, debounce, getContext, put, spawn, take, actionChannel } from 'redux-saga/effects';
 import ipfs from '~/app/ipfs';
 import createSliceWithTransactions from '~/features/transactions/createSliceWithTransactions';
 import { registerTxSaga, selectByTxHash } from '~/features/transactions/transactionsSlice';
-import { watchAll } from '~/features/web3/runWithContext';
+import { watchAllWithBuffer } from '~/features/web3/runWithContext';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createCancellableSaga from '~/shared/createCancellableSaga';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
@@ -195,30 +195,38 @@ export function* approveSaga(action) {
   }
 }
 
-export const watchFetchAllSaga = createWatcherSaga(
+export const createWatchFetchAllSaga = createWatcherSaga(
   { takeType: TakeType.latest },
   createCancellableSaga(fetchAllSaga, fetchAll.rejected, {
     additionalPayload: action => ({ chainId: action.payload?.chainId }),
     additionalArgs: action => ({ meta: action.meta }),
-  }),
-  fetchAll.type
+  })
 );
 
-export function* debounceCheckAllowanceSaga() {
-  yield debounce(2000, checkAllowance.type, checkAllowanceSaga);
+export function createDebounceCheckAllowanceSaga(patternOrChannel) {
+  return function* debounceCheckAllowanceSaga() {
+    yield debounce(2000, patternOrChannel, checkAllowanceSaga);
+  };
 }
 
-export const watchApproveSaga = createWatcherSaga({ takeType: TakeType.leading }, approveSaga, approve.type);
+export const createWatchApproveSaga = createWatcherSaga({ takeType: TakeType.leading }, approveSaga);
 
 export const sagas = {
   ...tokensSlice.sagas,
-  tokensRootSaga: watchAll([watchFetchAllSaga, debounceCheckAllowanceSaga, watchApproveSaga], {
-    *createContext({ library }) {
-      return {
-        tokenApi: yield call(createTokenApi, { library }),
-      };
-    },
-  }),
+  tokensRootSaga: watchAllWithBuffer(
+    [
+      [createWatchFetchAllSaga, actionChannel(fetchAll.type)],
+      [createDebounceCheckAllowanceSaga, actionChannel(checkAllowance.type)],
+      [createWatchApproveSaga, actionChannel(approve.type)],
+    ],
+    {
+      *createContext({ library }) {
+        return {
+          tokenApi: yield call(createTokenApi, { library }),
+        };
+      },
+    }
+  ),
 };
 
 function* trackInteraction({ key, txHash }) {
