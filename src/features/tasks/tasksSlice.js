@@ -99,6 +99,7 @@ export const {
   getChallengerDeposit,
   getTranslatorDeposit,
   getWithdrawableAmount,
+  getArbitrationCost,
   assignTranslator,
   submitTranslation,
   challengeTranslation,

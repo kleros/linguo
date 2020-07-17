@@ -17,6 +17,7 @@ const fetchById = createAsyncAction('tasks/fetchById');
 const getTranslatorDeposit = createAsyncAction('tasks/getTranslatorDeposit');
 const getChallengerDeposit = createAsyncAction('tasks/getChallengerDeposit');
 const getWithdrawableAmount = createAsyncAction('tasks/getWithdrawableAmount');
+const getArbitrationCost = createAsyncAction('tasks/getArbitrationCost');
 const assignTranslator = createAsyncAction('tasks/assignTranslator');
 const submitTranslation = createAsyncAction('tasks/submitTranslation');
 const challengeTranslation = createAsyncAction('tasks/challengeTranslation');
@@ -29,6 +30,7 @@ export const actions = {
   getTranslatorDeposit,
   getChallengerDeposit,
   getWithdrawableAmount,
+  getArbitrationCost,
   assignTranslator,
   submitTranslation,
   challengeTranslation,
@@ -188,6 +190,23 @@ function* getWithdrawableAmountSaga(action) {
     yield put(result);
   } catch (err) {
     const result = getWithdrawableAmount.rejected({ id, error: err }, { meta });
+
+    yield put(result);
+  }
+}
+
+function* getArbitrationCostSaga(action) {
+  const linguoApi = yield getContext('linguoApi');
+  const { id } = action.payload ?? {};
+  const { meta } = action;
+
+  try {
+    const data = yield call([linguoApi, 'getArbitrationCost'], { ID: id });
+    const result = getArbitrationCost.fulfilled({ id, data }, { meta });
+
+    yield put(result);
+  } catch (err) {
+    const result = getArbitrationCost.rejected({ id, error: err }, { meta });
 
     yield put(result);
   }
@@ -354,6 +373,8 @@ const createWatchGetWithdrawableAmountSaga = createWatcherSaga(
   getWithdrawableAmountSaga
 );
 
+const createWatchGetArbitrationCostSaga = createWatcherSaga({ takeType: TakeType.latest }, getArbitrationCostSaga);
+
 const createWatchAssignTranslatorSaga = createWatcherSaga({ takeType: TakeType.leading }, assignTranslatorSaga);
 
 const createWatchSubmitTranslationSaga = createWatcherSaga({ takeType: TakeType.leading }, submitTranslationSaga);
@@ -374,6 +395,7 @@ export const sagaDescriptors = [
   [createWatchGetTranslatorDepositSaga, actionChannel(getTranslatorDeposit.type)],
   [createWatchGetChallengerDepositSaga, actionChannel(getChallengerDeposit.type)],
   [createWatchGetWithdrawableAmountSaga, actionChannel(getWithdrawableAmount.type)],
+  [createWatchGetArbitrationCostSaga, actionChannel(getArbitrationCost.type)],
   [createWatchAssignTranslatorSaga, actionChannel(assignTranslator.type)],
   [createWatchSubmitTranslationSaga, actionChannel(submitTranslation.type)],
   [createWatchChallengeTranslationSaga, actionChannel(challengeTranslation.type)],

@@ -23,7 +23,7 @@ function CreatedForOther() {
           }}
           buttonProps={{ fullWidth: true }}
         />
-        <Spacer />
+        <Spacer size={0.5} />
         <TaskAssignmentDepositFetcher />
       </>
     ),

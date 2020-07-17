@@ -15,11 +15,11 @@ function TaskStatusDetailsLayout({ title, description, interaction, illustration
           margin-bottom: -16px !important;
         `}
       >
-        <Col xs={24} sm={24} md={16}>
+        <Col xs={24} sm={24} md={24} lg={16}>
           <BoxTitle>{title}</BoxTitle>
           <StatusDescription items={description} />
         </Col>
-        <Col xs={24} sm={24} md={8}>
+        <Col xs={24} sm={24} md={24} lg={8}>
           {illustration && <StyledIllustrationWrapper>{illustration}</StyledIllustrationWrapper>}
           {interaction && <StyledInteractionWrapper>{interaction}</StyledInteractionWrapper>}
         </Col>
@@ -45,7 +45,7 @@ const StyledIllustrationWrapper = styled.div`
     width: 10rem;
   }
 
-  @media (max-width: 767.98px) {
+  @media (max-width: 991.98px) {
     justify-content: center;
   }
 `;
@@ -58,9 +58,12 @@ const StyledInteractionWrapper = styled.div`
   align-items: center;
   text-align: center;
 
-  @media (max-width: 767.98px) {
-    width: 50%;
-    margin: 0 auto;
+  @media (min-width: 576px) {
+    button {
+      max-width: 18rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
 `;
 

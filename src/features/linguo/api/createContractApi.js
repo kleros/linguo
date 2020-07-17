@@ -42,9 +42,27 @@ export function createEthContractApi({ web3, archon, linguo, arbitrator }) {
     return { tx };
   }
 
+  async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
+    let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
+      linguo.methods.getDepositValue(ID).call(),
+      linguo.methods.tasks(ID).call(),
+    ]);
+
+    deposit = toBN(deposit);
+    minPrice = toBN(minPrice);
+    maxPrice = toBN(maxPrice);
+    submissionTimeout = toBN(submissionTimeout);
+
+    const slope = maxPrice.sub(minPrice).div(submissionTimeout);
+    const timeDelta = toBN(String(timeDeltaInSeconds));
+
+    return String(deposit.add(slope.mul(timeDelta)));
+  }
+
   return {
-    ...createCommonApi({ web3, archon, linguo, arbitrator }),
+    ...createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDeposit }),
     createTask,
+    getTranslatorDeposit,
   };
 }
 
@@ -73,13 +91,20 @@ export function createTokenContractApi({ web3, archon, linguo, arbitrator }) {
     return { tx };
   }
 
+  async function getTranslatorDeposit({ ID }) {
+    const deposit = await linguo.methods.getDepositValue(ID).call();
+
+    return deposit;
+  }
+
   return {
-    ...createCommonApi({ web3, archon, linguo, arbitrator }),
+    ...createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDeposit }),
     createTask,
+    getTranslatorDeposit,
   };
 }
 
-function createCommonApi({ web3, archon, linguo, arbitrator }) {
+function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDeposit }) {
   async function getRequesterTasks({ account }) {
     const events = await _getPastEvents(linguo, 'TaskCreated', {
       filter: { _requester: account },
@@ -358,23 +383,6 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     }
   }
 
-  async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
-    let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
-      linguo.methods.getDepositValue(ID).call(),
-      linguo.methods.tasks(ID).call(),
-    ]);
-
-    deposit = toBN(deposit);
-    minPrice = toBN(minPrice);
-    maxPrice = toBN(maxPrice);
-    submissionTimeout = toBN(submissionTimeout);
-
-    const slope = maxPrice.sub(minPrice).div(submissionTimeout);
-    const timeDelta = toBN(String(timeDeltaInSeconds));
-
-    return String(deposit.add(slope.mul(timeDelta)));
-  }
-
   async function getChallengerDeposit({ ID }) {
     const deposit = await linguo.methods.getChallengeValue(ID).call();
     return deposit;
@@ -552,6 +560,13 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     return amount;
   }
 
+  async function getArbitrationCost() {
+    const arbitratorExtraData = await linguo.methods.arbitratorExtraData().call();
+    const arbitrationCost = await archon.arbitrator.getArbitrationCost(arbitrator.options.address, arbitratorExtraData);
+
+    return arbitrationCost;
+  }
+
   async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
     const value = await getTranslatorDeposit({ ID });
     const tx = linguo.methods.assignTask(ID).send({ from, value, gas, gasPrice });
@@ -656,11 +671,11 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     getTranslatorTasks,
     getTaskById,
     getTaskPrice,
-    getTranslatorDeposit,
     getChallengerDeposit,
     getTaskDispute,
     getTaskDisputeEvidences,
     getWithdrawableAmount,
+    getArbitrationCost,
     assignTask,
     submitTranslation,
     approveTranslation,

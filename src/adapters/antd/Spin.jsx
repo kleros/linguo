@@ -18,6 +18,7 @@ Spin.defaultProps = {
 const StyledSpin = styled(BaseSpin)`
   ${props => props.$centered && centeredStyles}
   animation: fadeIn 0.25s cubic-bezier(0.77, 0, 0.175, 1);
+  width: 100%;
 
   @keyframes fadeIn {
     from {

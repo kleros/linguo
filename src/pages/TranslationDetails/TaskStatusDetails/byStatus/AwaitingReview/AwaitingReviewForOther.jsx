@@ -7,6 +7,7 @@ import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
 import ChallengeUploadButton from '../../components/ChallengeUploadButton';
+import TranslationChallengeRewardFetcher from '../../components/TranslationChallengeRewardFetcher';
 import TranslationChallengeDepositFetcher from '../../components/TranslationChallengeDepositFetcher';
 
 function AwaitingReviewForOther() {
@@ -43,6 +44,12 @@ function AwaitingReviewForOther() {
           ],
     interaction: (
       <>
+        {remainingTime > 0 && (
+          <>
+            <TranslationChallengeRewardFetcher />
+            <Spacer />
+          </>
+        )}
         <TaskDeadline />
         <Spacer />
         {remainingTime === 0 ? (
@@ -57,7 +64,7 @@ function AwaitingReviewForOther() {
         ) : (
           <>
             <ChallengeUploadButton buttonProps={{ fullWidth: true }} />
-            <Spacer />
+            <Spacer size={0.5} />
             <TranslationChallengeDepositFetcher />
           </>
         )}

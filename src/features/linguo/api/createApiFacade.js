@@ -35,6 +35,7 @@ const apiSkeleton = {
   getTaskDispute() {},
   getTaskDisputeEvidences() {},
   getWithdrawableAmount() {},
+  getArbitrationCost() {},
   assignTask() {},
   submitTranslation() {},
   approveTranslation() {},

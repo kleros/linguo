@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
 import { withErrorBoundary } from '~/shared/ErrorBoundary';
-import EthValue, { EthUnit } from '~/shared/EthValue';
+import EthValue from '~/shared/EthValue';
 import { compose } from '~/shared/fp';
 import { getTranslatorDeposit } from '~/features/tasks/tasksSlice';
 import useTask from '../../useTask';
@@ -49,16 +49,16 @@ function TaskAssignmentDepositFetcher() {
 }
 
 const StyledWrapper = styled.div`
-  font-size: ${p => p.theme.fontSize.sm};
+  font-size: ${p => p.theme.fontSize.xs};
   font-weight: 400;
-  color: ${p => p.theme.color.text.default};
+  color: ${p => p.theme.color.text.light};
 `;
 
 function TaskAssignmentDeposit({ amount }) {
   return (
     <StyledWrapper>
       <span>
-        <EthValue amount={amount} unit={EthUnit.ether} suffixType="short" /> Deposit
+        <EthValue amount={amount} suffixType="short" /> Deposit
       </span>
     </StyledWrapper>
   );
