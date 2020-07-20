@@ -26,7 +26,7 @@
     "@ant-design/icons": "^4.0.2",
     "@hot-loader/react-dom": "^16.13.0",
     "@kleros/contract-deployments": "^0.3.2",
-    "@kleros/react-components": "^3.10.0",
+    "@kleros/react-components": "^4.1.0",
     "@loadable/component": "^5.12.0",
     "@reduxjs/toolkit": "^1.4.0",
     "@rehooks/local-storage": "^2.2.3",

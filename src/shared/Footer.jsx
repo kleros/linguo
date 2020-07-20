@@ -1,7 +1,9 @@
 import React from 'react';
-import KlerosFooter from '@kleros/react-components/dist/footer';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import KlerosFooter from '@kleros/react-components/dist/footer';
+import * as r from '~/app/routes';
 import { selectChainId } from '~/features/web3/web3Slice';
 import { selectAllAddresses } from '~/features/linguo/linguoSlice';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
@@ -17,6 +19,11 @@ export default function Footer() {
     <StyledKlerosFooter
       appName="Linguo"
       contractExplorerURL={`//${explorerBaseUrl}/address/${address}`}
+      renderHelpLink={({ content, icon }) => (
+        <Link to={r.FAQ}>
+          {content} {icon}
+        </Link>
+      )}
       repository="https://github.com/kleros/linguo"
       locale="en"
     />

@@ -1,8 +1,10 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { useRefreshEffectOnce } from '~/adapters/react-router-dom';
+import * as r from '~/app/routes';
 import TaskList from '~/features/tasks/TaskList';
 import { fetchTasks, selectTasks } from '~/features/translator/translatorSlice';
 import DismissableAlert from '~/features/ui/DismissableAlert';
@@ -58,6 +60,20 @@ const filterDescriptionMap = {
     <StyledDismissableAlert
       id="translator.filters.open"
       message="You will only be able to see tasks whose both source and target languages you have self-declared level B2 or higher."
+      description={
+        <>
+          Learn more about this in our{' '}
+          <Link
+            to={{
+              pathname: r.FAQ,
+              hash: '#how-does-my-skill-levels-affect-the-amount-of-tasks-i-will-be-able-to-work-on-as-a-translator',
+            }}
+          >
+            FAQ
+          </Link>
+          .
+        </>
+      }
     />
   ),
   [filters.incomplete]: (

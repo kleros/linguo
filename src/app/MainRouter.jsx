@@ -17,6 +17,7 @@ import * as r from './routes';
 const fallback = <Spin $centered tip="Loading page content..." />;
 
 const Home = loadable(() => import('~/pages/Home'), { fallback });
+const Faq = loadable(() => import('~/pages/Faq'), { fallback });
 const TranslatorDashboard = loadable(() => import('~/pages/TranslatorDashboard'), { fallback });
 const TranslatorSettings = loadable(async () => import('~/pages/TranslatorSettings'), { fallback });
 const RequesterDashboard = loadable(() => import('~/pages/RequesterDashboard'), { fallback });
@@ -40,6 +41,9 @@ function MainRouter() {
               </Route>
               <Route exact path={r.HOME}>
                 <Home />
+              </Route>
+              <Route exact path={r.FAQ}>
+                <Faq />
               </Route>
               <Route exact path={r.TRANSLATOR_DASHBOARD}>
                 <TranslatorDashboard />

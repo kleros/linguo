@@ -1,8 +1,10 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import { SwapOutlined } from '@ant-design/icons';
 import { Col, Form } from 'antd';
+import * as r from '~/app/routes';
 import { getAvailableLanguagePairing } from '~/features/linguo';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import Button from '~/shared/Button';
@@ -47,7 +49,19 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
         <StyledDismissableAlert
           id="task.create.language-pairing"
           message="Currently it is only possible to request translations from or to English."
-          description="More language pairs will be added in the future."
+          description={
+            <>
+              Learn more about this on our{' '}
+              <Link
+                to={{
+                  pathname: r.FAQ,
+                  hash: '#why-does-linguo-only-support-translations-from-and-to-english',
+                }}
+              >
+                FAQ page.
+              </Link>
+            </>
+          }
         />
       </Col>
       <StyledWrapper>

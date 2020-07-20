@@ -1,9 +1,11 @@
 import React from 'react';
 import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import produce from 'immer';
 import styled from 'styled-components';
 import { Row, Col, Form, Typography, Alert } from 'antd';
+import * as r from '~/app/routes';
 import { InfoIcon, AddIcon, RemoveIcon } from '~/shared/icons';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
@@ -123,7 +125,17 @@ export default function TranslatorSettingsForm() {
             </p>
             <p>
               <strong>IMPORTANT:</strong> You will only be able to see tasks whose both source and target languages you
-              have self-declared level B2 or higher.
+              have self-declared level B2 or higher. Learn more about this in our{' '}
+              <Link
+                to={{
+                  pathname: r.FAQ,
+                  hash:
+                    '#how-does-my-skill-levels-affect-the-amount-of-tasks-i-will-be-able-to-work-on-as-a-translator',
+                }}
+              >
+                FAQ
+              </Link>
+              .
             </p>
           </>
         }
