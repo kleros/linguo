@@ -65,7 +65,6 @@
     "redux-saga-thunk": "^0.7.3",
     "scroll-into-view-if-needed": "^2.2.25",
     "serialize-error": "^7.0.1",
-    "serializerr": "^1.0.3",
     "styled-components": "^5.1.0",
     "web3": "1.2.5"
   },

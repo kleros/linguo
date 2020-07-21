@@ -24,13 +24,18 @@ export function createEthContractApi({ web3, archon, linguo, arbitrator }) {
     maxPrice = toWei(String(maxPrice), 'ether');
     deadline = dayjs(deadline).unix();
 
-    const metaEvidence = await publishMetaEvidence({
-      account,
-      deadline,
-      minPrice,
-      maxPrice,
-      ...rest,
-    });
+    const chainId = await web3.eth.getChainId();
+
+    const metaEvidence = await publishMetaEvidence(
+      {
+        account,
+        deadline,
+        minPrice,
+        maxPrice,
+        ...rest,
+      },
+      { chainId }
+    );
 
     const tx = linguo.methods.createTask(deadline, minPrice, metaEvidence).send({
       from,
@@ -75,14 +80,19 @@ export function createTokenContractApi({ web3, archon, linguo, arbitrator }) {
     maxPrice = toWei(String(maxPrice), 'ether');
     deadline = dayjs(deadline).unix();
 
-    const metaEvidence = await publishMetaEvidence({
-      account,
-      deadline,
-      minPrice,
-      maxPrice,
-      token,
-      ...rest,
-    });
+    const chainId = await web3.eth.getChainId();
+
+    const metaEvidence = await publishMetaEvidence(
+      {
+        account,
+        deadline,
+        minPrice,
+        maxPrice,
+        token,
+        ...rest,
+      },
+      { chainId }
+    );
 
     const tx = linguo.methods
       .createTask(deadline, token, minPrice, maxPrice, metaEvidence)
@@ -688,8 +698,16 @@ function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDe
   };
 }
 
-const publishMetaEvidence = async ({ account, ...metadata }) => {
+const metaEvidenceUriByChainId = {
+  1: '/ipfs/QmQ2DtEjftM2sA33Sez6aNLWSf6buJWEh9jvmVy7PMPsU2/index.html',
+  42: '/ipfs/QmacHgbjwVV8AwrACciMsUcRS7d8BARok5zksove2RFjzV/index.html',
+};
+
+const publishMetaEvidence = async ({ account, ...metadata }, { chainId }) => {
+  const evidenceDisplayInterfaceURI = metaEvidenceUriByChainId[chainId] ?? metaEvidenceUriByChainId[1];
+
   const metaEvidence = deepMerge(metaEvidenceTemplate, {
+    evidenceDisplayInterfaceURI,
     aliases: {
       [account]: 'Requester',
     },

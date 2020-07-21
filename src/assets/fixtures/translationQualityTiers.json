@@ -25,5 +25,14 @@
       "Only translators having a self-declared level C2 (CEFR) will be able to see this task."
     ],
     "requiredLevel": "C2"
+  },
+  "professional": {
+    "value": "professional",
+    "name": "Professional",
+    "description": [
+      "Professional translation. The meaning and spirit of the translation must remain identical and the translator must reflect the style and nuances of the original text. Translators are expected to have their text reviewed before submission.",
+      "Only translators having a self-declared level C2 (CEFR) will be able to see this task."
+    ],
+    "requiredLevel": "C2"
   }
 }

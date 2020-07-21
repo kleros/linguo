@@ -1,5 +1,4 @@
 {
-  "name": "Linguo translation request parameters",
   "title": "Review a translation from Linguo",
   "description": "Someone challenged a translation",
   "rulingOptions": {
@@ -17,7 +16,6 @@
   "question": "Does the translation comply with the required criteria?",
   "fileURI": "/ipfs/QmVabp1VjJNYzXDxbcWFdeK17RvvA9eQy6eJVf1T1AzS1a/linguo-translation-quality-policy.pdf",
   "evidenceDisplayInterfaceURI": "",
-  "evidenceDisplayInterfaceHash": "",
-  "dynamicScriptURI": "ipfs/QmSozjGVbnLiaKY6DbL8yqqD9zUqZa3W3JoGQmpYZx2WZo/linguo-dynamic-script.js",
+  "dynamicScriptURI": "/ipfs/QmULmPrevHDVwtdy9zCaCeU51pt2sYqXvdtUMKeRTF1h2K/linguo-dynamic-script.js",
   "metadata": {}
 }

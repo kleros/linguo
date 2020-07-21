@@ -3,7 +3,21 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Form, Radio, Row, Col } from 'antd';
 import TranslationQualityDefinition from '~/shared//TranslationQualityDefinition';
-import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
+import _allTranslationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
+
+/**
+ * Remove the legacy value 'perfect' from the options.
+ * This value is declared in the JSON for backward compatibility.
+ */
+const translationQualityTiers = Object.entries(_allTranslationQualityTiers).reduce(
+  (acc, [key, data]) =>
+    key !== 'perfect'
+      ? Object.assign(acc, {
+          [key]: data,
+        })
+      : acc,
+  {}
+);
 
 const StyledFormItem = styled(Form.Item)`
   width: 100%;
