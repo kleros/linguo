@@ -698,16 +698,23 @@ function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDe
   };
 }
 
-const metaEvidenceUriByChainId = {
-  1: '/ipfs/QmQ2DtEjftM2sA33Sez6aNLWSf6buJWEh9jvmVy7PMPsU2/index.html',
-  42: '/ipfs/QmacHgbjwVV8AwrACciMsUcRS7d8BARok5zksove2RFjzV/index.html',
+const evidenceDisplayURIByChainId = {
+  1: '/ipfs/QmenbcVxWdEH3eVEYBNdCrvzYVXYZDEVyRwNSShv5s59hb/index.html',
+  42: '/ipfs/QmQVv2uZ46LVd19duNmViRAeL2ZK2PA5WbdtSoJPzPD8XS/index.html',
+};
+
+const dynamicScriptURIByChainId = {
+  1: '/ipfs/QmXeAHnLcQex1TPadPN9NVRT3ufBx8Z6vjsSHK95eGTSCw/linguo-dynamic-script.js',
+  42: '/ipfs/QmS7iSEENZ1VzeHV2H7wsFb9g4LtyCwfPxEsegsAqDjQU8/kovan-linguo-dynamic-script.js',
 };
 
 const publishMetaEvidence = async ({ account, ...metadata }, { chainId }) => {
-  const evidenceDisplayInterfaceURI = metaEvidenceUriByChainId[chainId] ?? metaEvidenceUriByChainId[1];
+  const evidenceDisplayInterfaceURI = evidenceDisplayURIByChainId[chainId] ?? evidenceDisplayURIByChainId[1];
+  const dynamicScriptURI = dynamicScriptURIByChainId[chainId] ?? dynamicScriptURIByChainId[1];
 
   const metaEvidence = deepMerge(metaEvidenceTemplate, {
     evidenceDisplayInterfaceURI,
+    dynamicScriptURI,
     aliases: {
       [account]: 'Requester',
     },
