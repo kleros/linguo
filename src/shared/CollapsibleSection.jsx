@@ -49,6 +49,14 @@ const StyledSummary = styled.summary`
   align-items: center;
   color: ${p => p.theme.color.text.inverted};
   cursor: pointer;
+  outline: none;
+
+  > h1,
+  > h2,
+  > h3,
+  > h4 {
+    flex: 1;
+  }
 
   &.open {
     border-top-left-radius: 0.1875rem;
@@ -65,6 +73,10 @@ const StyledSummary = styled.summary`
     font-weight: 500;
     margin: 0;
     padding: 0;
+  }
+
+  &::-webkit-details-marker {
+    display: none;
   }
 
   ::marker {
