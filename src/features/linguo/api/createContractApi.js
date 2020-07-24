@@ -156,21 +156,27 @@ function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDe
     const unassignedTaskIDsPromise = _getUnassignedTaskIDs({ skills, currentBlockNumber });
     const inReviewTaskIdsPromise = _getInReviewTaskIDs({ skills, currentBlockNumber });
 
-    const taskIDs = (
-      await Promise.allSettled([
+    const [taskIDs, ownTaskIDs] = await Promise.all([
+      Promise.allSettled([
         unassignedTaskIDsPromise,
         inReviewTaskIdsPromise,
         assignedTaskIDsPromise,
         challengedTaskIDsPromise,
-      ])
-    )
-      .filter(({ status }) => status === 'fulfilled')
-      .map(({ value }) => value)
-      .flat();
+      ]).then(result =>
+        result
+          .filter(({ status }) => status === 'fulfilled')
+          .map(({ value }) => value)
+          .flat()
+      ),
+      _getTaskIDsCreatedByAccount({ account }),
+    ]);
 
-    const uniqueTaskIDs = [...new Set([...taskIDs])];
+    const taskIDsSet = new Set(taskIDs);
+    const ownTaskIDsSet = new Set(ownTaskIDs);
 
-    const tasks = (await Promise.allSettled(uniqueTaskIDs.map(async ID => getTaskById({ ID }))))
+    const relevantTaskIDs = [...taskIDsSet].filter(ID => !ownTaskIDsSet.has(ID));
+
+    const tasks = (await Promise.allSettled(relevantTaskIDs.map(async ID => getTaskById({ ID }))))
       .filter(({ status }) => status === 'fulfilled')
       .map(({ value }) => value);
 
@@ -222,6 +228,13 @@ function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDe
     }
 
     return tasksInReviewMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
+  }
+
+  async function _getTaskIDsCreatedByAccount({ account }) {
+    return _getTaskIDsFromEvent('TaskCreated', {
+      filter: { _requester: account },
+      fromBlock: 0,
+    });
   }
 
   async function _getTaskIDsFromEvent(eventName, { fromBlock, toBlock, filter }) {
