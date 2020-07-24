@@ -712,8 +712,8 @@ function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDe
 }
 
 const evidenceDisplayURIByChainId = {
-  1: '/ipfs/QmenbcVxWdEH3eVEYBNdCrvzYVXYZDEVyRwNSShv5s59hb/index.html',
-  42: '/ipfs/QmQVv2uZ46LVd19duNmViRAeL2ZK2PA5WbdtSoJPzPD8XS/index.html',
+  1: '/ipfs/QmXaZLy5821GnJFHZrsMk8cfxvoJGYyxzLfpdJwynP2rxv/index.html',
+  42: '/ipfs/QmZY9HZqyNnJUK9bHx5zR98QeYZ8sbWWAuaHd5e5NvwbWk/index.html',
 };
 
 const dynamicScriptURIByChainId = {

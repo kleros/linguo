@@ -67,6 +67,10 @@ const cefrLanguages = [
     name: 'Dutch',
   },
   {
+    code: 'tr',
+    name: 'Turkish',
+  },
+  {
     code: 'ru',
     name: 'Russian',
   },
@@ -76,7 +80,11 @@ const cefrLanguages = [
   },
   {
     code: 'zh-cn',
-    name: 'Chinese (China)',
+    name: 'Chinese (Simplified)',
+  },
+  {
+    code: 'zh-hant',
+    name: 'Chinese (Traditional)',
   },
   {
     code: 'ko',

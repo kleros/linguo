@@ -11,7 +11,9 @@ import Nl from '~/assets/images/languages/nl.svg';
 import PtBr from '~/assets/images/languages/pt-br.svg';
 import Pt from '~/assets/images/languages/pt.svg';
 import Ru from '~/assets/images/languages/ru.svg';
+import Tr from '~/assets/images/languages/tr.svg';
 import ZhCn from '~/assets/images/languages/zh-cn.svg';
+import ZhHant from '~/assets/images/languages/zh-hant.svg';
 import Unkown from '~/assets/images/languages/unknown.svg';
 
 const flagMap = {
@@ -28,7 +30,9 @@ const flagMap = {
   'pt-br': PtBr,
   pt: Pt,
   ru: Ru,
+  tr: Tr,
   'zh-cn': ZhCn,
+  'zh-hant': ZhHant,
 };
 
 export default function getLanguageFlag(code) {
