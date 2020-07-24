@@ -23,7 +23,7 @@ function AwaitingReviewForOther() {
         render={({ value, formattedValue }) =>
           value > 0 ? (
             <>
-              Translation delivered. (In review for <strong>{formattedValue}</strong>)
+              Translation delivered. Under review for <strong>{formattedValue}</strong>.
             </>
           ) : (
             'Review period is over'
@@ -34,13 +34,14 @@ function AwaitingReviewForOther() {
     description:
       remainingTime > 0
         ? [
-            'During review you can challenge the translation if you think it does not fulfill the quality requirements. To do so, you need to send a challenge deposit.',
-            'If the jurors decide to not approve the translation you receive your challenge deposit back + the deposit of the translator (minus arbitration fees).',
-            'If the translation is approved by the jurors your challenge deposit goes to the translator.',
+            'During the review period, you can challenge the submission if you think it does not fulfill the quality requirements.',
+            'For this, you need to send a Challenger Deposit alongside an evidence file describing what is wrong with it.',
+            'If jurors decide to reject the translation you will receive your Challenger Deposit back + the Translator Deposit - Arbitration Fees.',
+            'Otherwise, the translator gets the Requester Deposit + your Challenger Deposit - Arbitration Fees.',
           ]
         : [
             'Since no one challenged the translation during the review period, the translator will be automatically paid in a few moments.',
-            'If you want to speed up the process, you can release the escrow payment to the translator right the way. There will be no cost for you beyond the gas used to send the transaction.',
+            'If you want to speed up the process, you can release the Requester Deposit to the translator right the way. There will be no cost for you beyond the gas used to send the transaction.',
           ],
     interaction: (
       <>

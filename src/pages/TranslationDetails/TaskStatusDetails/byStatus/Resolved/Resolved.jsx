@@ -117,65 +117,65 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
   const descriptionMap = {
     [TaskParty.Requester]: {
       false: {
-        [DisputeRuling.RefuseToRule]: ['You received the escrow payment back.'],
-        [DisputeRuling.TranslationApproved]: ['The escrow payment goes to the translator.'],
-        [DisputeRuling.TranslationRejected]: ['You received the escrow payment back.'],
+        [DisputeRuling.RefuseToRule]: ['You received the Requester Deposit back.'],
+        [DisputeRuling.TranslationApproved]: ['The Requester Deposit goes to the translator.'],
+        [DisputeRuling.TranslationRejected]: ['You received the Requester Deposit back.'],
       },
       true: {
-        [DisputeRuling.RefuseToRule]: ['You received the escrow payment back.'],
-        [DisputeRuling.TranslationApproved]: ['The escrow payment goes to the translator.'],
-        [DisputeRuling.TranslationRejected]: ['You received the escrow payment back.'],
+        [DisputeRuling.RefuseToRule]: ['You received the Requester Deposit back.'],
+        [DisputeRuling.TranslationApproved]: ['The Requester Deposit goes to the translator.'],
+        [DisputeRuling.TranslationRejected]: ['You received the Requester Deposit back.'],
       },
     },
     [TaskParty.Translator]: {
       false: {
-        [DisputeRuling.RefuseToRule]: ['You received your deposit back.'],
-        [DisputeRuling.TranslationApproved]: ['You received your deposit back + the escrow payment.'],
-        [DisputeRuling.TranslationRejected]: ['Your deposit was sent to the requester.'],
+        [DisputeRuling.RefuseToRule]: ['You received your Translator Deposit back.'],
+        [DisputeRuling.TranslationApproved]: ['You received your Translator Deposit back + the Requester Deposit.'],
+        [DisputeRuling.TranslationRejected]: ['Your Translator Deposit was sent to the requester.'],
       },
       true: {
-        [DisputeRuling.RefuseToRule]: ['You received the escrow payment back (minus arbitration fees).'],
+        [DisputeRuling.RefuseToRule]: ['You received the Requester Deposit back - Arbitration Fees.'],
         [DisputeRuling.TranslationApproved]: [
-          'You received your deposit back + the escrow payment (minus arbitration fees).',
+          'You received your Translator Deposit back + the Requester Deposit - Arbitration Fees.',
         ],
-        [DisputeRuling.TranslationRejected]: ['Your deposit was sent to the challenger.'],
+        [DisputeRuling.TranslationRejected]: ['Your Translator Deposit was sent to the challenger.'],
       },
     },
     [TaskParty.Challenger]: {
       true: {
         [DisputeRuling.RefuseToRule]: challengerIsRequester
-          ? ['You received the escrow payment + your challenge deposit back (minus arbitration fees).']
-          : ['You received your challenge deposit back (minus arbitration fees).'],
+          ? ['You received the Requester Deposit + your Challenger Deposit back - Arbitration Fees.']
+          : ['You received your Challenger Deposit back - Arbitration Fees.'],
         [DisputeRuling.TranslationApproved]: challengerIsRequester
-          ? ['Your escrow payment + your challenge deposit were sent to the translator.']
-          : ['Your challenge deposit was sent to the translator.'],
+          ? ['Your Requester Deposit + your Challenger Deposit were sent to the translator.']
+          : ['Your Challenger Deposit was sent to the translator.'],
         [DisputeRuling.TranslationRejected]: [
           challengerIsRequester
-            ? 'You received your escrow payment + your challenge deposit back + the translator deposit (minus arbitration fees).'
-            : 'You received your challenge deposit back + the translator deposit (minus arbitration fees).',
+            ? 'You received your Requester Deposit + your Challenger Deposit back + the Translator Deposit - Arbitration Fees.'
+            : 'You received your Challenger Deposit back + the Translator Deposit - Arbitration Fees.',
         ],
       },
     },
     [TaskParty.Other]: {
       false: {
         [DisputeRuling.RefuseToRule]: [
-          'The requester received the escrow payment back.',
-          'The translator received the deposit back.',
+          'The requester received the Requester Deposit back.',
+          'The translator received the Translator Deposit back.',
         ],
-        [DisputeRuling.TranslationApproved]: ['The escrow payment goes to the translator.'],
-        [DisputeRuling.TranslationRejected]: ['The translator deposit goes to the challenger.'],
+        [DisputeRuling.TranslationApproved]: ['The Requester Deposit goes to the translator.'],
+        [DisputeRuling.TranslationRejected]: ['The Translator Deposit goes to the challenger.'],
       },
       true: {
         [DisputeRuling.RefuseToRule]: [
-          'The requester received the escrow payment back.',
-          'The translator received the deposit back.',
+          'The requester received the Requester Deposit back.',
+          'The translator received the Translator Deposit back.',
         ],
         [DisputeRuling.TranslationApproved]: [
-          'The escrow payment + the challenger deposit (minus arbitration fees) go to the translator.',
+          'The value of the Requester Deposit + the Challenger Deposit - Arbitration Fees goes to the translator.',
         ],
         [DisputeRuling.TranslationRejected]: [
-          'The requester received the escrow payment back.',
-          'The translator deposit (minus arbitration fees) goes to the challenger.',
+          'The requester received the Requester Deposit back.',
+          'The value of the Translator Deposit - Arbitration Fees goes to the challenger.',
         ],
       },
     },

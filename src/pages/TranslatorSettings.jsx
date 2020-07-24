@@ -5,7 +5,7 @@ import SingleCardLayout from './layouts/SingleCardLayout';
 
 function TranslatorSettings() {
   return (
-    <SingleCardLayout title="Set your language skills">
+    <SingleCardLayout title="Set Your Language Skills">
       <WithRouteMessage>
         <TranslatorSettingsForm />
       </WithRouteMessage>

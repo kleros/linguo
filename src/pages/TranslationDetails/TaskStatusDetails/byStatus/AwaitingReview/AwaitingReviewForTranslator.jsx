@@ -15,7 +15,7 @@ function AwaitingReviewForTranslator() {
       render={({ value, formattedValue }) =>
         value > 0 ? (
           <>
-            Translation delivered. (In review for <strong>{formattedValue}</strong>)
+            Translation delivered. Under review for <strong>{formattedValue}</strong>.
           </>
         ) : (
           'Review period is over'
@@ -30,16 +30,18 @@ function AwaitingReviewForTranslator() {
       ? {
           title,
           description: [
-            'During review you can challenge the translation if you think it does not fulfill the quality requirements. To do so, you need to send a challenge deposit alongside an evidence file describing what is wrong with it.',
-            'If so, you will be asked to deposit the arbitration fee as well. But, if the translation is not challenged, the task is finished and you receive the escrow payment + your translation deposit back.',
+            'During review anyone can challenge this translation if they think it does not fulfill the quality requirements. ',
+            'For this, they will be required to send a Challenger Deposit alongside an evidence file describing what is wrong with it.',
+            'Then jurors from a specialized Kleros court will judge your translation. If they decide this translation should be accepted, you will receive the Requester Deposit + your Translator Deposit + the Challenger Deposit - Arbitration Fees. Otherwise, the requester receives the Requester Deposit back and your Translator Deposit goes to the challenger',
+            'If the translation is not challenged, the task is finished and you will receive the Requester Deposit + your Translator Deposit back.',
           ],
           illustration: <TaskAwaitingReviewAvatar />,
         }
       : {
           title,
           description: [
-            'Your payment and the deposit you made when assigned to this task will be automatically sent to your wallet in a few moments.',
-            'If you do not want to wait, you can claim your payment + your deposit back now.',
+            'The Requester Deposit + your Translator Deposit will be automatically sent to your wallet in a few moments.',
+            'If you do not want to wait, you can claim them right now.',
           ],
           interaction: (
             <>

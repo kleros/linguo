@@ -33,7 +33,7 @@ function ForTranslator() {
   const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Translator });
 
   const description = [
-    'You will receive only your translation deposit (minus arbitration fees) back.',
+    'You will receive only your Translator Deposit - Arbitration Fees back.',
     'Note anyone appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
     <EthValue
       key="appeal-deposit"
@@ -68,8 +68,8 @@ function ForChallenger() {
 
   const description = [
     challengerIsRequester
-      ? 'You will receive the escrow payment + your challenge deposit (minus arbitration fees) back.'
-      : 'You will receive your challenge deposit (minus arbitration fees) back.',
+      ? 'You will receive the Requester Deposit + your Challenger Deposit - Arbitration Fees back.'
+      : 'You will receive your Challenger Deposit - Arbitration Fees back.',
     'Note anyone appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
     <EthValue
       key="appeal-deposit"
@@ -97,7 +97,7 @@ function ForChallenger() {
 
 function ForRequester() {
   const description = [
-    'You will receive the escrow payment back.',
+    'You will receive the Requester Deposit back.',
     'Note that you can still appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
   ];
 
@@ -106,7 +106,7 @@ function ForRequester() {
 
 function ForOther() {
   const description = [
-    'The requester will receive the escrow payment back. The translator will get the translation deposit back (minus arbitration fees). The challenger will get the challenge deposit (minus arbitration fees) back.',
+    'The requester will receive the Requester Deposit back. The translator will get the Translator Deposit back - Arbitration Fees. The challenger will get the Challenger Deposit - Arbitration Fees back.',
     'Note that anyone can still appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
   ];
 

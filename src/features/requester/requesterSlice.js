@@ -72,14 +72,7 @@ export function* fetchTasksSaga(action) {
     yield put(fetchTasks.fulfilled({ account, data: ids }, { meta }));
 
     if (ids.length === 0) {
-      yield put(
-        push({
-          pathname: r.TRANSLATION_REQUEST,
-          state: {
-            message: 'You have no translation requests yet! You can create one here.',
-          },
-        })
-      );
+      yield put(push(r.TRANSLATION_REQUEST));
     }
   } catch (err) {
     yield put(fetchTasks.rejected({ account, error: err.error }, { meta }));

@@ -34,38 +34,38 @@ const titleMap = {
 const getDescription = ({ party, ruling, challengerIsRequester }) => {
   const descriptionMap = {
     [TaskParty.Requester]: {
-      [DisputeRuling.RefuseToRule]: ['You will receive the escrow payment back.'],
-      [DisputeRuling.TranslationApproved]: ['The escrow payment will go to the translator.'],
+      [DisputeRuling.RefuseToRule]: ['You will receive the Requester Deposit back.'],
+      [DisputeRuling.TranslationApproved]: ['The Requester Deposit will go to the translator.'],
       [DisputeRuling.TranslationRejected]: [
-        'You will receive the escrow payment back + the translator deposit (minus arbitration fees).',
+        'You will receive the Requester Deposit back + the Translator Deposit - Arbitration Fees.',
       ],
     },
     [TaskParty.Translator]: {
-      [DisputeRuling.RefuseToRule]: ['You will receive the escrow payment back (minus arbitration fees).'],
+      [DisputeRuling.RefuseToRule]: ['You will receive the Requester Deposit back - Arbitration Fees.'],
       [DisputeRuling.TranslationApproved]: [
-        'You will receive your deposit back + the escrow payment (minus arbitration fees).',
+        'You will receive your Translator Deposit back + the Requester Deposit - Arbitration Fees.',
       ],
-      [DisputeRuling.TranslationRejected]: ['Your deposit will be sent to the requester.'],
+      [DisputeRuling.TranslationRejected]: ['Your Translator Deposit will be sent to the requester.'],
     },
     [TaskParty.Challenger]: {
       [DisputeRuling.RefuseToRule]: challengerIsRequester
-        ? ['You will receive the escrow payment + your challenge deposit back (minus arbitration fees).']
-        : ['You will receive your challenge deposit back (minus arbitration fees).'],
+        ? ['You will receive the Requester Deposit + your Challenger Deposit back - Arbitration Fees.']
+        : ['You will receive your Challenger Deposit back - Arbitration Fees.'],
       [DisputeRuling.TranslationApproved]: challengerIsRequester
-        ? ['Your escrow payment + your challenge deposit will be sent to the translator.']
-        : ['Your challenge deposit will be sent to the translator.'],
+        ? ['Your Requester Deposit + your Challenger Deposit will be sent to the translator.']
+        : ['Your Challenger Deposit will be sent to the translator.'],
       [DisputeRuling.TranslationRejected]: [
         challengerIsRequester
-          ? 'You will receive your escrow payment + your challenge deposit back + the translator deposit (minus arbitration fees).'
-          : 'Your will receive your challenge deposit back + the translator deposit (minus arbitration fees).',
+          ? 'You will receive your Requester Deposit + your Challenger Deposit back + the Translator Deposit - Arbitration Fees.'
+          : 'Your will receive your Challenger Deposit back + the Translator Deposit - Arbitration Fees.',
       ],
     },
     [TaskParty.Other]: {
-      [DisputeRuling.RefuseToRule]: ['The requester will receive the escrow payment back.'],
-      [DisputeRuling.TranslationApproved]: ['The escrow payment will go to the translator.'],
+      [DisputeRuling.RefuseToRule]: ['The requester will receive the Requester Deposit back.'],
+      [DisputeRuling.TranslationApproved]: ['The Requester Deposit will go to the translator.'],
       [DisputeRuling.TranslationRejected]: [
-        'The requester will receive the escrow payment back.',
-        'The challenger will receive the translator deposit (minus arbitration fees).',
+        'The requester will receive the Requester Deposit back.',
+        'The challenger will receive the Translator Deposit - Arbitration Fees.',
       ],
     },
   };

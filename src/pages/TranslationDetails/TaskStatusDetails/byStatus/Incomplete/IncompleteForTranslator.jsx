@@ -11,7 +11,7 @@ function IncompleteForTranslator() {
 
   /*
    * A task which is Incomplete was not challenged, so the value of sumDeposit
-   * is exactly the value of the translator deposit.
+   * is exactly the value of the Translator Deposit.
    */
   const translatorDeposit = task.sumDeposit;
 

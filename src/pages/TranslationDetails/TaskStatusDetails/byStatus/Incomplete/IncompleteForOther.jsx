@@ -19,8 +19,7 @@ function IncompleteForRequester() {
         title,
         description: isAssigned
           ? [
-              `We will send the translator deposit + the requester deposit back
-               to the requester's address in a few moments.`,
+              'We will send the Translator Deposit + the Requester Deposit back to the requester in a few moments.',
               'You can help speed up this proccess if you like.',
             ]
           : [

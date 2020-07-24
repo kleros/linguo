@@ -24,7 +24,7 @@ export default function TaskListWithSecondLevelFilters({ data, filterName, accou
 
         return (
           <StyledTabPane key={secondLevelFilterName} tab={tabContent}>
-            {children({ data: displayableData })}
+            {children({ data: displayableData, filterName: secondLevelFilterName })}
           </StyledTabPane>
         );
       })}

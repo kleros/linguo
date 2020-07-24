@@ -7,9 +7,9 @@ import TaskAssignmentDepositFetcher from '../../components/TaskAssignmentDeposit
 
 function CreatedForOther() {
   const props = {
-    title: 'Start translating it',
+    title: 'Translate this text',
     description: [
-      'In order to self-assign this task you need to send a translation deposit. The value will be reimbursed when the task is finished and approved after the review time.',
+      'In order to self-assign this task you need to send a Translator Deposit. The value will be reimbursed when the task is finished and approved after the review time.',
       'In case your translation is not delivered in time or not approved, it will be used as a compensation to the task requester or challenger.',
     ],
     interaction: (

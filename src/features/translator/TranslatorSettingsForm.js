@@ -78,7 +78,7 @@ export default function TranslatorSettingsForm() {
 
               <Form.Item>
                 <Row gutter={16}>
-                  <Col md={12} xs={24}>
+                  <Col lg={12} md={21} sm={21} xs={21}>
                     <StyledJumboButton
                       fullWidth
                       size="large"
@@ -237,7 +237,7 @@ function LanguageSelectionCombobox({ value, selectedValues, onChange, name, remo
 
   return (
     <Row gutter={16} align="top">
-      <Col md={12} xs={21}>
+      <Col lg={12} md={21} sm={21} xs={21}>
         <StyledFormItem
           name={[name, 'language']}
           validateTrigger={['onChange', 'onBlur']}
@@ -261,7 +261,9 @@ function LanguageSelectionCombobox({ value, selectedValues, onChange, name, remo
         </StyledFormItem>
       </Col>
       <Col
-        md={0}
+        lg={0}
+        md={3}
+        sm={3}
         xs={3}
         css={`
           height: 5.75rem;
@@ -270,7 +272,7 @@ function LanguageSelectionCombobox({ value, selectedValues, onChange, name, remo
         {removeButtton}
       </Col>
 
-      <Col md={9} xs={21}>
+      <Col lg={9} md={21} sm={21} xs={21}>
         <StyledFormItem
           name={[name, 'level']}
           validateTrigger={['onChange', 'onBlur']}
@@ -294,7 +296,9 @@ function LanguageSelectionCombobox({ value, selectedValues, onChange, name, remo
       </Col>
 
       <Col
-        md={3}
+        lg={3}
+        md={0}
+        sm={0}
         xs={0}
         css={`
           height: 5.75rem;

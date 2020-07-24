@@ -48,9 +48,54 @@ const filter = (data, predicate) => data.filter(predicate);
 
 const StyledDismissableAlert = styled(DismissableAlert)`
   margin-bottom: 1rem;
+
+  p + p {
+    margin-top: 0;
+  }
 `;
 
 const filterDescriptionMap = {
+  [filters.open]: (
+    <StyledDismissableAlert
+      id="requester.filters.open"
+      message="These are the tasks created by you which were not picked by any translators yet."
+    />
+  ),
+  [filters.inProgress]: (
+    <StyledDismissableAlert
+      id="requester.filters.inProgress"
+      message="Translators are currently working on these tasks."
+    />
+  ),
+  [filters.inReview]: (
+    <StyledDismissableAlert
+      id="requester.filters.inReview"
+      message="The translated texts have been delivered by the translators."
+      description={
+        <>
+          <p>
+            They will be under review for some time to allow other translators to evaluate the quality of the work done.
+          </p>
+          <p>
+            If there are issues with the translation, anyone (including yourself) can raise a challenge against any of
+            the translations bellow.
+          </p>
+        </>
+      }
+    />
+  ),
+  [filters.inDispute]: (
+    <StyledDismissableAlert
+      id="requester.filters.inDispute"
+      message="The translations bellow are being evaluated by specialized jurors on Kleros."
+    />
+  ),
+  [filters.finished]: (
+    <StyledDismissableAlert
+      id="requester.filters.finished"
+      message="The translations bellow were delivered and their translators received their payments."
+    />
+  ),
   [filters.incomplete]: (
     <StyledDismissableAlert
       id="requester.filters.incomplete"

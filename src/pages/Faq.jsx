@@ -183,7 +183,7 @@ const StyledOrderedList = styled.ol`
 `;
 
 const faqs = [
-  ['How does Linguo evaluate translators skills?', 'Short answer: we do not. Translator skills are self-declared.'],
+  ['How does Linguo evaluate translators skills?', 'Short answer: it does not. Translator skills are self-declared.'],
   [
     'If there is no evaluation process, how can I be sure the translator is qualified enough for the job?',
     <>
@@ -344,10 +344,11 @@ const faqs = [
         incentivized to), however if the translation is critical, you should also make sure to do a double check and
         review the translation yourself.
       </p>
+      <p>We advise you to break longer translations in multiple parts whose individual size is around 4,000 words.</p>
+      <p>
+        Notice that currently there is no guarantee that all individual tasks will be assigned to the same translator,
+        as anyone with the required skills could do this at any time.
+      </p>
     </>,
-  ],
-  [
-    'Should I break large translation tasks into several smaller ones?',
-    'You can definitely do that, however there is no guarantee that all individual tasks will be assigned to the same translator, as anyone with the required skills could do this at any time.',
   ],
 ];

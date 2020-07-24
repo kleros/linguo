@@ -3,8 +3,8 @@
     "value": "costEffective",
     "name": "Cost Effective",
     "description": [
-      "A basic translation. The conveyed meaning must be the similar, but nuances might be lost. Occasional typos and translation errors are acceptable.",
-      "Translators having a self-declared level B2+ (CEFR) will be able to see this task."
+      "The conveyed meaning must be the similar, but nuances might be lost. Occasional typos and translation errors are acceptable.",
+      "Translators having a self-declared level B2 (CEFR) or higher will be able to see this task."
     ],
     "requiredLevel": "B2"
   },
@@ -12,8 +12,8 @@
     "value": "standard",
     "name": "Standard",
     "description": [
-      "The standard level of a translation. The meaning must be almost identical. Occasional typos are acceptable.",
-      "Translators having a self-declared level C1+ (CEFR) will be able to see this task."
+      "The meaning must be almost identical. Occasional typos are acceptable.",
+      "Translators having a self-declared level C1 (CEFR) or higher will be able to see this task."
     ],
     "requiredLevel": "C1"
   },

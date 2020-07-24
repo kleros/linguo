@@ -23,7 +23,7 @@ function AwaitingReviewForRequester() {
         render={({ value, formattedValue }) =>
           value > 0 ? (
             <>
-              Translation delivered. (In review for <strong>{formattedValue}</strong>)
+              Translation delivered. Under review for <strong>{formattedValue}</strong>.
             </>
           ) : (
             'Review period is over'
@@ -34,13 +34,14 @@ function AwaitingReviewForRequester() {
     description:
       remainingTime > 0
         ? [
-            'During review you can challenge the translation if you think it does not fulfill the quality requirements. To do so, you need to send a challenge deposit alongside an evidence file describing what is wrong with it.',
-            'If the jurors decide to not approve the translation you receive the escrow deposit back + the challenge deposit back + the deposit of the translator (minus arbitration fees).',
-            'If the translation is approved by the jurors you lose the challenge deposit and the escrow payment goes to the translator.',
+            'During the review period, anyone (including yourself) can challenge the submission if they think it does not fulfill the quality requirements.',
+            'For this, the challenger needs to send a Challenger Deposit and an evidence file describing what is wrong with the translated text.',
+            'If jurors decide to reject the translation you will receive the Requester Deposit back. Also if you are the one who raised the challenge, you will also receive the Challenger Deposit + the Translator Deposit - Arbitration Fees.',
+            'Otherwise, the translator will receive your Requester Deposit + the Challenger Deposit',
           ]
         : [
             'Since no one challenged the translation during the review period, the translator will be automatically paid in a few moments.',
-            'If you want, you can send the payment to the translator right the way.',
+            'If you want, you can send the payment right the way.',
           ],
     interaction: (
       <>

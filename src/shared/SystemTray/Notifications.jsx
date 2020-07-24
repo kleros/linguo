@@ -67,7 +67,7 @@ const notificationFixtures = [
     date: new Date('2020-03-13T19:47:00.000Z'),
     icon: 'bell',
     key: '1',
-    message: 'Jurors approved the translation. The escrow payment will be transfered to the translator.',
+    message: 'Jurors approved the translation. The Requester Deposit will be transfered to the translator.',
     to: '/translation/1234',
     type: 'info',
   },
@@ -86,8 +86,7 @@ const notificationFixtures = [
     date: new Date('2020-03-11T22:02:00.000Z'),
     icon: 'confirmation',
     key: '3',
-    message:
-      'The translator delivered the translation. It will be in the Review list for X time before the escrow payment.',
+    message: 'The translator delivered the translation. It will be in the Review list for 3 days.',
     to: '/translation/1234',
     type: 'info',
   },

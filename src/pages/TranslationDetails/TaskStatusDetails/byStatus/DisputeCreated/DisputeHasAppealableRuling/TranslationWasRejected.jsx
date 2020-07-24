@@ -33,7 +33,7 @@ function ForTranslator() {
   const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Translator });
 
   const description = [
-    'The escrow payment goes back to the task requester and your deposit goes to the challenger.',
+    'The Requester Deposit goes back to the task requester and your Translator Deposit goes to the challenger.',
     <EthValue
       key="appeal-deposit"
       amount={totalAppealCost}
@@ -62,8 +62,8 @@ function ForChallenger() {
 
   const description = [
     challengerIsRequester
-      ? 'The escrow payment + your challenge deposit goes to the translator.'
-      : 'Your challenge deposit goes to the translator.',
+      ? 'The Requester Deposit + your Challenger Deposit goes to the translator.'
+      : 'Your Challenger Deposit goes to the translator.',
     'Note that you can still appeal the decision, what will lead to another jurors round that may or may not revert this decision. To do so you need to deposit the appeal fee.',
     <EthValue
       key="appeal-deposit"
@@ -87,7 +87,7 @@ function ForChallenger() {
 
 function ForRequester() {
   const description = [
-    'Your escrow payment goes to the translator.',
+    'Your Requester Deposit goes to the translator.',
     'Note that anyone can appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
   ];
 
@@ -96,7 +96,7 @@ function ForRequester() {
 
 function ForOther() {
   const description = [
-    'The translator will receive the escrow payment + the translation deposit back + the challenger’s deposit (minus arbitration fees).',
+    'The translator will receive the Requester Deposit + the Translator Deposit back + the Challenger Deposit - Arbitration Fees.',
     'Note that anyone can appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
   ];
 
