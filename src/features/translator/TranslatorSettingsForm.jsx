@@ -2,16 +2,16 @@ import React from 'react';
 import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import produce from 'immer';
 import styled from 'styled-components';
-import { Row, Col, Form, Typography, Alert } from 'antd';
+import { Alert, Col, Form, Row, Typography } from 'antd';
+import produce from 'immer';
 import * as r from '~/app/routes';
-import { InfoIcon, AddIcon, RemoveIcon } from '~/shared/icons';
-import Button from '~/shared/Button';
-import Spacer from '~/shared/Spacer';
-import { LanguageSelect, LevelSelect } from '~/shared/LanguageSelect';
 import allLanguages from '~/assets/fixtures/languages';
-import { saveSkills, cancelSaveSkills, selectAllSkills } from './translatorSlice';
+import Button from '~/shared/Button';
+import { AddIcon, InfoIcon, RemoveIcon } from '~/shared/icons';
+import { LanguageSelect, LevelSelect } from '~/shared/LanguageSelect';
+import Spacer from '~/shared/Spacer';
+import { cancelSaveSkills, saveSkills, selectAllSkills } from './translatorSlice';
 
 const emptyLevels = [];
 

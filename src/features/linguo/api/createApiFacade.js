@@ -24,7 +24,7 @@ import { createEthContractApi, createTokenContractApi } from './createContractAp
 
 const apiSkeleton = {
   createTask() {},
-  // Methods bellow fetche multiple tasks
+  // Methods bellow fetch multiple tasks
   getRequesterTasks() {},
   getTranslatorTasks() {},
   // Methods bellow interact with a single task
@@ -241,22 +241,23 @@ function createContractApis({ web3, archon, withEthPayments, withTokenPayments }
   return { linguo, linguoToken };
 }
 
+const getUniqueLanguageGroups = compose(uniq, map(compose(getLanguageGroup, prop('language'))));
+
+const getRelevantLanguageGroupPairs = compose(
+  map(String),
+  filter(isSupportedLanguageGroupPair),
+  map(LanguageGroupPair.fromArray)
+);
+
 function getContractInstancesForTranslator({ skills, addressesByLanguageGroupPair, apiInstancesByAddress }) {
   const relevantSkills = getRelevantSkills(skills);
-  const getUniqueLanguageGroups = compose(uniq, map(compose(getLanguageGroup, prop('language'))));
-  const allPossiblePairs = combination(getUniqueLanguageGroups(relevantSkills), 2);
+  const allPairs = combination(getUniqueLanguageGroups(relevantSkills), 2);
+  const relevantPairs = getRelevantLanguageGroupPairs([...allPairs]);
 
-  const languageGroupPairs = compose(
-    map(String),
-    filter(isSupportedLanguageGroupPair),
-    map(LanguageGroupPair.fromArray)
-  )([...allPossiblePairs]);
-
-  const getUniqueAddresses = compose(uniq, flatten, Object.values, pick(languageGroupPairs));
-
+  const getUniqueAddresses = compose(uniq, flatten, Object.values, pick(relevantPairs));
   const addresses = getUniqueAddresses(addressesByLanguageGroupPair);
 
-  return Object.values(pick(addresses, apiInstancesByAddress));
+  return compose(Object.values, pick(addresses))(apiInstancesByAddress);
 }
 
 /**
