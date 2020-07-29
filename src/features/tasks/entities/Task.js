@@ -363,7 +363,7 @@ export const registerAssignment = produce((task, { account }) => {
  */
 export const registerSubmission = produce((task, { translatedTextUrl, currentDate = new Date() } = {}) => {
   task.status = TaskStatus.AwaitingReview;
-  task.translatedTextUrl = translatedTextUrl;
+  task.translatedTextUrl = ipfs.generateUrl(translatedTextUrl);
   task.lastInteraction = dayjs(currentDate).toISOString();
 });
 
