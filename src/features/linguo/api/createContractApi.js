@@ -597,8 +597,14 @@ function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDe
     return { tx };
   }
 
-  async function submitTranslation({ ID, text }, { from, gas, gasPrice } = {}) {
-    const tx = linguo.methods.submitTranslation(ID, text).send({ from, gas, gasPrice });
+  async function submitTranslation({ ID, uploadedFile }, { from, gas, gasPrice } = {}) {
+    const { path, hash } = uploadedFile ?? {};
+
+    if (!path || !hash) {
+      throw new Error('Cannot submit a translation without a file');
+    }
+
+    const tx = linguo.methods.submitTranslation(ID, path).send({ from, gas, gasPrice });
 
     return { tx };
   }

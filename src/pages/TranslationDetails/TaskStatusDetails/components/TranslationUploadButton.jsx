@@ -8,6 +8,7 @@ import { submitTranslation } from '~/features/tasks/tasksSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import SingleFileUpload from '~/shared/SingleFileUpload';
 import Button from '~/shared/Button';
+import Spacer from '~/shared/Spacer';
 import useTask from '../../useTask';
 
 export default function TranslationUploadButton({ buttonProps }) {
@@ -17,60 +18,65 @@ export default function TranslationUploadButton({ buttonProps }) {
 
   const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
 
-  const submitOnFileUpload = React.useCallback(
-    async ({ path }) => {
-      setHasPendingTxn(true);
-      try {
-        await dispatch(
-          submitTranslation(
-            { id, path, account },
-            {
-              meta: {
-                tx: { wait: 0 },
-                thunk: { id },
-              },
-            }
-          )
-        );
-      } finally {
-        setHasPendingTxn(false);
+  const [uploadedFile, setUploadedFile] = React.useState(null);
+
+  const handleFileChange = React.useCallback(async ({ fileList }) => {
+    const [file] = fileList;
+
+    if (!file) {
+      setUploadedFile(null);
+    } else if (file.status === 'done') {
+      const { path, hash } = file.response;
+      if (!path) {
+        throw new Error('Failed to upload the file. Please try again.');
       }
-    },
-    [dispatch, id, account]
-  );
 
-  const handleChange = React.useCallback(
-    async ({ fileList }) => {
-      const [file] = fileList;
+      setUploadedFile({ path, hash });
+    }
+  }, []);
 
-      if (file?.status === 'done' && !hasPendingTxn) {
-        const path = file.response?.path;
-        if (!path) {
-          throw new Error('Failed to upload the file. Please try again.');
-        }
+  const handleSubmit = React.useCallback(async () => {
+    setHasPendingTxn(true);
+    try {
+      await dispatch(
+        submitTranslation(
+          { id, account, uploadedFile },
+          {
+            meta: {
+              tx: { wait: 0 },
+              thunk: { id },
+            },
+          }
+        )
+      );
+    } finally {
+      setHasPendingTxn(false);
+    }
+  }, [dispatch, id, account, uploadedFile]);
 
-        submitOnFileUpload({ path });
-      }
-    },
-    [submitOnFileUpload, hasPendingTxn]
-  );
+  const icon = hasPendingTxn ? <LoadingOutlined /> : null;
 
   return (
     <StyledWrapper>
-      {!hasPendingTxn && (
-        <SingleFileUpload
-          accept="text/plain"
-          forbidRedoAfterSuccess
-          beforeUpload={beforeUpload}
-          onChange={handleChange}
-          buttonProps={buttonProps}
-        />
-      )}
-      {hasPendingTxn && (
-        <Button {...buttonProps} icon={<LoadingOutlined />} disabled>
-          Sending translation...
-        </Button>
-      )}
+      <SingleFileUpload
+        forbidRedoAfterSuccess
+        disabled={hasPendingTxn}
+        beforeUpload={beforeUpload}
+        onChange={handleFileChange}
+        buttonContent={{
+          idle: {
+            text: 'Translated Text',
+          },
+        }}
+        buttonProps={{
+          fullWidth: true,
+          variant: 'outlined',
+        }}
+      />
+      <Spacer />
+      <Button {...buttonProps} icon={icon} disabled={!uploadedFile || hasPendingTxn} onClick={handleSubmit}>
+        {hasPendingTxn ? 'Submitting Translation...' : 'Submit Translation'}
+      </Button>
     </StyledWrapper>
   );
 }
@@ -99,15 +105,6 @@ const beforeUpload = file => {
   if (!isLt100M) {
     notification.error({
       message: 'File must smaller than 100 MB!',
-      placement: 'bottomRight',
-    });
-    return false;
-  }
-
-  const isPlainTextFile = file.type === 'text/plain';
-  if (!isPlainTextFile) {
-    notification.error({
-      message: 'File must be plain text (.txt)',
       placement: 'bottomRight',
     });
     return false;

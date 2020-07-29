@@ -35,7 +35,7 @@ export default function ChallengeUploadButton({ buttonProps }) {
     }
   }, []);
 
-  const handleSubmitChallenge = React.useCallback(async () => {
+  const handleSubmit = React.useCallback(async () => {
     setHasPendingTxn(true);
     try {
       await dispatch(
@@ -74,7 +74,7 @@ export default function ChallengeUploadButton({ buttonProps }) {
         }}
       />
       <Spacer />
-      <Button {...buttonProps} icon={icon} disabled={!uploadedFile || hasPendingTxn} onClick={handleSubmitChallenge}>
+      <Button {...buttonProps} icon={icon} disabled={!uploadedFile || hasPendingTxn} onClick={handleSubmit}>
         {hasPendingTxn ? 'Submitting Challenge...' : 'Challenge It'}
       </Button>
     </StyledWrapper>
