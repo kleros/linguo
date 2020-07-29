@@ -32,16 +32,19 @@ export default function TaskDetails() {
     deadline,
     assignedPrice,
     expectedQuality,
-    text,
     wordCount,
     sourceLanguage,
     targetLanguage,
     originalTextUrl,
-    originalTextFile,
     translatedTextUrl,
     hasDispute,
     token,
+    version,
   } = task;
+
+  const deprecatedOriginalText = version > 0 ? undefined : task.text;
+  const deprecatedOriginalTextFile = version > 0 ? undefined : task.originalTextFile;
+  const originalTextFileUrl = version > 0 ? task.originalTextFileUrl : undefined;
 
   const getCurrentPrice = React.useCallback(() => Task.currentPrice(task), [task]);
   const [currentPrice, setCurrentPrice] = React.useState(getCurrentPrice);
@@ -138,15 +141,21 @@ export default function TaskDetails() {
       <StyledDownloadTextWrapper>
         <div className="col">
           <DownloadLink
-            download={{
-              content: text,
-            }}
+            download={
+              version > 0
+                ? {
+                    url: originalTextFileUrl,
+                  }
+                : {
+                    content: deprecatedOriginalText,
+                  }
+            }
           >
             <JumboButton fullWidth={true} variant="filled" icon={<FileTextOutlined />}>
-              View Original Text
+              Original Text
             </JumboButton>
           </DownloadLink>
-          {(originalTextUrl || originalTextFile) && (
+          {(originalTextUrl || deprecatedOriginalTextFile) && (
             <>
               <Spacer size={1} />
               <StyledLinkList>
@@ -157,9 +166,9 @@ export default function TaskDetails() {
                     </a>
                   </StyledLinkListItem>
                 ) : null}
-                {originalTextFile ? (
+                {deprecatedOriginalTextFile ? (
                   <StyledLinkListItem>
-                    <a href={getFileUrl(originalTextFile)} target="_blank" rel="noopener noreferrer external">
+                    <a href={getFileUrl(deprecatedOriginalTextFile)} target="_blank" rel="noopener noreferrer external">
                       <PaperClipOutlined /> File of the original text
                     </a>
                   </StyledLinkListItem>
@@ -176,7 +185,7 @@ export default function TaskDetails() {
               }}
             >
               <JumboButton fullWidth={true} variant="outlined" icon={<TranslationOutlined />}>
-                View Translated Text
+                Translated Text
               </JumboButton>
             </DownloadLink>
           </div>

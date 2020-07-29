@@ -126,10 +126,8 @@ const StyledWrapper = styled.div`
 `;
 
 const StyledLanguageSelectionFormItem = styled(Form.Item)`
-  @media (min-width: 768px) {
-    .ant-form-item-label {
-      text-align: center;
-    }
+  .ant-form-item-label {
+    text-align: center;
   }
 `;
 
@@ -143,6 +141,10 @@ const StyledSwapButtonCol = styled(Col)`
       position: absolute;
       top: 3.6rem;
       z-index: 10;
+    }
+
+    @media (max-width: 767.98px) {
+      margin: -1rem 0 1rem;
     }
   }
 `;

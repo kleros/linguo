@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Col, Form, Row } from 'antd';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import { create as createTask } from '~/features/tasks/tasksSlice';
 import { fetchAll } from '~/features/tokens/tokensSlice';
@@ -15,8 +17,9 @@ import ExpectedQualityField from './ExpectedQualityField';
 import LanguagesSelectionFields from './LanguagesSelectionFields';
 import OriginalSourceFields from './OriginalSourceFields';
 import PriceDefinitionFields from './PriceDefinitionFields';
-import TextField from './TextField';
 import TitleField from './TitleField';
+
+dayjs.extend(utc);
 
 function TranslationRequestForm() {
   const dispatch = useDispatch();
@@ -37,8 +40,19 @@ function TranslationRequestForm() {
           children: 'Submitting...',
         }
       : {
-          children: 'Request the translation',
+          children: 'Request the Translation',
         };
+
+  const handleValuesChanged = React.useCallback(
+    changedValues => {
+      if (changedValues.deadline) {
+        form.setFieldsValue({
+          deadline: dayjs(changedValues.deadline).utc().endOf('day'),
+        });
+      }
+    },
+    [form]
+  );
 
   const handleFinish = React.useCallback(
     async ({ originalTextFile, deadline, ...rest }) => {
@@ -79,6 +93,7 @@ function TranslationRequestForm() {
       layout="vertical"
       form={form}
       initialValues={initialValues}
+      onValuesChange={handleValuesChanged}
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}
     >
@@ -88,13 +103,9 @@ function TranslationRequestForm() {
       <Row gutter={rowGutter}>
         <ExpectedQualityField initialValue={initialValues.expectedQuality} />
       </Row>
-      <Spacer />
+      <Spacer size={2} />
       <Row gutter={rowGutter}>
         <TitleField />
-      </Row>
-      <Spacer />
-      <Row gutter={rowGutter}>
-        <TextField />
       </Row>
       <Row gutter={rowGutter}>
         <OriginalSourceFields setFieldsValue={form.setFieldsValue} />

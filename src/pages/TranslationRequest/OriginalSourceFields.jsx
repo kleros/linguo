@@ -1,38 +1,116 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Form, Row, Col, Input, message } from 'antd';
+import { Col, Form, Input, Row, Typography, message } from 'antd';
+import { InputNumberWithAddons } from '~/adapters/antd';
+import DismissableAlert from '~/features/ui/DismissableAlert';
 import SingleFileUpload, { validator as singleFileUploadValidator } from '~/shared/SingleFileUpload';
 
-const StyledMiddleCol = styled(Col)`
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  line-height: 2.5rem;
+export default function OriginalSourceFields({ setFieldsValue }) {
+  const handleOriginalTextFileChange = React.useCallback(
+    ({ fileList }) => {
+      setFieldsValue({ originalTextFile: [...fileList] });
+    },
+    [setFieldsValue]
+  );
 
-  @media (max-width: 767.98px) {
-    margin-top: -2rem;
-    margin-bottom: -0.5rem;
-    justify-content: flex-start;
-    text-align: right;
-  }
-`;
+  return (
+    <Col span={24}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={24} md={12} lg={8} order={0}>
+          <StyledFormItem
+            label="Word Count"
+            name="wordCount"
+            rules={[
+              {
+                required: true,
+                message: 'Please set the word count.',
+              },
+            ]}
+          >
+            <InputNumberWithAddons
+              type="number"
+              placeholder="The length of the text"
+              min={1}
+              step={1}
+              addonAfter="words"
+            />
+          </StyledFormItem>
+        </Col>
+        <Col xs={0} sm={0} md={12} lg={16} order={0}></Col>
+        <Col xs={24} sm={24} md={12} lg={8} order={0}>
+          <StyledFormItem
+            label="Original Text File"
+            name="originalTextFile"
+            valuePropName="fileList"
+            getValueFromEvent={normalizeFile}
+            extra="Single file up to 100 MB"
+            rules={[
+              {
+                required: true,
+                message: 'Please provide the file to be translated.',
+              },
+              {
+                validator: uploadValidator,
+              },
+            ]}
+          >
+            <SingleFileUpload
+              fullWidth
+              beforeUpload={beforeUpload}
+              onChange={handleOriginalTextFileChange}
+              buttonProps={{
+                variant: 'outlined',
+              }}
+            />
+          </StyledFormItem>
+        </Col>
+        <Col
+          xs={{ span: 24, order: 0 }}
+          sm={{ span: 24, order: 0 }}
+          md={{ span: 24, order: 1 }}
+          css={`
+            margin: -1rem 0 0;
+          `}
+        >
+          <DismissableAlert
+            id={'requester.form.multipleFiles'}
+            message="If you want to send multiple files, you can put them all in a single .zip
+            file."
+            description={
+              <StyledDisclaimer>
+                <p>Please make sure the actual file to be translated can be easily identified.</p>
+                <p>
+                  We recommend you to create a file in a simple format (e.g.: <em>instructions.pdf</em>) with general
+                  instructions for translators.
+                </p>
+              </StyledDisclaimer>
+            }
+          />
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={16} order={0}>
+          <StyledFormItem
+            label="Original Text URL (optional)"
+            name="originalTextUrl"
+            rules={[
+              {
+                required: false,
+                type: 'url',
+                message: 'Please provide a valid URL.',
+              },
+            ]}
+          >
+            <Input size="large" placeholder="Paste a URL here" />
+          </StyledFormItem>
+        </Col>
+      </Row>
+    </Col>
+  );
+}
 
-const StyledFormItem = styled(Form.Item)`
-  && {
-    @media (min-width: 768px) {
-      margin-bottom: -2rem;
-    }
-  }
-`;
-
-const StyledWrapperFormItem = styled(Form.Item)`
-  && {
-    @media (max-width: 767.98px) {
-      margin-bottom: -1rem;
-    }
-  }
-`;
+OriginalSourceFields.propTypes = {
+  setFieldsValue: t.func.isRequired,
+};
 
 const normalizeFile = e => {
   if (Array.isArray(e)) {
@@ -60,58 +138,14 @@ async function uploadValidator(rule, value) {
   return singleFileUploadValidator(value);
 }
 
-function OriginalSourceFields({ setFieldsValue }) {
-  const handleOriginalTextFileChange = React.useCallback(
-    ({ fileList }) => {
-      setFieldsValue({ originalTextFile: [...fileList] });
-    },
-    [setFieldsValue]
-  );
+const StyledFormItem = styled(Form.Item)``;
 
-  return (
-    <Col span={24}>
-      <StyledWrapperFormItem label="Source of the original text for context (optional)">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={24} md={14}>
-            <StyledFormItem
-              name="originalTextUrl"
-              rules={[
-                {
-                  required: false,
-                  type: 'url',
-                  message: 'Please provide a valid URL.',
-                },
-              ]}
-            >
-              <Input size="large" placeholder="Paste a URL here" />
-            </StyledFormItem>
-          </Col>
-          <StyledMiddleCol xs={24} sm={24} md={2}>
-            or
-          </StyledMiddleCol>
-          <Col xs={24} sm={24} md={8}>
-            <StyledFormItem
-              name="originalTextFile"
-              valuePropName="fileList"
-              getValueFromEvent={normalizeFile}
-              extra="Single file up to 100 MB"
-              rules={[{ validator: uploadValidator }]}
-            >
-              <SingleFileUpload
-                beforeUpload={beforeUpload}
-                onChange={handleOriginalTextFileChange}
-                buttonProps={{ variant: 'outlined' }}
-              />
-            </StyledFormItem>
-          </Col>
-        </Row>
-      </StyledWrapperFormItem>
-    </Col>
-  );
-}
+const StyledDisclaimer = styled(Typography.Paragraph)`
+  && {
+    color: ${p => p.theme.color.text.light};
 
-OriginalSourceFields.propTypes = {
-  setFieldsValue: t.func.isRequired,
-};
-
-export default OriginalSourceFields;
+    > p {
+      margin: 0;
+    }
+  }
+`;

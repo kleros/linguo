@@ -737,7 +737,16 @@ const publishMetaEvidence = async ({ account, ...metadata }, { chainId }) => {
     aliases: {
       [account]: 'Requester',
     },
-    metadata,
+    metadata: {
+      /**
+       * v1:
+       *  - Removed `text` field
+       *  - Added `wordCount` field
+       *  - `originalTextFile` is mandatory
+       */
+      __v: 1,
+      ...metadata,
+    },
   });
 
   const { path } = await ipfs.publish('linguo-meta-evidence.json', JSON.stringify(metaEvidence));

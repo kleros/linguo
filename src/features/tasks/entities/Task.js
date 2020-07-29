@@ -41,17 +41,24 @@ export const normalize = ({ ID, contract, reviewTimeout, task, metadata, lifecyc
         });
   }, {});
 
+  data.version = data.__v ?? 0;
+  delete data.__v;
+
   data.ID = contract ? `${contract}/${ID}` : ID;
   data.id = data.ID;
 
   data.parties = data.parties ?? {};
   data.parties[TaskParty.Requester] = data.requester;
 
-  data.wordCount = wordCount({ text: data.text });
+  data.wordCount = data.version === 0 ? wordCount({ text: data.text }) || 1 : data.wordCount ?? 1;
 
   data.lifecycleEvents = extractEventsReturnValues(lifecycleEvents);
 
   data.assignedPrice = data.lifecycleEvents.TaskAssigned?.[0]?._price;
+
+  if (data.originalTextFile) {
+    data.originalTextFileUrl = ipfs.generateUrl(data.originalTextFile);
+  }
 
   const translatedText = data.lifecycleEvents.TranslationSubmitted?.[0]?._translatedText;
   if (translatedText) {
@@ -145,6 +152,10 @@ const normalizePropsFnMap = {
 };
 
 /**
+ * @deprecated
+ * As of metadata schema v1, `wordCount` is a mandatory field and should
+ * be provided at task creation.
+ *
  * Calculates the word count for a given task.
  *
  * @function

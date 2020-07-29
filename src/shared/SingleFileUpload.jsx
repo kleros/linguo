@@ -15,6 +15,7 @@ export default function SingleFileUpload({
   onChange,
   buttonContent,
   buttonProps,
+  className,
 }) {
   const [state, send] = useStateMachine(uploadStateMachine);
 
@@ -82,6 +83,7 @@ export default function SingleFileUpload({
       onChange={onChange}
       onRemove={handleRemove}
       customRequest={customRequest}
+      className={className}
     >
       <Tooltip title={tooltip}>
         <span>
@@ -112,6 +114,7 @@ SingleFileUpload.propTypes = {
     errored: buttonContentShape,
   }),
   buttonProps: t.object,
+  className: t.string,
 };
 
 const defaultButtonContent = {
@@ -141,6 +144,7 @@ SingleFileUpload.defaultProps = {
   onChange: () => {},
   buttonContent: defaultButtonContent,
   buttonProps: {},
+  className: '',
 };
 
 const _1_MB = 2e10 * 2e10;

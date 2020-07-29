@@ -72,20 +72,11 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
 
   return (
     <>
-      <Spacer />
-      <StyledDetails>
-        <summary>
-          <InfoIcon /> Click to learn more about the price definition.
-        </summary>
-        <Spacer />
-        <PriceDefinitionInfographic />
-      </StyledDetails>
-      <Spacer />
       <Row gutter={[16, 16]}>
         <Form.Item name="account" initialValue={account}>
           <Input type="hidden" />
         </Form.Item>
-        <Col xs={24} sm={24} md={8}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <Form.Item
             label="Currency"
             initialValue={ethNativeToken.address}
@@ -107,7 +98,8 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
             />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={24} md={8}>
+        <Col xs={0} md={12} lg={0}></Col>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <Form.Item
             label="Minimum Price"
             name="minPrice"
@@ -133,8 +125,9 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
             />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={24} md={8}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <StyledAsyncFormItem
+            validateFirst
             hasFeedback={
               paymentTokenAddress !== ethNativeToken.address &&
               allowanceValidation.status === AllowanceValidationStatus.pending
@@ -172,6 +165,13 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
           </StyledAsyncFormItem>
         </Col>
       </Row>
+      <StyledDetails>
+        <summary>
+          <InfoIcon /> Click to learn more about the price definition.
+        </summary>
+        <Spacer />
+        <PriceDefinitionInfographic />
+      </StyledDetails>
       {allowanceValidation.latestResult === AllowanceValidationStatus.invalid && (
         <>
           <ApproveOptions
@@ -449,6 +449,10 @@ const StyledDisclaimerText = styled(Typography.Paragraph)`
 `;
 
 const StyledDetails = styled.details`
+  @media (min-width: 992px) {
+    margin-top: -1rem;
+  }
+
   &[open] {
     > summary {
       color: ${p => p.theme.color.text.default};
@@ -459,6 +463,7 @@ const StyledDetails = styled.details`
     cursor: help;
     outline: none;
     transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
+    color: ${p => p.theme.color.text.light};
 
     &:focus,
     &:hover {

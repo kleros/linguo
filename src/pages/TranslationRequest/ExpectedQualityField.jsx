@@ -133,7 +133,7 @@ function ExpectedQualityField({ initialValue }) {
         <Radio.Group onChange={handleChange}>
           <Row gutter={[16, 16]} justify="center">
             {Object.entries(translationQualityTiers).map(([key, tier]) => (
-              <Col span={8} key={key}>
+              <Col xs={24} sm={24} md={8} key={key}>
                 <StyledRadioButton value={tier.value}>{tier.name}</StyledRadioButton>
               </Col>
             ))}

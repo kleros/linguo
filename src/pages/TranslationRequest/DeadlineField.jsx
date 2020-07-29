@@ -11,9 +11,8 @@ dayjs.extend(utc);
 function DeadlineField() {
   return (
     <>
-      <Col xs={24} sm={24} md={24} lg={12}>
+      <Col xs={24} sm={24} md={24} lg={16}>
         <Form.Item
-          initialValue={dayjs().utc().endOf('day')}
           label="Deadline"
           name="deadline"
           rules={[
@@ -33,7 +32,7 @@ function DeadlineField() {
         >
           <DatePicker
             size="large"
-            placeholder="Date and Hour of the Day"
+            placeholder="Choose a date"
             disabledDate={isBeforeToday}
             showToday={false}
             showNow={false}
