@@ -12,7 +12,7 @@ export default function getErrorMessage(error) {
   } else if (
     error instanceof UserRejectedRequestErrorInjected ||
     error.name === 'UserRejectedRequestErrorInjected' ||
-    // Metamask error bellow
+    // Metamask error below
     error.message === 'User denied account authorization'
   ) {
     return 'Please authorize this website to access your Ethereum account.';

@@ -24,10 +24,10 @@ import { createEthContractApi, createTokenContractApi } from './createContractAp
 
 const apiSkeleton = {
   createTask() {},
-  // Methods bellow fetch multiple tasks
+  // Methods below fetch multiple tasks
   getRequesterTasks() {},
   getTranslatorTasks() {},
-  // Methods bellow interact with a single task
+  // Methods below interact with a single task
   getTaskById() {},
   getTaskPrice() {},
   getTranslatorDeposit() {},

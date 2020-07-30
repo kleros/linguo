@@ -87,13 +87,13 @@ const filterDescriptionMap = {
   [filters.inProgress]: (
     <StyledDismissableAlert
       id="translator.filters.inProgress"
-      message="You are currently working on translations bellow."
+      message="You are currently working on translations below."
     />
   ),
   [secondLevelFilters[filters.inReview].myTranslations]: (
     <StyledDismissableAlert
       id="translator.filters.inReview.myTranslations"
-      message="You already delivered the translations bellow."
+      message="You already delivered the translations below."
       description={
         <>
           <p>
@@ -107,7 +107,7 @@ const filterDescriptionMap = {
   [secondLevelFilters[filters.inReview].toReview]: (
     <StyledDismissableAlert
       id="translator.filters.inReview.toReview"
-      message="Other translators delivered completed the translation tasks bellow."
+      message="Other translators delivered completed the translation tasks below."
       description={
         <>
           <p>If you think there are issues with any of them, you can raise a challenge.</p>
@@ -126,7 +126,7 @@ const filterDescriptionMap = {
   [filters.finished]: (
     <StyledDismissableAlert
       id="translator.filters.incomplete"
-      message="The finished translation tasks you participated in are shown bellow."
+      message="The finished translation tasks you participated in are shown below."
       description={
         <p>You will see them regardless they were accepted or, in case there were a dispute, rejected by a jury.</p>
       }
@@ -135,7 +135,7 @@ const filterDescriptionMap = {
   [filters.incomplete]: (
     <StyledDismissableAlert
       id="translator.filters.incomplete"
-      message="You were assigned to the tasks bellow but were not able to deliver the translation within the deadline."
+      message="You were assigned to the tasks below but were not able to deliver the translation within the deadline."
     />
   ),
 };

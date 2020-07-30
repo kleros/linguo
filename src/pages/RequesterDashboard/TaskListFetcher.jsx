@@ -78,7 +78,7 @@ const filterDescriptionMap = {
           </p>
           <p>
             If there are issues with the translation, anyone (including yourself) can raise a challenge against any of
-            the translations bellow.
+            the translations below.
           </p>
         </>
       }
@@ -87,13 +87,13 @@ const filterDescriptionMap = {
   [filters.inDispute]: (
     <StyledDismissableAlert
       id="requester.filters.inDispute"
-      message="The translations bellow are being evaluated by specialized jurors on Kleros."
+      message="The translations below are being evaluated by specialized jurors on Kleros."
     />
   ),
   [filters.finished]: (
     <StyledDismissableAlert
       id="requester.filters.finished"
-      message="The translations bellow were delivered and their translators received their payments."
+      message="The translations below were delivered and their translators received their payments."
     />
   ),
   [filters.incomplete]: (
