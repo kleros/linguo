@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { selectLinguoTokenAddress } from '~/features/linguo/linguoSlice';
+import { normalizeBaseUnit } from '~/features/tokens';
 import {
   approve,
   selectAllTokens,
@@ -19,7 +20,7 @@ import TransactionState from '~/features/transactions/TransactionState';
 import { selectAccount } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
 import FormattedNumber from '~/shared/FormattedNumber';
-import { InfoIcon } from '~/shared/icons';
+import { InfoIcon, WarningIcon } from '~/shared/icons';
 import Spacer from '~/shared/Spacer';
 import PriceDefinitionInfographic from '~/shared/PriceDefinitionInfographic';
 import usePreviousMatching from '~/shared/usePreviousMatching';
@@ -41,7 +42,7 @@ export default function PriceDefinitionFieldsWrapper() {
   );
 }
 
-function PriceDefinitionFields({ getFieldValue, validateFields }) {
+function PriceDefinitionFields({ getFieldValue, setFieldsValue, validateFields }) {
   const allTokens = useShallowEqualSelector(selectAllTokens);
   const ethNativeToken = useSelector(selectTokenByTicker('ETH'));
 
@@ -65,15 +66,41 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
     shouldSkip: ({ token } = {}) => token === ethNativeToken.address,
   });
 
-  const [minMaxPrice, setMinMaxPrice] = React.useState(0.01);
-  const handleMinPriceChange = React.useCallback(value => {
-    setMinMaxPrice(value);
-  }, []);
+  const [minMaxPriceNumeric, setMinMaxPriceNumeric] = React.useState(0.01);
+  const handleMinPriceNumericChange = React.useCallback(
+    value => {
+      setMinMaxPriceNumeric(value);
+
+      if (!Number.isNaN(parseInt(value, 10))) {
+        setFieldsValue({
+          minPrice: normalizeBaseUnit(value, paymentToken.decimals),
+        });
+      }
+    },
+    [setFieldsValue, paymentToken.decimals]
+  );
+
+  const handleMaxPriceNumericChange = React.useCallback(
+    value => {
+      if (!Number.isNaN(parseInt(value, 10))) {
+        setFieldsValue({
+          maxPrice: normalizeBaseUnit(value, paymentToken.decimals),
+        });
+      }
+    },
+    [setFieldsValue, paymentToken.decimals]
+  );
 
   return (
     <>
       <Row gutter={[16, 16]}>
         <Form.Item name="account" initialValue={account}>
+          <Input type="hidden" />
+        </Form.Item>
+        <Form.Item name="minPrice" initialValue="0">
+          <Input type="hidden" />
+        </Form.Item>
+        <Form.Item name="maxPrice" initialValue="0">
           <Input type="hidden" />
         </Form.Item>
         <Col xs={24} sm={24} md={12} lg={8}>
@@ -102,7 +129,7 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
         <Col xs={24} sm={24} md={12} lg={8}>
           <Form.Item
             label="Minimum Price"
-            name="minPrice"
+            name="minPriceNumeric"
             rules={[
               {
                 required: true,
@@ -121,7 +148,7 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
               min={0.01}
               step={0.01}
               addonAfter={paymentToken.ticker}
-              onChange={handleMinPriceChange}
+              onChange={handleMinPriceNumericChange}
             />
           </Form.Item>
         </Col>
@@ -133,8 +160,8 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
               allowanceValidation.status === AllowanceValidationStatus.pending
             }
             label="Maximum Price"
-            name="maxPrice"
-            dependencies={['token', 'minPrice']}
+            name="maxPriceNumeric"
+            dependencies={['token', 'minPriceNumeric']}
             rules={[
               {
                 required: true,
@@ -142,8 +169,8 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
               },
               {
                 type: 'number',
-                min: minMaxPrice,
-                message: `Maximum price must be at least ${minMaxPrice} ${paymentToken.ticker}.`,
+                min: minMaxPriceNumeric,
+                message: `Maximum price must be at least ${minMaxPriceNumeric} ${paymentToken.ticker}.`,
               },
               {
                 validator: async () => {
@@ -158,9 +185,10 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
             <InputNumberWithAddons
               type="number"
               placeholder="e.g.: 2.5"
-              min={minMaxPrice}
+              min={minMaxPriceNumeric}
               step={0.01}
               addonAfter={paymentToken.ticker}
+              onChange={handleMaxPriceNumericChange}
             />
           </StyledAsyncFormItem>
         </Col>
@@ -172,6 +200,7 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
         <Spacer />
         <PriceDefinitionInfographic />
       </StyledDetails>
+      <Spacer />
       {allowanceValidation.latestResult === AllowanceValidationStatus.invalid && (
         <>
           <ApproveOptions
@@ -181,7 +210,7 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
             tokenTicker={paymentToken.ticker}
             owner={account}
             spender={linguoTokenAddress}
-            amount={getFieldValue('maxPrice')}
+            amount={getFieldValue('maxPriceNumeric')}
           />
         </>
       )}
@@ -192,6 +221,7 @@ function PriceDefinitionFields({ getFieldValue, validateFields }) {
 PriceDefinitionFields.propTypes = {
   getFieldValue: t.func.isRequired,
   validateFields: t.func.isRequired,
+  setFieldsValue: t.func.isRequired,
 };
 
 function TokenSelect({ dropdownRender, options, ...props }) {
@@ -232,70 +262,8 @@ TokenSelect.defaultProps = {
 };
 
 const makeDropdownRender = dropdownRender => menu => (
-  <StyledLanguageDropdown>{dropdownRender(menu)}</StyledLanguageDropdown>
+  <StyledCurrencyDropdown>{dropdownRender(menu)}</StyledCurrencyDropdown>
 );
-
-const StyledSelect = styled(Select)`
-  &&& {
-    .ant-select-selector {
-      .ant-select-selection-placeholder,
-      .ant-select-selection-item {
-        display: flex;
-        align-items: center;
-      }
-
-      .ant-select-selection-item {
-        .logo {
-          flex: 1rem 0 0;
-          margin-right: 0.5rem;
-
-          > img {
-            display: block;
-            display: block;
-            width: 100%;
-          }
-        }
-
-        .text {
-          flex: 1;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      }
-    }
-  }
-`;
-
-const StyledLanguageDropdown = styled.div`
-  .ant-select-item-option-content {
-    display: flex;
-    align-items: center;
-
-    .logo {
-      flex: 1rem 0 0;
-      margin-right: 0.5rem;
-
-      > img {
-        display: block;
-        width: 100%;
-      }
-    }
-
-    .text {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-`;
-
-const StyledAsyncFormItem = styled(Form.Item)`
-  && {
-    &.ant-form-item-has-feedback .ant-form-item-children-icon {
-      right: 76px;
-    }
-  }
-`;
 
 function ApproveOptions({ status, tokenAddress, tokenTicker, owner, spender, amount, onSuccess, onError }) {
   const [interactionKey, setInteractionKey] = React.useState(nanoid());
@@ -323,11 +291,16 @@ function ApproveOptions({ status, tokenAddress, tokenTicker, owner, spender, amo
     shouldShowButtons && (
       <>
         <StyledDisclaimerText>
-          <InfoIcon /> You need to unlock Linguo to spend {tokenTicker} in your behalf.
+          <WarningIcon /> You need to unlock Linguo to spend {tokenTicker} in your behalf.
         </StyledDisclaimerText>
         <Spacer />
-        <Row gutter={16}>
-          <Col>
+        <Row
+          gutter={[16, 16]}
+          css={`
+            position: relative;
+          `}
+        >
+          <StyledApproveButtonCol>
             <ApproveButton
               interactionKey={interactionKey}
               tokenAddress={tokenAddress}
@@ -344,8 +317,8 @@ function ApproveOptions({ status, tokenAddress, tokenTicker, owner, spender, amo
                 Unlock <FormattedNumber value={amount} decimals={2} /> {tokenTicker}
               </>
             </ApproveButton>
-          </Col>
-          <Col>
+          </StyledApproveButtonCol>
+          <StyledApproveButtonCol>
             <ApproveButton
               interactionKey={interactionKey}
               tokenAddress={tokenAddress}
@@ -354,18 +327,27 @@ function ApproveOptions({ status, tokenAddress, tokenTicker, owner, spender, amo
               amount={Infinity}
               buttonProps={{
                 disabled: hasPendingInteraction,
-                variant: 'filled',
+                variant: 'outlined',
+                color: 'secondary',
                 icon: <UnlockOutlined />,
               }}
             >
               Unlock {tokenTicker} Permanently
             </ApproveButton>
-          </Col>
-          {hasPendingInteraction && (
+          </StyledApproveButtonCol>
+          {hasPendingInteraction ? (
             <Col
               css={`
                 display: flex;
                 align-items: center;
+
+                @media (max-width: 991.98px) {
+                  justify-content: center;
+                  position: absolute;
+                  left: 50%;
+                  top: 50%;
+                  transform: translate(-50%, -50%);
+                }
               `}
             >
               <LoadingOutlined
@@ -377,7 +359,7 @@ function ApproveOptions({ status, tokenAddress, tokenTicker, owner, spender, amo
                 `}
               />
             </Col>
-          )}
+          ) : null}
         </Row>
       </>
     )
@@ -435,11 +417,72 @@ ApproveButton.defaultProps = {
   buttonProps: {},
 };
 
+const StyledSelect = styled(Select)`
+  &&& {
+    .ant-select-selector {
+      .ant-select-selection-placeholder,
+      .ant-select-selection-item {
+        display: flex;
+        align-items: center;
+      }
+
+      .ant-select-selection-item {
+        .logo {
+          flex: 1rem 0 0;
+          margin-right: 0.5rem;
+
+          > img {
+            display: block;
+            display: block;
+            width: 100%;
+          }
+        }
+
+        .text {
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+`;
+
+const StyledCurrencyDropdown = styled.div`
+  .ant-select-item-option-content {
+    display: flex;
+    align-items: center;
+
+    .logo {
+      flex: 1rem 0 0;
+      margin-right: 0.5rem;
+
+      > img {
+        display: block;
+        width: 100%;
+      }
+    }
+
+    .text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+`;
+
+const StyledAsyncFormItem = styled(Form.Item)`
+  && {
+    &.ant-form-item-has-feedback .ant-form-item-children-icon {
+      right: 76px;
+    }
+  }
+`;
+
 const StyledDisclaimerText = styled(Typography.Paragraph)`
   && {
     color: ${props => props.theme.color.text.default};
     font-size: ${props => props.theme.fontSize.small};
-    font-weight: 400;
     margin-bottom: 0;
 
     & + & {
@@ -449,10 +492,6 @@ const StyledDisclaimerText = styled(Typography.Paragraph)`
 `;
 
 const StyledDetails = styled.details`
-  @media (min-width: 992px) {
-    margin-top: -1rem;
-  }
-
   &[open] {
     > summary {
       color: ${p => p.theme.color.text.default};
@@ -478,5 +517,27 @@ const StyledDetails = styled.details`
       display: none;
       content: '';
     }
+  }
+`;
+
+const StyledApproveButtonCol = styled(Col)`
+  @media (max-width: 767.98px) {
+    flex: 0 0 100%;
+
+    > button {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 768px) {
+    flex: 0 1 50%;
+
+    > button {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 992px) {
+    flex: 0;
   }
 `;

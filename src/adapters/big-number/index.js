@@ -33,6 +33,10 @@ export const percentage = (a, b, { decimals = 2 } = {}) => {
   return result.toNumber() / 10 ** decimals;
 };
 
+export const power = (a, b) => {
+  return normalizeInput(a).pow(normalizeInput(b)).toString();
+};
+
 export const max = (a, ...args) => {
   return args.reduce((maxVal, current) => BN.max(maxVal, normalizeInput(current)), normalizeInput(a)).toString();
 };

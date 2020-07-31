@@ -1,11 +1,10 @@
-import Web3 from 'web3';
-import erc20Abi from './abis/ERC20.json';
+import { greaterThan } from '~/adapters/big-number';
 import badgeAbi from './abis/badge.json';
+import erc20Abi from './abis/ERC20.json';
 import tokensViewAbi from './abis/tokensView.json';
 import { ADDRESS_ZERO, MAX_UINT256 } from './constants';
 import t2crInfo from './fixtures/t2cr.json';
-
-const { toWei, toBN } = Web3.utils;
+import normalizeBaseUnit from './normalizeBaseUnit';
 
 const filter = [
   false, // Do not include items which are not on the TCR.
@@ -18,10 +17,10 @@ const filter = [
   false, // Include token if caller is the challenger of a pending request.
 ];
 
-export default function createTokenApi({ library: web3 }) {
+export default function createTokensApi({ library: web3 }) {
   const erc20Token = new web3.eth.Contract(erc20Abi);
 
-  async function fetchTokens({ chainId }) {
+  async function fetchAll({ chainId }) {
     const addresses = t2crInfo[chainId];
     if (!addresses) {
       throw new Error(`Cannot fetch tokens for network ${chainId}`);
@@ -82,9 +81,9 @@ export default function createTokenApi({ library: web3 }) {
       throw new Error('Failed to check spending limit.');
     }
 
-    amount = toBN(toWei(String(amount)));
+    amount = normalizeBaseUnit(amount, await _getDecimals(contract));
 
-    if (amount.gt(toBN(balance))) {
+    if (greaterThan(amount, balance)) {
       throw Object.create(new Error('Not enough balance.'), {
         name: {
           value: 'NotEnoughBalanceError',
@@ -93,7 +92,7 @@ export default function createTokenApi({ library: web3 }) {
       });
     }
 
-    if (amount.gt(toBN(allowance))) {
+    if (greaterThan(amount, allowance)) {
       throw Object.create(new Error('Not allowed to spend this amount.'), {
         name: {
           value: 'NotEnoughAllowanceError',
@@ -104,18 +103,31 @@ export default function createTokenApi({ library: web3 }) {
   }
 
   async function approve({ tokenAddress, spender, owner, amount }) {
-    amount = (amount || Infinity) === Infinity ? MAX_UINT256 : toWei(String(amount));
+    if (tokenAddress === ADDRESS_ZERO) {
+      throw new Error('ETH does not require approval to be spent.');
+    }
 
     const contract = erc20Token.clone();
     contract.options.address = tokenAddress;
+
+    amount = (amount ?? Infinity) === Infinity ? MAX_UINT256 : normalizeBaseUnit(amount, await _getDecimals(contract));
 
     const tx = contract.methods.approve(spender, amount).send({ from: owner });
 
     return { tx };
   }
 
+  async function _getDecimals(contract) {
+    try {
+      const decimals = await contract.methods.decimals().call();
+      return decimals;
+    } catch (err) {
+      return '18';
+    }
+  }
+
   return {
-    fetchTokens,
+    fetchAll,
     checkAllowance,
     approve,
   };

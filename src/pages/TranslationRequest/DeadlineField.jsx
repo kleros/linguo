@@ -1,4 +1,5 @@
 import React from 'react';
+import t from 'prop-types';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
@@ -8,7 +9,16 @@ import { DatePicker } from '~/adapters/antd';
 dayjs.extend(localizedFormat);
 dayjs.extend(utc);
 
-function DeadlineField() {
+export default function DeadlineField({ setFieldsValue }) {
+  const handleDateChange = React.useCallback(
+    value => {
+      setFieldsValue({
+        deadline: dayjs(value).utc().endOf('day'),
+      });
+    },
+    [setFieldsValue]
+  );
+
   return (
     <>
       <Col xs={24} sm={24} md={24} lg={16}>
@@ -37,6 +47,7 @@ function DeadlineField() {
             showToday={false}
             showNow={false}
             format="lll [(UTC)]"
+            onChange={handleDateChange}
           />
         </Form.Item>
       </Col>
@@ -44,7 +55,9 @@ function DeadlineField() {
   );
 }
 
-export default DeadlineField;
+DeadlineField.propTypes = {
+  setFieldsValue: t.func.isRequired,
+};
 
 function isBefore1HourFromNow(current) {
   return !!current && dayjs(current) < dayjs().add(1, 'hour');

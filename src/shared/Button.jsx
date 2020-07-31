@@ -31,17 +31,17 @@ export default Button;
 
 const sizeStyles = {
   small: css`
-    font-size: ${props => props.theme.fontSize.xs};
+    font-size: ${p => p.theme.fontSize.xs};
     line-height: 1.15;
     min-height: 2rem;
   `,
   default: css`
-    font-size: ${props => props.theme.fontSize.sm};
+    font-size: ${p => p.theme.fontSize.sm};
     line-height: 1.33;
     min-height: 2.5rem;
   `,
   large: css`
-    font-size: ${props => props.theme.fontSize.xxl};
+    font-size: ${p => p.theme.fontSize.xxl};
     line-height: 1.5;
     min-height: 4rem;
   `,
@@ -94,15 +94,15 @@ const variantStyles = {
   `,
   filled: css`
     border: none;
-    color: ${props => props.theme.color.text.inverted};
-    background-color: ${({ theme }) => theme.color.secondary.default};
+    color: ${p => p.theme.color.text.inverted};
+    background-color: ${p => p.theme.color.secondary.default};
     fill: currentColor;
 
     :active,
     :focus,
     :hover {
-      background-color: ${({ theme }) => theme.color.secondary.default};
-      color: ${props => props.theme.color.text.inverted};
+      background-color: ${p => p.theme.color.secondary.default};
+      color: ${p => p.theme.color.text.inverted};
     }
 
     position: relative;
@@ -131,8 +131,8 @@ const variantStyles = {
     ::before {
       background-image: linear-gradient(
         260.5deg,
-        ${({ theme }) => theme.color.secondary.default} 0%,
-        ${({ theme }) => theme.color.primary.default} 100%
+        ${p => p.theme.color.secondary.default} 0%,
+        ${p => p.theme.color.primary.default} 100%
       );
       transform: translateX(-100%);
     }
@@ -140,8 +140,8 @@ const variantStyles = {
     ::after {
       background-image: linear-gradient(
         99.5deg,
-        ${({ theme }) => theme.color.secondary.default} 0%,
-        ${({ theme }) => theme.color.primary.default} 100%
+        ${p => p.theme.color.secondary.default} 0%,
+        ${p => p.theme.color.primary.default} 100%
       );
       transform: translateX(0);
     }
@@ -176,16 +176,16 @@ const variantStyles = {
     }
   `,
   outlined: css`
-    color: ${props => props.theme.color.primary.default};
-    border: 1px solid ${props => props.theme.color.primary.default};
-    background-color: ${props => props.theme.color.background.light};
+    color: ${p => p.theme.color.primary.default};
+    border: 1px solid ${p => p.theme.color.primary.default};
+    background-color: ${p => p.theme.color.background.light};
     fill: currentColor;
 
     :active,
     :focus,
     :hover {
-      color: ${props => props.theme.color.primary.default};
-      background-color: ${props => props.theme.color.background.default};
+      color: ${p => p.theme.color.primary.default};
+      background-color: ${p => p.theme.color.background.default};
       border-color: currentColor;
     }
 
@@ -219,7 +219,7 @@ const StyledButton = styled(BaseButton)`
 
   :focus,
   :hover {
-    box-shadow: 0 0.1875rem 0.375rem ${props => props.theme.color.shadow.ui};
+    box-shadow: 0 0.1875rem 0.375rem ${p => p.theme.color.shadow.ui};
   }
 
   :active {

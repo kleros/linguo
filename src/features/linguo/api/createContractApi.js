@@ -13,15 +13,13 @@ import promiseRetry from '~/shared/promiseRetry';
 import { ADDRESS_ZERO, NON_PAYABLE_VALUE } from './constants';
 import getFileUrl from './getFileUrl';
 
-const { toWei, toBN } = Web3.utils;
+const { toBN } = Web3.utils;
 
 export function createEthContractApi({ web3, archon, linguo, arbitrator }) {
   async function createTask(
     { account, deadline, minPrice, maxPrice, ...rest },
     { from = account, gas, gasPrice } = {}
   ) {
-    minPrice = toWei(String(minPrice), 'ether');
-    maxPrice = toWei(String(maxPrice), 'ether');
     deadline = dayjs(deadline).unix();
 
     const chainId = await web3.eth.getChainId();
@@ -47,27 +45,9 @@ export function createEthContractApi({ web3, archon, linguo, arbitrator }) {
     return { tx };
   }
 
-  async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
-    let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
-      linguo.methods.getDepositValue(ID).call(),
-      linguo.methods.tasks(ID).call(),
-    ]);
-
-    deposit = toBN(deposit);
-    minPrice = toBN(minPrice);
-    maxPrice = toBN(maxPrice);
-    submissionTimeout = toBN(submissionTimeout);
-
-    const slope = maxPrice.sub(minPrice).div(submissionTimeout);
-    const timeDelta = toBN(String(timeDeltaInSeconds));
-
-    return String(deposit.add(slope.mul(timeDelta)));
-  }
-
   return {
-    ...createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDeposit }),
+    ...createCommonApi({ web3, archon, linguo, arbitrator }),
     createTask,
-    getTranslatorDeposit,
   };
 }
 
@@ -76,8 +56,6 @@ export function createTokenContractApi({ web3, archon, linguo, arbitrator }) {
     { account, deadline, minPrice, maxPrice, token, ...rest },
     { from = account, gas, gasPrice } = {}
   ) {
-    minPrice = toWei(String(minPrice), 'ether');
-    maxPrice = toWei(String(maxPrice), 'ether');
     deadline = dayjs(deadline).unix();
 
     const chainId = await web3.eth.getChainId();
@@ -101,20 +79,13 @@ export function createTokenContractApi({ web3, archon, linguo, arbitrator }) {
     return { tx };
   }
 
-  async function getTranslatorDeposit({ ID }) {
-    const deposit = await linguo.methods.getDepositValue(ID).call();
-
-    return deposit;
-  }
-
   return {
-    ...createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDeposit }),
+    ...createCommonApi({ web3, archon, linguo, arbitrator }),
     createTask,
-    getTranslatorDeposit,
   };
 }
 
-function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDeposit }) {
+function createCommonApi({ web3, archon, linguo, arbitrator }) {
   async function getRequesterTasks({ account }) {
     const events = await _getPastEvents(linguo, 'TaskCreated', {
       filter: { _requester: account },
@@ -342,6 +313,15 @@ function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDe
     }
   }
 
+  async function getTaskPrice({ ID }) {
+    try {
+      return await linguo.methods.getTaskPrice(ID).call();
+    } catch (err) {
+      console.warn(`Failed to get price for task with ID ${ID}`, err);
+      throw new Error(`Failed to get price for task with ID ${ID}`);
+    }
+  }
+
   /**
    * The price for a translation task varies linearly with time
    * from `minPrice` to `maxPrice`, like the following chart:
@@ -392,18 +372,31 @@ function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDe
    *
    * This way we can be sure the deposited value is going to be safe for Δt time.
    *
-   * Because the `assignTask` method on Linguo contract sends any surplus value
-   * directly back to the sender, this has no impact in the amount the translator
-   * has to lock in order to assign the task to himself if the transaction gets
-   * mined before Δt has passed.
+   * Because the `assignTask` method on both Linguo and LinguoToken contracts
+   * sends any surplus value directly back to the sender, this has no impact in
+   * the amount the translator has to lock in order to assign the task to himself
+   * if the transaction gets mined before Δt has passed.
+   *
+   * @param {object} data
+   * @param {string} data.ID
+   * @param {object} options
+   * @param {number} options.timeDeltaInSeconds
    */
-  async function getTaskPrice({ ID }) {
-    try {
-      return await linguo.methods.getTaskPrice(ID).call();
-    } catch (err) {
-      console.warn(`Failed to get price for task with ID ${ID}`, err);
-      throw new Error(`Failed to get price for task with ID ${ID}`);
-    }
+  async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
+    let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
+      linguo.methods.getDepositValue(ID).call(),
+      linguo.methods.tasks(ID).call(),
+    ]);
+
+    deposit = toBN(deposit);
+    minPrice = toBN(minPrice);
+    maxPrice = toBN(maxPrice);
+    submissionTimeout = toBN(submissionTimeout);
+
+    const slope = maxPrice.sub(minPrice).div(submissionTimeout);
+    const timeDelta = toBN(String(timeDeltaInSeconds));
+
+    return String(deposit.add(slope.mul(timeDelta)));
   }
 
   async function getChallengerDeposit({ ID }) {
@@ -700,6 +693,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }, { getTranslatorDe
     getTranslatorTasks,
     getTaskById,
     getTaskPrice,
+    getTranslatorDeposit,
     getChallengerDeposit,
     getTaskDispute,
     getTaskDisputeEvidences,

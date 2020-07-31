@@ -7,8 +7,9 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import { create as createTask } from '~/features/tasks/tasksSlice';
-import { fetchAll } from '~/features/tokens/tokensSlice';
+import { fetchAll as fetchAllTokens } from '~/features/tokens/tokensSlice';
 import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
+import { omit } from '~/shared/fp';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import useStateMachine from '~/shared/useStateMachine';
@@ -29,7 +30,7 @@ function TranslationRequestForm() {
   const chainId = useSelector(selectChainId);
 
   React.useEffect(() => {
-    dispatch(fetchAll({ chainId }));
+    dispatch(fetchAllTokens({ chainId }));
   }, [dispatch, chainId]);
 
   const submitButtonProps =
@@ -43,25 +44,15 @@ function TranslationRequestForm() {
           children: 'Request the Translation',
         };
 
-  const handleValuesChanged = React.useCallback(
-    changedValues => {
-      if (changedValues.deadline) {
-        form.setFieldsValue({
-          deadline: dayjs(changedValues.deadline).utc().endOf('day'),
-        });
-      }
-    },
-    [form]
-  );
-
   const handleFinish = React.useCallback(
-    async ({ originalTextFile, deadline, ...rest }) => {
+    async values => {
+      const { originalTextFile, deadline, ...rest } = omit(['minPriceNumeric', 'maxPriceNumeric'], values);
       send('SUBMIT');
       const data = {
+        ...rest,
         account,
         deadline: new Date(deadline).toISOString(),
         originalTextFile: extractOriginalTextFilePath(originalTextFile),
-        ...rest,
       };
 
       try {
@@ -93,7 +84,6 @@ function TranslationRequestForm() {
       layout="vertical"
       form={form}
       initialValues={initialValues}
-      onValuesChange={handleValuesChanged}
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}
     >
@@ -111,7 +101,7 @@ function TranslationRequestForm() {
         <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
       </Row>
       <Row gutter={rowGutter}>
-        <DeadlineField />
+        <DeadlineField setFieldsValue={form.setFieldsValue} />
       </Row>
       <PriceDefinitionFields />
       <Spacer />

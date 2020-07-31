@@ -12,7 +12,7 @@ import { mapValues } from '~/shared/fp';
 import { selectChainId } from '../web3/web3Slice';
 import fixtures from './fixtures/tokens.json';
 import migrations from './migrations';
-import createTokenApi from './tokenApi';
+import createTokensApi from './tokensApi';
 
 const PERSISTANCE_KEY = 'tokens';
 
@@ -133,12 +133,12 @@ export const selectAllTxs = state => tokensSlice.selectors.selectAllTxs(state.to
 export const selectInteractionTx = key => state => selectByTxHash(state.tokens.interactions[key])(state);
 
 export function* fetchAllSaga(action) {
-  const tokenApi = yield getContext('tokenApi');
+  const tokensApi = yield getContext('tokensApi');
   const { chainId } = action.payload ?? {};
   const { meta } = action;
 
   try {
-    const data = yield call([tokenApi, 'fetchTokens'], { chainId });
+    const data = yield call([tokensApi, 'fetchAll'], { chainId });
     yield put(fetchAll.fulfilled({ chainId, data }, { meta }));
   } catch (err) {
     yield put(fetchAll.rejected({ chainId, error: err }, { meta }));
@@ -146,12 +146,12 @@ export function* fetchAllSaga(action) {
 }
 
 export function* checkAllowanceSaga(action) {
-  const tokenApi = yield getContext('tokenApi');
+  const tokensApi = yield getContext('tokensApi');
   const { tokenAddress, owner, spender, amount } = action.payload ?? {};
   const meta = action.meta;
 
   try {
-    yield call([tokenApi, 'checkAllowance'], { tokenAddress, owner, spender, amount });
+    yield call([tokensApi, 'checkAllowance'], { tokenAddress, owner, spender, amount });
     yield put(
       checkAllowance.fulfilled(
         {
@@ -180,11 +180,11 @@ export function* checkAllowanceSaga(action) {
 }
 
 export function* approveSaga(action) {
-  const tokenApi = yield getContext('tokenApi');
+  const tokensApi = yield getContext('tokensApi');
   const { key, tokenAddress, owner, spender, amount } = action.payload;
   const { tx: metaTx, ...meta } = action.meta;
 
-  const { tx } = yield call([tokenApi, 'approve'], { tokenAddress, owner, spender, amount });
+  const { tx } = yield call([tokensApi, 'approve'], { tokenAddress, owner, spender, amount });
 
   try {
     const { txHash } = yield call(registerTxSaga, tx, { ...metaTx });
@@ -222,7 +222,7 @@ export const sagas = {
     {
       *createContext({ library }) {
         return {
-          tokenApi: yield call(createTokenApi, { library }),
+          tokensApi: yield call(createTokensApi, { library }),
         };
       },
     }
