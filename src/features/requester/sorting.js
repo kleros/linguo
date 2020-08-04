@@ -3,16 +3,23 @@ import Web3 from 'web3';
 
 const { toBN } = Web3.utils;
 
-const sortBNAscending = (a, b) => (a.gt(b) ? 1 : b.gt(a) ? -1 : 0);
-
-const sortBNDescending = (a, b) => -1 * sortBNAscending(a, b);
+/**
+ * Get a filter predicate function based on a predefined name.
+ *
+ * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} filterName The name of the filter
+ * @return TaskComparator a filter predicated function to be used with Array#filter.
+ */
+export function getComparator(filterName) {
+  const comparator = comparatorMap[filterName];
+  return createComparator(comparator || comparatorMap.all);
+}
 
 function createComparator(descriptor = {}) {
   const customSorting = (a, b) =>
-    Object.entries(descriptor).reduce((acc, [prop, signOrComparator]) => {
-      const hasDefinedSortOrder = acc !== 0;
+    Object.entries(descriptor).reduce((order, [prop, signOrComparator]) => {
+      const hasDefinedSortOrder = order !== 0;
       return hasDefinedSortOrder
-        ? acc
+        ? order
         : typeof signOrComparator === 'number'
         ? signOrComparator * (b[prop] - a[prop])
         : signOrComparator(a, b);
@@ -20,6 +27,10 @@ function createComparator(descriptor = {}) {
 
   return customSorting;
 }
+
+const sortBNAscending = (a, b) => (a.gt(b) ? 1 : b.gt(a) ? -1 : 0);
+
+const sortBNDescending = (a, b) => -1 * sortBNAscending(a, b);
 
 const comparatorMap = {
   all: {
@@ -78,14 +89,3 @@ const comparatorMap = {
  * @param {object} b A task object.
  * @return {number} A number indicating the sort order compatible with Array#sort()
  */
-
-/**
- * Get a filter predicate function based on a predefined name.
- *
- * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} filterName The name of the filter
- * @return TaskComparator a filter predicated function to be used with Array#filter.
- */
-export function getComparator(filterName) {
-  const comparator = comparatorMap[filterName];
-  return createComparator(comparator || comparatorMap.all);
-}

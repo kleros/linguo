@@ -3,12 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { useRefreshEffectOnce } from '~/adapters/react-router-dom';
+import { filters, useFilter } from '~/features/requester';
+import { selectTasksForCurrentFilter, fetchTasks } from '~/features/requester/requesterSlice';
 import TaskList from '~/features/tasks/TaskList';
-import { fetchTasks, selectTasks } from '~/features/requester/requesterSlice';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import { selectAccount } from '~/features/web3/web3Slice';
-import filters, { getFilter, useFilterName } from './filters';
-import { getComparator } from './sorting';
 
 export default function TaskListFetcher() {
   const dispatch = useDispatch();
@@ -24,13 +23,8 @@ export default function TaskListFetcher() {
 
   useRefreshEffectOnce(doFetchTasks);
 
-  const [filterName] = useFilterName();
-
-  const data = useShallowEqualSelector(selectTasks(account));
-  const displayableData = React.useMemo(() => sort(filter(data, getFilter(filterName)), getComparator(filterName)), [
-    data,
-    filterName,
-  ]);
+  const displayableData = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account }));
+  const [filterName] = useFilter();
 
   const showFootnote = [filters.open].includes(filterName) && displayableData.length > 0;
   const showFilterDescription = displayableData.length > 0;
@@ -43,9 +37,6 @@ export default function TaskListFetcher() {
   );
 }
 
-const sort = (data, comparator) => [...data].sort(comparator);
-const filter = (data, predicate) => data.filter(predicate);
-
 const StyledDismissableAlert = styled(DismissableAlert)`
   margin-bottom: 1rem;
 
@@ -57,19 +48,19 @@ const StyledDismissableAlert = styled(DismissableAlert)`
 const filterDescriptionMap = {
   [filters.open]: (
     <StyledDismissableAlert
-      id="requester.filters.open"
+      id="requester.filterNames.open"
       message="These are the tasks created by you which were not picked by any translators yet."
     />
   ),
   [filters.inProgress]: (
     <StyledDismissableAlert
-      id="requester.filters.inProgress"
+      id="requester.filterNames.inProgress"
       message="Translators are currently working on these tasks."
     />
   ),
   [filters.inReview]: (
     <StyledDismissableAlert
-      id="requester.filters.inReview"
+      id="requester.filterNames.inReview"
       message="The translated texts have been delivered by the translators."
       description={
         <>
@@ -86,19 +77,19 @@ const filterDescriptionMap = {
   ),
   [filters.inDispute]: (
     <StyledDismissableAlert
-      id="requester.filters.inDispute"
+      id="requester.filterNames.inDispute"
       message="The translations below are being evaluated by specialized jurors on Kleros."
     />
   ),
   [filters.finished]: (
     <StyledDismissableAlert
-      id="requester.filters.finished"
+      id="requester.filterNames.finished"
       message="The translations below were delivered and their translators received their payments."
     />
   ),
   [filters.incomplete]: (
     <StyledDismissableAlert
-      id="requester.filters.incomplete"
+      id="requester.filterNames.incomplete"
       message="Incomplete task are those which were not assigned to any translator or whose translator did not submit the translated text within the specified deadline."
     />
   ),

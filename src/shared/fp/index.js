@@ -15,6 +15,8 @@ export { default as pick } from './pick';
 export { default as prop } from './prop';
 export { default as propOr } from './propOr';
 export { default as reduce } from './reduce';
+export { default as sort } from './sort';
 export { default as tap } from './tap';
 export { default as unary } from './unary';
+export { default as uncurry } from './uncurry';
 export { default as uniq } from './uniq';

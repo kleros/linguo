@@ -28,7 +28,7 @@ function MainRouter() {
   const defaultPage = useSelector(selectPreference('page.default'));
 
   return (
-    <ConnectedRouter history={history} noInitialPop>
+    <ConnectedRouter history={history}>
       <Layout>
         <DrawerMenu />
         <Layout>

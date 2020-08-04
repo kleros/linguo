@@ -1,15 +1,19 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { push } from 'connected-react-router';
-import { put, race, take, putResolve } from 'redux-saga/effects';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
+import { push, replace } from 'connected-react-router';
+import { put, putResolve, race, select, take } from 'redux-saga/effects';
 import * as r from '~/app/routes';
+import { TaskParty } from '~/features/tasks';
+import { fetchByParty, INTERNAL_FETCH_KEY, selectAllFilterByIds } from '~/features/tasks/tasksSlice';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
-import { TaskParty } from '~/features/tasks';
-import { fetchByParty, selectAllFilterByIds, INTERNAL_FETCH_KEY } from '~/features/tasks/tasksSlice';
+import { compose, filter as arrayFilter, sort } from '~/shared/fp';
+import { filters, getFilter, getFilterPredicate } from './filters';
+import { getComparator } from './sorting';
 
 export const initialState = {
   tasks: {
     byAccount: {},
+    filter: filters.open,
   },
 };
 
@@ -18,6 +22,11 @@ export const fetchTasks = createAsyncAction('requester/fetchTasks');
 const requesterSlice = createSlice({
   name: 'requester',
   initialState,
+  reducers: {
+    setFilter(state, action) {
+      state.tasks.filter = getFilter(action.payload.filter);
+    },
+  },
   extraReducers: builder => {
     builder.addCase(fetchTasks, (state, action) => {
       const account = action.payload?.account ?? null;
@@ -45,19 +54,35 @@ const requesterSlice = createSlice({
   },
 });
 
-const selectLoadingState = (account = null) => state =>
-  state.requester.tasks.byAccount[account]?.loadingState ?? 'idle';
-export const selectIsIdle = account => state => selectLoadingState(account)(state) === 'idle';
-export const selectIsLoading = account => state => selectLoadingState(account)(state) === 'loading';
-export const selectHasSucceeded = account => state => selectLoadingState(account)(state) === 'succeeded';
-export const selectHasFailed = account => state => selectLoadingState(account)(state) === 'failed';
+export const selectFilter = state => state.requester.tasks.filter ?? filters.open;
 
-export const selectTasks = account => state => {
+const selectLoadingState = (state, { account = null }) =>
+  state.requester.tasks.byAccount[account]?.loadingState ?? 'idle';
+
+export const selectIsIdle = createSelector([selectLoadingState], loadingState => loadingState === 'idle');
+export const selectIsLoading = createSelector([selectLoadingState], loadingState => loadingState === 'loading');
+export const selectHasSucceeded = createSelector([selectLoadingState], loadingState => loadingState === 'succeeded');
+export const selectHasFailed = createSelector([selectLoadingState], loadingState => loadingState === 'failed');
+
+export const selectAllTasks = (state, { account }) => {
   const taskIds = state.requester.tasks.byAccount[account]?.data ?? [];
   return selectAllFilterByIds(taskIds)(state);
 };
 
+export const selectTasksForFilter = createSelector([selectAllTasks, (_, { filter }) => filter], (tasks, filter) =>
+  compose(sort(getComparator(filter)), arrayFilter(getFilterPredicate(filter)))(tasks)
+);
+
+export const selectTaskCountForFilter = createSelector([selectTasksForFilter], tasks => tasks.length);
+
+export const selectTasksForCurrentFilter = createSelector(
+  [state => state, (_, { account }) => account, selectFilter],
+  (state, account, filter) => selectTasksForFilter(state, { account, filter })
+);
+
 export default requesterSlice.reducer;
+
+export const { setFilter } = requesterSlice.actions;
 
 export function* fetchTasksSaga(action) {
   const account = action.payload?.account ?? null;
@@ -110,6 +135,21 @@ export function* processTasksFetchedInternallySaga(action) {
   }
 }
 
+export function* onFilterChangeSaga(action) {
+  const currentFilterName = yield select(selectFilter);
+  const { filter: newFilter, additionalParams } = action.payload ?? {};
+
+  const normalizedNewFilterName = getFilter(newFilter);
+  const search = new URLSearchParams({
+    filter: normalizedNewFilterName,
+    ...additionalParams,
+  });
+
+  const routerAction = normalizedNewFilterName === currentFilterName ? replace : push;
+
+  yield put(routerAction({ search: search.toString() }));
+}
+
 export const sagas = {
   watchFetchTasksSaga: createWatcherSaga({ takeType: TakeType.latest }, fetchTasksSaga, fetchTasks.type),
   watchProcessTasksFetchedInternallySaga: createWatcherSaga(
@@ -117,4 +157,5 @@ export const sagas = {
     processTasksFetchedInternallySaga,
     fetchByParty.type
   ),
+  watchSetFilterSaga: createWatcherSaga({ takeType: TakeType.every }, onFilterChangeSaga, setFilter),
 };

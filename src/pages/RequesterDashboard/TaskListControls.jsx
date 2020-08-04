@@ -1,16 +1,16 @@
 import React from 'react';
+import t from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Badge, Radio } from 'antd';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
 import * as r from '~/app/routes';
+import { filters, useFilter } from '~/features/requester';
+import { selectTaskCountForFilter } from '~/features/requester/requesterSlice';
+import { selectAccount } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
 import { AddIcon } from '~/shared/icons';
 import RadioButton from '~/shared/RadioButton';
-import { selectTasks } from '~/features/requester/requesterSlice';
-import { selectAccount } from '~/features/web3/web3Slice';
-import filters, { getFilter, useFilterName } from './filters';
 
 function TaskListControls() {
   return (
@@ -36,35 +36,45 @@ function TaskListActions() {
 }
 
 function TaskListFilters() {
-  const [filterName, setFilterName] = useFilterName();
-
+  const [filter, setFilter] = useFilter();
   const handleFilterChange = React.useCallback(
     e => {
-      const { value } = e.target;
-      setFilterName(value);
+      setFilter(e.target.value);
     },
-    [setFilterName]
+    [setFilter]
   );
-
-  const account = useSelector(selectAccount);
-  const data = useShallowEqualSelector(selectTasks(account));
 
   return (
     <StyledFilters>
-      <StyledRadioGroup onChange={handleFilterChange} value={filterName}>
-        {buttons.map(({ value, text }) => {
-          const count = data.filter(getFilter(value)).length;
-
-          return (
-            <StyledRadioButton key={value} value={value}>
-              <StyledBadge count={count}>{text}</StyledBadge>
-            </StyledRadioButton>
-          );
-        })}
+      <StyledRadioGroup onChange={handleFilterChange} value={filter}>
+        {buttons.map(({ value, text }) => (
+          <FilterOption key={value} value={value} text={text} />
+        ))}
       </StyledRadioGroup>
     </StyledFilters>
   );
 }
+
+function FilterOption({ value, text }) {
+  const account = useSelector(selectAccount);
+  const count = useSelector(state =>
+    selectTaskCountForFilter(state, {
+      account,
+      filter: value,
+    })
+  );
+
+  return (
+    <StyledRadioButton key={value} value={value}>
+      <StyledBadge count={count}>{text}</StyledBadge>
+    </StyledRadioButton>
+  );
+}
+
+FilterOption.propTypes = {
+  value: t.string.isRequired,
+  text: t.string.isRequired,
+};
 
 const StyledActions = styled.div``;
 
@@ -134,7 +144,7 @@ const StyledRadioButton = styled(RadioButton)`
 const buttons = [
   {
     value: filters.open,
-    text: 'Open Tasks',
+    text: 'Open',
   },
   {
     value: filters.inProgress,
@@ -194,6 +204,8 @@ const StyledControls = styled.div`
 `;
 
 const StyledBadge = styled(Badge)`
+  width: 100%;
+
   .ant-scroll-number {
     font-size: ${p => p.theme.fontSize.xxs};
     padding: 0 0.2rem;

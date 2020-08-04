@@ -12,7 +12,7 @@ import TaskListFetcher from './TaskListFetcher';
 
 function RequesterDashboard() {
   const account = useSelector(selectAccount);
-  const isLoading = useSelector(selectIsLoading(account));
+  const isLoading = useSelector(state => selectIsLoading(state, { account }));
 
   return (
     <MultiCardLayout>
