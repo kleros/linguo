@@ -79,10 +79,10 @@ export function getComparator(filterName, { account }) {
   const descriptor = comparatorMap[filterName] ?? comparatorMap.all;
 
   const customSorting = (a, b) =>
-    Object.entries(descriptor).reduce((acc, [prop, signOrComparator]) => {
-      const hasDefinedSortOrder = acc !== 0;
+    Object.entries(descriptor).reduce((order, [prop, signOrComparator]) => {
+      const hasDefinedSortOrder = order !== 0;
       return hasDefinedSortOrder
-        ? acc
+        ? order
         : typeof signOrComparator === 'number'
         ? signOrComparator * (b[prop] - a[prop])
         : signOrComparator(a, b);

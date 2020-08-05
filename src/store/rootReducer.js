@@ -20,7 +20,7 @@ const persistConfig = {
    * We don't wish to persist router state (e.g.: current route) neither redux-saga-thunk state.
    * All other blacklisted slices have their own persistance config.
    */
-  blacklist: ['router', 'thunk', 'ui', 'web3', 'tokens', 'transactions'],
+  blacklist: ['router', 'thunk', 'ui', 'web3', 'tokens', 'transactions', 'translator'],
 };
 
 export const createRootReducer = additionalReducers =>

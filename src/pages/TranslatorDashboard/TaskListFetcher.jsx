@@ -1,18 +1,20 @@
 import React from 'react';
-import styled from 'styled-components';
+import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { Badge, Tabs } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
-import { useRefreshEffectOnce } from '~/adapters/react-router-dom';
 import * as r from '~/app/routes';
 import TaskList from '~/features/tasks/TaskList';
-import { fetchTasks, selectTasks } from '~/features/translator/translatorSlice';
+import { filters, hasSecondLevelFilters, secondLevelFilters, useFilters } from '~/features/translator';
+import {
+  fetchTasks,
+  selectTaskCountForFilter,
+  selectTasksForCurrentFilter,
+} from '~/features/translator/translatorSlice';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import { selectAccount } from '~/features/web3/web3Slice';
-import filters, { getFilter, useFilterName } from './filters';
-import secondLevelFilters from './secondLevelFilters';
-import { getComparator } from './sorting';
-import TaskListWithSecondLevelFilters from './TaskListWithSecondLevelFilters';
 
 export default function TaskListFetcher() {
   const dispatch = useDispatch();
@@ -26,34 +28,19 @@ export default function TaskListFetcher() {
     doFetchTasks();
   }, [doFetchTasks]);
 
-  useRefreshEffectOnce(doFetchTasks);
+  const [{ filter, secondLevelFilter }] = useFilters();
 
-  const [filterName] = useFilterName();
-
-  const data = useShallowEqualSelector(selectTasks(account));
-  const displayableData = React.useMemo(
-    () => sort(filter(data, getFilter(filterName)), getComparator(filterName, { account })),
-    [data, filterName, account]
-  );
-  const showFootnote = [filters.open].includes(filterName) && displayableData.length > 0;
-  const showFilterDescription = displayableData.length > 0;
+  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account }));
+  const showFootnote = [filters.open].includes(filter) && data.length > 0;
+  const showFilterDescription = data.length > 0;
 
   return (
-    <>
-      <TaskListWithSecondLevelFilters filterName={filterName} data={displayableData} account={account}>
-        {({ data, filterName: secondLevelFilterName }) => (
-          <>
-            {showFilterDescription && filterDescriptionMap[secondLevelFilterName ?? filterName]}
-            <TaskList data={data} showFootnote={showFootnote} />
-          </>
-        )}
-      </TaskListWithSecondLevelFilters>
-    </>
+    <OptionalSecondLevelTabs>
+      {showFilterDescription && filterDescriptionMap[secondLevelFilter ?? filter]}
+      <TaskList data={data} showFootnote={showFootnote} />
+    </OptionalSecondLevelTabs>
   );
 }
-
-const sort = (data, comparator) => [...data].sort(comparator);
-const filter = (data, predicate) => data.filter(predicate);
 
 const StyledDismissableAlert = styled(DismissableAlert)`
   margin-bottom: 1rem;
@@ -139,3 +126,118 @@ const filterDescriptionMap = {
     />
   ),
 };
+
+function OptionalSecondLevelTabs({ children }) {
+  const account = useSelector(selectAccount);
+  const [{ filter, secondLevelFilter }, setFilters] = useFilters();
+
+  const handleTabChange = React.useCallback(
+    key => {
+      setFilters({ filter, secondLevelFilter: key });
+    },
+    [setFilters, filter]
+  );
+
+  if (!hasSecondLevelFilters(filter)) {
+    return children;
+  }
+
+  const filters = secondLevelFilters[filter];
+  return (
+    <StyledTabs animated={false} activeKey={secondLevelFilter} onChange={handleTabChange}>
+      {Object.values(filters).map(secondLevelFilterName => {
+        return (
+          <StyledTabPane
+            key={secondLevelFilterName}
+            tab={<FilterTab account={account} filter={filter} secondLevelFilter={secondLevelFilterName} />}
+          >
+            {children}
+          </StyledTabPane>
+        );
+      })}
+    </StyledTabs>
+  );
+}
+
+OptionalSecondLevelTabs.propTypes = {
+  children: t.oneOfType([t.node, t.arrayOf(t.node)]),
+};
+
+OptionalSecondLevelTabs.defaultProps = {
+  children: null,
+};
+
+function FilterTab({ account, filter, secondLevelFilter }) {
+  const count = useSelector(state => selectTaskCountForFilter(state, { filter, secondLevelFilter, account }));
+
+  const tabContent = secondLevelFiltersDisplayNames[filter]?.[secondLevelFilter] ?? secondLevelFilter;
+
+  return <StyledBadge count={count}>{tabContent}</StyledBadge>;
+}
+
+FilterTab.propTypes = {
+  account: t.string.isRequired,
+  filter: t.string.isRequired,
+  secondLevelFilter: t.string,
+};
+
+const secondLevelFiltersDisplayNames = {
+  [filters.inReview]: {
+    toReview: 'To Review',
+    myTranslations: 'My Translations',
+  },
+};
+
+const StyledTabs = styled(Tabs)`
+  && {
+    margin-top: -2rem;
+    overflow: visible;
+
+    .ant-tabs-tab,
+    .ant-tabs-tab-active,
+    .ant-tabs-tab:hover {
+      font-weight: 500;
+    }
+
+    .ant-tabs-tab-active,
+    .ant-tabs-tab:hover {
+      color: ${p => p.theme.color.primary.default};
+    }
+
+    .ant-tabs-nav::before {
+      border-bottom-color: transparent;
+    }
+
+    .ant-tabs-ink-bar {
+      background-color: ${p => p.theme.color.primary.default};
+    }
+
+    .ant-tabs-top-content > .ant-tabs-tabpane {
+      transition: none;
+    }
+  }
+`;
+
+const StyledTabPane = styled(Tabs.TabPane)``;
+
+const StyledBadge = styled(Badge)`
+  .ant-scroll-number {
+    font-size: ${p => p.theme.fontSize.xxs};
+    padding: 0;
+    min-width: 0.875rem;
+    height: 0.875rem;
+    line-height: 0.875rem;
+    right: -0.375rem;
+    border: none;
+    box-shadow: none;
+    background-color: ${p => p.theme.color.secondary.default};
+
+    > .ant-scroll-number-only {
+      &,
+      > .ant-scroll-number-only-unit {
+        font-weight: 500;
+        height: 0.875rem;
+      }
+    }
+  }
+`;

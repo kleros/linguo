@@ -1,33 +1,108 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import { mapValues } from '~/shared/fp';
+import { combineReducers, createSelector } from '@reduxjs/toolkit';
+import { push, replace } from 'connected-react-router';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import { put, select } from 'redux-saga/effects';
 import { selectAllFilterByIds } from '~/features/tasks/tasksSlice';
-import skillsReducer, * as skills from './translatorSkillsSlice';
-import tasksReducer, * as tasks from './translatorTasksSlice';
+import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
+import { compose, filter as arrayFilter, mapValues, sort } from '~/shared/fp';
+import skillsReducer, * as skills from './skillsSlice';
+import { getFilter, getFilterPredicate, getSecondLevelFilter, getSecondLevelFilterPredicate } from './taskFilters';
+import { getComparator } from './taskSorting';
+import tasksReducer, * as tasks from './tasksSlice';
 
-export default combineReducers({
-  skills: skillsReducer,
-  tasks: tasksReducer,
-});
+const PERSISTANCE_KEY = 'translator';
+
+function createPersistedReducer(reducer) {
+  const persistConfig = {
+    key: PERSISTANCE_KEY,
+    storage,
+    blacklist: [],
+  };
+
+  return persistReducer(persistConfig, reducer);
+}
+
+export default createPersistedReducer(
+  combineReducers({
+    skills: skillsReducer,
+    tasks: tasksReducer,
+  })
+);
 
 export const { updateSkills, clearSkills, saveSkills, cancelSaveSkills } = skills.actions;
-export const { fetchTasks } = tasks.actions;
+export const { fetchTasks, setFilters } = tasks.actions;
 
 export const { selectAllSkillLanguages, selectAllSkills } = mapValues(
   selector => state => selector(state.translator.skills),
   skills.selectors
 );
 
-export const { selectIsIdle, selectIsLoading, selectHasSucceeded, selectHasFailed, selectTaskIds } = mapValues(
-  selector => account => state => selector(account)(state.translator.tasks),
-  tasks.selectors
-);
+export const {
+  selectFilter,
+  selectSecondLevelFilter,
+  selectSecondLevelFilterForFilter,
+  selectIsIdle,
+  selectIsLoading,
+  selectHasSucceeded,
+  selectHasFailed,
+  selectTaskIds,
+} = mapValues(selector => (state, ...rest) => selector(state.translator.tasks, ...rest), tasks.selectors);
 
-export const selectTasks = account => state => {
-  const taskIds = selectTaskIds(account)(state);
+export const selectAllTasks = (state, { account }) => {
+  const taskIds = selectTaskIds(state, { account });
   return selectAllFilterByIds(taskIds)(state);
 };
+
+export const selectTasksForFilter = createSelector(
+  [
+    selectAllTasks,
+    (_, { filter }) => filter,
+    (_, { secondLevelFilter }) => secondLevelFilter,
+    (_, { account }) => account,
+  ],
+  (tasks, filter, secondLevelFilter, account) =>
+    compose(
+      sort(getComparator(filter, { account })),
+      arrayFilter(getSecondLevelFilterPredicate(filter, secondLevelFilter, { account })),
+      arrayFilter(getFilterPredicate(filter))
+    )(tasks)
+);
+
+export const selectTaskCountForFilter = createSelector([selectTasksForFilter], _tasks => _tasks.length);
+
+export const selectTasksForCurrentFilter = createSelector(
+  [state => state, (_, { account }) => account, selectFilter, selectSecondLevelFilter],
+  (state, account, filter, secondLevelFilter) => selectTasksForFilter(state, { account, filter, secondLevelFilter })
+);
+
+export function* onFilterChangeSaga(action) {
+  const filterFromAction = action.payload?.filter;
+  const secondLevelFilterFromAction = action.payload?.secondLevelFilter;
+  const additionalParams = action.payload?.additionalParams ?? {};
+
+  const filter = getFilter(filterFromAction);
+
+  const secondLevelFilterFromStore = yield select(state => selectSecondLevelFilterForFilter(state, { filter }));
+
+  const secondLevelFilter = getSecondLevelFilter(filter, secondLevelFilterFromAction ?? secondLevelFilterFromStore);
+
+  const secondLevelFilterMixin = secondLevelFilter ? { secondLevelFilter } : {};
+
+  const search = new URLSearchParams({
+    filter: filter,
+    ...secondLevelFilterMixin,
+    ...additionalParams,
+  });
+
+  const currentFilter = yield select(selectFilter);
+  const routerAction = filter === currentFilter ? replace : push;
+
+  yield put(routerAction({ search: search.toString() }));
+}
 
 export const sagas = {
   ...skills.sagas,
   ...tasks.sagas,
+  watchSetFilterSaga: createWatcherSaga({ takeType: TakeType.every }, onFilterChangeSaga, setFilters),
 };

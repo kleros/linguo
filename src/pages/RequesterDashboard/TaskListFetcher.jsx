@@ -2,9 +2,8 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
-import { useRefreshEffectOnce } from '~/adapters/react-router-dom';
 import { filters, useFilter } from '~/features/requester';
-import { selectTasksForCurrentFilter, fetchTasks } from '~/features/requester/requesterSlice';
+import { fetchTasks, selectTasksForCurrentFilter } from '~/features/requester/requesterSlice';
 import TaskList from '~/features/tasks/TaskList';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import { selectAccount } from '~/features/web3/web3Slice';
@@ -20,8 +19,6 @@ export default function TaskListFetcher() {
   React.useEffect(() => {
     doFetchTasks();
   }, [doFetchTasks]);
-
-  useRefreshEffectOnce(doFetchTasks);
 
   const displayableData = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account }));
   const [filterName] = useFilter();

@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { Alert, Spin } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
-import { useRefreshEffectOnce } from '~/adapters/react-router-dom';
 import { fetchById, selectById, selectIsLoadingById, selectErrorById } from '~/features/tasks/tasksSlice';
 import Spacer from '~/shared/Spacer';
 import { TaskProvider } from './TaskContext';
@@ -23,8 +22,6 @@ export default function TaskFetcher() {
   React.useEffect(() => {
     doFetch();
   }, [doFetch]);
-
-  useRefreshEffectOnce(doFetch);
 
   return (
     <Spin tip="Getting task details..." spinning={isLoading && !data}>

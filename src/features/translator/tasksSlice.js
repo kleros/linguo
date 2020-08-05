@@ -2,14 +2,17 @@ import { createSlice } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
 import { put, putResolve, select } from 'redux-saga/effects';
 import * as r from '~/app/routes';
-import createAsyncAction from '~/shared/createAsyncAction';
-import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { TaskParty } from '~/features/tasks';
 import { fetchByParty } from '~/features/tasks/tasksSlice';
+import createAsyncAction from '~/shared/createAsyncAction';
+import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
+import { filters, getFilter, getSecondLevelFilter, hasSecondLevelFilters } from './taskFilters';
 import { selectAllSkills } from './translatorSlice';
 
 export const initialState = {
   byAccount: {},
+  filter: filters.open,
+  secondLevelFilter: {},
 };
 
 export const fetchTasks = createAsyncAction('translator/tasks/fetch');
@@ -17,6 +20,16 @@ export const fetchTasks = createAsyncAction('translator/tasks/fetch');
 const translatorTasksSlice = createSlice({
   name: 'translator/tasks',
   initialState,
+  reducers: {
+    setFilters(state, action) {
+      const { filter, secondLevelFilter } = action.payload ?? {};
+
+      state.filter = getFilter(filter);
+      if (hasSecondLevelFilters(filter) && secondLevelFilter) {
+        state.secondLevelFilter[state.filter] = getSecondLevelFilter(filter, secondLevelFilter);
+      }
+    },
+  },
   extraReducers: builder => {
     builder.addCase(fetchTasks, (state, action) => {
       const account = action.payload?.account ?? null;
@@ -48,17 +61,27 @@ export default translatorTasksSlice.reducer;
 
 export const actions = {
   fetchTasks,
+  ...translatorTasksSlice.actions,
 };
 
-export const selectLoadingState = (account = null) => state => state.byAccount[account]?.loadingState ?? 'idle';
-export const selectIsIdle = account => state => selectLoadingState(account)(state) === 'idle';
-export const selectIsLoading = account => state => selectLoadingState(account)(state) === 'loading';
-export const selectHasFetched = account => state => selectLoadingState(account)(state) === 'fetched';
-export const selectHasFailed = account => state => selectLoadingState(account)(state) === 'failed';
+export const selectFilter = state => state.filter;
 
-export const selectTaskIds = account => state => state.byAccount[account]?.ids ?? [];
+export const selectSecondLevelFilter = state => state.secondLevelFilter?.[state.filter];
+
+export const selectSecondLevelFilterForFilter = (state, { filter }) => state.secondLevelFilter?.[filter];
+
+export const selectLoadingState = (state, { account = null }) => state.byAccount[account]?.loadingState ?? 'idle';
+export const selectIsIdle = (state, { account }) => selectLoadingState(state, { account }) === 'idle';
+export const selectIsLoading = (state, { account }) => selectLoadingState(state, { account }) === 'loading';
+export const selectHasFetched = (state, { account }) => selectLoadingState(state, { account }) === 'fetched';
+export const selectHasFailed = (state, { account }) => selectLoadingState(state, { account }) === 'failed';
+
+export const selectTaskIds = (state, { account }) => state.byAccount[account]?.ids ?? [];
 
 export const selectors = {
+  selectFilter,
+  selectSecondLevelFilter,
+  selectSecondLevelFilterForFilter,
   selectIsIdle,
   selectIsLoading,
   selectHasFetched,

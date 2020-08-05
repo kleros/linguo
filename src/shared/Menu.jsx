@@ -15,7 +15,7 @@ const MenuItems = [
     <NavLink
       to={{
         pathname: r.TRANSLATOR_DASHBOARD,
-        search: 'filter=inReview',
+        search: 'filter=inReview&secondLevelFilter=toReview',
       }}
     >
       Review Translations
@@ -129,7 +129,7 @@ export function MainMenu() {
         <NavLink
           to={{
             pathname: r.TRANSLATOR_DASHBOARD,
-            search: 'filter=inReview',
+            search: 'filter=inReview&secondLevelFilter=toReview',
           }}
         >
           Review Translations
