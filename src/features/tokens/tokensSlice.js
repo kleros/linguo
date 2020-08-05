@@ -19,8 +19,8 @@ const PERSISTANCE_KEY = 'tokens';
 function createPersistedReducer(reducer) {
   const persistConfig = {
     key: PERSISTANCE_KEY,
-    version: 1,
     storage,
+    version: 1,
     migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
     blacklist: ['interactions'],
   };

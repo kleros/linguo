@@ -1,11 +1,12 @@
 import { combineReducers, createSelector } from '@reduxjs/toolkit';
 import { push, replace } from 'connected-react-router';
-import { persistReducer } from 'redux-persist';
+import { persistReducer, createMigrate } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { put, select } from 'redux-saga/effects';
 import { selectAllFilterByIds } from '~/features/tasks/tasksSlice';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { compose, filter as arrayFilter, mapValues, sort } from '~/shared/fp';
+import migrations from './migrations';
 import skillsReducer, * as skills from './skillsSlice';
 import { getFilter, getFilterPredicate, getSecondLevelFilter, getSecondLevelFilterPredicate } from './taskFilters';
 import { getComparator } from './taskSorting';
@@ -17,6 +18,8 @@ function createPersistedReducer(reducer) {
   const persistConfig = {
     key: PERSISTANCE_KEY,
     storage,
+    version: 0,
+    migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
     blacklist: [],
   };
 
