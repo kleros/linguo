@@ -1,10 +1,12 @@
 import React from 'react';
+import t from 'prop-types';
 import clsx from 'clsx';
 import { useHistory, useLocation } from 'react-router';
 import { LinkOutlined } from '@ant-design/icons';
 import scrollIntoView from 'scroll-into-view-if-needed';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import * as r from '~/app/routes';
+import CollapsibleSection from '~/shared/CollapsibleSection';
 import SingleCardLayout from './layouts/SingleCardLayout';
 
 function Faq() {
@@ -19,7 +21,7 @@ function Faq() {
       if (targetQA.current) {
         scrollIntoView(targetQA.current, {
           scrollMode: 'if-needed',
-          behavior: 'smooth',
+          behavior: 'auto',
           block: 'center',
           inline: 'center',
         });
@@ -32,38 +34,52 @@ function Faq() {
   useOnClickOutside(
     targetQA,
     React.useCallback(() => {
-      history.replace(r.FAQ);
+      history.push(r.FAQ);
     }, [history])
   );
 
   return (
     <SingleCardLayout title="F.A.Q.">
-      {faqs.map(([question, answer]) => {
-        const slug = slugify(question);
-        return (
-          <StyledQA
-            id={slug}
-            key={slug}
-            open={hash.slice(1) === slug}
-            className={clsx({
-              target: hash.slice(1) === slug,
-            })}
-          >
-            <StyledQuestion>
-              {question}{' '}
-              <a href={`#${slug}`}>
-                <LinkOutlined />
-              </a>
-            </StyledQuestion>
-            <StyledAnswer>{typeof answer === 'string' ? <p>{answer}</p> : answer}</StyledAnswer>
-          </StyledQA>
-        );
-      })}
+      <ResetCounter />
+      {faqs.map(([question, answer]) => (
+        <QA question={question} key={question} answer={answer} />
+      ))}
     </SingleCardLayout>
   );
 }
 
 export default Faq;
+
+function QA({ question, answer }) {
+  const slug = slugify(question);
+  const { hash } = useLocation();
+  const isTargeted = hash.slice(1) === slug;
+
+  return (
+    <StyledQA
+      id={slug}
+      className={clsx({
+        target: isTargeted,
+      })}
+    >
+      <StyledQuestionAnchor href={`#${slug}`}>
+        <LinkOutlined />
+      </StyledQuestionAnchor>
+      <StyledCollapsibleSection
+        title={<StyledQuestion>{question}</StyledQuestion>}
+        titleLevel={2}
+        forceOpen={isTargeted}
+      >
+        <StyledAnswer>{typeof answer === 'string' ? <p>{answer}</p> : answer}</StyledAnswer>
+      </StyledCollapsibleSection>
+    </StyledQA>
+  );
+}
+
+QA.propTypes = {
+  question: t.node.isRequired,
+  answer: t.node.isRequired,
+};
 
 function useOnClickOutside(ref, onClick) {
   React.useEffect(() => {
@@ -88,11 +104,16 @@ const slugify = str =>
     .replace(/(^-)|(-$)/, '')
     .toLowerCase();
 
-const StyledQA = styled.details`
+const ResetCounter = createGlobalStyle`
+  counter-reset: faq;
+`;
+
+const StyledQA = styled.div`
+  counter-increment: faq;
   position: relative;
 
   & + & {
-    margin: 2rem 0;
+    margin-top: 2rem;
   }
 
   &.target {
@@ -115,24 +136,37 @@ const StyledQA = styled.details`
   }
 `;
 
-const StyledQuestion = styled.summary`
-  outline: none;
-  cursor: pointer;
-  font-size: ${p => p.theme.fontSize.md};
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+const StyledQuestionAnchor = styled.a`
+  z-index: 2;
+  position: absolute;
+  left: 0.5rem;
+  top: 0.625rem;
+  text-align: center;
+  color: ${p => p.theme.color.text.inverted};
+  transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
 
+  :hover,
+  :focus {
+    color: ${p => p.theme.color.text.inverted};
+    filter: drop-shadow(0 0 2px ${p => p.theme.color.glow.default});
+  }
+`;
+
+const StyledCollapsibleSection = styled(CollapsibleSection)`
+  z-index: 1;
+`;
+
+const StyledQuestion = styled.span`
   ::before {
-    content: 'Q:';
-    margin-right: 0.25rem;
-    font-weight: 700;
+    content: counter(faq) '. ';
   }
 `;
 
 const StyledAnswer = styled.div`
+  padding: 1rem;
+  color: ${p => p.theme.color.text.light};
   font-size: ${p => p.theme.fontSize.sm};
   font-weight: 400;
-  color: ${p => p.theme.color.text.light};
 
   > * {
     margin: 0;
@@ -140,13 +174,6 @@ const StyledAnswer = styled.div`
 
   > * + * {
     margin-top: 0.5rem;
-  }
-
-  ::before {
-    content: 'A:';
-    float: left;
-    margin-right: 0.25rem;
-    font-weight: 700;
   }
 `;
 

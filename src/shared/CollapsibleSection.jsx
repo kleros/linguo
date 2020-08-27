@@ -5,16 +5,39 @@ import clsx from 'clsx';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
 
-export default function CollapsibleSection({ title, titleLevel, children, tabIndex }) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const handleToggleOpen = React.useCallback(() => {
-    setIsOpen(open => !open);
-  }, []);
+export default function CollapsibleSection({
+  title,
+  titleLevel,
+  defaultOpen,
+  forceOpen,
+  tabIndex,
+  children,
+  className,
+  ...attrs
+}) {
+  const [isOpen, setIsOpen] = React.useState(defaultOpen);
+  const handleToggleOpen = React.useCallback(
+    evt => {
+      evt.preventDefault();
+      if (forceOpen) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(open => !open);
+      }
+    },
+    [forceOpen]
+  );
+
+  React.useEffect(() => {
+    if (forceOpen) {
+      setIsOpen(true);
+    }
+  }, [forceOpen]);
 
   const icon = isOpen ? <MinusOutlined /> : <PlusOutlined />;
 
   return (
-    <StyledDetails>
+    <StyledDetails {...attrs} open={forceOpen || isOpen} className={className}>
       <StyledSummary tabIndex={tabIndex} onClick={handleToggleOpen} className={clsx({ open: isOpen, closed: !isOpen })}>
         <Typography.Title level={titleLevel}>{title}</Typography.Title>
         {icon}
@@ -27,13 +50,19 @@ export default function CollapsibleSection({ title, titleLevel, children, tabInd
 CollapsibleSection.propTypes = {
   title: t.node.isRequired,
   titleLevel: t.oneOf([1, 2, 3, 4]).isRequired,
-  children: t.node,
   tabIndex: t.number,
+  defaultOpen: t.bool,
+  forceOpen: t.bool,
+  children: t.node,
+  className: t.string,
 };
 
 CollapsibleSection.defaultProps = {
-  children: null,
+  defaultOpen: false,
+  forceOpen: false,
   tabIndex: 10,
+  children: null,
+  className: '',
 };
 
 const StyledDetails = styled.details`

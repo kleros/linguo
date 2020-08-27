@@ -1,4 +1,5 @@
 import React from 'react';
+import t from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import styled from 'styled-components';
@@ -16,7 +17,7 @@ import EvidenceFetcher from './EvidenceFetcher';
 import EvidenceTimeline from './EvidenceTimeline';
 import SubmitEvidenceModalForm from './SubmitEvidenceModalForm';
 
-export default function Evidences() {
+export default function Evidences({ open }) {
   const { id: taskId } = useParams();
 
   const dispute = useShallowEqualSelector(selectDispute(taskId));
@@ -41,7 +42,7 @@ export default function Evidences() {
   };
 
   return (
-    <CollapsibleSection title="Evidence" titleLevel={3} tabIndex={100}>
+    <CollapsibleSection defaultOpen={open} title="Evidence" titleLevel={3} tabIndex={100}>
       <TopLoadingBar show={isLoadingEvidences} />
       <StyledContent>
         <StyledActionsContainer>
@@ -75,6 +76,14 @@ export default function Evidences() {
     </CollapsibleSection>
   );
 }
+
+Evidences.propTypes = {
+  open: t.bool,
+};
+
+Evidences.defaultProps = {
+  open: false,
+};
 
 const StyledContent = styled.article`
   padding: 2rem;
