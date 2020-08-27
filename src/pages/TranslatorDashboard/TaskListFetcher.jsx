@@ -32,11 +32,10 @@ export default function TaskListFetcher() {
 
   const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account }));
   const showFootnote = [filters.open].includes(filter) && data.length > 0;
-  const showFilterDescription = data.length > 0;
 
   return (
     <OptionalSecondLevelTabs>
-      {showFilterDescription && filterDescriptionMap[secondLevelFilter ?? filter]}
+      {filterDescriptionMap[secondLevelFilter ?? filter]}
       <TaskList data={data} showFootnote={showFootnote} />
     </OptionalSecondLevelTabs>
   );

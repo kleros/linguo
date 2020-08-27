@@ -24,11 +24,10 @@ export default function TaskListFetcher() {
   const [filterName] = useFilter();
 
   const showFootnote = [filters.open].includes(filterName) && displayableData.length > 0;
-  const showFilterDescription = displayableData.length > 0;
 
   return (
     <>
-      {showFilterDescription && filterDescriptionMap[filterName]}
+      {filterDescriptionMap[filterName]}
       <TaskList data={displayableData} showFootnote={showFootnote} />
     </>
   );
