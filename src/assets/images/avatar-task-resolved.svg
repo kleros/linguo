@@ -1,0 +1,217 @@
+<svg
+  viewBox="0 0 507 585"
+  version="1.1"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  preserveAspectRatio="xMidYMid meet"
+>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#8400DB" offset="0%" />
+            <stop stop-color="#4D00B4" offset="100%" />
+        </linearGradient>
+        <polygon
+      id="path-2"
+      points="257.087893 0 479.73254 128.543947 479.73254 385.63184 257.087893 514.175787 34.4432467 385.63184 34.4432467 128.543947"
+    />
+        <polygon
+      id="path-4"
+      points="257.087893 0 479.73254 128.543947 479.73254 385.63184 257.087893 514.175787 34.4432467 385.63184 34.4432467 128.543947"
+    />
+        <linearGradient x1="50%" y1="100%" x2="50%" y2="3.061617e-15%" id="linearGradient-6">
+            <stop stop-color="#3DBEFF" offset="0%" />
+            <stop stop-color="#00AAFF" offset="100%" />
+        </linearGradient>
+    </defs>
+    <g id="Logos,-Icons,-Illustrations" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-96-Copy-2" transform="translate(-39.000000, 0.000000)">
+            <polygon
+        id="Polygon"
+        fill="#CDDEFF"
+        points="292.5 0 545.812431 146.25 545.812431 438.75 292.5 585 39.1875694 438.75 39.1875694 146.25"
+      />
+            <g id="Rectangle" transform="translate(35.212038, 35.212038)">
+                <mask id="mask-3" fill="white">
+                    <use xlink:href="#path-2" />
+                </mask>
+                <use id="Mask" fill="url(#linearGradient-1)" xlink:href="#path-2" />
+                <rect
+          fill="#9013FE"
+          mask="url(#mask-3)"
+          x="61.621067"
+          y="402.53762"
+          width="410.540356"
+          height="132.845417"
+        />
+                <polygon
+          id="Path-64"
+          fill-opacity="0.178567526"
+          fill="#FFFFFF"
+          mask="url(#mask-3)"
+          points="188.398685 -8.40287278 144.049248 241.682627 369.726402 241.682627 325.355431 -8.40287278"
+        />
+            </g>
+            <g id="Rectangle" transform="translate(35.212038, 35.212038)">
+                <mask id="mask-5" fill="white">
+                    <use xlink:href="#path-4" />
+                </mask>
+                <use id="Mask" fill="#0043C5" xlink:href="#path-4" />
+                <polygon
+          id="Polygon"
+          fill="#00308D"
+          mask="url(#mask-5)"
+          points="257.287962 63.2216142 425.354349 160.254788 425.354349 354.321135 257.287962 451.354309 89.2215748 354.321135 89.2215748 160.254788"
+        />
+                <g id="Group-84" mask="url(#mask-5)">
+                    <g transform="translate(71.787962, 288.787962)">
+                        <rect id="Rectangle" fill="url(#linearGradient-6)" x="0" y="0" width="367" height="401" />
+                        <g id="Group-107" stroke-width="1" fill="none" transform="translate(42.000000, 28.000000)">
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="32.4008016"
+                width="282"
+                height="9.99599198"
+                rx="4.99799599"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="0"
+                width="282"
+                height="9.99599198"
+                rx="4.99799599"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="64.8016032"
+                width="282"
+                height="9.99599198"
+                rx="4.99799599"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="97.2024048"
+                width="282"
+                height="9.99599198"
+                rx="4.99799599"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="129.603206"
+                width="282"
+                height="9.99599198"
+                rx="4.99799599"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="162.004008"
+                width="282"
+                height="9.99599198"
+                rx="4.99799599"
+              />
+                        </g>
+                    </g>
+                </g>
+                <g id="Group" mask="url(#mask-5)">
+                    <g transform="translate(150.787962, -133.212038)">
+                        <polygon
+              id="Rectangle"
+              fill="#FFFFFF"
+              points="-2.30215846e-12 1.70530257e-13 212.872777 1.70530257e-13 212.872777 356.121751 106.8836 296.101231 -2.30215846e-12 356.121751"
+            />
+                        <polygon
+              id="Rectangle"
+              fill="#00308D"
+              points="12.516729 48.8166895 15.7692466 48.8166895 15.7692466 347.293831 12.516729 349.113007"
+            />
+                        <polygon
+              id="Rectangle"
+              fill="#00308D"
+              points="197.503667 48.8166895 200.756185 48.8166895 200.756185 349.239418 197.503667 347.398065"
+            />
+                        <g id="check-solid" stroke-width="1" fill="none" transform="translate(60.000000, 199.000000)">
+                            <path
+                d="M31.5869268,67.6448423 L1.36189733,37.5728978 C-0.453965775,35.7662317 -0.453965775,32.8369279 1.36189733,31.0300812 L7.93783929,24.4872646 C9.7537024,22.6804178 12.6980998,22.6804178 14.5139629,24.4872646 L34.8749886,44.7449843 L78.4860371,1.35499953 C80.3019002,-0.451666511 83.2462976,-0.451666511 85.0621607,1.35499953 L91.6381027,7.89781613 C93.4539658,9.70448217 93.4539658,12.633786 91.6381027,14.4406327 L38.1630505,67.6450231 C36.3470057,69.4516891 33.4027899,69.4516891 31.5869268,67.6448423 L31.5869268,67.6448423 Z"
+                id="Path"
+                fill="#00C42B"
+                fill-rule="nonzero"
+              />
+                        </g>
+                    </g>
+                </g>
+                <g id="PAPER" mask="url(#mask-5)">
+                    <g transform="translate(62.787962, 338.787962)">
+                        <rect id="Rectangle" fill="#FFFFFF" x="0.242134063" y="0.279069767" width="384" height="403" />
+                        <g id="Group-107" stroke-width="1" fill="none" transform="translate(45.000000, 28.279070)">
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="32.5891784"
+                width="295"
+                height="10.0541082"
+                rx="5.02705411"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="0"
+                width="295"
+                height="10.0541082"
+                rx="5.02705411"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="65.1783567"
+                width="295"
+                height="10.0541082"
+                rx="5.02705411"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="97.7675351"
+                width="295"
+                height="10.0541082"
+                rx="5.02705411"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="130.356713"
+                width="295"
+                height="10.0541082"
+                rx="5.02705411"
+              />
+                            <rect
+                id="Rectangle"
+                fill="#00308D"
+                x="0"
+                y="162.945892"
+                width="295"
+                height="10.0541082"
+                rx="5.02705411"
+              />
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

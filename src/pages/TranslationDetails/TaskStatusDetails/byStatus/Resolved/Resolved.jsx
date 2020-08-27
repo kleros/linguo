@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
+import TaskResolvedAvatar from '~/assets/images/avatar-task-resolved.svg';
 import { DisputeRuling } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
 import { getWithdrawableAmount } from '~/features/tasks/tasksSlice';
@@ -32,7 +33,7 @@ export default function Resolved() {
         interaction: pendingWithdrawal,
       }
     : {
-        illustration: illustrationMap[ruling],
+        illustration: getIllustration({ hasDispute, ruling }),
       };
 
   return <TaskStatusDetailsLayout title={title} description={description} {...props} />;
@@ -188,7 +189,10 @@ const illustrationMap = {
   [DisputeRuling.RefuseToRule]: <RefusedToRuleAvatar />,
   [DisputeRuling.TranslationApproved]: <TranslationApprovedAvatar />,
   [DisputeRuling.TranslationRejected]: <TranslationRejectedAvatar />,
+  noDispute: <TaskResolvedAvatar />,
 };
+
+const getIllustration = ({ hasDispute, ruling }) => (hasDispute ? illustrationMap[ruling] : illustrationMap.noDispute);
 
 const StyledSectionTitle = styled.h4`
   font-weight: 500;

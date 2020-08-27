@@ -21,8 +21,8 @@ export default {
       light: '#FF4D4F',
     },
     success: {
-      default: '#389E0D',
-      light: '#52C41A',
+      default: '#00C42B',
+      light: '#389E0D',
     },
     background: {
       default: '#F2FFFE',
