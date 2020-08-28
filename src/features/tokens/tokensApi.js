@@ -3,8 +3,22 @@ import badgeAbi from './abis/badge.json';
 import erc20Abi from './abis/ERC20.json';
 import tokensViewAbi from './abis/tokensView.json';
 import { ADDRESS_ZERO, MAX_UINT256 } from './constants';
-import t2crInfo from './fixtures/t2cr.json';
 import normalizeBaseUnit from './normalizeBaseUnit';
+
+const t2crParams = {
+  '42': {
+    t2cr: '0x25dd2659a1430cdbd678615c7409164ae486c146',
+    tokensView: '0x597440539e5d9cc517a1f57af50087a43a2bb2bf',
+    erc20: '0x78895eC026AeFF2DB73bC30E623C39e1C69B1386',
+    stablecoin: '0x0150A86c583764d85289895655D2E62473fa24c7',
+  },
+  '1': {
+    t2cr: '0xebcf3bca271b26ae4b162ba560e243055af0e679',
+    tokensView: '0xf9b9b5440340123b21bff1ddafe1ad6feb9d6e7f',
+    erc20: '0xCb4Aae35333193232421E86Cd2E9b6C91f3B125F',
+    stablecoin: '0xBC65204861f5776564fc3f61c04eC6eA8beA13bE',
+  },
+};
 
 const filter = [
   false, // Do not include items which are not on the TCR.
@@ -20,8 +34,21 @@ const filter = [
 export default function createTokensApi({ library: web3 }) {
   const erc20Token = new web3.eth.Contract(erc20Abi);
 
-  async function fetchAll({ chainId }) {
-    const addresses = t2crInfo[chainId];
+  async function fetchTokenInfo({ tokenAddress }) {
+    const contract = erc20Token.clone();
+    contract.options.address = tokenAddress;
+
+    const [name, ticker, decimals] = await Promise.all([
+      contract.methods.name().call(),
+      contract.methods.symbol().call(),
+      _getDecimals(contract),
+    ]);
+
+    return { name, ticker, decimals, address: tokenAddress };
+  }
+
+  async function fetchStableCoinsFromT2CR({ chainId }) {
+    const addresses = t2crParams[chainId];
     if (!addresses) {
       throw new Error(`Cannot fetch tokens for network ${chainId}`);
     }
@@ -127,7 +154,8 @@ export default function createTokensApi({ library: web3 }) {
   }
 
   return {
-    fetchAll,
+    fetchTokenInfo,
+    fetchStableCoinsFromT2CR,
     checkAllowance,
     approve,
   };

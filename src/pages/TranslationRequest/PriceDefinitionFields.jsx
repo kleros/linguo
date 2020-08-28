@@ -11,7 +11,7 @@ import { selectLinguoTokenAddress } from '~/features/linguo/linguoSlice';
 import { normalizeBaseUnit } from '~/features/tokens';
 import {
   approve,
-  selectAllTokens,
+  selectSupportedTokens,
   selectInteractionTx,
   selectTokenByAddress,
   selectTokenByTicker,
@@ -43,7 +43,7 @@ export default function PriceDefinitionFieldsWrapper() {
 }
 
 function PriceDefinitionFields({ getFieldValue, setFieldsValue, validateFields }) {
-  const allTokens = useShallowEqualSelector(selectAllTokens);
+  const allTokens = useShallowEqualSelector(selectSupportedTokens);
   const ethNativeToken = useSelector(selectTokenByTicker('ETH'));
 
   const [paymentTokenAddress, setPaymentTokenAddress] = React.useState(ethNativeToken.address);

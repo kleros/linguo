@@ -4,22 +4,30 @@ import Web3 from 'web3';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import FormattedNumber from '~/shared/FormattedNumber';
 import { ADDRESS_ZERO } from './constants';
-import { selectTokenByAddress } from './tokensSlice';
+import { fetchInfo, selectTokenByAddress } from './tokensSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectChainId } from '~/features/web3/web3Slice';
 
 const { fromWei, toWei } = Web3.utils;
 
 export default function TokenValue({ address, amount, decimals, suffixType, render }) {
   const value = valueOf({ amount });
-
   const tokenData = useShallowEqualSelector(selectTokenByAddress(address));
-  const tokenTicker = tokenData?.ticker ?? '???';
-  const tokenName = tokenData?.name ?? '<Unknown>';
+  const hasTokenData = !!tokenData;
 
   const suffix = {
     none: '',
-    short: tokenTicker,
-    long: tokenName,
+    short: tokenData?.ticker ?? '???',
+    long: tokenData?.name ?? '<Unknown>',
   };
+
+  const dispatch = useDispatch();
+  const chainId = useSelector(selectChainId);
+  React.useEffect(() => {
+    if (!hasTokenData) {
+      dispatch(fetchInfo({ chainId, tokenAddress: address }));
+    }
+  }, [dispatch, hasTokenData, chainId, address]);
 
   return (
     <FormattedNumber

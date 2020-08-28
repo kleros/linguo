@@ -1,0 +1,18 @@
+{
+  "byChainId": {
+    "42": {
+      "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa": {
+        "name": "Dai",
+        "ticker": "DAI",
+        "address": "0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa",
+        "decimals": "18"
+      },
+      "0xebbe89e4c61b7c824154032f1d868227a75a083a": {
+        "name": "USD Coin",
+        "ticker": "USDC",
+        "address": "0xebbe89e4c61b7c824154032f1d868227a75a083a",
+        "decimals": "6"
+      }
+    }
+  }
+}

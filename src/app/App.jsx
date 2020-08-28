@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Web3ReactProvider } from '@web3-react/core';
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import Web3 from 'web3';
-import { fetchAll as fetchAllTokens } from '~/features/tokens/tokensSlice';
+import { fetchSupported as fetchSupportedTokens } from '~/features/tokens/tokensSlice';
 import theme from '~/features/ui/theme';
 import { useWatchLibrary, useWeb3ReactBootstrap } from '~/features/web3';
 import { selectChainId } from '~/features/web3/web3Slice';
@@ -33,7 +33,7 @@ function Initializer({ children }) {
   const dispatch = useDispatch();
   const chainId = useSelector(selectChainId);
   React.useEffect(() => {
-    dispatch(fetchAllTokens({ chainId }));
+    dispatch(fetchSupportedTokens({ chainId }));
   }, [dispatch, chainId]);
 
   return children;

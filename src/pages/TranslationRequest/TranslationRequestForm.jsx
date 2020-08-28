@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import { create as createTask } from '~/features/tasks/tasksSlice';
-import { fetchAll as fetchAllTokens } from '~/features/tokens/tokensSlice';
+import { fetchSupported as fetchSupportedTokens } from '~/features/tokens/tokensSlice';
 import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import { omit } from '~/shared/fp';
 import Button from '~/shared/Button';
@@ -30,7 +30,7 @@ function TranslationRequestForm() {
   const chainId = useSelector(selectChainId);
 
   React.useEffect(() => {
-    dispatch(fetchAllTokens({ chainId }));
+    dispatch(fetchSupportedTokens({ chainId }));
   }, [dispatch, chainId]);
 
   const submitButtonProps =
