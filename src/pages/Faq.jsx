@@ -166,7 +166,7 @@ const StyledAnswer = styled.div`
   padding: 1rem;
   color: ${p => p.theme.color.text.light};
   font-size: ${p => p.theme.fontSize.sm};
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
 
   > * {
     margin: 0;

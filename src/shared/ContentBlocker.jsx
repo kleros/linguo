@@ -57,7 +57,7 @@ const StyledOverlayText = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 101;
-  font-weight: 500;
+  font-weight: ${p => p.theme.fontWeight.medium};
   font-size: ${p => p.theme.fontSize.xl};
   pointer-events: none;
 `;

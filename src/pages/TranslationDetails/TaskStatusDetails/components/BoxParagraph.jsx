@@ -4,7 +4,7 @@ import { Typography } from 'antd';
 const StyledBoxParagraph = styled(Typography.Paragraph)`
   && {
     font-size: ${props => props.theme.fontSize.sm};
-    font-weight: 400;
+    font-weight: ${p => p.theme.fontWeight.regular};
     color: ${props => props.theme.color.text.default};
     margin: 0;
 

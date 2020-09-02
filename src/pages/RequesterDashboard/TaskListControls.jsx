@@ -101,6 +101,7 @@ const StyledRadioGroup = styled(Radio.Group)`
 const StyledRadioButton = styled(RadioButton)`
   && {
     overflow: visible;
+    font-weight: ${props => props.theme.fontWeight.semibold};
 
     @media (max-width: 767.98px) {
       font-size: ${props => props.theme.fontSize.sm};
@@ -220,7 +221,7 @@ const StyledBadge = styled(Badge)`
     > .ant-scroll-number-only {
       &,
       > .ant-scroll-number-only-unit {
-        font-weight: 500;
+        font-weight: ${p => p.theme.fontWeight.semibold};
         height: 0.875rem;
       }
     }

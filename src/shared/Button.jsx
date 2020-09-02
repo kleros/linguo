@@ -206,7 +206,7 @@ const StyledButton = styled(BaseButton)`
   align-items: center;
   height: auto;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: ${p => p.theme.fontWeight.semibold};
   overflow: hidden;
   border-radius: 0.1875rem;
   padding: 0 1rem;

@@ -175,7 +175,7 @@ const StyledCardTitle = styled(Typography.Title)`
 const StyledCardDescription = styled(Typography.Paragraph)`
   && {
     font-size: ${p => p.theme.fontSize.sm};
-    font-weight: 400;
+    font-weight: ${p => p.theme.fontWeight.regular};
     margin-bottom: 0;
     color: inherit;
     max-height: 50vh;
@@ -189,7 +189,7 @@ const StyledCardFooter = styled.footer`
   display: flex;
   padding: 1rem 1.5rem;
   gap: 1rem;
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
   font-size: ${p => p.theme.fontSize.sm};
 `;
 
@@ -203,7 +203,7 @@ const StyledMetadata = styled.div`
 
   a,
   strong {
-    font-weight: 500;
+    font-weight: ${p => p.theme.fontWeight.semibold};
   }
 `;
 

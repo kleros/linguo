@@ -29,6 +29,7 @@ const StyledWrapper = styled.section`
   .card-header-title {
     text-align: center;
     font-size: ${props => props.theme.fontSize.md};
+    font-weight: ${props => props.theme.fontWeight.semibold};
     color: ${props => props.theme.color.text.inverted};
     width: 100%;
     margin: 0;

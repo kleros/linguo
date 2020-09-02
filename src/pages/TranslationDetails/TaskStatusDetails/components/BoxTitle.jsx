@@ -6,7 +6,7 @@ import { Typography } from 'antd';
 const StyledTitle = styled(Typography.Title)`
   && {
     font-size: ${props => props.theme.fontSize.xxl};
-    font-weight: 500;
+    font-weight: ${p => p.theme.fontWeight.semibold};
     color: ${props => props.theme.color.primary.default};
   }
 `;

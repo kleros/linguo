@@ -53,6 +53,7 @@ const StyledCard = styled(Card)`
 
   .card-header-title {
     font-size: ${props => props.theme.fontSize.xxl};
+    font-weight: ${props => props.theme.fontWeight.semibold};
     padding: 0;
   }
 

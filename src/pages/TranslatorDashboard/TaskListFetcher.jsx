@@ -195,7 +195,7 @@ const StyledTabs = styled(Tabs)`
     .ant-tabs-tab,
     .ant-tabs-tab-active,
     .ant-tabs-tab:hover {
-      font-weight: 500;
+      font-weight: ${p => p.theme.fontWeight.medium};
     }
 
     .ant-tabs-tab-active,
@@ -234,7 +234,7 @@ const StyledBadge = styled(Badge)`
     > .ant-scroll-number-only {
       &,
       > .ant-scroll-number-only-unit {
-        font-weight: 500;
+        font-weight: ${p => p.theme.fontWeight.medium};
         height: 0.875rem;
       }
     }

@@ -195,7 +195,7 @@ const illustrationMap = {
 const getIllustration = ({ hasDispute, ruling }) => (hasDispute ? illustrationMap[ruling] : illustrationMap.noDispute);
 
 const StyledSectionTitle = styled.h4`
-  font-weight: 500;
+  font-weight: ${p => p.theme.fontWeight.semibold};
   margin: 0;
 `;
 

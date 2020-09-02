@@ -293,19 +293,19 @@ const StyledCard = styled.div`
   height: 100%;
   box-shadow: 0 0.375rem 2rem ${props => props.theme.color.shadow.default};
   font-size: ${p => p.theme.fontSize.sm};
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
 `;
 
 const StyledSectionTitle = styled.h4`
   color: ${p => p.theme.color.text.default};
-  font-weight: 500;
+  font-weight: ${p => p.theme.fontWeight.semibold};
   margin-bottom: 0;
   color: inherit;
 `;
 
 const StyledTitleCaption = styled.span`
   display: block;
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
   color: inherit;
 `;
 
@@ -324,7 +324,7 @@ const StyledDepositDescription = styled(StyledSectionDescription)`
 `;
 
 const StyledDepositValue = styled.span`
-  font-weight: 700;
+  font-weight: ${p => p.theme.fontWeight.bold};
 `;
 
 const StyledFundingCompleteWrapper = styled.div`
@@ -380,7 +380,7 @@ const StyledResult = styled.article`
 
 const StyledRewardDisplay = styled.div`
   font-size: ${p => p.theme.fontSize.xxl};
-  font-weight: 500;
+  font-weight: ${p => p.theme.fontWeight.semibold};
   color: inherit;
 `;
 
@@ -388,7 +388,7 @@ const StyledWarningIcon = styled(WarningIcon)``;
 
 const StyledDisclaimer = styled.p`
   color: ${p => p.theme.color.primary.default};
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
   margin-bottom: 0;
 
   @media (min-width: 1200px) {

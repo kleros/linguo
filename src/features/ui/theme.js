@@ -55,6 +55,12 @@ export default {
     xs: '0.75rem',
     xxs: '0.625rem',
   },
+  fontWeight: {
+    regular: 400,
+    medium: 400,
+    semibold: 600,
+    bold: 600,
+  },
   transition: {
     slow: '0.5s cubic-bezier(0.77, 0, 0.175, 1)',
     default: '0.25s cubic-bezier(0.77, 0, 0.175, 1)',

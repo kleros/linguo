@@ -269,7 +269,7 @@ const StyledFormItem = styled(Form.Item)`
 
   .ant-form-item-label {
     font-size: ${p => p.theme.fontSize.sm};
-    font-weight: 500;
+    font-weight: ${p => p.theme.fontWeight.semibold};
     text-align: center;
   }
 `;
@@ -518,7 +518,7 @@ const StyledRadioWrapper = styled.div`
  * adding extra height to the rendered element if `white-space` is `normal`
  */
 const StyledSectionTitle = styled.div`
-  font-weight: 500;
+  font-weight: ${p => p.theme.fontWeight.semibold};
   margin-bottom: 0;
 
   @media (max-width: 460px) {
@@ -528,7 +528,7 @@ const StyledSectionTitle = styled.div`
 
 const StyledTitleCaption = styled.span`
   display: block;
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
 `;
 
 function FundingSummary({ totalAppealCost, paidFees }) {
@@ -561,7 +561,7 @@ function FundingSummary({ totalAppealCost, paidFees }) {
             value: <EthValue amount={remainingCost} unit={unit} suffixType="short" />,
             rowProps: {
               css: css`
-                font-weight: 500;
+                font-weight: ${p => p.theme.fontWeight.semibold};
               `,
             },
           },

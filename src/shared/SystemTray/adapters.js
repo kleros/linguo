@@ -28,7 +28,7 @@ const StyledBadge = styled(Badge)`
     z-index: 2;
     box-shadow: none;
     font-size: 0.675rem;
-    font-weight: 500;
+    font-weight: ${p => p.theme.fontWeight.semibold};
     padding: 0 0.2rem;
     min-width: 1rem;
     height: 1rem;
@@ -82,6 +82,7 @@ const StyledPopover = styled(Popover)`
     color: ${props => props.theme.color.primary.default};
     border-bottom: 1px solid ${props => props.theme.color.secondary.default};
     font-size: ${props => props.theme.fontSize.xl};
+    font-weight: ${props => props.theme.fontWeight.semibold};
     text-align: center;
     padding: 0 0 0.5rem;
   }

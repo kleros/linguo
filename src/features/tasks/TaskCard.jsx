@@ -104,7 +104,7 @@ const StyledTaskTitle = styled(Typography.Title)`
     white-space: nowrap;
     color: ${props => props.theme.color.text.light};
     font-size: ${props => props.theme.fontSize.md};
-    font-weight: 500;
+    font-weight: ${p => p.theme.fontWeight.semibold};
     margin-bottom: 1rem;
   }
 `;

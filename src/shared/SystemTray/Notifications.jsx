@@ -8,7 +8,7 @@ import ContentBlocker from '~/shared/ContentBlocker';
 import { NotificationIcon, DisputeIcon, CheckIcon } from '~/shared/icons';
 import { Popover, Button, Badge, withToolbarStylesIcon } from './adapters';
 
-function Notifications() {
+export default function Notifications() {
   const notifications = notificationFixtures;
 
   const renderItem = React.useCallback(data => <Notification {...data} id={data.key} />, []);
@@ -56,8 +56,6 @@ function Notifications() {
     </StyledPopover>
   );
 }
-
-export default Notifications;
 
 const locale = { emptyText: 'Wow. Such empty.' };
 
@@ -197,7 +195,7 @@ const StyledListItem = styled(List.Item)`
   }
 
   .ant-list-item-meta-title {
-    font-weight: 400;
+    font-weight: ${p => p.theme.fontWeight.regular};
     color: ${props => props.theme.color.text.default};
 
     > a {
@@ -213,7 +211,7 @@ const StyledListItem = styled(List.Item)`
 
   .ant-list-item-meta-description {
     text-align: right;
-    font-weight: 700;
+    font-weight: ${p => p.theme.fontWeight.bold};
   }
 `;
 

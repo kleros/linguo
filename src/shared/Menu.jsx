@@ -5,6 +5,46 @@ import { NavLink } from 'react-router-dom';
 import { Menu, Layout } from 'antd';
 import * as r from '~/app/routes';
 
+export function DrawerMenu() {
+  const componentRef = React.useRef(null);
+  const nodeRef = React.useRef(null);
+
+  React.useEffect(() => {
+    /**
+     * We want to collapse the menu if users click outside of its boundaries.
+     *
+     * Antd Sider does not expose refs, so it is not possible to get the
+     * actual elements without resorting to findDOMNode.
+     */
+    /* eslint-disable-next-line react/no-find-dom-node */
+    nodeRef.current = findDOMNode(componentRef.current);
+  }, []);
+
+  const closeOnClickOutsideMenu = React.useCallback(() => {
+    if (nodeRef.current) {
+      const menu = nodeRef.current;
+      const trigger = nodeRef.current.querySelector('.ant-layout-sider-zero-width-trigger');
+      const isCollapsed = [...menu.classList].includes('ant-layout-sider-collapsed');
+
+      if (trigger && !isCollapsed) {
+        trigger.click();
+      }
+    }
+  }, []);
+
+  useOnClickOutside(nodeRef, closeOnClickOutsideMenu);
+
+  return (
+    <StyledLayoutSider breakpoint="md" collapsedWidth={0} ref={componentRef}>
+      <StyledDrawerMenu>{menuItems}</StyledDrawerMenu>
+    </StyledLayoutSider>
+  );
+}
+
+export function MainMenu() {
+  return <StyledMainMenu mode="horizontal">{menuItems}</StyledMainMenu>;
+}
+
 const menuItems = [
   <Menu.Item key="request-translation">
     <NavLink to={r.REQUESTER_DASHBOARD}>My Translations</NavLink>
@@ -92,42 +132,6 @@ const StyledDrawerMenu = styled(Menu)`
   ${menuAnchorMixin}
 `;
 
-export function DrawerMenu() {
-  const componentRef = React.useRef(null);
-  const nodeRef = React.useRef(null);
-
-  React.useEffect(() => {
-    /**
-     * We want to collapse the menu if users click outside of its boundaries.
-     *
-     * Antd Sider does not expose refs, so it is not possible to get the
-     * actual elements without resorting to findDOMNode.
-     */
-    /* eslint-disable-next-line react/no-find-dom-node */
-    nodeRef.current = findDOMNode(componentRef.current);
-  }, []);
-
-  const closeOnClickOutsideMenu = React.useCallback(() => {
-    if (nodeRef.current) {
-      const menu = nodeRef.current;
-      const trigger = nodeRef.current.querySelector('.ant-layout-sider-zero-width-trigger');
-      const isCollapsed = [...menu.classList].includes('ant-layout-sider-collapsed');
-
-      if (trigger && !isCollapsed) {
-        trigger.click();
-      }
-    }
-  }, []);
-
-  useOnClickOutside(nodeRef, closeOnClickOutsideMenu);
-
-  return (
-    <StyledLayoutSider breakpoint="md" collapsedWidth={0} ref={componentRef}>
-      <StyledDrawerMenu>{menuItems}</StyledDrawerMenu>
-    </StyledLayoutSider>
-  );
-}
-
 function useOnClickOutside(ref, handler) {
   React.useEffect(
     () => {
@@ -186,7 +190,3 @@ const StyledMainMenu = styled(Menu)`
     }
   }
 `;
-
-export function MainMenu() {
-  return <StyledMainMenu mode="horizontal">{menuItems}</StyledMainMenu>;
-}

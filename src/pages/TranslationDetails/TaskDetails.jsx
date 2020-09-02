@@ -217,6 +217,7 @@ const StyledDefinitionList = styled.dl`
 
 const StyledDefinitionTerm = styled.dt`
   font-size: ${p => p.theme.fontSize.lg};
+  font-weight: ${p => p.theme.fontWeight.semibold};
   margin-bottom: 1rem;
 `;
 
@@ -227,7 +228,7 @@ const StyledDefinitionDescription = styled.dd`
 const StyledDeadline = styled(StyledDefinitionList)`
   && {
     font-size: ${p => p.theme.fontSize.sm};
-    font-weight: 400;
+    font-weight: ${p => p.theme.fontWeight.regular};
     text-align: center;
 
     ${StyledDefinitionTerm} {

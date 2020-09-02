@@ -3,7 +3,7 @@ import t from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { Badge, Radio, Tooltip } from 'antd';
+import { Badge, Radio } from 'antd';
 import * as r from '~/app/routes';
 import { filters, useFilters } from '~/features/translator';
 import { selectTaskCountForFilter } from '~/features/translator/translatorSlice';
@@ -26,11 +26,7 @@ function TaskListActions() {
   return (
     <StyledActions>
       <Link to={r.TRANSLATOR_SETTINGS}>
-        <Tooltip title="You will only be able to see tasks whose both source and target languages you have self-declared level B2 or higher.">
-          <div>
-            <Button variant="filled">Update Skills</Button>
-          </div>
-        </Tooltip>
+        <Button variant="filled">Update Skills</Button>
       </Link>
     </StyledActions>
   );
@@ -103,6 +99,7 @@ const StyledRadioGroup = styled(Radio.Group)`
 const StyledRadioButton = styled(RadioButton)`
   && {
     overflow: visible;
+    font-weight: ${props => props.theme.fontWeight.semibold};
 
     @media (max-width: 767.98px) {
       font-size: ${props => props.theme.fontSize.sm};
@@ -222,7 +219,7 @@ const StyledBadge = styled(Badge)`
     > .ant-scroll-number-only {
       &,
       > .ant-scroll-number-only-unit {
-        font-weight: 500;
+        font-weight: ${p => p.theme.fontWeight.semibold};
         height: 0.875rem;
       }
     }

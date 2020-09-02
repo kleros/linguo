@@ -40,7 +40,7 @@ const StyledRadioButton = styled(Radio.Button)`
       text-align: center;
       height: 5.75rem;
       font-size: ${props => props.theme.fontSize.xxl};
-      font-weight: 400;
+      font-weight: ${p => p.theme.fontWeight.regular};
       border-radius: 0.75rem;
       color: ${props => props.theme.color.primary.default};
       border-color: ${props => props.theme.color.primary.default};

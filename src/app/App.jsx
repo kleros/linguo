@@ -51,8 +51,8 @@ const GlobalStyle = createGlobalStyle`
   body {
     min-width: 24rem;
     overflow: auto;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 500;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: ${p => p.theme.fontWeight.regular};
     font-size: 16px;
     color: ${props => props.theme.color.text.default};
   }

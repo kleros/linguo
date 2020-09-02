@@ -43,7 +43,7 @@ const StyledBaseSelect = styled(Select)`
         height: 100%;
         padding: 0 1rem 0 1rem;
         font-size: ${props => props.theme.fontSize.xxl};
-        font-weight: 400;
+        font-weight: ${p => p.theme.fontWeight.regular};
       }
 
       .ant-select-selection-placeholder,
@@ -51,7 +51,7 @@ const StyledBaseSelect = styled(Select)`
         display: flex;
         align-items: center;
         font-size: ${props => props.theme.fontSize.xxl};
-        font-weight: 400;
+        font-weight: ${p => p.theme.fontWeight.regular};
         color: ${props => props.theme.color.text.inverted};
       }
 

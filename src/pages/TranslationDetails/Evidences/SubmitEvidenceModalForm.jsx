@@ -317,7 +317,7 @@ const StyledFormItem = styled(Form.Item)`
 
   .ant-form-item-label {
     font-size: ${p => p.theme.fontSize.sm};
-    font-weight: 500;
+    font-weight: ${p => p.theme.fontWeight.semibold};
     text-align: center;
   }
 `;
@@ -383,7 +383,7 @@ const StyledOption = styled.p``;
 
 const StyledOptionDescription = styled.sub`
   font-size: ${p => p.theme.fontSize.sm};
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
   color: ${p => p.theme.color.text.light};
 `;
 
@@ -393,7 +393,7 @@ const StyledInfo = styled.div`
   margin-top: 1rem;
   color: ${p => p.theme.color.text.light};
   font-size: ${p => p.theme.fontSize.sm};
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
 `;
 
 const StyledButton = styled(Button)``;

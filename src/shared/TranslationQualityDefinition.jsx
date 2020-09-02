@@ -4,62 +4,7 @@ import styled from 'styled-components';
 import { Row, Col, Typography, Tag } from 'antd';
 import translationQualityTiers from '../assets/fixtures/translationQualityTiers.json';
 
-const StyledWrapper = styled.div`
-  padding: 2rem;
-  background-color: ${props => props.theme.color.background.default};
-  border-radius: 0.75rem;
-`;
-
-const StyledTitle = styled(Typography.Title)`
-  && {
-    font-size: ${props => props.theme.fontSize.xxl};
-    font-weight: 500;
-    color: ${props => props.theme.color.primary.default};
-  }
-`;
-
-const StyledDescription = styled(Typography.Paragraph)`
-  && {
-    font-size: ${props => props.theme.fontSize.sm};
-    font-weight: 400;
-    color: ${props => props.theme.color.text.default};
-    margin: 0;
-
-    & + & {
-      margin-top: 1rem;
-    }
-  }
-`;
-
-const StyledLevelTag = styled(Tag)`
-  margin-left: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: none;
-  user-select: none;
-  max-width: 10rem;
-  height: 6.5rem;
-  font-size: 3rem;
-  color: ${props => props.theme.color.text.inverted};
-  background: linear-gradient(
-    117.04deg,
-    ${props => props.theme.color.secondary.default} 37.47%,
-    ${props => props.theme.color.secondary.light} 94.76%
-  );
-  border: none;
-  border-radius: 0.75rem;
-
-  :hover {
-    opacity: 1;
-  }
-
-  @media (max-width: 767.98px) {
-    margin-right: auto;
-  }
-`;
-
-function TranslationQualityDefinition({ tierValue }) {
+export default function TranslationQualityDefinition({ tierValue }) {
   const tier = translationQualityTiers[tierValue] || { name: '', description: [] };
 
   return (
@@ -88,4 +33,58 @@ TranslationQualityDefinition.propTypes = {
   tierValue: t.oneOf(Object.keys(translationQualityTiers)).isRequired,
 };
 
-export default TranslationQualityDefinition;
+const StyledWrapper = styled.div`
+  padding: 2rem;
+  background-color: ${p => p.theme.color.background.default};
+  border-radius: 0.75rem;
+`;
+
+const StyledTitle = styled(Typography.Title)`
+  && {
+    font-size: ${p => p.theme.fontSize.xxl};
+    font-weight: ${p => p.theme.fontWeight.semibold};
+    color: ${p => p.theme.color.primary.default};
+  }
+`;
+
+const StyledDescription = styled(Typography.Paragraph)`
+  && {
+    font-size: ${p => p.theme.fontSize.sm};
+    font-weight: ${p => p.theme.fontWeight.regular};
+    color: ${p => p.theme.color.text.default};
+    margin: 0;
+
+    & + & {
+      margin-top: 1rem;
+    }
+  }
+`;
+
+const StyledLevelTag = styled(Tag)`
+  margin-left: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  user-select: none;
+  max-width: 10rem;
+  height: 6.5rem;
+  font-size: 3rem;
+  font-weight: ${p => p.theme.fontWeight.semibold};
+  color: ${p => p.theme.color.text.inverted};
+  background: linear-gradient(
+    117.04deg,
+    ${p => p.theme.color.secondary.default} 37.47%,
+    ${p => p.theme.color.secondary.light} 94.76%
+  );
+  border: none;
+  border-radius: 0.75rem;
+
+  :hover {
+    opacity: 1;
+  }
+
+  @media (max-width: 767.98px) {
+    margin-right: auto;
+  }
+`;

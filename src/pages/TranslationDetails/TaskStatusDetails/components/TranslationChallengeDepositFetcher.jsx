@@ -50,7 +50,7 @@ function TranslationChallengeDepositFetcher() {
 
 const StyledWrapper = styled.div`
   font-size: ${p => p.theme.fontSize.xs};
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
   color: ${p => p.theme.color.text.light};
 `;
 

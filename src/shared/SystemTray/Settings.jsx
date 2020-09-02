@@ -97,7 +97,7 @@ const StyledSectionTitle = styled(Typography.Title)`
     color: ${props => props.theme.color.text.default};
     font-size: 0.875rem;
     line-height: 0.875rem;
-    font-weight: 400;
+    font-weight: ${p => p.theme.fontWeight.regular};
     margin-bottom: 1rem;
   }
 `;
@@ -110,7 +110,7 @@ function TranslatorSetup({ onClick }) {
         css={`
           text-align: center;
           && {
-            font-weight: 500;
+            font-weight: ${p => p.theme.fontWeight.semibold};
           }
         `}
       >

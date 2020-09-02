@@ -170,7 +170,7 @@ const StyledJumboButton = styled(Button)`
 const StyledDisclaimer = styled(Typography.Text)`
   display: block;
   color: ${props => props.theme.color.text.default};
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
 `;
 
 const EMPTY_SKILL = {

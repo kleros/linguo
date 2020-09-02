@@ -102,7 +102,7 @@ TranslationChallengeReward.propTypes = {
 
 const StyledWrapper = styled.div`
   font-size: ${p => p.theme.fontSize.sm};
-  font-weight: 400;
+  font-weight: ${p => p.theme.fontWeight.regular};
   color: ${p => p.theme.color.text.light};
 `;
 

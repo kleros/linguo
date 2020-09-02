@@ -164,7 +164,6 @@ RequestReimbursementButton.defaultProps = {
 
 const StyledTaskDeadline = styled.div`
   text-align: center;
-  font-weight: 700;
   line-height: 1.33;
 
   &.ending-soon {
@@ -174,10 +173,12 @@ const StyledTaskDeadline = styled.div`
   .title {
     font-size: ${props => props.theme.fontSize.sm};
     margin-bottom: -0.25rem;
+    font-weight: ${p => p.theme.fontWeight.medium};
   }
 
   .value {
     font-size: ${props => props.theme.fontSize.xl};
+    font-weight: ${p => p.theme.fontWeight.semibold};
   }
 `;
 
@@ -186,12 +187,12 @@ const StyledCallToAction = styled.div`
 
   .headline {
     font-size: ${props => props.theme.fontSize.sm};
-    font-weight: 700;
+    font-weight: ${p => p.theme.fontWeight.bold};
   }
 
   .text {
     font-size: ${props => props.theme.fontSize.xs};
-    font-weight: 400;
+    font-weight: ${p => p.theme.fontWeight.regular};
     color: ${props => props.theme.color.text.light};
   }
 `;

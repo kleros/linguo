@@ -99,7 +99,7 @@ const StyledSummary = styled.summary`
   .ant-typography {
     color: inherit;
     font-size: ${p => p.theme.fontSize.sm};
-    font-weight: 500;
+    font-weight: ${p => p.theme.fontWeight.semibold};
     margin: 0;
     padding: 0;
   }

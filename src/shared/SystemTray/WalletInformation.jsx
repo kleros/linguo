@@ -103,7 +103,7 @@ const StyledAccountRow = styled(Row)`
   align-items: center;
 
   a {
-    color: ${props => props.theme.color.primary.default};
+    color: ${p => p.theme.color.primary.default};
   }
 `;
 
@@ -114,7 +114,7 @@ const StyledReactBlockies = styled(ReactBlockies)`
 `;
 
 const StyledText = styled(Typography.Text)`
-  font-size: ${props => props.theme.fontSize.xl};
+  font-size: ${p => p.theme.fontSize.xl};
   margin-left: 1rem;
   color: inherit;
 `;
@@ -130,7 +130,7 @@ const StyledEthLogo = styled(EthLogo)`
 `;
 
 const StyledBalanceDisplay = styled.span`
-  color: ${props => props.theme.color.text.default};
+  color: ${p => p.theme.color.text.default};
   flex: auto 0 0;
   font-size: 2rem;
   line-height: 4rem;
@@ -151,16 +151,16 @@ const StyledSection = styled.section`
 `;
 
 const StyledBalanceInnerContainer = styled.div`
-  background-color: ${props => props.theme.color.background.default};
+  background-color: ${p => p.theme.color.background.default};
   border-radius: 0.75rem;
   padding: 1.5rem;
 `;
 
 const StyledBalanceTitle = styled(Typography.Title)`
   && {
-    color: ${props => props.theme.color.text.default};
-    font-size: ${props => props.theme.fontSize.sm};
-    font-weight: 400;
+    color: ${p => p.theme.color.text.default};
+    font-size: ${p => p.theme.fontSize.sm};
+    font-weight: ${p => p.theme.fontWeight.semibold};
     text-align: center;
     margin-top: -0.5rem;
     margin-bottom: -0.5rem;
