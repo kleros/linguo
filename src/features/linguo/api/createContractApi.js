@@ -155,11 +155,9 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
   }
 
   async function _getUnassignedTaskIDs({ currentBlockNumber, skills }) {
-    /**
-     * We are going back ~60 days (considering ~4 blocks / minute)
-     */
-    const unassingedRelevantBlocks = 345600;
-    const fromBlock = currentBlockNumber - unassingedRelevantBlocks;
+    // We are going back ~180 days (considering ~4 blocks / minute)
+    const unassingedRelevantBlocks = 4 * 60 * 24 * 180;
+    const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
     const created = await _getTaskIDsFromEvent('TaskCreated', { fromBlock });
     const assigned = await _getTaskIDsFromEvent('TaskAssigned', { fromBlock });
@@ -182,11 +180,11 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     const reviewTimeout = await linguo.methods.reviewTimeout().call();
 
     /**
-     * We are adding 20% to the `reviewTimeout` to cope with fluctuations
+     * We are adding 30% to the `reviewTimeout` to cope with fluctuations
      * in the 15s per block mining period if review timeout is small
      */
-    const relevantBlocksCount = Math.round((Number(reviewTimeout) * 1.2) / 15);
-    const fromBlock = currentBlockNumber - relevantBlocksCount;
+    const relevantBlocksCount = Math.round((Number(reviewTimeout) * 1.3) / 15);
+    const fromBlock = Math.max(0, currentBlockNumber - relevantBlocksCount);
 
     const taskIDsInReview = await _getTaskIDsFromEvent('TranslationSubmitted', { fromBlock });
 

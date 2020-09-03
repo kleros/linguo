@@ -175,7 +175,7 @@ function FilterTab({ account, filter, secondLevelFilter }) {
 }
 
 FilterTab.propTypes = {
-  account: t.string.isRequired,
+  account: t.string,
   filter: t.string.isRequired,
   secondLevelFilter: t.string,
 };
