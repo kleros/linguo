@@ -1,6 +1,6 @@
 import { createMigrate, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { actionChannel, call, debounce, getContext, put, spawn, take } from 'redux-saga/effects';
+import { actionChannel, call, getContext, put, spawn, take } from 'redux-saga/effects';
 import ipfs from '~/app/ipfs';
 import createSliceWithTransactions from '~/features/transactions/createSliceWithTransactions';
 import { registerTxSaga, selectByTxHash } from '~/features/transactions/transactionsSlice';
@@ -271,11 +271,10 @@ export const createWatchFetchInfoSaga = createWatcherSaga(
   })
 );
 
-export function createDebounceCheckAllowanceSaga(patternOrChannel) {
-  return function* debounceCheckAllowanceSaga() {
-    yield debounce(2000, patternOrChannel, checkAllowanceSaga);
-  };
-}
+export const createDebounceCheckAllowanceSaga = createWatcherSaga(
+  { takeType: TakeType.debounce, timeout: 2000 },
+  checkAllowanceSaga
+);
 
 export const createWatchApproveSaga = createWatcherSaga({ takeType: TakeType.leading }, approveSaga);
 
