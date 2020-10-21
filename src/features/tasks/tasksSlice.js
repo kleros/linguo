@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
+import { persistReducer, createMigrate } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import { call, getContext, put, actionChannel } from 'redux-saga/effects';
 import deepMerge from 'deepmerge';
 import * as r from '~/app/routes';
@@ -13,6 +15,7 @@ import { watchAllWithBuffer } from '~/features/web3/runWithContext';
 import createLinguoApiContext from '~/features/linguo/createSagaApiContext';
 import TaskParty from './entities/TaskParty';
 import singleTaskReducer, * as singleTaskSlice from './singleTaskSlice';
+import migrations from './migrations';
 
 export const INTERNAL_FETCH_KEY = '@@tasks/internal';
 
@@ -91,7 +94,21 @@ const tasksSlice = createSlice({
   },
 });
 
-export default tasksSlice.reducer;
+const PERSISTANCE_KEY = 'tasks';
+
+function createPersistedReducer(reducer) {
+  const persistConfig = {
+    key: PERSISTANCE_KEY,
+    storage,
+    version: 1,
+    migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
+    blacklist: [],
+  };
+
+  return persistReducer(persistConfig, reducer);
+}
+
+export default createPersistedReducer(tasksSlice.reducer);
 
 export const { add } = tasksSlice.actions;
 export const {

@@ -575,7 +575,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
   }
 
   async function getArbitrationCost() {
-    const arbitratorExtraData = await linguo.methods.arbitratorExtraData().call();
+    const arbitratorExtraData = (await linguo.methods.arbitratorExtraData().call()) ?? `0x0`;
     const arbitrationCost = await archon.arbitrator.getArbitrationCost(arbitrator.options.address, arbitratorExtraData);
 
     return arbitrationCost;

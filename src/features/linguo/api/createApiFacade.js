@@ -1,4 +1,3 @@
-import { Arbitrator, Linguo, LinguoToken } from '@kleros/contract-deployments/linguo';
 import { withProvider } from '~/app/archon';
 import { combination } from '~/adapters/js-combinatorics';
 import {
@@ -19,6 +18,7 @@ import {
 import { subtract } from '~/adapters/big-number';
 import getRelevantSkills from '../getRelevantSkills';
 import { getLanguageGroup, isSupportedLanguageGroupPair, LanguageGroupPair } from '../languagePairing';
+import { Arbitrator, Linguo, LinguoToken } from '../assets/contracts.json';
 import { ADDRESS_ZERO } from './constants';
 import { createEthContractApi, createTokenContractApi } from './createContractApi';
 
@@ -203,7 +203,7 @@ async function getLinguoContracts({ web3, chainId, address, deployment }) {
   // set the max listeners warning threshold
   web3.eth.maxListenersWarningThreshold = 1000;
 
-  address = deployment.networks[chainId]?.address;
+  // address = deployment.networks[chainId]?.address;
 
   if (!address) {
     throw new Error(`Could not find address for linguo contract on network ${chainId}`);

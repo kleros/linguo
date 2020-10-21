@@ -1,7 +1,6 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { push, replace } from 'connected-react-router';
 import { put, putResolve, race, select, take } from 'redux-saga/effects';
-import * as r from '~/app/routes';
 import { TaskParty } from '~/features/tasks';
 import { fetchByParty, INTERNAL_FETCH_KEY, selectAllFilterByIds } from '~/features/tasks/tasksSlice';
 import createAsyncAction from '~/shared/createAsyncAction';
@@ -95,10 +94,6 @@ export function* fetchTasksSaga(action) {
     const tasks = result?.data ?? [];
     const ids = tasks.map(({ id }) => id);
     yield put(fetchTasks.fulfilled({ account, data: ids }, { meta }));
-
-    if (ids.length === 0) {
-      yield put(push(r.TRANSLATION_REQUEST));
-    }
   } catch (err) {
     yield put(fetchTasks.rejected({ account, error: err.error }, { meta }));
   }
