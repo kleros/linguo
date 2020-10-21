@@ -74,8 +74,6 @@ function usePendingWithdrawal() {
 
   return withdrawableAmount === '0' ? null : (
     <>
-      <StyledSectionTitle>You contributed to the appeal crowdfunding for the dispute winner.</StyledSectionTitle>
-      <Spacer />
       <TaskInteractionButton
         onSuccess={registerWithdrawal}
         interaction={TaskInteractionButton.Interaction.Withdraw}
@@ -193,11 +191,6 @@ const illustrationMap = {
 };
 
 const getIllustration = ({ hasDispute, ruling }) => (hasDispute ? illustrationMap[ruling] : illustrationMap.noDispute);
-
-const StyledSectionTitle = styled.h4`
-  font-weight: ${p => p.theme.fontWeight.semibold};
-  margin: 0;
-`;
 
 const StyledExplainer = styled.small`
   color: ${p => p.theme.color.text.light};

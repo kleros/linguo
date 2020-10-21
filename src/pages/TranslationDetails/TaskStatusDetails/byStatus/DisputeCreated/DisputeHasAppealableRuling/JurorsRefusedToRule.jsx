@@ -12,26 +12,29 @@ import DisputeContext from '../DisputeContext';
 function JurorsRefusedToRule() {
   const party = useCurrentParty();
 
+  const dispute = React.useContext(DisputeContext);
+  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger });
+
+  const { requester, parties } = useTask();
+  const challengerIsRequester = requester === parties[TaskParty.Challenger];
+
   const title = 'The jurors refused to vote';
   const illustration = <RefusedToRuleAvatar />;
-  const description = descriptionNodeByParty[party]();
+  const description = descriptionNodeByParty[party]({ totalAppealCost, challengerIsRequester });
 
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;
 }
 
 const descriptionNodeByParty = {
-  [TaskParty.Translator]: ForTranslator,
-  [TaskParty.Challenger]: ForChallenger,
-  [TaskParty.Requester]: ForRequester,
-  [TaskParty.Other]: ForOther,
+  [TaskParty.Translator]: forTranslator,
+  [TaskParty.Challenger]: forChallenger,
+  [TaskParty.Requester]: forRequester,
+  [TaskParty.Other]: forOther,
 };
 
 export default JurorsRefusedToRule;
 
-function ForTranslator() {
-  const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Translator });
-
+function forTranslator({ totalAppealCost }) {
   const description = [
     'You will receive only your Translator Deposit - Arbitration Fees back.',
     'Note anyone appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
@@ -59,13 +62,7 @@ function ForTranslator() {
   return description;
 }
 
-function ForChallenger() {
-  const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger });
-
-  const { requester, parties } = useTask();
-  const challengerIsRequester = requester === parties[TaskParty.Challenger];
-
+function forChallenger({ challengerIsRequester, totalAppealCost }) {
   const description = [
     challengerIsRequester
       ? 'You will receive the Requester Deposit + your Challenger Deposit - Arbitration Fees back.'
@@ -95,7 +92,7 @@ function ForChallenger() {
   return description;
 }
 
-function ForRequester() {
+function forRequester() {
   const description = [
     'You will receive the Requester Deposit back.',
     'Note that you can still appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
@@ -104,7 +101,7 @@ function ForRequester() {
   return description;
 }
 
-function ForOther() {
+function forOther() {
   const description = [
     'The requester will receive the Requester Deposit back. The translator will get the Translator Deposit back - Arbitration Fees. The challenger will get the Challenger Deposit - Arbitration Fees back.',
     'Note that anyone can still appeal the decision, what will lead to another jurors round that may or may not revert this decision.',

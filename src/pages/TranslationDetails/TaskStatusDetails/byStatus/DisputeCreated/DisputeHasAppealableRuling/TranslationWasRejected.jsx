@@ -12,8 +12,14 @@ import DisputeContext from '../DisputeContext';
 function TranslationWasRejected() {
   const party = useCurrentParty();
 
+  const dispute = React.useContext(DisputeContext);
+  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger });
+
+  const { requester, parties } = useTask();
+  const challengerIsRequester = requester === parties[TaskParty.Challenger];
+
   const title = 'The jurors did not approve the translation';
-  const description = getDescriptionByParty[party]();
+  const description = getDescriptionByParty[party]({ totalAppealCost, challengerIsRequester });
   const illustration = <TranslationRejectedAvatar />;
 
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;
@@ -28,10 +34,7 @@ const getDescriptionByParty = {
   [TaskParty.Other]: ForOther,
 };
 
-function ForTranslator() {
-  const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Translator });
-
+function ForTranslator({ totalAppealCost }) {
   const description = [
     'The Requester Deposit goes back to the task requester and your Translator Deposit goes to the challenger.',
     <EthValue
@@ -53,13 +56,7 @@ function ForTranslator() {
   return description;
 }
 
-function ForChallenger() {
-  const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger });
-
-  const { requester, parties } = useTask();
-  const challengerIsRequester = requester === parties[TaskParty.Challenger];
-
+function ForChallenger({ challengerIsRequester, totalAppealCost }) {
   const description = [
     challengerIsRequester
       ? 'The Requester Deposit + your Challenger Deposit goes to the translator.'

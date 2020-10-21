@@ -26,7 +26,7 @@ function DisputeCreated() {
     //   : componentsByDisputeStatus.appealPeriodIsOver;
     Component = componentsByDisputeStatus.appealable;
   } else {
-    console.error('This should not happen!!!!');
+    console.warn('This should not happen!!!!');
     Component = componentsByDisputeStatus.solved;
   }
 

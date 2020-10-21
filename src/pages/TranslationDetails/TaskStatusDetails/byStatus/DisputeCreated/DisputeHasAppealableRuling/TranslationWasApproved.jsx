@@ -12,9 +12,15 @@ import DisputeContext from '../DisputeContext';
 function TranslationWasApproved() {
   const party = useCurrentParty();
 
+  const dispute = React.useContext(DisputeContext);
+  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger });
+
+  const { requester, parties } = useTask();
+  const challengerIsRequester = requester === parties[TaskParty.Challenger];
+
   const title = 'The jurors approved the translation';
   const illustration = <TranslationApprovedAvatar />;
-  const description = descriptionNodeByParty[party]();
+  const description = descriptionNodeByParty[party]({ totalAppealCost, challengerIsRequester });
 
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;
 }
@@ -28,10 +34,7 @@ const descriptionNodeByParty = {
   [TaskParty.Other]: ForOther,
 };
 
-function ForTranslator() {
-  const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Translator });
-
+function ForTranslator({ totalAppealCost }) {
   const description = [
     'You will receive the Requester Deposit + your Translator Deposit back + the Challenger Deposit - Arbitration Fees.',
     'Note that the challenger can still appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
@@ -55,13 +58,7 @@ function ForTranslator() {
   return description;
 }
 
-function ForChallenger() {
-  const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger });
-
-  const { requester, parties } = useTask();
-  const challengerIsRequester = requester === parties[TaskParty.Challenger];
-
+function ForChallenger({ challengerIsRequester, totalAppealCost }) {
   const description = [
     challengerIsRequester
       ? 'The Requester Deposit + your Challenger Deposit goes to the translator.'
@@ -86,10 +83,7 @@ function ForChallenger() {
   return description;
 }
 
-function ForRequester() {
-  const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger });
-
+function ForRequester({ totalAppealCost }) {
   const description = [
     'Your Requester Deposit goes to the translator.',
     'Note that you can still appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
