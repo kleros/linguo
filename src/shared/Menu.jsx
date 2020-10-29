@@ -50,7 +50,14 @@ const menuItems = [
     <NavLink to={r.REQUESTER_DASHBOARD}>My Translations</NavLink>
   </Menu.Item>,
   <Menu.Item key="work-as-translator">
-    <NavLink to={r.TRANSLATOR_DASHBOARD}>Work as a Translator</NavLink>
+    <NavLink
+      to={{
+        pathname: r.TRANSLATOR_DASHBOARD,
+        search: 'filter=open',
+      }}
+    >
+      Work as a Translator
+    </NavLink>
   </Menu.Item>,
   <Menu.Item key="review-translations">
     <NavLink

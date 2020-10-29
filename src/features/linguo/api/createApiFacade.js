@@ -1,5 +1,9 @@
-import { withProvider } from '~/app/archon';
+import IArbitrator from '@kleros/erc-792/build/contracts/IArbitrator.json';
+import Linguo from '@kleros/linguo-contracts/artifacts/Linguo.json';
+import LinguoToken from '@kleros/linguo-contracts/artifacts/LinguoToken.json';
+import { subtract } from '~/adapters/big-number';
 import { combination } from '~/adapters/js-combinatorics';
+import { withProvider } from '~/app/archon';
 import {
   asyncMap,
   asyncMapValues,
@@ -15,10 +19,8 @@ import {
   reduce,
   uniq,
 } from '~/shared/fp';
-import { subtract } from '~/adapters/big-number';
 import getRelevantSkills from '../getRelevantSkills';
 import { getLanguageGroup, isSupportedLanguageGroupPair, LanguageGroupPair } from '../languagePairing';
-import { Arbitrator, Linguo, LinguoToken } from '../assets/contracts.json';
 import { ADDRESS_ZERO } from './constants';
 import { createEthContractApi, createTokenContractApi } from './createContractApi';
 
@@ -45,6 +47,8 @@ const apiSkeleton = {
   fundAppeal() {},
   submitEvidence() {},
   withdrawAllFeesAndRewards() {},
+  // Methods here require special treatment
+  subscribe() {},
 };
 
 export default async function createApiFacade({ web3, chainId }) {
@@ -57,7 +61,7 @@ export default async function createApiFacade({ web3, chainId }) {
     ]);
 
     return createContractApis({ web3, archon, withEthPayments, withTokenPayments });
-  }, getLanguageGrouPairsByChainId({ chainId }));
+  }, getAddressesByLanguageGroups({ chainId }));
 
   const addressesByLanguageGroupPair = mapValues(
     ({ linguo, linguoToken }) => [linguo.address, linguoToken.address],
@@ -87,6 +91,10 @@ export default async function createApiFacade({ web3, chainId }) {
 
         if (['getRequesterTasks'].includes(prop)) {
           return new Proxy(target[prop], getRequesterTasksHandler);
+        }
+
+        if (['subscribe'].includes(prop)) {
+          return new Proxy(target[prop], subscribeHandler);
         }
 
         return new Proxy(target[prop], extractAddressFromIdHandler);
@@ -196,6 +204,12 @@ export default async function createApiFacade({ web3, chainId }) {
     },
   };
 
+  const subscribeHandler = {
+    apply: (target, thisArg, args) => {
+      return Object.values(apiInstancesByAddress).map(instance => instance.subscribe.apply(instance, args));
+    },
+  };
+
   return new Proxy(apiSkeleton, propHandler);
 }
 
@@ -210,13 +224,12 @@ async function getLinguoContracts({ web3, chainId, address, deployment }) {
   }
 
   const linguo = new web3.eth.Contract(deployment.abi, address);
-  const arbitratorAddress = await linguo.methods.arbitrator().call();
-  const arbitrator = new web3.eth.Contract(Arbitrator.abi, arbitratorAddress);
+  const arbitrator = new web3.eth.Contract(IArbitrator.abi, await linguo.methods.arbitrator().call());
 
   return { linguo, arbitrator };
 }
 
-function getLanguageGrouPairsByChainId({ chainId }) {
+function getAddressesByLanguageGroups({ chainId }) {
   try {
     const addresses = JSON.parse(process.env.LINGUO_CONTRACT_ADDRESSES);
     return addresses[chainId];

@@ -569,6 +569,10 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
   }
 
   async function getWithdrawableAmount({ ID, account }) {
+    if (account === null) {
+      return '0';
+    }
+
     const amount = await linguo.methods.amountWithdrawable(ID, account).call();
 
     return amount;
@@ -680,6 +684,10 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     return { tx };
   }
 
+  function subscribe({ fromBlock = 0, toBlock = 'latest', filter = {} } = {}) {
+    return linguo.events.allEvents({ fromBlock, toBlock, filter });
+  }
+
   function withdrawAllFeesAndRewards({ ID, account }, { from = account, gas, gasPrice } = {}) {
     const tx = linguo.methods.batchRoundWithdraw(account, ID, '0', '0').send({ from, gas, gasPrice });
 
@@ -706,6 +714,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     fundAppeal,
     submitEvidence,
     withdrawAllFeesAndRewards,
+    subscribe,
   };
 }
 
