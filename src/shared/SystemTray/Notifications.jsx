@@ -4,7 +4,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { List, Skeleton, Button as AntdButton } from 'antd';
-import { CloseOutlined as AntdCloseOutlinedIcon, CheckOutlined as AntdCheckOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined as AntdCloseOutlinedIcon,
+  CheckOutlined as AntdCheckOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { selectByAccount, markAsRead, markAllFromAccountAsRead } from '~/features/notifications/notificationsSlice';
 import { selectAccount, selectBlockDate, getBlockInfo } from '~/features/web3/web3Slice';
@@ -145,7 +149,7 @@ const StyledList = styled(List)`
   }
 `;
 
-function Notification({ id, blockNumber, message, to, type, icon }) {
+function Notification({ id, blockNumber, message, to, type, icon, transient }) {
   const account = useSelector(selectAccount);
   const dispatch = useDispatch();
 
@@ -170,7 +174,7 @@ function Notification({ id, blockNumber, message, to, type, icon }) {
         }
         title={
           <>
-            {message}
+            {message} {transient ? <LoadingOutlined /> : null}
             <Link id={id} to={to}>
               {message}
             </Link>
@@ -181,6 +185,24 @@ function Notification({ id, blockNumber, message, to, type, icon }) {
     </StyledListItem>
   );
 }
+
+Notification.propTypes = {
+  id: t.string.isRequired,
+  blockNumber: t.oneOfType([t.number, t.string]).isRequired,
+  message: t.node,
+  to: t.string,
+  type: t.string,
+  icon: t.string,
+  transient: t.bool,
+};
+
+Notification.defaultProps = {
+  message: '',
+  to: '',
+  type: '',
+  icon: '',
+  transient: false,
+};
 
 function useBlockDate({ blockNumber }) {
   const blockDate = useShallowEqualSelector(selectBlockDate(blockNumber));
@@ -196,22 +218,6 @@ function useBlockDate({ blockNumber }) {
 
   return blockDate;
 }
-
-Notification.propTypes = {
-  id: t.string.isRequired,
-  blockNumber: t.oneOfType([t.number, t.string]).isRequired,
-  message: t.node,
-  to: t.string,
-  type: t.string,
-  icon: t.string,
-};
-
-Notification.defaultProps = {
-  message: '',
-  to: '',
-  type: '',
-  icon: '',
-};
 
 const typeToColor = (theme, type) => {
   const availableColors = {

@@ -87,19 +87,22 @@ const tasksSlice = createSlice({
     });
 
     builder.addMatcher(
-      action => !!action?.type?.startsWith('tasks/updates/'),
+      action => action.type.startsWith('tasks/updates/'),
       (state, action) => {
         state.updates = taskUpdatesReducer(state.updates, action);
       }
     );
 
-    builder.addDefaultCase((state, action) => {
-      const id = action.payload?.id;
+    builder.addMatcher(
+      action => action.type.startsWith('tasks/') && !action.type.startsWith('tasks/updates/'),
+      (state, action) => {
+        const id = action.payload?.id;
 
-      if (id) {
-        state.entities[id] = singleTaskReducer(state.entities[id], action);
+        if (id) {
+          state.entities[id] = singleTaskReducer(state.entities[id], action);
+        }
       }
-    });
+    );
   },
 });
 

@@ -34,7 +34,7 @@ const notificationsSlice = createSlice({
         delete state.byId[id];
       });
     },
-    append(state, action) {
+    put(state, action) {
       const { id, data, blockNumber, read, account } = action.payload;
 
       if (account) {
@@ -58,7 +58,7 @@ const notificationsSlice = createSlice({
 
 export default notificationsSlice.reducer;
 
-export const { append, markAsRead, markAllFromAccountAsRead } = notificationsSlice.actions;
+export const { put, markAsRead, markAllFromAccountAsRead } = notificationsSlice.actions;
 
 const selectAllFiltered = (state, { ids, filter }) =>
   ids.reduce((acc, id) => {
