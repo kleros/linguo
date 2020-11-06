@@ -1,3 +1,9 @@
+import { nanoid } from 'nanoid';
+import { encode as base64Encode } from 'js-base64';
+import Web3 from 'web3';
+
+const { sha3 } = Web3.utils;
+
 export default function createClient({ hostAddress }) {
   /**
    * @callback ProgressCallback - Callback to track progress of an upload.
@@ -18,6 +24,7 @@ export default function createClient({ hostAddress }) {
    */
   async function publish(fileName, data, { onProgress: _ignored } = {}) {
     const buffer = await Buffer.from(data);
+    const normalizedFileName = normalizeFileName(fileName);
 
     const response = await fetch(`${hostAddress}/add`, {
       method: 'POST',
@@ -25,7 +32,7 @@ export default function createClient({ hostAddress }) {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        fileName,
+        fileName: normalizedFileName,
         buffer,
       }),
     });
@@ -34,7 +41,7 @@ export default function createClient({ hostAddress }) {
 
     const collected = body.data;
 
-    const uploadedFile = collected.find(({ path }) => path.includes(fileName));
+    const uploadedFile = collected.find(({ path }) => path.includes(normalizedFileName));
     const containingDir = collected.find(({ path }) => path === '/');
 
     if (!containingDir || !uploadedFile) {
@@ -63,4 +70,29 @@ export default function createClient({ hostAddress }) {
   }
 
   return { publish, generateUrl };
+}
+
+function normalizeFileName(fileName) {
+  let { baseName, extension } = splitFileName(fileName);
+
+  baseName = baseName || nanoid(10);
+  baseName = isAscii(baseName) ? baseName : base64Encode(sha3(baseName).substr(2, 8));
+
+  return baseName + extension;
+}
+
+function splitFileName(fileName) {
+  const fileNameParts = (fileName ?? '').split('.');
+  if (fileNameParts.length === 1 || (fileNameParts.length === 2 && fileNameParts[0] === '')) {
+    return { baseName: fileName.trim(), extension: '' };
+  }
+
+  const extension = ('.' + fileNameParts.slice(-1).join('')).trim();
+  const baseName = fileNameParts.slice(0, -1).join('.').trim();
+  return { baseName, extension };
+}
+
+function isAscii(str) {
+  // eslint-disable-next-line no-control-regex
+  return /^[\x00-\x7F]*$/.test(str);
 }

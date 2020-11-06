@@ -53,6 +53,7 @@
     "hoist-non-react-statics": "^3.3.2",
     "immer": "^7.0.5",
     "ipfs-http-client": "^42.0.0",
+    "js-base64": "^3.6.0",
     "js-combinatorics": "^0.6.1",
     "nanoid": "^3.1.9",
     "normalize.css": "^8.0.1",

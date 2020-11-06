@@ -1,10 +1,12 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Upload, Tooltip } from 'antd';
+import { Upload, Tooltip, Typography } from 'antd';
 import { UploadOutlined, LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import ipfs from '~/app/ipfs';
 import Button from '~/shared/Button';
+import Spacer from '~/shared/Spacer';
+import { InfoIcon } from '~/shared/icons';
 import useStateMachine from '~/shared/useStateMachine';
 
 export default function SingleFileUpload({
@@ -21,6 +23,21 @@ export default function SingleFileUpload({
 
   const finalDisabled = disabled || state !== 'idle';
   const tooltip = finalDisabled ? 'Remove the file from the list to be able to add another one' : '';
+
+  const [fileList, setFileList] = React.useState([]);
+
+  const handleChange = React.useCallback(
+    info => {
+      const newFileList = info.fileList
+        .slice(0, 1) // take only the first item
+        .map(file => (file.response ? { ...file, url: file.response.url } : file));
+
+      setFileList(newFileList);
+
+      onChange(info);
+    },
+    [onChange]
+  );
 
   const handleBeforeUpload = React.useCallback(
     file => {
@@ -80,7 +97,8 @@ export default function SingleFileUpload({
       $fullWidth={fullWidth}
       accept={accept}
       beforeUpload={handleBeforeUpload}
-      onChange={onChange}
+      fileList={fileList}
+      onChange={handleChange}
       onRemove={handleRemove}
       customRequest={customRequest}
       className={className}
@@ -90,6 +108,14 @@ export default function SingleFileUpload({
           <Button {...finalButtonProps} icon={icon} disabled={finalDisabled}>
             {text}
           </Button>
+          {fileList?.[0]?.status === 'done' ? (
+            <>
+              <Spacer size={0.5} />
+              <StyledInfo>
+                <InfoIcon /> You can click on the file name below to visualize it.
+              </StyledInfo>
+            </>
+          ) : null}
         </span>
       </Tooltip>
     </StyledUpload>
@@ -219,4 +245,10 @@ const StyledUpload = styled(Upload)`
   .ant-upload {
     display: ${p => (p.$fullWidth ? 'block' : 'inline-block')};
   }
+`;
+
+const StyledInfo = styled(Typography.Text)`
+  display: inline-block;
+  text-align: left;
+  color: ${p => p.theme.color.text.light};
 `;
