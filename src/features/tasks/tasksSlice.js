@@ -258,7 +258,15 @@ const createWatchFetchByPartySaga = createWatcherSaga(
 
 const createWatchCreateSaga = createWatcherSaga({ takeType: TakeType.leading }, createSaga);
 
-const createWatchTaskUpdatesSaga = createWatcherSaga({ takeType: TakeType.every }, handleTaskUpdatesSaga);
+const createWatchTaskUpdatesSaga = createWatcherSaga(
+  {
+    // This saga should be debounce in case there are many events received in a short amount of time.
+    takeType: TakeType.debounceByKey,
+    selector: action => action.payload.id ?? null,
+    timeout: 2000,
+  },
+  handleTaskUpdatesSaga
+);
 
 export const sagas = {
   mainTasksSaga: watchAllWithBuffer(

@@ -35,13 +35,14 @@ const notificationsSlice = createSlice({
       });
     },
     put(state, action) {
-      const { id, data, blockNumber, read, account } = action.payload;
+      const { id, data, blockNumber, priority, read, account } = action.payload;
 
       if (account) {
         state.byId[id] = state.byId[id] ?? {};
         state.byId[id].id = id;
         state.byId[id].data = data;
         state.byId[id].blockNumber = blockNumber;
+        state.byId[id].priority = priority;
         state.byId[id].read = read ?? false;
         state.byId[id].accounts = state.byId[id].accounts ?? [];
         state.byId[id].accounts.push(account);

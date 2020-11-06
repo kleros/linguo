@@ -688,6 +688,10 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     return linguo.events.allEvents({ fromBlock, filter });
   }
 
+  function subscribeToArbitrator({ fromBlock = 0, filter = {} } = {}) {
+    return arbitrator.events.allEvents({ fromBlock, filter });
+  }
+
   function withdrawAllFeesAndRewards({ ID, account }, { from = account, gas, gasPrice } = {}) {
     const tx = linguo.methods.batchRoundWithdraw(account, ID, '0', '0').send({ from, gas, gasPrice });
 
@@ -715,6 +719,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     submitEvidence,
     withdrawAllFeesAndRewards,
     subscribe,
+    subscribeToArbitrator,
   };
 }
 

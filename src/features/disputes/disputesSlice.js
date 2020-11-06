@@ -10,6 +10,7 @@ import { Dispute } from './entities';
 import { registerTxSaga } from '../transactions/transactionsSlice';
 
 export const initialState = {
+  idToTaskId: {},
   byTaskId: {},
   taskIds: [],
 };
@@ -35,6 +36,8 @@ const disputesSlice = createSlice({
         state.byTaskId[taskId].loadingState = 'succeeded';
         state.byTaskId[taskId].data = data;
         state.byTaskId[taskId].error = null;
+
+        state.idToTaskId[data.id] = taskId;
 
         state.taskIds = [...new Set([...state.taskIds, taskId])];
       }
@@ -92,6 +95,7 @@ export const selectIsLoadingByTaskId = taskId => state => selectLoadingState(tas
 
 export const selectByTaskId = taskId => state => state.disputes.byTaskId[taskId]?.data ?? {};
 export const selectErrorByTaskId = taskId => state => state.disputes.byTaskId[taskId]?.error ?? null;
+export const selectTaskIdFromDisputeId = id => state => state.disputes.idToTaskId?.[id];
 
 export function* fetchByTaskIdSaga(action) {
   const linguoApi = yield getContext('linguoApi');

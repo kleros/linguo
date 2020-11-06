@@ -11,6 +11,8 @@ export const taskCreated = createAction('tasks/updates/taskCreated', prepare);
 export const taskAssigned = createAction('tasks/updates/taskAssigned', prepare);
 export const translationSubmitted = createAction('tasks/updates/translationSubmitted', prepare);
 export const translationChallenged = createAction('tasks/updates/translationChallenged', prepare);
+export const receivedAppealableRuling = createAction('tasks/updates/receivedAppealableRuling', prepare);
+export const disputeAppealed = createAction('tasks/updates/disputeAppealed', prepare);
 export const appealContribution = createAction('tasks/updates/appealFeeContribution', prepare);
 export const paidAppealFee = createAction('tasks/updates/paidAppealFee', prepare);
 export const taskResolved = createAction('tasks/updates/taskResolved', prepare);
@@ -99,6 +101,18 @@ const dataNormalizers = {
     const timestamp = data.returnValues._timestamp;
 
     return taskResolved({ id, reason, timestamp }, { meta: getMetadata(data) });
+  },
+  AppealPossible(data) {
+    const id = data.returnValues._disputeID;
+    const arbitrable = data.returnValues._arbitrable;
+
+    return receivedAppealableRuling({ id, arbitrable }, { meta: getMetadata(data) });
+  },
+  AppealDecision(data) {
+    const id = data.returnValues._disputeID;
+    const arbitrable = data.returnValues._arbitrable;
+
+    return disputeAppealed({ id, arbitrable }, { meta: getMetadata(data) });
   },
 };
 

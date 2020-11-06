@@ -49,6 +49,7 @@ const apiSkeleton = {
   withdrawAllFeesAndRewards() {},
   // Methods here require special treatment
   subscribe() {},
+  subscribeToArbitrator() {},
 };
 
 export default async function createApiFacade({ web3, chainId }) {
@@ -93,7 +94,7 @@ export default async function createApiFacade({ web3, chainId }) {
           return new Proxy(target[prop], getRequesterTasksHandler);
         }
 
-        if (['subscribe'].includes(prop)) {
+        if (['subscribe', 'subscribeToArbitrator'].includes(prop)) {
           return new Proxy(target[prop], subscribeHandler);
         }
 
@@ -206,7 +207,7 @@ export default async function createApiFacade({ web3, chainId }) {
 
   const subscribeHandler = {
     apply: (target, thisArg, args) => {
-      return Object.values(apiInstancesByAddress).map(instance => instance.subscribe.apply(instance, args));
+      return Object.values(apiInstancesByAddress).map(instance => instance[target.name].apply(instance, args));
     },
   };
 

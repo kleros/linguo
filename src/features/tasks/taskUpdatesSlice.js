@@ -1,6 +1,7 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import {
   actionChannel,
+  all,
   call,
   cancelled,
   delay,
@@ -14,15 +15,18 @@ import {
 } from 'redux-saga/effects';
 import { DisputeRuling } from '~/features/disputes';
 import { put as putNotification } from '~/features/notifications/notificationsSlice';
+import { selectTaskIdFromDisputeId } from '~/features/disputes/disputesSlice';
 import createCancellableSaga from '~/shared/createCancellableSaga';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import createTaskUpdatesChannel, {
-  appealContribution,
-  paidAppealFee,
   taskAssigned,
   taskCreated,
   taskResolved,
   translationChallenged,
+  receivedAppealableRuling,
+  appealContribution,
+  paidAppealFee,
+  disputeAppealed,
   translationSubmitted,
 } from './createTaskUpdatesChannel';
 import { TaskStatus, TaskParty } from './entities';
@@ -120,8 +124,12 @@ export function* subscribeSaga(action) {
   const { fromBlock, filter, account } = action.payload ?? {};
 
   const linguoApi = yield getContext('linguoApi');
-  const subscriptions = yield call([linguoApi, 'subscribe'], { fromBlock, filter });
-  const chan = yield call(createTaskUpdatesChannel, subscriptions);
+  const [subscriptions, arbitratorSubscriptions] = yield all([
+    call([linguoApi, 'subscribe'], { fromBlock, filter }),
+    call([linguoApi, 'subscribeToArbitrator'], { fromBlock, filter }),
+  ]);
+
+  const chan = yield call(createTaskUpdatesChannel, [...subscriptions, ...arbitratorSubscriptions]);
 
   try {
     while (true) {
@@ -240,6 +248,70 @@ const handlersByType = {
           text:
             'The translation was challenged. Now it goes to Kleros arbitration. When Jurors decide the case you will be informed.',
           url: `/translation/${id}`,
+        },
+      })
+    );
+  },
+  *[receivedAppealableRuling](action) {
+    const disputeId = action.payload.id;
+    const taskId = yield select(selectTaskIdFromDisputeId(disputeId));
+    if (!taskId) {
+      return;
+    }
+    const task = yield call(selectTask, { id: taskId });
+    if (!task) {
+      return;
+    }
+
+    const { account, blockNumber } = action.meta;
+
+    if (![task.requester, task.parties[TaskParty.Translator], task.parties[TaskParty.Challenger]].includes(account)) {
+      return;
+    }
+
+    yield put(
+      putNotification({
+        id: `${blockNumber}-AppealPossible-${account}-${taskId}`,
+        account,
+        blockNumber,
+        priority: 35,
+        data: {
+          type: 'warning',
+          icon: 'dispute',
+          text: 'The juros ruled the dispute. The result can be appealed.',
+          url: `/translation/${taskId}`,
+        },
+      })
+    );
+  },
+  *[disputeAppealed](action) {
+    const disputeId = action.payload.id;
+    const taskId = yield select(selectTaskIdFromDisputeId(disputeId));
+    if (!taskId) {
+      return;
+    }
+    const task = yield call(selectTask, { id: taskId });
+    if (!task) {
+      return;
+    }
+
+    const { account, blockNumber } = action.meta;
+
+    if (![task.requester, task.parties[TaskParty.Translator], task.parties[TaskParty.Challenger]].includes(account)) {
+      return;
+    }
+
+    yield put(
+      putNotification({
+        id: `${blockNumber}-AppealDecision-${account}-${taskId}`,
+        account,
+        blockNumber,
+        priority: 36,
+        data: {
+          type: 'info',
+          icon: 'dispute',
+          text: 'The dispute has been appealed',
+          url: `/translation/${taskId}`,
         },
       })
     );

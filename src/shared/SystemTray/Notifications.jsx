@@ -36,7 +36,7 @@ export default function Notifications() {
     () =>
       [...notifications].sort((a, b) => {
         const blockDiff = b.blockNumber - a.blockNumber;
-        return blockDiff !== 0 ? blockDiff : b.priority - a.priority;
+        return blockDiff !== 0 ? blockDiff : a.priority - b.priority;
       }),
     [notifications]
   );

@@ -19,18 +19,19 @@ export const TakeType = {
   latestByKey: 'latestByKey',
   leading: 'leading',
   throttle: 'throttle',
+  debounceByKey: 'debounceByKey',
   debounce: 'debounce',
   throttleByKey: 'throttleByKey',
 };
 
 function createWatcherSaga({ takeType = TakeType.every, additionalArgs = [], timeout, selector }, saga, pattern) {
-  if ([TakeType.throttle, TakeType.throttleByKey, TakeType.debounce].includes(takeType)) {
+  if ([TakeType.throttle, TakeType.throttleByKey, TakeType.debounce, TakeType.debounceByKey].includes(takeType)) {
     if (timeout === undefined) {
       throw new Error(`Cannot use ${takeType} without specifying a timeout`);
     }
   }
 
-  if ([TakeType.throttleByKey, TakeType.latestByKey].includes(takeType)) {
+  if ([TakeType.throttleByKey, TakeType.debounceByKey, TakeType.latestByKey].includes(takeType)) {
     if (selector === undefined) {
       throw new Error(`Cannot use ${takeType} without specifying a selector`);
     }
@@ -96,6 +97,28 @@ const sagaFactoryByType = {
   debounce: ({ timeout, pattern, saga, additionalArgs }) =>
     function* watcherSaga() {
       yield debounce(timeout, pattern, saga, ...additionalArgs);
+    },
+  debounceByKey: ({ timeout, selector, pattern, saga, additionalArgs }) =>
+    function* watcherSaga() {
+      const map = new Map();
+
+      while (true) {
+        const action = yield take(pattern);
+        const id = selector(action);
+        const currentTask = map.get(id);
+
+        if (currentTask) {
+          yield cancel(currentTask);
+        }
+
+        const newTask = yield fork(function* () {
+          yield delay(timeout);
+          map.delete(id);
+          yield call(saga, action, ...additionalArgs);
+        });
+
+        map.set(id, newTask);
+      }
     },
   throttleByKey: ({ timeout, selector, pattern, saga, additionalArgs }) =>
     function* watcherSaga() {
