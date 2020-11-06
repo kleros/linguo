@@ -1,21 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
-import { persistReducer, createMigrate } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import { call, getContext, put, actionChannel } from 'redux-saga/effects';
 import deepMerge from 'deepmerge';
+import { createMigrate, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import { actionChannel, call, getContext, put } from 'redux-saga/effects';
 import * as r from '~/app/routes';
+import createLinguoApiContext from '~/features/linguo/createSagaApiContext';
+import { confirm, registerTxSaga } from '~/features/transactions/transactionsSlice';
+import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
+import { watchAllWithBuffer } from '~/features/web3/runWithContext';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createCancellableSaga from '~/shared/createCancellableSaga';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
-import { compose, indexBy, prop, filter, mapValues } from '~/shared/fp';
-import { confirm, registerTxSaga } from '~/features/transactions/transactionsSlice';
-import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
-import { watchAllWithBuffer } from '~/features/web3/runWithContext';
-import createLinguoApiContext from '~/features/linguo/createSagaApiContext';
+import { compose, filter, indexBy, mapValues, prop } from '~/shared/fp';
 import TaskParty from './entities/TaskParty';
-import singleTaskReducer, * as singleTaskSlice from './singleTaskSlice';
 import migrations from './migrations';
+import singleTaskReducer, * as singleTaskSlice from './singleTaskSlice';
+import taskUpdatesReducer, * as taskUpdatesSlice from './taskUpdatesSlice';
 
 export const INTERNAL_FETCH_KEY = '@@tasks/internal';
 
@@ -29,6 +30,7 @@ const tasksSlice = createSlice({
     error: null,
     entities: {},
     ids: [],
+    updates: taskUpdatesSlice.initialState,
   },
   reducers: {
     add(state, action) {
@@ -84,6 +86,13 @@ const tasksSlice = createSlice({
       }
     });
 
+    builder.addMatcher(
+      action => !!action?.type?.startsWith('tasks/updates/'),
+      (state, action) => {
+        state.updates = taskUpdatesReducer(state.updates, action);
+      }
+    );
+
     builder.addDefaultCase((state, action) => {
       const id = action.payload?.id;
 
@@ -124,6 +133,17 @@ export const {
   reimburseRequester,
   withdrawAllFeesAndRewards,
 } = singleTaskSlice.actions;
+
+export const {
+  subscribeToUpdates,
+  unsubscribeFromUpdates,
+  taskCreated,
+  taskAssigned,
+  translationSubmitted,
+  translationChallenged,
+  paidAppealFee,
+  taskResolved,
+} = taskUpdatesSlice.actions;
 
 export const selectAll = state => state.tasks.ids.map(id => state.tasks.entities[id].data);
 
@@ -187,7 +207,7 @@ export function* createSaga(action) {
     yield put(
       notify({
         message: 'There is no requester account to use.',
-        level: NotificationLevel.error,
+        level: PopupNotificationLevel.error,
       })
     );
     return;
@@ -200,16 +220,7 @@ export function* createSaga(action) {
       ...metaTx,
       *onSuccess(resultAction) {
         if (confirm.match(resultAction)) {
-          yield put(
-            fetchByParty(
-              { account, party: TaskParty.Requester },
-              {
-                meta: {
-                  key: INTERNAL_FETCH_KEY,
-                },
-              }
-            )
-          );
+          yield put(fetchByParty({ account, party: TaskParty.Requester }, { meta: { key: INTERNAL_FETCH_KEY } }));
         }
       },
     });
@@ -217,11 +228,22 @@ export function* createSaga(action) {
     yield put(create.fulfilled({}, { meta }));
 
     if (redirect) {
-      yield put(push(r.REQUESTER_DASHBOARD));
+      yield put(
+        push({
+          pathname: r.REQUESTER_DASHBOARD,
+          search: 'filter=open',
+        })
+      );
     }
   } catch (err) {
     yield put(create.rejected({ error: err }, { meta }));
   }
+}
+
+function* handleTaskUpdatesSaga(action) {
+  const { id } = action.payload;
+
+  yield put(fetchById({ id }));
 }
 
 const createWatchFetchByPartySaga = createWatcherSaga(
@@ -233,12 +255,23 @@ const createWatchFetchByPartySaga = createWatcherSaga(
 
 const createWatchCreateSaga = createWatcherSaga({ takeType: TakeType.leading }, createSaga);
 
+const createWatchTaskUpdatesSaga = createWatcherSaga({ takeType: TakeType.every }, handleTaskUpdatesSaga);
+
 export const sagas = {
   mainTasksSaga: watchAllWithBuffer(
     [
       ...singleTaskSlice.sagaDescriptors,
+      ...taskUpdatesSlice.sagaDescriptors,
       [createWatchFetchByPartySaga, actionChannel(fetchByParty.type)],
       [createWatchCreateSaga, actionChannel(create.type)],
+      [
+        createWatchTaskUpdatesSaga,
+        actionChannel(
+          [taskCreated, taskAssigned, translationSubmitted, translationChallenged, paidAppealFee, taskResolved].map(
+            ({ type }) => type
+          )
+        ),
+      ],
     ],
     { createContext: createLinguoApiContext }
   ),

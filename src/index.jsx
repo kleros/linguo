@@ -1,5 +1,6 @@
 import 'normalize.css';
 import React from 'react';
+import { Titled } from 'react-titled';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -12,7 +13,9 @@ const loading = <Spin tip="Loading local data..." />;
 render(
   <Provider store={store}>
     <PersistGate loading={loading} persistor={persistor}>
-      <App />
+      <Titled title={() => 'Linguo by Kleros'}>
+        <App />
+      </Titled>
     </PersistGate>
   </Provider>,
   document.querySelector('#root')

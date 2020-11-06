@@ -1,5 +1,6 @@
 import {
   call,
+  cancel,
   cancelled,
   debounce,
   delay,
@@ -15,6 +16,7 @@ import { curry } from './fp';
 export const TakeType = {
   every: 'every',
   latest: 'latest',
+  latestByKey: 'latestByKey',
   leading: 'leading',
   throttle: 'throttle',
   debounce: 'debounce',
@@ -22,18 +24,15 @@ export const TakeType = {
 };
 
 function createWatcherSaga({ takeType = TakeType.every, additionalArgs = [], timeout, selector }, saga, pattern) {
-  if ([TakeType.throttle, TakeType.debounde].includes(takeType)) {
+  if ([TakeType.throttle, TakeType.throttleByKey, TakeType.debounce].includes(takeType)) {
     if (timeout === undefined) {
-      throw new Error('Cannot use TakeType.throttle without specifying a timeout');
+      throw new Error(`Cannot use ${takeType} without specifying a timeout`);
     }
   }
 
-  if (takeType === TakeType.throttleByKey) {
-    if (timeout === undefined) {
-      throw new Error('Cannot use TakeType.throttleByKey without specifying a timeout');
-    }
+  if ([TakeType.throttleByKey, TakeType.latestByKey].includes(takeType)) {
     if (selector === undefined) {
-      throw new Error('Cannot use TakeType.throttleByKey without specifying a selector');
+      throw new Error(`Cannot use ${takeType} without specifying a selector`);
     }
   }
 
@@ -58,6 +57,33 @@ const sagaFactoryByType = {
   latest: ({ pattern, saga, additionalArgs }) =>
     function* watcherSaga() {
       yield takeLatest(pattern, saga, ...additionalArgs);
+    },
+  latestByKey: ({ selector, pattern, saga, additionalArgs }) =>
+    function* watcherSaga() {
+      const map = new Map();
+
+      while (true) {
+        const action = yield take(pattern);
+        const id = selector(action);
+        const hasPending = !!map.has(id);
+
+        try {
+          if (hasPending) {
+            yield cancel(map.get(id));
+          }
+
+          const task = yield fork(function* () {
+            yield call(saga, action, ...additionalArgs);
+            map.delete(id);
+          });
+
+          map.set(id, task);
+        } finally {
+          if (yield cancelled()) {
+            map.delete(id);
+          }
+        }
+      }
     },
   leading: ({ pattern, saga, additionalArgs }) =>
     function* watcherSaga() {

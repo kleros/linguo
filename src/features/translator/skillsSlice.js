@@ -3,7 +3,7 @@ import { goBack, push } from 'connected-react-router';
 import { put } from 'redux-saga/effects';
 import * as r from '~/app/routes';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
-import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
+import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
 import { indexBy, map, prop } from '~/shared/fp';
 
 export const initialState = {
@@ -55,7 +55,7 @@ function* saveSettingsSaga(action) {
   yield put(
     notify({
       key: `${saveSkills}/success`,
-      level: NotificationLevel.success,
+      level: PopupNotificationLevel.success,
       message: "You've updated your language skills settings!",
       duration: 10,
     })

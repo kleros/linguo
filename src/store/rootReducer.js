@@ -5,6 +5,7 @@ import requesterReducer from '~/features/requester/requesterSlice';
 import storage from 'redux-persist/lib/storage';
 import disputesReducer from '~/features/disputes/disputesSlice';
 import evidencesReducer from '~/features/evidences/evidencesSlice';
+import notificationsReducer from '~/features/notifications/notificationsSlice';
 import tasksReducer from '~/features/tasks/tasksSlice';
 import tokensReducer from '~/features/tokens/tokensSlice';
 import transactionsReducer from '~/features/transactions/transactionsSlice';
@@ -30,6 +31,7 @@ export const createRootReducer = additionalReducers =>
     thunk: sagaThunkReducer,
     disputes: disputesReducer,
     evidences: evidencesReducer,
+    notifications: notificationsReducer,
     requester: requesterReducer,
     tasks: tasksReducer,
     tokens: tokensReducer,

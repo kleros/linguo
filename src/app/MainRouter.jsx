@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import styled from 'styled-components';
 import loadable from '@loadable/component';
 import { Layout } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
@@ -12,6 +11,7 @@ import Footer from '~/shared/Footer';
 import { DrawerMenu } from '~/shared/Menu';
 import Navbar from '~/shared/Navbar';
 import { history } from '~/store';
+import Content from './Content';
 import * as r from './routes';
 
 const fallback = <Spin $centered tip="Loading page content..." />;
@@ -34,7 +34,7 @@ function MainRouter() {
         <Layout>
           <Navbar />
           <Web3ErrorAlert />
-          <StyledContent>
+          <Content>
             <Switch>
               <Route exact path={r.ROOT}>
                 <Redirect to={defaultPage ?? r.HOME} />
@@ -61,7 +61,7 @@ function MainRouter() {
                 <TranslationDetails />
               </Route>
             </Switch>
-          </StyledContent>
+          </Content>
           <Footer />
         </Layout>
       </Layout>
@@ -70,14 +70,3 @@ function MainRouter() {
 }
 
 export default MainRouter;
-
-const StyledContent = styled(Layout.Content)`
-  height: 100%;
-  /* Must account for both navbar and footer height */
-  min-height: calc(100vh - 4rem - 4rem);
-  background-color: ${p => p.theme.color.background.default};
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  position: relative;
-`;

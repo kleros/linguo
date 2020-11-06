@@ -684,8 +684,8 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     return { tx };
   }
 
-  function subscribe({ fromBlock = 0, toBlock = 'latest', filter = {} } = {}) {
-    return linguo.events.allEvents({ fromBlock, toBlock, filter });
+  function subscribe({ fromBlock = 0, filter = {} } = {}) {
+    return linguo.events.allEvents({ fromBlock, filter });
   }
 
   function withdrawAllFeesAndRewards({ ID, account }, { from = account, gas, gasPrice } = {}) {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Titled } from 'react-titled';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
@@ -29,75 +30,77 @@ export default function Home() {
   };
 
   return (
-    <StyledLayout>
-      <StyledPageHeader>
-        <StyledLinguoAvatar />
-      </StyledPageHeader>
-      <Spacer />
-      <StyledLayoutContent>
-        <StyledTitle>Welcome!</StyledTitle>
-        <Spacer size={3} />
-        <StyledRow gutter={[16, 16]}>
-          <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 0 }} sm={{ span: 18, offset: 3 }} xs={24}>
-            <Link to={r.REQUESTER_DASHBOARD}>
-              <StyledButton fullWidth>
-                <RequestTranslationAvatar />
-                <span className="text">My Translations</span>
-              </StyledButton>
-            </Link>
-            <Spacer />
-            <StyledSwitchWrapper>
-              <Switch
-                size="small"
-                checkedChildren={<CheckOutlined />}
-                unCheckedChildren={<CloseOutlined />}
-                checked={defaultPage === r.REQUESTER_DASHBOARD}
-                onClick={createClickHandler(r.REQUESTER_DASHBOARD)}
-              />
-              Set as default page for Linguo
-            </StyledSwitchWrapper>
-          </Col>
-          <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 0 }} sm={{ span: 18, offset: 3 }} xs={24}>
-            <Link to={r.TRANSLATOR_DASHBOARD}>
-              <StyledButton fullWidth>
-                <WorkAsATranslatorAvatar />
-                <span className="text">Work as a Translator</span>
-              </StyledButton>
-            </Link>
-            <Spacer />
-            <StyledSwitchWrapper>
-              <Switch
-                size="small"
-                checkedChildren={<CheckOutlined />}
-                unCheckedChildren={<CloseOutlined />}
-                checked={defaultPage === r.TRANSLATOR_DASHBOARD}
-                onClick={createClickHandler(r.TRANSLATOR_DASHBOARD)}
-              />
-              Set as default page for Linguo
-            </StyledSwitchWrapper>
-          </Col>
-          <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 6 }} sm={{ span: 18, offset: 3 }} xs={24}>
-            <Link to={`${r.TRANSLATOR_DASHBOARD}?filter=inReview`}>
-              <StyledButton fullWidth>
-                <ReviewTranslationsAvatar />
-                <span className="text">Review Translations</span>
-              </StyledButton>
-            </Link>
-            <Spacer />
-            <StyledSwitchWrapper>
-              <Switch
-                size="small"
-                checkedChildren={<CheckOutlined />}
-                unCheckedChildren={<CloseOutlined />}
-                checked={defaultPage === `${r.TRANSLATOR_DASHBOARD}?filter=inReview`}
-                onClick={createClickHandler(`${r.TRANSLATOR_DASHBOARD}?filter=inReview`)}
-              />
-              Set as default page for Linguo
-            </StyledSwitchWrapper>
-          </Col>
-        </StyledRow>
-      </StyledLayoutContent>
-    </StyledLayout>
+    <Titled title={() => 'Linguo by Kleros'}>
+      <StyledLayout>
+        <StyledPageHeader>
+          <StyledLinguoAvatar />
+        </StyledPageHeader>
+        <Spacer />
+        <StyledLayoutContent>
+          <StyledTitle>Welcome!</StyledTitle>
+          <Spacer size={3} />
+          <StyledRow gutter={[16, 16]}>
+            <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 0 }} sm={{ span: 18, offset: 3 }} xs={24}>
+              <Link to={r.REQUESTER_DASHBOARD}>
+                <StyledButton fullWidth>
+                  <RequestTranslationAvatar />
+                  <span className="text">My Translations</span>
+                </StyledButton>
+              </Link>
+              <Spacer />
+              <StyledSwitchWrapper>
+                <Switch
+                  size="small"
+                  checkedChildren={<CheckOutlined />}
+                  unCheckedChildren={<CloseOutlined />}
+                  checked={defaultPage === r.REQUESTER_DASHBOARD}
+                  onClick={createClickHandler(r.REQUESTER_DASHBOARD)}
+                />
+                Set as default page for Linguo
+              </StyledSwitchWrapper>
+            </Col>
+            <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 0 }} sm={{ span: 18, offset: 3 }} xs={24}>
+              <Link to={r.TRANSLATOR_DASHBOARD}>
+                <StyledButton fullWidth>
+                  <WorkAsATranslatorAvatar />
+                  <span className="text">Work as a Translator</span>
+                </StyledButton>
+              </Link>
+              <Spacer />
+              <StyledSwitchWrapper>
+                <Switch
+                  size="small"
+                  checkedChildren={<CheckOutlined />}
+                  unCheckedChildren={<CloseOutlined />}
+                  checked={defaultPage === r.TRANSLATOR_DASHBOARD}
+                  onClick={createClickHandler(r.TRANSLATOR_DASHBOARD)}
+                />
+                Set as default page for Linguo
+              </StyledSwitchWrapper>
+            </Col>
+            <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 6 }} sm={{ span: 18, offset: 3 }} xs={24}>
+              <Link to={`${r.TRANSLATOR_DASHBOARD}?filter=inReview`}>
+                <StyledButton fullWidth>
+                  <ReviewTranslationsAvatar />
+                  <span className="text">Review Translations</span>
+                </StyledButton>
+              </Link>
+              <Spacer />
+              <StyledSwitchWrapper>
+                <Switch
+                  size="small"
+                  checkedChildren={<CheckOutlined />}
+                  unCheckedChildren={<CloseOutlined />}
+                  checked={defaultPage === `${r.TRANSLATOR_DASHBOARD}?filter=inReview`}
+                  onClick={createClickHandler(`${r.TRANSLATOR_DASHBOARD}?filter=inReview`)}
+                />
+                Set as default page for Linguo
+              </StyledSwitchWrapper>
+            </Col>
+          </StyledRow>
+        </StyledLayoutContent>
+      </StyledLayout>
+    </Titled>
   );
 }
 

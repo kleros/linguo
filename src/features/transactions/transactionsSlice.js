@@ -5,7 +5,7 @@ import { END } from 'redux-saga';
 import { all, call, delay, getContext, put, select, spawn, take } from 'redux-saga/effects';
 import { serializeError } from 'serialize-error';
 import { pick } from '~/shared/fp';
-import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
+import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
 import { getErrorMessage } from '~/features/web3';
 import { runOnceWhenReady } from '~/features/web3/runWithContext';
 import { getBlockExplorerTxUrl } from '~/features/web3/web3Slice';
@@ -219,7 +219,7 @@ function* updatePendingTxSaga({ web3, txHash }) {
     createTxNotification,
     { txHash },
     {
-      level: NotificationLevel.info,
+      level: PopupNotificationLevel.info,
       message: 'Transaction pending!',
       duration: _1_HOUR_SECONDS,
     }
@@ -252,7 +252,7 @@ function* updatePendingTxSaga({ web3, txHash }) {
       createTxNotification,
       { txHash },
       {
-        level: NotificationLevel.success,
+        level: PopupNotificationLevel.success,
         message: 'Transaction mined!',
         duration: _10_SECONDS,
       }
@@ -270,7 +270,7 @@ function* updatePendingTxSaga({ web3, txHash }) {
       createTxNotification,
       { txHash },
       {
-        level: NotificationLevel.error,
+        level: PopupNotificationLevel.error,
         message: 'Transaction failed!',
         duration: _10_SECONDS,
       }
@@ -340,7 +340,7 @@ function createNoticationSubscriber({ shouldNotify }) {
             createTxNotification,
             { txHash },
             {
-              level: NotificationLevel.info,
+              level: PopupNotificationLevel.info,
               duration: _1_HOUR_SECONDS,
               message: 'Transaction pending!',
             }
@@ -354,7 +354,7 @@ function createNoticationSubscriber({ shouldNotify }) {
             createTxNotification,
             { txHash },
             {
-              level: NotificationLevel.success,
+              level: PopupNotificationLevel.success,
               message: 'Transaction mined!',
               duration: _10_SECONDS,
             }
@@ -369,7 +369,7 @@ function createNoticationSubscriber({ shouldNotify }) {
             createTxNotification,
             { txHash },
             {
-              level: NotificationLevel.error,
+              level: PopupNotificationLevel.error,
               message: getErrorMessage(event.payload.error ?? 'Unknown error'),
               duration: _10_SECONDS,
             }
@@ -393,7 +393,10 @@ function normalizeShouldNotify(shouldNotify) {
   return shouldNotify;
 }
 
-function* createTxNotification({ txHash }, { level = NotificationLevel.info, key = `tx/${txHash}`, ...rest } = {}) {
+function* createTxNotification(
+  { txHash },
+  { level = PopupNotificationLevel.info, key = `tx/${txHash}`, ...rest } = {}
+) {
   const url = txHash ? yield call(getBlockExplorerTxUrl, txHash) : null;
   const notificationTemplateMixin = url
     ? {

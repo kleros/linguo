@@ -73,7 +73,7 @@ const filterDescriptionMap = {
   [filters.inProgress]: (
     <StyledDismissableAlert
       id="translator.filters.inProgress"
-      message="You are currently working on translations below."
+      message="You are currently working on the translations below."
     />
   ),
   [secondLevelFilters[filters.inReview].myTranslations]: (

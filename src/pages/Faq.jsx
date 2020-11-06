@@ -1,4 +1,5 @@
 import React from 'react';
+import { Titled } from 'react-titled';
 import t from 'prop-types';
 import clsx from 'clsx';
 import { useHistory, useLocation } from 'react-router';
@@ -39,12 +40,14 @@ function Faq() {
   );
 
   return (
-    <SingleCardLayout title="F.A.Q.">
-      <ResetCounter />
-      {faqs.map(([question, answer]) => (
-        <QA question={question} key={question} answer={answer} />
-      ))}
-    </SingleCardLayout>
+    <Titled title={title => `F.A.Q. | ${title}`}>
+      <SingleCardLayout title="F.A.Q.">
+        <ResetCounter />
+        {faqs.map(([question, answer]) => (
+          <QA question={question} key={question} answer={answer} />
+        ))}
+      </SingleCardLayout>
+    </Titled>
   );
 }
 

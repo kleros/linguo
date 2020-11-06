@@ -152,5 +152,5 @@ export const sagas = {
     processTasksFetchedInternallySaga,
     fetchByParty.type
   ),
-  watchSetFilterSaga: createWatcherSaga({ takeType: TakeType.every }, onFilterChangeSaga, setFilter),
+  watchSetFilterSaga: createWatcherSaga({ takeType: TakeType.every }, onFilterChangeSaga, setFilter.type),
 };

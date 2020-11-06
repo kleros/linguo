@@ -140,12 +140,13 @@ export const selectors = {
 function* fetchByIdSaga(action) {
   const linguoApi = yield getContext('linguoApi');
   const { id } = action.payload ?? {};
+  const { meta } = action;
 
   try {
     const data = yield call([linguoApi, 'getTaskById'], { ID: id });
-    yield put(fetchById.fulfilled({ id, data }));
+    yield put(fetchById.fulfilled({ id, data }, { meta }));
   } catch (err) {
-    yield put(fetchById.rejected({ id, error: err }));
+    yield put(fetchById.rejected({ id, error: err }, { meta }));
   }
 }
 
@@ -362,7 +363,10 @@ function* withdrawAllFeesAndRewardsSaga(action) {
 }
 
 const createWatchFetchByIdSaga = createWatcherSaga(
-  { takeType: TakeType.latest },
+  {
+    takeType: TakeType.latestByKey,
+    selector: action => action.payload?.id,
+  },
   createCancellableSaga(fetchByIdSaga, fetchById.rejected, {
     additionalPayload: action => ({ id: action.payload?.id }),
     additionalArgs: action => ({ meta: action.meta }),

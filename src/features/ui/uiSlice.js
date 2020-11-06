@@ -1,7 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import notificationsReducer, * as notifications from './notificationSlice';
+import popupNotificationsReducer, * as popupNotifications from './popupNotificationsSlice';
 import alertsReducer, * as alerts from './alertsSlice';
 import preferencesReducer, * as preferences from './preferencesSlice';
 
@@ -20,13 +20,13 @@ function createPersistedReducer(reducer) {
 export default createPersistedReducer(
   combineReducers({
     alerts: alertsReducer,
-    notifications: notificationsReducer,
+    notifications: popupNotificationsReducer,
     preferences: preferencesReducer,
   })
 );
 
 const { dismiss } = alerts.actions;
-const { notify, close } = notifications.actions;
+const { notify, close } = popupNotifications.actions;
 const { set } = preferences.actions;
 
 export { dismiss as dismissAlert, notify, close as closeNotification, set as setPreference };
@@ -35,5 +35,5 @@ export const selectAlertIsVisible = id => state => alerts.selectors.selectIsVisi
 export const selectPreference = key => state => preferences.selectors.selectByKey(key)(state.ui.preferences);
 
 export const sagas = {
-  ...notifications.sagas,
+  ...popupNotifications.sagas,
 };

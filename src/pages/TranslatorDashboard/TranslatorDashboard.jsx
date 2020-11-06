@@ -1,10 +1,11 @@
 import React from 'react';
+import { Titled } from 'react-titled';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider } from 'antd';
 import { selectIsLoading } from '~/features/translator/translatorSlice';
-import TopLoadingBar from '~/shared/TopLoadingBar';
 import { selectAccount } from '~/features/web3/web3Slice';
+import TopLoadingBar from '~/shared/TopLoadingBar';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListControls from './TaskListControls';
 import TaskListFetcher from './TaskListFetcher';
@@ -14,14 +15,16 @@ export default function TranslatorDashboard() {
   const isLoading = useSelector(state => selectIsLoading(state, { account }));
 
   return (
-    <MultiCardLayout>
-      <TopLoadingBar show={isLoading} />
-      <TaskListControls />
-      <StyledDivider />
-      <StyledContentWrapper>
-        <TaskListFetcher />
-      </StyledContentWrapper>
-    </MultiCardLayout>
+    <Titled title={title => `Translator Dashboard | ${title}`}>
+      <MultiCardLayout>
+        <TopLoadingBar show={isLoading} />
+        <TaskListControls />
+        <StyledDivider />
+        <StyledContentWrapper>
+          <TaskListFetcher />
+        </StyledContentWrapper>
+      </MultiCardLayout>
+    </Titled>
   );
 }
 

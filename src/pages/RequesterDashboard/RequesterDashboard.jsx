@@ -1,4 +1,5 @@
 import React from 'react';
+import { Titled } from 'react-titled';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider } from 'antd';
@@ -15,16 +16,18 @@ function RequesterDashboard() {
   const isLoading = useSelector(state => selectIsLoading(state, { account }));
 
   return (
-    <MultiCardLayout>
-      <TopLoadingBar show={isLoading} />
-      <TaskListControls />
-      <StyledDivider />
-      <StyledContentWrapper>
-        <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
-          <TaskListFetcher />
-        </RequiredWalletGateway>
-      </StyledContentWrapper>
-    </MultiCardLayout>
+    <Titled title={title => `Requester Dashboard | ${title}`}>
+      <MultiCardLayout>
+        <TopLoadingBar show={isLoading} />
+        <TaskListControls />
+        <StyledDivider />
+        <StyledContentWrapper>
+          <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
+            <TaskListFetcher />
+          </RequiredWalletGateway>
+        </StyledContentWrapper>
+      </MultiCardLayout>
+    </Titled>
   );
 }
 

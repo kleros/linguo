@@ -1,4 +1,5 @@
 import React from 'react';
+import { Titled } from 'react-titled';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import TopLoadingBar from '~/shared/TopLoadingBar';
@@ -15,11 +16,13 @@ function TranslationDetails() {
   const isLoading = isTaskLoading || isDisputeLoading;
 
   return (
-    <SingleCardLayout title="Translation Task Details" beforeContent={<TopLoadingBar show={isLoading} />}>
-      <RequiredWeb3Gateway>
-        <TaskFetcher />
-      </RequiredWeb3Gateway>
-    </SingleCardLayout>
+    <Titled title={title => `Translation Details | ${title}`}>
+      <SingleCardLayout title="Translation Task Details" beforeContent={<TopLoadingBar show={isLoading} />}>
+        <RequiredWeb3Gateway>
+          <TaskFetcher />
+        </RequiredWeb3Gateway>
+      </SingleCardLayout>
+    </Titled>
   );
 }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Titled } from 'react-titled';
 import { useWeb3React } from '~/features/web3';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
 import WithRouteMessage from '~/shared/WithRouteMessage';
@@ -17,17 +18,19 @@ function TranslationRequest() {
   );
 
   return (
-    <SingleCardLayout title="Request Translation">
-      <WithRouteMessage>
-        <RequiredWalletGateway
-          message="To request a translation you need an Ethereum wallet."
-          missing={form}
-          error={form}
-        >
-          {form}
-        </RequiredWalletGateway>
-      </WithRouteMessage>
-    </SingleCardLayout>
+    <Titled title={title => `Translation Request | ${title}`}>
+      <SingleCardLayout title="Request Translation">
+        <WithRouteMessage>
+          <RequiredWalletGateway
+            message="To request a translation you need an Ethereum wallet."
+            missing={form}
+            error={form}
+          >
+            {form}
+          </RequiredWalletGateway>
+        </WithRouteMessage>
+      </SingleCardLayout>
+    </Titled>
   );
 }
 

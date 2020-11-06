@@ -1,45 +1,94 @@
 import React from 'react';
 import t from 'prop-types';
-import styled, { css } from 'styled-components';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { List } from 'antd';
+import styled, { css } from 'styled-components';
+import { List, Skeleton, Button as AntdButton } from 'antd';
+import { CloseOutlined as AntdCloseOutlinedIcon, CheckOutlined as AntdCheckOutlined } from '@ant-design/icons';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { selectByAccount, markAsRead, markAllFromAccountAsRead } from '~/features/notifications/notificationsSlice';
+import { selectAccount, selectBlockDate, getBlockInfo } from '~/features/web3/web3Slice';
+import { CheckIcon, DisputeIcon, NotificationIcon } from '~/shared/icons';
 import TimeAgo from '~/shared/TimeAgo';
-import ContentBlocker from '~/shared/ContentBlocker';
-import { NotificationIcon, DisputeIcon, CheckIcon } from '~/shared/icons';
-import { Popover, Button, Badge, withToolbarStylesIcon } from './adapters';
+import Spacer from '~/shared/Spacer';
+import { Badge, Button, Popover, withToolbarStylesIcon } from './adapters';
 
 export default function Notifications() {
-  const notifications = notificationFixtures;
+  const dispatch = useDispatch();
+  const account = useSelector(selectAccount);
 
-  const renderItem = React.useCallback(data => <Notification {...data} id={data.key} />, []);
+  const handleMarkAllAsRead = React.useCallback(() => {
+    dispatch(markAllFromAccountAsRead({ account }));
+  }, [dispatch, account]);
+
+  const notifications = useShallowEqualSelector(state =>
+    selectByAccount(state, {
+      account,
+      filter: notification => !notification.read,
+    })
+  );
+
+  const sortedNotifications = React.useMemo(
+    () =>
+      [...notifications].sort((a, b) => {
+        const blockDiff = b.blockNumber - a.blockNumber;
+        return blockDiff !== 0 ? blockDiff : b.priority - a.priority;
+      }),
+    [notifications]
+  );
+
+  const { totalCount, handleLoadMore, currentList } = useLoadableList(sortedNotifications);
+  const displayedCount = currentList.length;
+
+  const renderItem = React.useCallback(
+    ({ id, blockNumber, data }) => (
+      <Notification
+        id={id}
+        blockNumber={blockNumber}
+        message={data.text}
+        to={data.url}
+        type={data.type}
+        icon={data.icon}
+      />
+    ),
+    []
+  );
 
   return (
     <StyledPopover
       arrowPointAtCenter
       content={
         <>
-          <ContentBlocker
-            blocked
-            contentBlur={2}
-            overlayText={
+          {totalCount > 0 ? (
+            <>
               <div
                 css={`
-                  transform: rotate(-30deg);
-                  color: ${p => p.theme.color.danger.default};
-                  background-color: ${p => p.theme.color.background.light};
-                  padding: 0.5rem 1rem;
-                  border-radius: 0.75rem;
-                  font-size: ${p => p.theme.fontSize.xxl};
-                  text-align: center;
-                  white-space: nowrap;
+                  text-align: right;
                 `}
               >
-                Coming soon...
+                <AntdButton
+                  css={`
+                    padding: 0;
+                  `}
+                  onClick={handleMarkAllAsRead}
+                  icon={<AntdCheckOutlined />}
+                  type="link"
+                >
+                  Mark all as read
+                </AntdButton>
               </div>
-            }
-          >
-            <StyledList dataSource={notifications} loading={false} locale={locale} renderItem={renderItem} />
-          </ContentBlocker>
+              <Spacer size={0.5} />
+            </>
+          ) : null}
+          <StyledList dataSource={currentList} loading={false} locale={locale} renderItem={renderItem} />
+          {totalCount > displayedCount ? (
+            <>
+              <Spacer />
+              <AntdButton block onClick={handleLoadMore}>
+                Load More
+              </AntdButton>
+            </>
+          ) : null}
         </>
       }
       placement="bottomRight"
@@ -47,7 +96,7 @@ export default function Notifications() {
       trigger="click"
     >
       <span>
-        <Badge count={notifications.length}>
+        <Badge count={totalCount}>
           <Button shape="round">
             <StyledNotificationIcon />
           </Button>
@@ -57,38 +106,24 @@ export default function Notifications() {
   );
 }
 
-const locale = { emptyText: 'Wow. Such empty.' };
+function useLoadableList(list, { initialCount = 10, additionalCount = initialCount } = {}) {
+  const totalCount = list.length;
+  const [displayCount, setDisplayCount] = React.useState(initialCount);
 
-const notificationFixtures = [
-  {
-    account: '0x0000000000000000000000000000000000000000',
-    date: new Date('2020-03-13T19:47:00.000Z'),
-    icon: 'bell',
-    key: '1',
-    message: 'Jurors approved the translation. The Requester Deposit will be transfered to the translator.',
-    to: '/translation/1234',
-    type: 'info',
-  },
-  {
-    account: '0x0000000000000000000000000000000000000000',
-    date: new Date('2020-03-12T15:20:00.000Z'),
-    icon: 'dispute',
-    key: '2',
-    message:
-      'The translation was challenged. Now it goes to Kleros arbitration. When Jurors decide the case you will be informed.',
-    to: '/translation/1234',
-    type: 'warning',
-  },
-  {
-    account: '0x0000000000000000000000000000000000000000',
-    date: new Date('2020-03-11T22:02:00.000Z'),
-    icon: 'confirmation',
-    key: '3',
-    message: 'The translator delivered the translation. It will be in the Review list for 3 days.',
-    to: '/translation/1234',
-    type: 'info',
-  },
-];
+  const handleLoadMore = React.useCallback(() => {
+    setDisplayCount(currentCount => currentCount + additionalCount);
+  }, [additionalCount]);
+
+  const currentList = React.useMemo(() => list.slice(0, displayCount), [list, displayCount]);
+
+  return {
+    currentList,
+    totalCount,
+    handleLoadMore,
+  };
+}
+
+const locale = { emptyText: 'Wow, such empty!' };
 
 const StyledNotificationIcon = withToolbarStylesIcon(NotificationIcon);
 
@@ -105,32 +140,66 @@ const StyledList = styled(List)`
   .ant-list-empty-text {
     color: ${props => props.theme.color.text.default};
     font-size: ${props => props.theme.fontSize.md};
-    text-align: left;
+    text-align: center;
     padding: 1rem 0;
   }
 `;
 
-function Notification({ id, date, message, to, type, icon }) {
+function Notification({ id, blockNumber, message, to, type, icon }) {
+  const account = useSelector(selectAccount);
+  const dispatch = useDispatch();
+
+  const handleClick = React.useCallback(() => {
+    dispatch(markAsRead({ id, account }));
+  }, [dispatch, id, account]);
+
+  const blockDate = useBlockDate({ blockNumber });
+
   const ItemIcon = iconNameToIcon(icon);
 
   return (
     <StyledListItem>
       <List.Item.Meta
         avatar={<ItemIcon $type={type} />}
-        description={<StyledTimeAgo $type={type} date={date} />}
-        title={
-          <Link id={id} to={to}>
-            {message}
-          </Link>
+        description={
+          blockDate ? (
+            <StyledTimeAgo $type={type} date={blockDate} />
+          ) : (
+            <Skeleton.Button active size="small" shape="round" />
+          )
         }
+        title={
+          <>
+            {message}
+            <Link id={id} to={to}>
+              {message}
+            </Link>
+          </>
+        }
+        onClick={handleClick}
       />
     </StyledListItem>
   );
 }
 
+function useBlockDate({ blockNumber }) {
+  const blockDate = useShallowEqualSelector(selectBlockDate(blockNumber));
+  const hasBlockDate = blockDate !== null;
+
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    if (!hasBlockDate) {
+      dispatch(getBlockInfo({ blockNumber }));
+    }
+  }, [dispatch, blockNumber, hasBlockDate]);
+
+  return blockDate;
+}
+
 Notification.propTypes = {
   id: t.string.isRequired,
-  date: t.oneOfType([t.instanceOf(Date), t.string]).isRequired,
+  blockNumber: t.oneOfType([t.number, t.string]).isRequired,
   message: t.node,
   to: t.string,
   type: t.string,
@@ -149,9 +218,10 @@ const typeToColor = (theme, type) => {
     info: theme.color.secondary.default,
     warning: theme.color.warning.default,
     danger: theme.color.danger.default,
+    success: theme.color.success.default,
   };
 
-  return availableColors[type] || theme.color.primary.default;
+  return availableColors[type] || theme.color.secondary.default;
 };
 
 const iconNameToIcon = iconName => {
@@ -159,6 +229,7 @@ const iconNameToIcon = iconName => {
     bell: BellItemIcon,
     dispute: DisputeItemIcon,
     confirmation: CheckOutlinedIcon,
+    failure: CloseOutlinedIcon,
   };
 
   return iconMap[iconName] || BellItemIcon;
@@ -188,10 +259,15 @@ const CheckOutlinedIcon = styled(CheckIcon)`
   ${itemIconStyles}
 `;
 
+const CloseOutlinedIcon = styled(AntdCloseOutlinedIcon)`
+  ${itemIconStyles}
+`;
+
 const StyledListItem = styled(List.Item)`
   &.ant-list-item {
     padding: 1rem 0;
     border-bottom-color: ${props => props.theme.hexToRgba(props.theme.color.secondary.default, 0.25)};
+    position: relative;
   }
 
   .ant-list-item-meta-title {
@@ -199,12 +275,19 @@ const StyledListItem = styled(List.Item)`
     color: ${props => props.theme.color.text.default};
 
     > a {
-      display: block;
-      color: ${props => props.theme.color.text.light};
+      text-indent: -999999px;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      opacity: 0.2;
+      background-color: ${p => p.theme.color.background.light};
+      transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
 
       &:hover,
       &:focus {
-        color: ${props => props.theme.color.text.default};
+        opacity: 0;
       }
     }
   }

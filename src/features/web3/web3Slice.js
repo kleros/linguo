@@ -7,7 +7,7 @@ import getErrorMessage from '~/adapters/web3-react/getErrorMessage';
 import createStateMachineReducer from '~/shared/createStateMachineReducer';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
-import { NotificationLevel, notify } from '~/features/ui/notificationSlice';
+import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
 import { watchAllWithBuffer } from './runWithContext';
 
 /* -------------------- Action Creators -------------------- */
@@ -28,6 +28,8 @@ export const setError = createAction('web3/setError', errorPayloadCreator);
 export const changeLibrary = createAction('web3/changeLibrary');
 
 export const getBalance = createAsyncAction('web3/getBalance');
+
+export const getBlockInfo = createAsyncAction('web3/getBlockInfo');
 
 /* ------------------------ Reducer ------------------------ */
 const reducer = createFinalReducer();
@@ -58,6 +60,11 @@ export const selectHasError = state => selectError(state) !== null;
 
 export const selectBalance = account => state => state.web3?.context.balances?.[account] ?? '0';
 
+export const selectBlockDate = blockNumber => state => {
+  const timestamp = state.web3?.context.blocks?.[blockNumber]?.timestamp ?? 0;
+  return timestamp !== 0 ? new Date(timestamp * 1000) : null;
+};
+
 /* ------------------------- Sagas ------------------------- */
 export function* notifyErrorSaga(action) {
   const { error } = action.payload;
@@ -68,7 +75,7 @@ export function* notifyErrorSaga(action) {
   yield put(
     notify({
       key: 'web3/error',
-      level: NotificationLevel.error,
+      level: PopupNotificationLevel.error,
       message: getErrorMessage(error),
       duration: 5,
     })
@@ -101,11 +108,27 @@ export function* getBalanceSaga(action) {
   }
 }
 
+export function* getBlockInfoSaga(action) {
+  const web3 = yield getContext('library');
+  const { blockNumber } = action.payload;
+  const meta = action.meta ?? {};
+
+  try {
+    const blockInfo = yield call([web3.eth, 'getBlock'], blockNumber);
+    yield put(getBlockInfo.fulfilled({ blockNumber, data: blockInfo }, { meta }));
+  } catch (err) {
+    yield put(getBlockInfo.rejected({ blockNumber, error: err }, { meta }));
+  }
+}
+
 export const sagas = {
   watchNotifyError: createWatcherSaga({ takeType: TakeType.every }, notifyErrorSaga, setError.type),
   watchNotifyActivateError: createWatcherSaga({ takeType: TakeType.every }, notifyErrorSaga, activate.error.type),
   watchGetBalance: watchAllWithBuffer([
     [createWatcherSaga({ takeType: TakeType.every }, getBalanceSaga), actionChannel(getBalance.type)],
+  ]),
+  watchGetBlockInfo: watchAllWithBuffer([
+    [createWatcherSaga({ takeType: TakeType.every }, getBlockInfoSaga), actionChannel(getBlockInfo.type)],
   ]),
 };
 
@@ -167,6 +190,9 @@ function createFinalReducer() {
           [getBalance.pending]: 'connected',
           [getBalance.fulfilled]: 'connected',
           [getBalance.rejected]: 'connected',
+          [getBlockInfo.pending]: 'connected',
+          [getBlockInfo.fulfilled]: 'connected',
+          [getBlockInfo.rejected]: 'connected',
           [setError]: [
             {
               target: 'errored',
@@ -237,6 +263,14 @@ function createFinalReducer() {
         if (account && data) {
           state.balances = state.balances ?? {};
           state.balances[account] = data;
+        }
+      },
+      [getBlockInfo.fulfilled]: (state, action) => {
+        const { blockNumber, data } = action.payload ?? {};
+
+        if (blockNumber && data) {
+          state.blocks = state.blocks ?? {};
+          state.blocks[blockNumber] = data;
         }
       },
     });

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Titled } from 'react-titled';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Typography } from 'antd';
@@ -87,119 +88,125 @@ export default function TaskDetails() {
   ];
 
   return (
-    <div
-      css={`
-        @media (min-width: 576px) {
-          &:only-child {
-            margin-top: -2rem;
-          }
-        }
-      `}
-    >
-      <StyledTaskTitle level={2}>{title}</StyledTaskTitle>
-      <StyledDeadline>
-        <StyledDefinitionTerm>
-          <CalendarIcon /> Translation Deadline:{' '}
-        </StyledDefinitionTerm>
-        <StyledDefinitionDescription>
-          <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
-        </StyledDefinitionDescription>
-      </StyledDeadline>
-      <Spacer size={3} />
-      <TaskInfoGrid data={taskInfo} />
-      {showFootnote && (
-        <>
-          <Spacer baseSize="xs" />
-          <StyledFootnote>
-            <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
-          </StyledFootnote>
-        </>
-      )}
-      <Spacer size={3} />
-      <StyledLanguageInfoWrapper>
-        <div className="col source">
-          <StyledDefinitionTerm>Source Language</StyledDefinitionTerm>
-          <StyledDefinitionDescription>
-            <LanguageInfo language={sourceLanguage} />
-          </StyledDefinitionDescription>
-        </div>
-        <div className="col target">
-          <StyledDefinitionTerm>Target Language</StyledDefinitionTerm>
-          <StyledDefinitionDescription>
-            <LanguageInfo language={targetLanguage} />
-          </StyledDefinitionDescription>
-        </div>
-      </StyledLanguageInfoWrapper>
-      <Spacer size={3} />
-      <StyledExpectedQuality>
-        <StyledDefinitionTerm>Expected Quality</StyledDefinitionTerm>
-        <StyledDefinitionDescription>
-          <TranslationQualityDefinition tierValue={expectedQuality} />
-        </StyledDefinitionDescription>
-      </StyledExpectedQuality>
-      <Spacer size={3} />
-      <StyledDownloadTextWrapper>
-        <div className="col">
-          <DownloadLink
-            download={
-              version > 0
-                ? {
-                    url: originalTextFileUrl,
-                  }
-                : {
-                    content: deprecatedOriginalText,
-                  }
+    <Titled title={prev => `${title} | ${prev}`}>
+      <div
+        css={`
+          @media (min-width: 576px) {
+            &:only-child {
+              margin-top: -2rem;
             }
-          >
-            <JumboButton fullWidth={true} variant="filled" icon={<FileTextOutlined />}>
-              Original Text
-            </JumboButton>
-          </DownloadLink>
-          {(originalTextUrl || deprecatedOriginalTextFile) && (
-            <>
-              <Spacer size={1} />
-              <StyledLinkList>
-                {originalTextUrl ? (
-                  <StyledLinkListItem>
-                    <a href={originalTextUrl} target="_blank" rel="noopener noreferrer external">
-                      <LinkOutlined /> Source of the original text
-                    </a>
-                  </StyledLinkListItem>
-                ) : null}
-                {deprecatedOriginalTextFile ? (
-                  <StyledLinkListItem>
-                    <a href={getFileUrl(deprecatedOriginalTextFile)} target="_blank" rel="noopener noreferrer external">
-                      <PaperClipOutlined /> File of the original text
-                    </a>
-                  </StyledLinkListItem>
-                ) : null}
-              </StyledLinkList>
-            </>
-          )}
-        </div>
-        {translatedTextUrl && (
+          }
+        `}
+      >
+        <StyledTaskTitle level={2}>{title}</StyledTaskTitle>
+        <StyledDeadline>
+          <StyledDefinitionTerm>
+            <CalendarIcon /> Translation Deadline:{' '}
+          </StyledDefinitionTerm>
+          <StyledDefinitionDescription>
+            <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
+          </StyledDefinitionDescription>
+        </StyledDeadline>
+        <Spacer size={3} />
+        <TaskInfoGrid data={taskInfo} />
+        {showFootnote && (
+          <>
+            <Spacer baseSize="xs" />
+            <StyledFootnote>
+              <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
+            </StyledFootnote>
+          </>
+        )}
+        <Spacer size={3} />
+        <StyledLanguageInfoWrapper>
+          <div className="col source">
+            <StyledDefinitionTerm>Source Language</StyledDefinitionTerm>
+            <StyledDefinitionDescription>
+              <LanguageInfo language={sourceLanguage} />
+            </StyledDefinitionDescription>
+          </div>
+          <div className="col target">
+            <StyledDefinitionTerm>Target Language</StyledDefinitionTerm>
+            <StyledDefinitionDescription>
+              <LanguageInfo language={targetLanguage} />
+            </StyledDefinitionDescription>
+          </div>
+        </StyledLanguageInfoWrapper>
+        <Spacer size={3} />
+        <StyledExpectedQuality>
+          <StyledDefinitionTerm>Expected Quality</StyledDefinitionTerm>
+          <StyledDefinitionDescription>
+            <TranslationQualityDefinition tierValue={expectedQuality} />
+          </StyledDefinitionDescription>
+        </StyledExpectedQuality>
+        <Spacer size={3} />
+        <StyledDownloadTextWrapper>
           <div className="col">
             <DownloadLink
-              download={{
-                url: translatedTextUrl,
-              }}
+              download={
+                version > 0
+                  ? {
+                      url: originalTextFileUrl,
+                    }
+                  : {
+                      content: deprecatedOriginalText,
+                    }
+              }
             >
-              <JumboButton fullWidth={true} variant="outlined" icon={<TranslationOutlined />}>
-                Translated Text
+              <JumboButton fullWidth={true} variant="filled" icon={<FileTextOutlined />}>
+                Original Text
               </JumboButton>
             </DownloadLink>
+            {(originalTextUrl || deprecatedOriginalTextFile) && (
+              <>
+                <Spacer size={1} />
+                <StyledLinkList>
+                  {originalTextUrl ? (
+                    <StyledLinkListItem>
+                      <a href={originalTextUrl} target="_blank" rel="noopener noreferrer external">
+                        <LinkOutlined /> Source of the original text
+                      </a>
+                    </StyledLinkListItem>
+                  ) : null}
+                  {deprecatedOriginalTextFile ? (
+                    <StyledLinkListItem>
+                      <a
+                        href={getFileUrl(deprecatedOriginalTextFile)}
+                        target="_blank"
+                        rel="noopener noreferrer external"
+                      >
+                        <PaperClipOutlined /> File of the original text
+                      </a>
+                    </StyledLinkListItem>
+                  ) : null}
+                </StyledLinkList>
+              </>
+            )}
           </div>
+          {translatedTextUrl && (
+            <div className="col">
+              <DownloadLink
+                download={{
+                  url: translatedTextUrl,
+                }}
+              >
+                <JumboButton fullWidth={true} variant="outlined" icon={<TranslationOutlined />}>
+                  Translated Text
+                </JumboButton>
+              </DownloadLink>
+            </div>
+          )}
+        </StyledDownloadTextWrapper>
+        <Spacer size={3} />
+        <TaskStatusDetails />
+        {hasDispute && (
+          <>
+            <Spacer size={3} />
+            <Evidences />
+          </>
         )}
-      </StyledDownloadTextWrapper>
-      <Spacer size={3} />
-      <TaskStatusDetails />
-      {hasDispute && (
-        <>
-          <Spacer size={3} />
-          <Evidences />
-        </>
-      )}
-    </div>
+      </div>
+    </Titled>
   );
 }
 

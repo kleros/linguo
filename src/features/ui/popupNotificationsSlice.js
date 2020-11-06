@@ -5,9 +5,9 @@ import { eventChannel, END } from 'redux-saga';
 import { call, put, take, cancelled } from 'redux-saga/effects';
 import { nanoid } from 'nanoid';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
-import { NotificationWithLink as link } from './NotificationTemplates';
+import { PopupNotificationWithLink as link } from './PopupNotificationTemplates';
 
-export const NotificationLevel = {
+export const PopupNotificationLevel = {
   info: 'info',
   warn: 'warn',
   error: 'error',
@@ -15,7 +15,7 @@ export const NotificationLevel = {
 };
 
 export const notify = createAction(
-  'ui/notifications/notify',
+  'ui/popup-notifications/notify',
   ({ key = nanoid(10), duration = 10, placement = 'bottomRight', level = 'info', ...rest }) => ({
     payload: {
       key,
@@ -26,12 +26,12 @@ export const notify = createAction(
     },
   })
 );
-export const close = createAction('ui/notifications/close');
+export const close = createAction('ui/popup-notifications/close');
 
 export const actions = { notify, close };
 
 const notificationSlice = createSlice({
-  name: 'ui/notifications',
+  name: 'ui/popup-notifications',
   initialState: {},
   extraReducers: {
     [notify]: (state, action) => {
@@ -75,7 +75,7 @@ const createNotificationChannel = ({ method, key, template, ...params }) => {
 
 export function* notifySaga(action) {
   const { key, level, ...rest } = action.payload;
-  const method = NotificationLevel[level] ?? 'info';
+  const method = PopupNotificationLevel[level] ?? 'info';
 
   const chan = yield call(createNotificationChannel, {
     method,
