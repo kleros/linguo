@@ -1,14 +1,11 @@
 import React from 'react';
-import t from 'prop-types';
 import { hot } from 'react-hot-loader';
-import { useDispatch, useSelector } from 'react-redux';
-import { Web3ReactProvider } from '@web3-react/core';
+import t from 'prop-types';
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
+import { Web3ReactProvider } from '@web3-react/core';
 import Web3 from 'web3';
-import { fetchSupported as fetchSupportedTokens } from '~/features/tokens/tokensSlice';
 import theme from '~/features/ui/theme';
 import { useWatchLibrary, useWeb3ReactBootstrap } from '~/features/web3';
-import { selectChainId } from '~/features/web3/web3Slice';
 import MainRouter from './MainRouter';
 
 function App() {
@@ -29,12 +26,6 @@ export default hot(module)(App);
 function Initializer({ children }) {
   useWeb3ReactBootstrap();
   useWatchLibrary();
-
-  const dispatch = useDispatch();
-  const chainId = useSelector(selectChainId);
-  React.useEffect(() => {
-    dispatch(fetchSupportedTokens({ chainId }));
-  }, [dispatch, chainId]);
 
   return children;
 }

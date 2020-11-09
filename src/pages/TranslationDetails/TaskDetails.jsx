@@ -39,7 +39,6 @@ export default function TaskDetails() {
     originalTextUrl,
     translatedTextUrl,
     hasDispute,
-    token,
     version,
   } = task;
 
@@ -71,7 +70,7 @@ export default function TaskDetails() {
   const taskInfo = [
     {
       title: 'Price per word',
-      content: <TaskPrice showTooltip token={token} value={pricePerWord} />,
+      content: <TaskPrice showTooltip value={pricePerWord} />,
     },
     {
       title: 'Number of words',
@@ -79,7 +78,7 @@ export default function TaskDetails() {
     },
     {
       title: 'Total Price',
-      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} token={token} value={actualPrice} />,
+      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={actualPrice} />,
     },
     {
       title: name,

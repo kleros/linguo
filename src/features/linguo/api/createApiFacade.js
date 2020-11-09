@@ -1,6 +1,5 @@
 import IArbitrator from '@kleros/erc-792/build/contracts/IArbitrator.json';
 import Linguo from '@kleros/linguo-contracts/artifacts/Linguo.json';
-import LinguoToken from '@kleros/linguo-contracts/artifacts/LinguoToken.json';
 import { subtract } from '~/adapters/big-number';
 import { combination } from '~/adapters/js-combinatorics';
 import { withProvider } from '~/app/archon';
@@ -21,8 +20,7 @@ import {
 } from '~/shared/fp';
 import getRelevantSkills from '../getRelevantSkills';
 import { getLanguageGroup, isSupportedLanguageGroupPair, LanguageGroupPair } from '../languagePairing';
-import { ADDRESS_ZERO } from './constants';
-import { createEthContractApi, createTokenContractApi } from './createContractApi';
+import createContractApi from './createContractApi';
 
 const apiSkeleton = {
   createTask() {},
@@ -55,25 +53,22 @@ const apiSkeleton = {
 export default async function createApiFacade({ web3, chainId }) {
   const archon = withProvider(web3.currentProvider);
 
-  const apiInfoTree = await asyncMapValues(async addresses => {
-    const [withEthPayments, withTokenPayments] = await Promise.all([
-      getLinguoContracts({ web3, chainId, address: addresses.linguo, deployment: Linguo }),
-      getLinguoContracts({ web3, chainId, address: addresses.linguoToken, deployment: LinguoToken }),
-    ]);
-
-    return createContractApis({ web3, archon, withEthPayments, withTokenPayments });
-  }, getAddressesByLanguageGroups({ chainId }));
-
-  const addressesByLanguageGroupPair = mapValues(
-    ({ linguo, linguoToken }) => [linguo.address, linguoToken.address],
-    apiInfoTree
+  const apiInfoTree = await asyncMapValues(
+    async address =>
+      createContractApis({
+        web3,
+        archon,
+        contracts: await getLinguoContracts({ web3, chainId, address, deployment: Linguo }),
+      }),
+    getAddressesByLanguageGroups({ chainId })
   );
 
+  const addressesByLanguageGroupPair = mapValues(linguo => linguo.address, apiInfoTree);
+
   const apiInstancesByAddress = reduce(
-    (acc, { linguo, linguoToken }) =>
+    (acc, linguo) =>
       Object.assign(acc, {
         [linguo.address]: linguo.api,
-        [linguoToken.address]: linguoToken.api,
       }),
     {},
     Object.values(apiInfoTree)
@@ -105,7 +100,7 @@ export default async function createApiFacade({ web3, chainId }) {
 
   const createTaskHandler = {
     apply: (target, thisArg, args) => {
-      const { token = ADDRESS_ZERO, sourceLanguage, targetLanguage } = args[0] ?? {};
+      const { sourceLanguage, targetLanguage } = args[0] ?? {};
 
       if (!sourceLanguage || !targetLanguage) {
         throw new Error('Cannot create a task without valid source and target languages');
@@ -113,15 +108,12 @@ export default async function createApiFacade({ web3, chainId }) {
 
       const langGroupPair = LanguageGroupPair(getLanguageGroup(sourceLanguage), getLanguageGroup(targetLanguage));
 
-      const info = apiInfoTree[langGroupPair];
-      if (!info) {
+      const linguo = apiInfoTree[langGroupPair];
+      if (!linguo) {
         throw new Error(`Cannot create a task for pair (${sourceLanguage}, ${targetLanguage})`);
       }
 
-      const { linguo, linguoToken } = info;
-
-      const actualInstance = token === ADDRESS_ZERO ? linguo.api : linguoToken.api;
-      return actualInstance[target.name].apply(actualInstance, args);
+      return linguo.api[target.name].apply(linguo.api, args);
     },
   };
 
@@ -239,20 +231,13 @@ function getAddressesByLanguageGroups({ chainId }) {
   }
 }
 
-function createContractApis({ web3, archon, withEthPayments, withTokenPayments }) {
-  const linguoAddress = withEthPayments.linguo.options.address;
+function createContractApis({ web3, archon, contracts }) {
   const linguo = {
-    address: linguoAddress,
-    api: createEthContractApi({ web3, archon, ...withEthPayments }),
+    address: contracts.linguo.options.address,
+    api: createContractApi({ web3, archon, ...contracts }),
   };
 
-  const linguoTokenAddress = withTokenPayments.linguo.options.address;
-  const linguoToken = {
-    address: linguoTokenAddress,
-    api: createTokenContractApi({ web3, archon, ...withTokenPayments }),
-  };
-
-  return { linguo, linguoToken };
+  return linguo;
 }
 
 const getUniqueLanguageGroups = compose(uniq, map(compose(getLanguageGroup, prop('language'))));

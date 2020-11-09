@@ -15,7 +15,7 @@ import getFileUrl from './getFileUrl';
 
 const { toBN } = Web3.utils;
 
-export function createEthContractApi({ web3, archon, linguo, arbitrator }) {
+export default function createContractApi({ web3, archon, linguo, arbitrator }) {
   async function createTask(
     { account, deadline, minPrice, maxPrice, ...rest },
     { from = account, gas, gasPrice } = {}
@@ -45,47 +45,6 @@ export function createEthContractApi({ web3, archon, linguo, arbitrator }) {
     return { tx };
   }
 
-  return {
-    ...createCommonApi({ web3, archon, linguo, arbitrator }),
-    createTask,
-  };
-}
-
-export function createTokenContractApi({ web3, archon, linguo, arbitrator }) {
-  async function createTask(
-    { account, deadline, minPrice, maxPrice, token, ...rest },
-    { from = account, gas, gasPrice } = {}
-  ) {
-    deadline = dayjs(deadline).unix();
-
-    const chainId = await web3.eth.getChainId();
-
-    const metaEvidence = await publishMetaEvidence(
-      {
-        account,
-        deadline,
-        minPrice,
-        maxPrice,
-        token,
-        ...rest,
-      },
-      { chainId }
-    );
-
-    const tx = linguo.methods
-      .createTask(deadline, token, minPrice, maxPrice, metaEvidence)
-      .send({ from, gas, gasPrice });
-
-    return { tx };
-  }
-
-  return {
-    ...createCommonApi({ web3, archon, linguo, arbitrator }),
-    createTask,
-  };
-}
-
-function createCommonApi({ web3, archon, linguo, arbitrator }) {
   async function getRequesterTasks({ account }) {
     const events = await _getPastEvents(linguo, 'TaskCreated', {
       filter: { _requester: account },
@@ -709,6 +668,7 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
     getTaskDisputeEvidences,
     getWithdrawableAmount,
     getArbitrationCost,
+    createTask,
     assignTask,
     submitTranslation,
     approveTranslation,
@@ -724,13 +684,13 @@ function createCommonApi({ web3, archon, linguo, arbitrator }) {
 }
 
 const evidenceDisplayURIByChainId = {
-  1: '/ipfs/QmXaZLy5821GnJFHZrsMk8cfxvoJGYyxzLfpdJwynP2rxv/index.html',
-  42: '/ipfs/QmZY9HZqyNnJUK9bHx5zR98QeYZ8sbWWAuaHd5e5NvwbWk/index.html',
+  1: '/ipfs/QmXGDMfcxjfQi5SFwpBSb73pPjoZq2N8c6eWCgxx8pVqj7/index.html',
+  42: '/ipfs/QmYbtF7K6qCfSYfu2k6nYnVRY8HY97rEAF6mgBWtDgfovw/index.html',
 };
 
 const dynamicScriptURIByChainId = {
-  1: '/ipfs/QmXeAHnLcQex1TPadPN9NVRT3ufBx8Z6vjsSHK95eGTSCw/linguo-dynamic-script.js',
-  42: '/ipfs/QmS7iSEENZ1VzeHV2H7wsFb9g4LtyCwfPxEsegsAqDjQU8/kovan-linguo-dynamic-script.js',
+  1: '/ipfs/QmchWC6L3dT23wwQiJJLWCeS1EDnDYrLcYat93C4Lm4P4E/linguo-dynamic-script.js',
+  42: '/ipfs/QmZFcqdsR76jyHyLsBefc4SBuegj2boBDr2skxGauM5DNf/linguo-dynamic-script.js',
 };
 
 const publishMetaEvidence = async ({ account, ...metadata }, { chainId }) => {

@@ -17,5 +17,9 @@
   "fileURI": "/ipfs/QmVabp1VjJNYzXDxbcWFdeK17RvvA9eQy6eJVf1T1AzS1a/linguo-translation-quality-policy.pdf",
   "evidenceDisplayInterfaceURI": "",
   "dynamicScriptURI": "",
+  "dynamicScriptRequiredParams": [
+    "arbitrableContractAddress",
+    "disputeID"
+  ],
   "metadata": {}
 }

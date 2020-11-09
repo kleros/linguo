@@ -18,7 +18,7 @@ const _1_MINUTE_MS = 60 * 1000;
 
 export default function TaskCard({ id }) {
   const task = useShallowEqualSelector(selectById(id));
-  const { status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality, token } = task;
+  const { status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality } = task;
 
   const getCurrentPrice = React.useCallback(() => Task.currentPrice(task), [task]);
   const [currentPrice, setCurrentPrice] = React.useState(getCurrentPrice);
@@ -42,7 +42,7 @@ export default function TaskCard({ id }) {
   const taskInfo = [
     {
       title: 'Price per word',
-      content: <TaskPrice showTooltip token={token} value={pricePerWord} />,
+      content: <TaskPrice showTooltip value={pricePerWord} />,
     },
     {
       title: 'Number of words',
@@ -54,7 +54,6 @@ export default function TaskCard({ id }) {
         <TaskPrice
           showTooltip
           showFootnoteMark={status === TaskStatus.Created && !Task.isIncomplete(task)}
-          token={token}
           value={currentPrice}
         />
       ),
