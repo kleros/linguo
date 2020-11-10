@@ -1,6 +1,7 @@
 import React from 'react';
 import { TaskParty } from '~/features/tasks';
 import TaskInDisputeAvatar from '~/assets/images/avatar-task-in-dispute.svg';
+import DisputeLink from '~/shared/DisputeLink';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../hooks/useCurrentParty';
@@ -8,12 +9,17 @@ import useCurrentParty from '../../hooks/useCurrentParty';
 function DisputeIsWaiting() {
   const party = useCurrentParty();
 
-  const { requester, parties } = useTask();
+  const { requester, parties, disputeID } = useTask();
   const challengerIsRequester = requester === parties?.[TaskParty.Challenger];
 
-  const props = contentByParty[party]({ challengerIsRequester });
+  const { description, ...props } = contentByParty[party]({ challengerIsRequester });
 
-  return <TaskStatusDetailsLayout {...props} />;
+  return (
+    <TaskStatusDetailsLayout
+      description={[<DisputeLink key="kleros-dispute-link" disputeID={disputeID} />, ...description]}
+      {...props}
+    />
+  );
 }
 
 export default DisputeIsWaiting;

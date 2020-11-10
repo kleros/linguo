@@ -4,6 +4,7 @@ import { DisputeRuling } from '~/features/disputes';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
+import DisputeLink from '~/shared/DisputeLink';
 import useTask from '../../../useTask';
 import useCurrentParty from '../../hooks/useCurrentParty';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
@@ -11,13 +12,16 @@ import DisputeContext from './DisputeContext';
 
 function DisputeAppealPeriodIsOver() {
   const { ruling } = React.useContext(DisputeContext);
-  const { requester, parties } = useTask();
+  const { requester, parties, disputeID } = useTask();
   const party = useCurrentParty();
 
   const challengerIsRequester = requester === parties[TaskParty.Challenger];
 
   const title = titleMap[ruling];
-  const description = getDescription({ party, ruling, challengerIsRequester });
+  const description = [
+    <DisputeLink key="kleros-dispute-link" disputeID={disputeID} />,
+    ...getDescription({ party, ruling, challengerIsRequester }),
+  ];
   const illustration = illustrationMap[ruling];
 
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;

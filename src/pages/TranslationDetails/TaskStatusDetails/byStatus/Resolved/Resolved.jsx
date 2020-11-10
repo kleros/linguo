@@ -9,6 +9,7 @@ import { DisputeRuling } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
 import { getWithdrawableAmount } from '~/features/tasks/tasksSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
+import DisputeLink from '~/shared/DisputeLink';
 import EthValue from '~/shared/EthValue';
 import Spacer from '~/shared/Spacer';
 import useTask from '../../../useTask';
@@ -17,14 +18,19 @@ import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../hooks/useCurrentParty';
 
 export default function Resolved() {
-  const { hasDispute, ruling, requester, parties } = useTask();
+  const { hasDispute, ruling, requester, parties, disputeID } = useTask();
 
   const party = useCurrentParty();
 
   const challengerIsRequester = requester === parties[TaskParty.Challenger];
 
   const title = titleMap[hasDispute][ruling];
-  const description = getDescription({ party, hasDispute, ruling, challengerIsRequester });
+  const description = hasDispute
+    ? [
+        <DisputeLink key="kleros-dispute-link" disputeID={disputeID} />,
+        ...getDescription({ party, hasDispute, ruling, challengerIsRequester }),
+      ]
+    : getDescription({ party, hasDispute, ruling, challengerIsRequester });
 
   const pendingWithdrawal = usePendingWithdrawal();
 
