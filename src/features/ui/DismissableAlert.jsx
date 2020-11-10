@@ -6,7 +6,7 @@ import { Alert } from 'antd';
 import { InfoIcon, WarningIcon } from '~/shared/icons';
 import { dismissAlert, selectAlertIsVisible } from './uiSlice';
 
-export default function DismissableAlert({ id, type, showIcon, message, description, className }) {
+export default function DismissableAlert({ id, type, showIcon, banner, message, description, className }) {
   const dispatch = useDispatch();
 
   const handleDismiss = React.useCallback(() => {
@@ -18,6 +18,7 @@ export default function DismissableAlert({ id, type, showIcon, message, descript
   return isVisible ? (
     <Alert
       closable
+      banner={banner}
       onClose={handleDismiss}
       showIcon={showIcon}
       className={className}
@@ -31,6 +32,7 @@ export default function DismissableAlert({ id, type, showIcon, message, descript
 
 DismissableAlert.propTypes = {
   className: t.string,
+  banner: t.bool,
   description: t.node,
   id: t.string.isRequired,
   message: t.node.isRequired,
@@ -42,6 +44,7 @@ DismissableAlert.defaultProps = {
   className: '',
   description: null,
   showIcon: true,
+  banner: false,
   type: 'info',
 };
 

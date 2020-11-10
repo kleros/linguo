@@ -6,6 +6,7 @@ import { Layout } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
 import { Spin } from '~/adapters/antd';
 import { selectPreference } from '~/features/ui/uiSlice';
+import DismissableAlert from '~/features/ui/DismissableAlert';
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
 import Footer from '~/shared/Footer';
 import { DrawerMenu } from '~/shared/Menu';
@@ -31,8 +32,53 @@ function MainRouter() {
     <ConnectedRouter history={history}>
       <Layout>
         <DrawerMenu />
-        <Layout>
+        <Layout
+          css={`
+            background-color: ${p => p.theme.color.background.default};
+          `}
+        >
           <Navbar />
+          <div
+            id="top-loading-bar"
+            css={`
+              position: relative;
+            `}
+          ></div>
+          <div
+            css={`
+              position: relative;
+
+              :empty {
+                display: none;
+              }
+
+              @media (max-width: 991.98px) {
+                margin-bottom: 0.5rem;
+              }
+
+              @media (max-width: 767.98px) {
+                margin-bottom: 1rem;
+              }
+
+              @media (max-width: 575.98px) {
+                margin-bottom: 4.5rem;
+              }
+            `}
+          >
+            <DismissableAlert
+              banner
+              type="warning"
+              id="global.betaWarning"
+              message="This is a beta version, use at your own risk. Linguo is currently very sensitive to gas prices. An optimized version will be available soon."
+              css={`
+                position: absolute;
+                z-index: 1;
+                top: 0;
+                left: 0;
+                right: 0;
+              `}
+            />
+          </div>
           <Web3ErrorAlert />
           <Content>
             <Switch>

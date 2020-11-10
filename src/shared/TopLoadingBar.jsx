@@ -1,14 +1,16 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import t from 'prop-types';
 import clsx from 'clsx';
 import { Progress } from 'antd';
 import styled from 'styled-components';
 
 export default function TopLoadingBar({ show }) {
-  return (
+  return createPortal(
     <StyledWrapper>
       <StyledProgress className={clsx({ show })} status="active" percent={99.9999} showInfo={false} strokeWidth={5} />
-    </StyledWrapper>
+    </StyledWrapper>,
+    document.querySelector('#top-loading-bar')
   );
 }
 
@@ -18,6 +20,7 @@ TopLoadingBar.propTypes = {
 
 const StyledWrapper = styled.div`
   position: absolute;
+  z-index: 10;
   top: 0;
   left: 0;
   right: 0;
