@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'antd';
-import EthValue from '~/shared/EthValue';
+import EthValue, { EthUnit } from '~/shared/EthValue';
 
 function TaskPrice({ value, showTooltip, showFootnoteMark, className }) {
   return (
@@ -11,7 +11,9 @@ function TaskPrice({ value, showTooltip, showFootnoteMark, className }) {
       amount={value}
       suffixType="short"
       render={({ formattedValue, suffix }) => (
-        <Tooltip title={showTooltip ? <EthValue amount={value} decimals={18} suffixType="short" /> : ''}>
+        <Tooltip
+          title={showTooltip ? <EthValue amount={value} decimals={18} unit={EthUnit.ether} suffixType="short" /> : ''}
+        >
           <StyledWrapper className={clsx({ 'with-tooltip': showTooltip }, className)}>
             {`${formattedValue} ${suffix}`.trim()}
             {showFootnoteMark ? <sup>*</sup> : null}
