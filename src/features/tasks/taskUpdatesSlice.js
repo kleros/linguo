@@ -40,6 +40,7 @@ const unsubscribeFromUpdates = createAction('tasks/updates/unsubscribe', prepare
 export const initialState = {
   byAccount: {},
 };
+
 const taskUpdatesSlice = createSlice({
   name: 'tasks/updates',
   initialState,
@@ -121,7 +122,7 @@ export const actions = {
 };
 
 export function* subscribeSaga(action) {
-  const { fromBlock, filter, account } = action.payload ?? {};
+  const { fromBlock, filter, chainId, account } = action.payload ?? {};
 
   const linguoApi = yield getContext('linguoApi');
   const [subscriptions, arbitratorSubscriptions] = yield all([
@@ -139,6 +140,7 @@ export function* subscribeSaga(action) {
         meta: {
           ...event.meta,
           account,
+          chainId,
         },
       };
       yield put(preparedEvent);
@@ -187,11 +189,12 @@ const handlersByType = {
     }
 
     const { id } = action.payload;
-    const { account, blockNumber } = action.meta;
+    const { chainId, account, blockNumber } = action.meta;
 
     yield put(
       putNotification({
         id: `${blockNumber}-TaskAssigned-${account}-${id}`,
+        chainId,
         account,
         blockNumber,
         priority: 10,
@@ -210,11 +213,12 @@ const handlersByType = {
     }
 
     const { id } = action.payload;
-    const { account, blockNumber } = action.meta;
+    const { chainId, account, blockNumber } = action.meta;
 
     yield put(
       putNotification({
         id: `${blockNumber}-TranslationSubmitted-${account}-${id}`,
+        chainId,
         account,
         blockNumber,
         priority: 20,
@@ -234,12 +238,13 @@ const handlersByType = {
     }
 
     const { id } = action.payload;
-    const { account, blockNumber } = action.meta;
+    const { chainId, account, blockNumber } = action.meta;
 
     yield put(
       putNotification({
         id: `${blockNumber}-TranslationChallenged-${account}-${id}`,
         account,
+        chainId,
         blockNumber,
         priority: 30,
         data: {
@@ -252,7 +257,7 @@ const handlersByType = {
       })
     );
   },
-  *[receivedAppealableRuling](action) {
+  *[receivedAppealableRuling](action, { chainId }) {
     const disputeId = action.payload.id;
     const taskId = yield select(selectTaskIdFromDisputeId(disputeId));
     if (!taskId) {
@@ -272,6 +277,7 @@ const handlersByType = {
     yield put(
       putNotification({
         id: `${blockNumber}-AppealPossible-${account}-${taskId}`,
+        chainId,
         account,
         blockNumber,
         priority: 35,
@@ -284,7 +290,7 @@ const handlersByType = {
       })
     );
   },
-  *[disputeAppealed](action) {
+  *[disputeAppealed](action, { chainId }) {
     const disputeId = action.payload.id;
     const taskId = yield select(selectTaskIdFromDisputeId(disputeId));
     if (!taskId) {
@@ -304,6 +310,7 @@ const handlersByType = {
     yield put(
       putNotification({
         id: `${blockNumber}-AppealDecision-${account}-${taskId}`,
+        chainId,
         account,
         blockNumber,
         priority: 36,
@@ -322,7 +329,7 @@ const handlersByType = {
     }
 
     const { id, party } = action.payload;
-    const { account, blockNumber } = action.meta;
+    const { chainId, account, blockNumber } = action.meta;
 
     if (
       (party === TaskParty.Translator && role === Role.Translator) ||
@@ -342,6 +349,7 @@ const handlersByType = {
     yield put(
       putNotification({
         id: `${blockNumber}-HasPaidFee-${account}-${id}`,
+        chainId,
         account,
         blockNumber,
         priority: 40,
@@ -360,15 +368,29 @@ const handlersByType = {
     }
 
     const { id } = action.payload;
-    const { account, blockNumber } = action.meta;
+    const { chainId, account, blockNumber } = action.meta;
 
     let task = yield call(selectTask, { id });
 
     if (task.status === TaskStatus.Resolved) {
-      const notification = yield call(buildFinalResolvedNotification, { id, task, role, account, blockNumber });
+      const notification = yield call(buildFinalResolvedNotification, {
+        id,
+        task,
+        role,
+        chainId,
+        account,
+        blockNumber,
+      });
       yield put(notification);
     } else {
-      const notification = yield call(buildInterimResolvedNotification, { id, task, role, account, blockNumber });
+      const notification = yield call(buildInterimResolvedNotification, {
+        id,
+        task,
+        role,
+        chainId,
+        account,
+        blockNumber,
+      });
       yield put(notification);
 
       const MAX_WAIT = 10000; // 10 seconds
@@ -376,7 +398,14 @@ const handlersByType = {
       task = yield call(selectTask, { id });
 
       if (task.status === TaskStatus.Resolved) {
-        const notification = yield call(buildFinalResolvedNotification, { id, task, role, account, blockNumber });
+        const notification = yield call(buildFinalResolvedNotification, {
+          id,
+          task,
+          role,
+          chainId,
+          account,
+          blockNumber,
+        });
         yield put(notification);
       } else {
         try {
@@ -385,6 +414,7 @@ const handlersByType = {
             id,
             task: data,
             role,
+            chainId,
             account,
             blockNumber,
           });
@@ -411,7 +441,7 @@ function* waitForTaskFetch({ id }) {
   }
 }
 
-function buildInterimResolvedNotification({ task, account, id, blockNumber }) {
+function buildInterimResolvedNotification({ task, chainId, account, id, blockNumber }) {
   const { hasDispute } = task;
 
   const text = hasDispute
@@ -420,6 +450,7 @@ function buildInterimResolvedNotification({ task, account, id, blockNumber }) {
 
   return putNotification({
     id: `${blockNumber}-TaskResolved-${account}-${id}`,
+    chainId,
     account,
     blockNumber,
     priority: 50,
@@ -433,7 +464,7 @@ function buildInterimResolvedNotification({ task, account, id, blockNumber }) {
   });
 }
 
-function buildFinalResolvedNotification({ task, role, account, id, blockNumber }) {
+function buildFinalResolvedNotification({ task, role, chainId, account, id, blockNumber }) {
   const {
     hasDispute,
     ruling,
@@ -523,6 +554,7 @@ function buildFinalResolvedNotification({ task, role, account, id, blockNumber }
 
   return putNotification({
     id: `${blockNumber}-TaskResolved-${account}-${id}`,
+    chainId,
     account,
     blockNumber,
     priority: 50,

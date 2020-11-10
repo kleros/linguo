@@ -4,20 +4,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Layout } from 'antd';
 import styled from 'styled-components';
 import { subscribeToUpdates, unsubscribeFromUpdates } from '~/features/tasks/tasksSlice';
-import { selectAccount } from '~/features/web3/web3Slice';
+import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import { selectLatestBlock } from '~/features/notifications/notificationsSlice';
 
 export default function Content({ children }) {
   const account = useSelector(selectAccount);
-  const latestBlock = useSelector(state => selectLatestBlock(state, { account }));
+  const chainId = useSelector(selectChainId);
+  const latestBlock = useSelector(state => selectLatestBlock(state, { chainId, account }));
 
   const dispatch = useDispatch();
 
-  const subscribe = React.useCallback(() => dispatch(subscribeToUpdates({ account, fromBlock: latestBlock + 1 })), [
-    dispatch,
-    account,
-    latestBlock,
-  ]);
+  const subscribe = React.useCallback(
+    () => dispatch(subscribeToUpdates({ chainId, account, fromBlock: latestBlock + 1 })),
+    [dispatch, account, chainId, latestBlock]
+  );
   const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromUpdates()), [dispatch]);
 
   React.useEffect(() => {

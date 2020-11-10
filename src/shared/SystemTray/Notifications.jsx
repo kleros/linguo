@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { selectByAccount, markAsRead, markAllFromAccountAsRead } from '~/features/notifications/notificationsSlice';
-import { selectAccount, selectBlockDate, getBlockInfo } from '~/features/web3/web3Slice';
+import { selectAccount, selectBlockDate, getBlockInfo, selectChainId } from '~/features/web3/web3Slice';
 import { CheckIcon, DisputeIcon, NotificationIcon } from '~/shared/icons';
 import TimeAgo from '~/shared/TimeAgo';
 import Spacer from '~/shared/Spacer';
@@ -20,13 +20,15 @@ import { Badge, Button, Popover, withToolbarStylesIcon } from './adapters';
 export default function Notifications() {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
+  const chainId = useSelector(selectChainId);
 
   const handleMarkAllAsRead = React.useCallback(() => {
-    dispatch(markAllFromAccountAsRead({ account }));
-  }, [dispatch, account]);
+    dispatch(markAllFromAccountAsRead({ chainId, account }));
+  }, [dispatch, chainId, account]);
 
   const notifications = useShallowEqualSelector(state =>
     selectByAccount(state, {
+      chainId,
       account,
       filter: notification => !notification.read,
     })
@@ -151,11 +153,12 @@ const StyledList = styled(List)`
 
 function Notification({ id, blockNumber, message, to, type, icon, transient }) {
   const account = useSelector(selectAccount);
+  const chainId = useSelector(selectChainId);
   const dispatch = useDispatch();
 
   const handleClick = React.useCallback(() => {
-    dispatch(markAsRead({ id, account }));
-  }, [dispatch, id, account]);
+    dispatch(markAsRead({ chainId, id, account }));
+  }, [dispatch, chainId, id, account]);
 
   const blockDate = useBlockDate({ blockNumber });
 
