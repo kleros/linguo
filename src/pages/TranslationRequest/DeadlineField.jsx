@@ -21,7 +21,7 @@ export default function DeadlineField({ setFieldsValue }) {
 
   return (
     <>
-      <Col xs={24} sm={24} md={24} lg={16}>
+      <Col xs={24} sm={24} md={24} lg={8}>
         <Form.Item
           label="Deadline"
           name="deadline"

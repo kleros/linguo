@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Col, Form, Input, Row } from 'antd';
+import { Col, Form, Input } from 'antd';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import { normalizeBaseUnit } from '~/features/tokens';
 import { selectAccount } from '~/features/web3/web3Slice';
@@ -54,77 +54,77 @@ function PriceDefinitionFields({ setFieldsValue }) {
 
   return (
     <>
-      <Row gutter={[16, 16]}>
-        <Form.Item name="account" initialValue={account}>
-          <Input type="hidden" />
+      <Form.Item name="account" initialValue={account}>
+        <Input type="hidden" />
+      </Form.Item>
+      <Form.Item name="minPrice" initialValue="0">
+        <Input type="hidden" />
+      </Form.Item>
+      <Form.Item name="maxPrice" initialValue="0">
+        <Input type="hidden" />
+      </Form.Item>
+      <Col xs={24} sm={24} md={12} lg={8}>
+        <Form.Item
+          label="Minimum Price"
+          name="minPriceNumeric"
+          rules={[
+            {
+              required: true,
+              message: 'Please set a minimum price.',
+            },
+            {
+              type: 'number',
+              min: 0.01,
+              message: `Minimum price must be at least 0.01 ETH.`,
+            },
+          ]}
+        >
+          <InputNumberWithAddons
+            type="number"
+            placeholder="e.g.: 1.2"
+            min={0.01}
+            step={0.01}
+            addonAfter="ETH"
+            onChange={handleMinPriceNumericChange}
+          />
         </Form.Item>
-        <Form.Item name="minPrice" initialValue="0">
-          <Input type="hidden" />
+      </Col>
+      <Col xs={24} sm={24} md={12} lg={8}>
+        <Form.Item
+          label="Maximum Price"
+          name="maxPriceNumeric"
+          dependencies={['minPriceNumeric']}
+          rules={[
+            {
+              required: true,
+              message: 'Please set a maximum price.',
+            },
+            {
+              type: 'number',
+              min: minMaxPriceNumeric,
+              message: `Maximum price must be at least ${minMaxPriceNumeric} ETH`,
+            },
+          ]}
+        >
+          <InputNumberWithAddons
+            type="number"
+            placeholder="e.g.: 2.5"
+            min={minMaxPriceNumeric}
+            step={0.01}
+            addonAfter="ETH"
+            onChange={handleMaxPriceNumericChange}
+          />
         </Form.Item>
-        <Form.Item name="maxPrice" initialValue="0">
-          <Input type="hidden" />
-        </Form.Item>
-        <Col xs={24} sm={24} md={12} lg={8}>
-          <Form.Item
-            label="Minimum Price"
-            name="minPriceNumeric"
-            rules={[
-              {
-                required: true,
-                message: 'Please set a minimum price.',
-              },
-              {
-                type: 'number',
-                min: 0.01,
-                message: `Minimum price must be at least 0.01 ETH.`,
-              },
-            ]}
-          >
-            <InputNumberWithAddons
-              type="number"
-              placeholder="e.g.: 1.2"
-              min={0.01}
-              step={0.01}
-              addonAfter="ETH"
-              onChange={handleMinPriceNumericChange}
-            />
-          </Form.Item>
-        </Col>
-        <Col xs={24} sm={24} md={12} lg={8}>
-          <Form.Item
-            label="Maximum Price"
-            name="maxPriceNumeric"
-            dependencies={['minPriceNumeric']}
-            rules={[
-              {
-                required: true,
-                message: 'Please set a maximum price.',
-              },
-              {
-                type: 'number',
-                min: minMaxPriceNumeric,
-                message: `Maximum price must be at least ${minMaxPriceNumeric} ETH`,
-              },
-            ]}
-          >
-            <InputNumberWithAddons
-              type="number"
-              placeholder="e.g.: 2.5"
-              min={minMaxPriceNumeric}
-              step={0.01}
-              addonAfter="ETH"
-              onChange={handleMaxPriceNumericChange}
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-      <StyledDetails>
-        <summary>
-          <InfoIcon /> Click to learn more about the price definition.
-        </summary>
-        <Spacer />
-        <PriceDefinitionInfographic />
-      </StyledDetails>
+      </Col>
+      <Col span={24}>
+        <StyledDetails>
+          <summary>
+            <InfoIcon /> Click to learn more about the price definition.
+          </summary>
+          <Spacer />
+          <PriceDefinitionInfographic />
+        </StyledDetails>
+      </Col>
     </>
   );
 }

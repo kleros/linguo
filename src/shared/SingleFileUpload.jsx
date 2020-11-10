@@ -1,7 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Upload, Tooltip, Typography } from 'antd';
+import { Upload, Typography } from 'antd';
 import { UploadOutlined, LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import ipfs from '~/app/ipfs';
 import Button from '~/shared/Button';
@@ -21,15 +21,14 @@ export default function SingleFileUpload({
 }) {
   const [state, send] = useStateMachine(uploadStateMachine);
 
-  const finalDisabled = disabled || state !== 'idle';
-  const tooltip = finalDisabled ? 'Remove the file from the list to be able to add another one' : '';
+  const finalDisabled = disabled || state === 'pending';
 
   const [fileList, setFileList] = React.useState([]);
 
   const handleChange = React.useCallback(
     info => {
       const newFileList = info.fileList
-        .slice(0, 1) // take only the first item
+        .slice(-1) // take only the latest item
         .map(file => (file.response ? { ...file, url: file.response.url } : file));
 
       setFileList(newFileList);
@@ -103,21 +102,17 @@ export default function SingleFileUpload({
       customRequest={customRequest}
       className={className}
     >
-      <Tooltip title={tooltip}>
-        <span>
-          <Button {...finalButtonProps} icon={icon} disabled={finalDisabled}>
-            {text}
-          </Button>
-          {fileList?.[0]?.status === 'done' ? (
-            <>
-              <Spacer size={0.5} />
-              <StyledInfo>
-                <InfoIcon /> You can click on the file name below to visualize it.
-              </StyledInfo>
-            </>
-          ) : null}
-        </span>
-      </Tooltip>
+      <Button {...finalButtonProps} icon={icon} disabled={finalDisabled}>
+        {text}
+      </Button>
+      {fileList?.[0]?.status === 'done' ? (
+        <>
+          <Spacer size={0.5} />
+          <StyledInfo>
+            <InfoIcon /> You can click on the file name below to visualize it.
+          </StyledInfo>
+        </>
+      ) : null}
     </StyledUpload>
   );
 }
@@ -157,7 +152,7 @@ const defaultButtonContent = {
     icon: <CheckCircleOutlined />,
   },
   errored: {
-    text: 'Failed!',
+    text: 'Failed! Please try again',
     icon: <CloseCircleOutlined />,
   },
 };

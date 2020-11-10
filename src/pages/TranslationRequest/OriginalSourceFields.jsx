@@ -17,28 +17,7 @@ export default function OriginalSourceFields({ setFieldsValue }) {
   return (
     <Col span={24}>
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={24} md={12} lg={8} order={0}>
-          <StyledFormItem
-            label="Word Count"
-            name="wordCount"
-            rules={[
-              {
-                required: true,
-                message: 'Please set the word count.',
-              },
-            ]}
-          >
-            <InputNumberWithAddons
-              type="number"
-              placeholder="The length of the text"
-              min={1}
-              step={1}
-              addonAfter="words"
-            />
-          </StyledFormItem>
-        </Col>
-        <Col xs={0} sm={0} md={12} lg={16} order={0}></Col>
-        <Col xs={24} sm={24} md={12} lg={8} order={0}>
+        <Col xs={24} sm={24} md={12} lg={16} order={0}>
           <StyledFormItem
             label="Original Text File"
             name="originalTextFile"
@@ -70,25 +49,49 @@ export default function OriginalSourceFields({ setFieldsValue }) {
           sm={{ span: 24, order: 0 }}
           md={{ span: 24, order: 1 }}
           css={`
-            margin: -1rem 0 0;
+            margin: -0.5rem 0 1rem;
+
+            :empty {
+              display: none;
+            }
           `}
         >
           <DismissableAlert
-            id={'requester.form.multipleFiles'}
+            id="requester.form.multipleFiles"
             message="If you want to send multiple files, you can put them all in a single .zip
             file."
             description={
               <StyledDisclaimer>
-                <p>Please make sure the actual file to be translated can be easily identified.</p>
+                <p>Please make sure the actual files to be translated can be easily identified.</p>
                 <p>
-                  We recommend you to create a file in a simple format (e.g.: <em>instructions.pdf</em>) with general
+                  We recommend you to include a file in a simple format (i.e.: <em>instructions.pdf</em>) with general
                   instructions for translators.
                 </p>
               </StyledDisclaimer>
             }
           />
         </Col>
-        <Col xs={24} sm={24} md={12} lg={16} order={0}>
+        <Col xs={24} sm={24} md={12} lg={8} order={0}>
+          <StyledFormItem
+            label="Word Count"
+            name="wordCount"
+            rules={[
+              {
+                required: true,
+                message: 'Please set the word count.',
+              },
+            ]}
+          >
+            <InputNumberWithAddons
+              type="number"
+              placeholder="The length of the text"
+              min={1}
+              step={1}
+              addonAfter="words"
+            />
+          </StyledFormItem>
+        </Col>
+        <Col xs={24} sm={24} md={24} lg={16} order={1}>
           <StyledFormItem
             label="Original Text URL (optional)"
             name="originalTextUrl"
@@ -100,7 +103,7 @@ export default function OriginalSourceFields({ setFieldsValue }) {
               },
             ]}
           >
-            <Input size="large" placeholder="Paste a URL here" />
+            <Input size="large" placeholder="Insert a URL here" />
           </StyledFormItem>
         </Col>
       </Row>

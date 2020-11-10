@@ -96,8 +96,10 @@ function TranslationRequestForm() {
       </Row>
       <Row gutter={rowGutter}>
         <DeadlineField setFieldsValue={form.setFieldsValue} />
+        {/* </Row> */}
+        {/* <Row gutter={rowGutter}> */}
+        <PriceDefinitionFields />
       </Row>
-      <PriceDefinitionFields />
       <Spacer />
       <Row gutter={rowGutter} justify="end">
         <Col>
