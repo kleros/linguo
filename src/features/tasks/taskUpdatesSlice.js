@@ -308,7 +308,7 @@ const handlersByType = {
         blockNumber,
         priority: 36,
         data: {
-          type: 'info',
+          type: 'warning',
           icon: 'dispute',
           text: 'The dispute has been appealed',
           url: `/translation/${taskId}`,
@@ -416,7 +416,7 @@ function buildInterimResolvedNotification({ task, account, id, blockNumber }) {
 
   const text = hasDispute
     ? 'The jurors ruled about this translation task. Getting more details...'
-    : 'Translation task was finalized. Getting more details...';
+    : 'The translation task was completed. Getting more details...';
 
   return putNotification({
     id: `${blockNumber}-TaskResolved-${account}-${id}`,
@@ -509,11 +509,13 @@ function buildFinalResolvedNotification({ task, role, account, id, blockNumber }
 
     icon = iconsByRuling[DisputeRuling.of(ruling)];
   } else {
-    const appendedMessage =
-      role === Role.Translator
-        ? 'You have received the payment from the requester.'
-        : 'The translator received the payment from the requester.';
-    text = `The translation task was resolved. ${appendedMessage}`;
+    const appendedMessagesByRole = {
+      [Role.Requester]: 'Your requester deposit was sent to the translator.',
+      [Role.Translator]: 'You have received your translator deposit back + the payment from the requester.',
+      [Role.Other]: 'The translator received the escrow payment.',
+    };
+
+    text = `The translation task was completed. ${appendedMessagesByRole[role]}`;
 
     type = 'success';
     icon = 'confirmation';

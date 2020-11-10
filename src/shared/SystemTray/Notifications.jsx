@@ -137,7 +137,7 @@ const StyledPopover = styled(Popover)`
 
 const StyledList = styled(List)`
   .ant-list-items {
-    max-height: 50vh;
+    max-height: 75vh;
     overflow: hidden auto;
   }
 
