@@ -40,13 +40,13 @@ const notificationsSlice = createSlice({
     },
     markAllFromAccountAsRead(state, action) {
       const { chainId, account } = action.payload;
-      const ids = state.byAccount[account].ids;
 
       if (state.byChainId[chainId]?.byAccount?.[account]) {
+        const ids = state.byChainId[chainId]?.byAccount[account].ids;
         state.byChainId[chainId].byAccount[account].ids = [];
 
         ids.forEach(id => {
-          delete state.byId[id];
+          delete state.byChainId[chainId].byId[id];
         });
       }
     },
