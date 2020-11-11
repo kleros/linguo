@@ -1349,10 +1349,10 @@
     openzeppelin-solidity "^1.12.0"
     solidity-bytes-utils "^0.0.5"
 
-"@kleros/linguo-contracts@~0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@kleros/linguo-contracts/-/linguo-contracts-0.1.1.tgz#cdacbce74e7f16db49c7c7d83aaee2fe6edff4e8"
-  integrity sha512-nvOA3pQXzEqZCSyp60SCXXNgwCy9FLAfU6Y0EqCDPS1YPYseA1FROivNrbXUWBx0hQdyHy/IrO4/H3rytJ1Iuw==
+"@kleros/linguo-contracts@~0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@kleros/linguo-contracts/-/linguo-contracts-0.3.0.tgz#efbfedfd5d81285503a6a3f6239cf59acee2bccf"
+  integrity sha512-8zdSILrw6xHhDST7DfQSCwkQMfXhbLgXUjs8FmJqsdygDBa2cA4JvvFk/CkFcnVOrkx9rdieVh06MVBg1yrLtQ==
   dependencies:
     "@kleros/erc-792" "^7.0.0"
     "@kleros/ethereum-libraries" "^7.0.0"
