@@ -4,7 +4,10 @@ import getLanguageGroup from './getLanguageGroup';
 
 export default function getAvailableLanguagePairing(languageCode) {
   if (!languageCode) {
-    return languages;
+    return languages.filter(language => {
+      const group = getLanguageGroup(language.code);
+      return languageGroupPairs.some(lgp => lgp.contains(group));
+    });
   }
 
   const group = getLanguageGroup(languageCode);
