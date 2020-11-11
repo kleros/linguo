@@ -271,6 +271,10 @@ function getContractInstancesForTranslator({ skills, addressesByLanguageGroupPai
 const BLOCKS_IN_60_DAYS = 60 * 24 * 60 * 60 * 4;
 
 async function getContractAddressesForRequester({ chainId, account, web3, apiInstancesByAddress }) {
+  if (!account) {
+    return [];
+  }
+
   const subdomain = chainId === 42 ? 'api-kovan' : 'api';
   const endBlock = await web3.eth.getBlockNumber();
   const startBlock = subtract(endBlock, BLOCKS_IN_60_DAYS);
