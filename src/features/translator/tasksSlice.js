@@ -26,6 +26,7 @@ const translatorTasksSlice = createSlice({
 
       state.filter = getFilter(filter);
       if (hasSecondLevelFilters(filter) && secondLevelFilter) {
+        state.secondLevelFilter = state.secondLevelFilter ?? {};
         state.secondLevelFilter[state.filter] = getSecondLevelFilter(filter, secondLevelFilter);
       }
     },
