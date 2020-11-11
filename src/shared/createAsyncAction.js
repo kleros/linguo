@@ -51,6 +51,8 @@ export const matchAnyAsyncType = curry(_matchAnyAsyncType);
  */
 const defaultPrepare = (payload, rest = {}) => ({ payload, ...rest });
 
+export { defaultPrepare as prepare };
+
 /**
  * @typedef {object} ActionWithPayload
  * @prop {object} payload

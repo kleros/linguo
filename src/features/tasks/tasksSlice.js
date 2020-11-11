@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAction } from '@reduxjs/toolkit';
 import { push } from 'connected-react-router';
 import deepMerge from 'deepmerge';
 import { createMigrate, persistReducer } from 'redux-persist';
@@ -9,7 +9,7 @@ import createLinguoApiContext from '~/features/linguo/createSagaApiContext';
 import { confirm, registerTxSaga } from '~/features/transactions/transactionsSlice';
 import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
 import { watchAllWithBuffer } from '~/features/web3/runWithContext';
-import createAsyncAction from '~/shared/createAsyncAction';
+import createAsyncAction, { prepare } from '~/shared/createAsyncAction';
 import createCancellableSaga from '~/shared/createCancellableSaga';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { compose, filter, indexBy, mapValues, prop } from '~/shared/fp';
@@ -18,9 +18,8 @@ import migrations from './migrations';
 import singleTaskReducer, * as singleTaskSlice from './singleTaskSlice';
 import taskUpdatesReducer, * as taskUpdatesSlice from './taskUpdatesSlice';
 
-export const INTERNAL_FETCH_KEY = '@@tasks/internal';
-
 export const create = createAsyncAction('tasks/create');
+create.mined = createAction('tasks/create/mined', prepare);
 export const fetchByParty = createAsyncAction('tasks/fetchByParty');
 
 const tasksSlice = createSlice({
@@ -191,8 +190,10 @@ export function* fetchByPartySaga(action) {
     return;
   }
 
+  const hints = meta.hints ?? {};
+
   try {
-    const data = yield call([linguoApi, method], { account, skills });
+    const data = yield call([linguoApi, method], { account, skills, hints });
     yield put(fetchByParty.fulfilled({ data }, { meta }));
   } catch (err) {
     console.warn('Failed to fetch tasks:', err);
@@ -223,7 +224,7 @@ export function* createSaga(action) {
       ...metaTx,
       *onSuccess(resultAction) {
         if (confirm.match(resultAction)) {
-          yield put(fetchByParty({ account, party: TaskParty.Requester }, { meta: { key: INTERNAL_FETCH_KEY } }));
+          yield put(create.mined({ account, ...rest }));
         }
       },
     });

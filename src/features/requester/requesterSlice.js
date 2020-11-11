@@ -1,13 +1,14 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit';
+import { put, putResolve, select } from 'redux-saga/effects';
 import { push, replace } from 'connected-react-router';
-import { put, putResolve, race, select, take } from 'redux-saga/effects';
 import { TaskParty } from '~/features/tasks';
-import { fetchByParty, INTERNAL_FETCH_KEY, selectAllFilterByIds } from '~/features/tasks/tasksSlice';
+import { fetchByParty, create, selectAllFilterByIds } from '~/features/tasks/tasksSlice';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { compose, filter as arrayFilter, sort } from '~/shared/fp';
 import { filters, getFilter, getFilterPredicate } from './filters';
 import { getComparator } from './sorting';
+import { LanguageGroupPair, getLanguageGroup } from '../linguo/languagePairing';
 
 export const initialState = {
   tasks: {
@@ -99,35 +100,11 @@ export function* fetchTasksSaga(action) {
   }
 }
 
-export function* processTasksFetchedInternallySaga(action) {
-  const { key } = action.meta ?? {};
-  const { account, party } = action.payload ?? {};
+export function* handleTaskCreateTxnMined(action) {
+  const { account, sourceLanguage, targetLanguage } = action.payload ?? {};
+  const languageGroupPair = LanguageGroupPair.of([sourceLanguage, targetLanguage].map(getLanguageGroup));
 
-  if (key !== INTERNAL_FETCH_KEY || party !== TaskParty.Requester) {
-    return;
-  }
-
-  while (true) {
-    const { fulfilled, rejected } = yield race({
-      fulfilled: take(fetchByParty.fulfilled.type),
-      rejected: take(fetchByParty.rejected.type),
-    });
-
-    if (fulfilled && fulfilled.meta.key === INTERNAL_FETCH_KEY) {
-      const tasks = fulfilled.payload?.data ?? [];
-      const ids = tasks.map(({ id }) => id);
-      yield put(fetchTasks.fulfilled({ account, data: ids }));
-
-      break;
-    }
-
-    if (rejected && rejected.meta.key === INTERNAL_FETCH_KEY) {
-      const error = rejected.payload?.error;
-      yield put(fetchTasks.rejected({ account, error }));
-
-      break;
-    }
-  }
+  yield put(fetchTasks({ account }, { meta: { hints: { languageGroupPairs: [languageGroupPair] } } }));
 }
 
 export function* onFilterChangeSaga(action) {
@@ -149,8 +126,8 @@ export const sagas = {
   watchFetchTasksSaga: createWatcherSaga({ takeType: TakeType.latest }, fetchTasksSaga, fetchTasks.type),
   watchProcessTasksFetchedInternallySaga: createWatcherSaga(
     { takeType: TakeType.every },
-    processTasksFetchedInternallySaga,
-    fetchByParty.type
+    handleTaskCreateTxnMined,
+    create.mined.type
   ),
   watchSetFilterSaga: createWatcherSaga({ takeType: TakeType.every }, onFilterChangeSaga, setFilter.type),
 };

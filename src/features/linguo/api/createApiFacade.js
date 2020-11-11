@@ -11,7 +11,6 @@ import {
   flatten,
   indexBy,
   map,
-  mapValues,
   omit,
   pick,
   prop,
@@ -53,17 +52,17 @@ const apiSkeleton = {
 export default async function createApiFacade({ web3, chainId }) {
   const archon = withProvider(web3.currentProvider);
 
-  const apiInfoTree = await asyncMapValues(
+  const addressesByLanguageGroupPair = getAddressesByLanguageGroupPairs({ chainId });
+
+  const apisByLanguageGroupPairs = await asyncMapValues(
     async address =>
       createContractApis({
         web3,
         archon,
         contracts: await getLinguoContracts({ web3, chainId, address, deployment: Linguo }),
       }),
-    getAddressesByLanguageGroups({ chainId })
+    addressesByLanguageGroupPair
   );
-
-  const addressesByLanguageGroupPair = mapValues(linguo => linguo.address, apiInfoTree);
 
   const apiInstancesByAddress = reduce(
     (acc, linguo) =>
@@ -71,7 +70,7 @@ export default async function createApiFacade({ web3, chainId }) {
         [linguo.address]: linguo.api,
       }),
     {},
-    Object.values(apiInfoTree)
+    Object.values(apisByLanguageGroupPairs)
   );
 
   const propHandler = {
@@ -108,7 +107,7 @@ export default async function createApiFacade({ web3, chainId }) {
 
       const langGroupPair = LanguageGroupPair(getLanguageGroup(sourceLanguage), getLanguageGroup(targetLanguage));
 
-      const linguo = apiInfoTree[langGroupPair];
+      const linguo = apisByLanguageGroupPairs[langGroupPair];
       if (!linguo) {
         throw new Error(`Cannot create a task for pair (${sourceLanguage}, ${targetLanguage})`);
       }
@@ -150,13 +149,18 @@ export default async function createApiFacade({ web3, chainId }) {
   const getRequesterTasksHandler = {
     apply: async (target, thisArg, args) => {
       const account = args?.[0]?.account;
+      const hintedLanguageGroupPairs = args?.[0]?.hints?.languageGroupPairs ?? [];
 
-      const instances = await getContractInstancesForRequester({
-        web3,
-        chainId,
-        account,
-        apiInstancesByAddress,
-      });
+      const hintedAddresses = hintedLanguageGroupPairs
+        .map(languageGroupPair => addressesByLanguageGroupPair[languageGroupPair])
+        .filter(addr => !!addr);
+
+      const addresses = uniq([
+        ...hintedAddresses,
+        ...(await getContractAddressesForRequester({ web3, chainId, account, apiInstancesByAddress })),
+      ]);
+
+      const instances = Object.values(pick(addresses, apiInstancesByAddress));
 
       const data = await asyncMap(actualInstance => actualInstance[target.name].apply(actualInstance, args), instances);
 
@@ -222,7 +226,7 @@ async function getLinguoContracts({ web3, chainId, address, deployment }) {
   return { linguo, arbitrator };
 }
 
-function getAddressesByLanguageGroups({ chainId }) {
+function getAddressesByLanguageGroupPairs({ chainId }) {
   try {
     const addresses = JSON.parse(process.env.LINGUO_CONTRACT_ADDRESSES);
     return addresses[chainId];
@@ -264,7 +268,7 @@ function getContractInstancesForTranslator({ skills, addressesByLanguageGroupPai
  */
 const BLOCKS_IN_60_DAYS = 60 * 24 * 60 * 60 * 4;
 
-async function getContractInstancesForRequester({ chainId, account, web3, apiInstancesByAddress }) {
+async function getContractAddressesForRequester({ chainId, account, web3, apiInstancesByAddress }) {
   const subdomain = chainId === 42 ? 'api-kovan' : 'api';
   const endBlock = await web3.eth.getBlockNumber();
   const startBlock = subtract(endBlock, BLOCKS_IN_60_DAYS);
@@ -287,12 +291,10 @@ async function getContractInstancesForRequester({ chainId, account, web3, apiIns
    */
   const addressesLowercaseKey = indexBy(addr => String(addr).toLowerCase(), Object.keys(apiInstancesByAddress));
 
-  const addresses = compose(
+  return compose(
     map(lowercaseAddr => addressesLowercaseKey[lowercaseAddr]),
     uniq,
     map(prop('to')),
     filter(compose(to => prop(to, addressesLowercaseKey), prop('to')))
   )(result);
-
-  return Object.values(pick(addresses, apiInstancesByAddress));
 }
