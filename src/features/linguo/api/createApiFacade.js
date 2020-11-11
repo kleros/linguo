@@ -202,8 +202,10 @@ export default async function createApiFacade({ web3, chainId }) {
   };
 
   const subscribeHandler = {
-    apply: (target, thisArg, args) => {
-      return Object.values(apiInstancesByAddress).map(instance => instance[target.name].apply(instance, args));
+    apply: async (target, thisArg, args) => {
+      return Promise.all(
+        Object.values(apiInstancesByAddress).map(instance => instance[target.name].apply(instance, args))
+      );
     },
   };
 

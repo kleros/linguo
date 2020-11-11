@@ -16,6 +16,11 @@ import getFileUrl from './getFileUrl';
 const { toBN } = Web3.utils;
 
 export default function createContractApi({ web3, archon, linguo, arbitrator }) {
+  const firstRelevantBlockByChainId = {
+    42: 0,
+    1: 11237802,
+  };
+
   async function createTask(
     { account, deadline, minPrice, maxPrice, ...rest },
     { from = account, gas, gasPrice } = {}
@@ -643,11 +648,19 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
     return { tx };
   }
 
-  function subscribe({ fromBlock = 0, filter = {} } = {}) {
+  async function subscribe({ fromBlock = 0, filter = {} } = {}) {
+    const chainId = await web3.eth.getChainId();
+    const firstRelevantBlock = firstRelevantBlockByChainId[chainId] ?? 0;
+    fromBlock = fromBlock < firstRelevantBlock ? firstRelevantBlock : fromBlock;
+
     return linguo.events.allEvents({ fromBlock, filter });
   }
 
-  function subscribeToArbitrator({ fromBlock = 0, filter = {} } = {}) {
+  async function subscribeToArbitrator({ fromBlock = 0, filter = {} } = {}) {
+    const chainId = await web3.eth.getChainId();
+    const firstRelevantBlock = firstRelevantBlockByChainId[chainId] ?? 0;
+    fromBlock = fromBlock < firstRelevantBlock ? firstRelevantBlock : fromBlock;
+
     return arbitrator.events.allEvents({ fromBlock, filter });
   }
 
