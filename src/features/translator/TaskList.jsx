@@ -79,8 +79,7 @@ function TranslatorTaskCard(props) {
           contentBlur={0}
           overlayColor="transparent"
           css={`
-            opacity: ${hasSkill ? 1 : 0.75};
-            filter: ${hasSkill ? 'none' : 'grayscale(100%)'};
+            opacity: ${hasSkill ? 1 : 0.4};
           `}
         >
           <TaskCard {...props} />
