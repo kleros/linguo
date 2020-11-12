@@ -118,29 +118,31 @@ export default async function createApiFacade({ web3, chainId }) {
 
   const getTranslatorTasksHandler = {
     apply: async (target, thisArg, args) => {
-      const { skills } = args[0] ?? {};
-
-      if (!Array.isArray(skills)) {
-        const data = await asyncMap(
-          actualInstance => actualInstance[target.name].apply(actualInstance, args),
-          Object.values(apiInstancesByAddress)
-        );
-
-        return flatten(data);
-      }
-
-      const instances = getContractInstancesForTranslator({
-        skills,
-        addressesByLanguageGroupPair,
-        apiInstancesByAddress,
-      });
-
       const actualArgs = [omit(['skills'], args[0]), ...args.slice(1)];
 
       const data = await asyncMap(
         actualInstance => actualInstance[target.name].apply(actualInstance, actualArgs),
-        instances
+        Object.values(apiInstancesByAddress)
       );
+
+      // const { skills } = args[0] ?? {};
+
+      // if (!Array.isArray(skills)) {
+      //   const data = await asyncMap(
+      //     actualInstance => actualInstance[target.name].apply(actualInstance, args),
+      //     Object.values(apiInstancesByAddress)
+      //   );
+
+      //   return flatten(data);
+      // }
+
+      // const instances = getContractInstancesForTranslator({
+      //   skills,
+      //   addressesByLanguageGroupPair,
+      //   apiInstancesByAddress,
+      // });
+
+      // const data = await asyncMap(actualInstance => actualInstance[target.name].apply(actualInstance, args), instances);
 
       return flatten(data);
     },
@@ -254,7 +256,7 @@ const getRelevantLanguageGroupPairs = compose(
   map(LanguageGroupPair.fromArray)
 );
 
-function getContractInstancesForTranslator({ skills, addressesByLanguageGroupPair, apiInstancesByAddress }) {
+export function getContractInstancesForTranslator({ skills, addressesByLanguageGroupPair, apiInstancesByAddress }) {
   const relevantSkills = getRelevantSkills(skills);
   const allPairs = combination(getUniqueLanguageGroups(relevantSkills), 2);
   const relevantPairs = getRelevantLanguageGroupPairs([...allPairs]);

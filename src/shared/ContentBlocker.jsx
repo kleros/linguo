@@ -2,13 +2,13 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 
-function ContentBlocker({ children, blocked, contentBlur, overlayText }) {
+function ContentBlocker({ children, blocked, contentBlur, overlayColor, overlayText, className }) {
   return (
     <StyledOverlayWrapper>
-      <StyledContentWrapper disabled={blocked} contentBlur={contentBlur}>
+      <StyledContentWrapper disabled={blocked} contentBlur={contentBlur} className={className}>
         {children}
       </StyledContentWrapper>
-      <StyledOverlay visible={blocked} />
+      <StyledOverlay visible={blocked} $overlayColor={overlayColor} />
       {blocked && overlayText && <StyledOverlayText>{overlayText}</StyledOverlayText>}
     </StyledOverlayWrapper>
   );
@@ -18,7 +18,9 @@ ContentBlocker.propTypes = {
   children: t.node,
   blocked: t.bool,
   contentBlur: t.number,
+  overlayColor: t.string,
   overlayText: t.node,
+  className: t.string,
 };
 
 ContentBlocker.defaultProps = {
@@ -26,6 +28,7 @@ ContentBlocker.defaultProps = {
   blocked: false,
   contentBlur: 1,
   overlayText: null,
+  className: '',
 };
 
 export default ContentBlocker;
@@ -41,7 +44,7 @@ const StyledContentWrapper = styled.div`
 
 const StyledOverlay = styled.div`
   display: ${props => (props.visible ? 'block' : 'none')};
-  background-color: ${props => props.theme.hexToRgba('#fff', 0.5)};
+  background-color: ${props => props.$overlayColor ?? props.theme.hexToRgba('#fff', 0.5)};
   cursor: not-allowed;
   position: absolute;
   top: -3px;

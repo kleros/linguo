@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Badge, Tabs } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import * as r from '~/app/routes';
-import TaskList from '~/features/tasks/TaskList';
+import TaskList from '~/features/translator/TaskList';
 import { filters, hasSecondLevelFilters, secondLevelFilters, useFilters } from '~/features/translator';
 import {
   fetchTasks,
