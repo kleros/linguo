@@ -1,10 +1,11 @@
 import React from 'react';
 import { Titled } from 'react-titled';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Divider } from 'antd';
 import { selectIsLoading } from '~/features/requester/requesterSlice';
 import TopLoadingBar from '~/shared/TopLoadingBar';
+import AffixContainer from '~/shared/AffixContainer';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
 import { selectAccount } from '~/features/web3/web3Slice';
 import MultiCardLayout from '../layouts/MultiCardLayout';
@@ -19,7 +20,20 @@ function RequesterDashboard() {
     <Titled title={title => `Requester Dashboard | ${title}`}>
       <MultiCardLayout>
         <TopLoadingBar show={isLoading} />
-        <TaskListControls />
+        <AffixContainer
+          position="top"
+          wrapperCss={css`
+            && {
+              padding: 0 3rem;
+
+              @media (max-width: 575.98px) {
+                padding: 0;
+              }
+            }
+          `}
+        >
+          <TaskListControls />
+        </AffixContainer>
         <StyledDivider />
         <StyledContentWrapper>
           <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">

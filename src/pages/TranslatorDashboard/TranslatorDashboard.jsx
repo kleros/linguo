@@ -1,11 +1,12 @@
 import React from 'react';
 import { Titled } from 'react-titled';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Divider } from 'antd';
 import { selectIsLoading } from '~/features/translator/translatorSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import TopLoadingBar from '~/shared/TopLoadingBar';
+import AffixContainer from '~/shared/AffixContainer';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListControls from './TaskListControls';
 import TaskListFetcher from './TaskListFetcher';
@@ -18,7 +19,20 @@ export default function TranslatorDashboard() {
     <Titled title={title => `Translator Dashboard | ${title}`}>
       <MultiCardLayout>
         <TopLoadingBar show={isLoading} />
-        <TaskListControls />
+        <AffixContainer
+          position="top"
+          wrapperCss={css`
+            && {
+              padding: 0 3rem;
+
+              @media (max-width: 575.98px) {
+                padding: 0;
+              }
+            }
+          `}
+        >
+          <TaskListControls />
+        </AffixContainer>
         <StyledDivider />
         <StyledContentWrapper>
           <TaskListFetcher />

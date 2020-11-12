@@ -10,7 +10,7 @@ import allLanguages from '~/assets/fixtures/languages';
 import Button from '~/shared/Button';
 import { AddIcon, InfoIcon, RemoveIcon } from '~/shared/icons';
 import { LanguageSelect, LevelSelect } from '~/shared/LanguageSelect';
-import OverlayFooter from '~/shared/OverlayFooter';
+import AffixContainer from '~/shared/AffixContainer';
 import Spacer from '~/shared/Spacer';
 import { cancelSaveSkills, saveSkills, selectAllSkills } from './translatorSlice';
 
@@ -146,7 +146,7 @@ export default function TranslatorSettingsForm() {
         <InfoIcon /> You can update your language level or add more languages anytime in settings.
       </StyledDisclaimer>
       <Spacer size={3} />
-      <OverlayFooter>
+      <AffixContainer>
         <Row gutter={16} justify="space-between">
           <Col lg={6} md={8} sm={10} xs={12}>
             <Button fullWidth htmlType="button" variant="outlined" onClick={handleReturnClick}>
@@ -160,7 +160,7 @@ export default function TranslatorSettingsForm() {
             </Button>
           </Col>
         </Row>
-      </OverlayFooter>
+      </AffixContainer>
     </Form>
   );
 }
