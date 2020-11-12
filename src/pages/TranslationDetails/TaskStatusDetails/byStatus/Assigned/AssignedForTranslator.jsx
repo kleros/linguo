@@ -9,7 +9,7 @@ import TranslationUploadButton from '../../components/TranslationUploadButton';
 function AssignedForTranslator() {
   const { reviewTimeout } = useTask();
   const props = {
-    title: 'Deliver the translation file in plain text (*.txt)',
+    title: 'Deliver the translation file',
     description: [
       <FormattedRelativeDate
         key="next-steps"
