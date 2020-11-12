@@ -1,15 +1,16 @@
 import React from 'react';
 import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import produce from 'immer';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Alert, Col, Form, Row, Typography } from 'antd';
-import produce from 'immer';
 import * as r from '~/app/routes';
 import allLanguages from '~/assets/fixtures/languages';
 import Button from '~/shared/Button';
 import { AddIcon, InfoIcon, RemoveIcon } from '~/shared/icons';
 import { LanguageSelect, LevelSelect } from '~/shared/LanguageSelect';
+import OverlayFooter from '~/shared/OverlayFooter';
 import Spacer from '~/shared/Spacer';
 import { cancelSaveSkills, saveSkills, selectAllSkills } from './translatorSlice';
 
@@ -145,19 +146,21 @@ export default function TranslatorSettingsForm() {
         <InfoIcon /> You can update your language level or add more languages anytime in settings.
       </StyledDisclaimer>
       <Spacer size={3} />
-      <Row gutter={16} justify="space-between">
-        <Col lg={6} md={8} sm={10} xs={12}>
-          <Button fullWidth htmlType="button" variant="outlined" onClick={handleReturnClick}>
-            Return
-          </Button>
-        </Col>
+      <OverlayFooter>
+        <Row gutter={16} justify="space-between">
+          <Col lg={6} md={8} sm={10} xs={12}>
+            <Button fullWidth htmlType="button" variant="outlined" onClick={handleReturnClick}>
+              Return
+            </Button>
+          </Col>
 
-        <Col lg={6} md={8} sm={10} xs={12}>
-          <Button fullWidth htmlType="submit">
-            Save
-          </Button>
-        </Col>
-      </Row>
+          <Col lg={6} md={8} sm={10} xs={12}>
+            <Button fullWidth htmlType="submit">
+              Save
+            </Button>
+          </Col>
+        </Row>
+      </OverlayFooter>
     </Form>
   );
 }

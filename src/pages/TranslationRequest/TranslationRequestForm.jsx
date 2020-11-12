@@ -11,6 +11,7 @@ import { selectAccount } from '~/features/web3/web3Slice';
 import { omit } from '~/shared/fp';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
+import OverlayFooter from '~/shared/OverlayFooter';
 import useStateMachine from '~/shared/useStateMachine';
 import DeadlineField from './DeadlineField';
 import ExpectedQualityField from './ExpectedQualityField';
@@ -100,12 +101,16 @@ function TranslationRequestForm() {
         {/* <Row gutter={rowGutter}> */}
         <PriceDefinitionFields />
       </Row>
+
       <Spacer />
-      <Row gutter={rowGutter} justify="end">
-        <Col>
-          <Button {...submitButtonProps} htmlType="submit" />
-        </Col>
-      </Row>
+
+      <OverlayFooter>
+        <Row gutter={rowGutter[0]} justify="end">
+          <Col>
+            <Button {...submitButtonProps} htmlType="submit" />
+          </Col>
+        </Row>
+      </OverlayFooter>
     </StyledForm>
   );
 }
