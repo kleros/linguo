@@ -42,30 +42,30 @@ const cefrLanguages = [
     code: 'es',
     name: 'Spanish (Spain)',
   },
-  {
-    code: 'es-mx',
-    name: 'Spanish (Mexico)',
-  },
-  {
-    code: 'es-ar',
-    name: 'Spanish (Argentina)',
-  },
+  // {
+  //   code: 'es-mx',
+  //   name: 'Spanish (Mexico)',
+  // },
+  // {
+  //   code: 'es-ar',
+  //   name: 'Spanish (Argentina)',
+  // },
   {
     code: 'pt-br',
     name: 'Portuguese (Brazil)',
   },
-  {
-    code: 'pt',
-    name: 'Portuguese (Portugal)',
-  },
+  // {
+  //   code: 'pt',
+  //   name: 'Portuguese (Portugal)',
+  // },
   {
     code: 'de',
     name: 'German',
   },
-  {
-    code: 'nl',
-    name: 'Dutch',
-  },
+  // {
+  //   code: 'nl',
+  //   name: 'Dutch',
+  // },
   {
     code: 'tr',
     name: 'Turkish',
@@ -74,22 +74,22 @@ const cefrLanguages = [
     code: 'ru',
     name: 'Russian',
   },
-  {
-    code: 'ja',
-    name: 'Japanese',
-  },
+  // {
+  //   code: 'ja',
+  //   name: 'Japanese',
+  // },
   {
     code: 'zh-cn',
     name: 'Chinese (Simplified)',
   },
-  {
-    code: 'zh-hant',
-    name: 'Chinese (Traditional)',
-  },
-  {
-    code: 'ko',
-    name: 'Korean',
-  },
+  // {
+  //   code: 'zh-hant',
+  //   name: 'Chinese (Traditional)',
+  // },
+  // {
+  //   code: 'ko',
+  //   name: 'Korean',
+  // },
 ];
 
 export default cefrLanguages.map(language => ({

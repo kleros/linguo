@@ -5,6 +5,9 @@ import * as r from '~/app/routes';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
 import { indexBy, map, prop } from '~/shared/fp';
+import allLanguages from '~/assets/fixtures/languages';
+
+const allLanguageCodes = allLanguages.map(({ code }) => code);
 
 export const initialState = {
   ids: [],
@@ -41,7 +44,7 @@ export const actions = {
   cancelSaveSkills,
 };
 
-const selectAllSkillLanguages = state => state.ids ?? [];
+const selectAllSkillLanguages = state => state.ids.filter(code => allLanguageCodes.includes(code)) ?? [];
 const selectAllSkills = state => selectAllSkillLanguages(state).map(language => state.entities[language]);
 
 export const selectors = {
