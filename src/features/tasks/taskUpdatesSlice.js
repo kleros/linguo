@@ -445,8 +445,8 @@ function buildInterimResolvedNotification({ task, chainId, account, id, blockNum
   const { hasDispute } = task;
 
   const text = hasDispute
-    ? 'The jurors ruled about this translation task. Getting more details...'
-    : 'The translation task was completed. Getting more details...';
+    ? 'The jurors ruled about the translation task. Getting more details...'
+    : 'The translation task was resolved. Getting more details...';
 
   return putNotification({
     id: `${blockNumber}-TaskResolved-${account}-${id}`,
@@ -468,15 +468,33 @@ function buildFinalResolvedNotification({ task, role, chainId, account, id, bloc
   const {
     hasDispute,
     ruling,
-    parties: { [TaskParty.Requester]: requester, [TaskParty.Challenger]: challenger },
+    parties: {
+      [TaskParty.Requester]: requester,
+      [TaskParty.Translator]: translator,
+      [TaskParty.Challenger]: challenger,
+    },
   } = task;
-  const challengerIsRequester = requester === challenger;
 
   let text;
   let type;
   let icon;
 
-  if (hasDispute) {
+  if (!translator) {
+    text = 'No translator was assigned to the task before the deadline.';
+    type = 'warning';
+    icon = 'bell';
+  } else if (!task.translatedText) {
+    const appendedMessageByRole = {
+      [Role.Requester]: 'You received the escrow deposit back + the translator deposit.',
+      [Role.Translator]: 'Your translator deposit was sent to the requester.',
+    };
+
+    text = `The translation was not delivered in time. ${appendedMessageByRole[role]}`;
+    type = role === Role.Translator ? 'danger' : 'info';
+    icon = 'bell';
+  } else if (hasDispute) {
+    const challengerIsRequester = requester === challenger;
+
     const messageByRuling = {
       [DisputeRuling.RefuseToRule]: () => 'Jurors refused to rule about the translation.',
       [DisputeRuling.TranslationApproved]: () => 'Jurors approved the translation.',
