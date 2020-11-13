@@ -42,10 +42,9 @@ function IncompleteForRequester() {
       }
     : {
         title,
-        description: [
-          'You can try submitting the same task again.',
-          'Increasing the payout might help you get it done on time.',
-        ],
+        description: isAssigned
+          ? ['The requester received the Requester Deposit back + the Translator Deposit.']
+          : ['The requester was reimbursed of the Requester Deposit.'],
         illustration: <TaskIgnoredAvatar />,
       };
 
