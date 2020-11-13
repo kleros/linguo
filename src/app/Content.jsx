@@ -23,13 +23,19 @@ export default function Content({ children }) {
   React.useEffect(() => {
     if (account) {
       subscribe();
-      // window.addEventListener('focus', subscribe);
-      // window.addEventListener('blur', unsubscribe);
+
+      if (process.env.NODE_ENV === 'production') {
+        window.addEventListener('focus', subscribe);
+        window.addEventListener('blur', unsubscribe);
+      }
 
       return () => {
         unsubscribe();
-        // window.removeEventListener('focus', subscribe);
-        // window.removeEventListener('blur', unsubscribe);
+
+        if (process.env.NODE_ENV === 'production') {
+          window.removeEventListener('focus', subscribe);
+          window.removeEventListener('blur', unsubscribe);
+        }
       };
     }
   }, [dispatch, account, subscribe, unsubscribe]);
