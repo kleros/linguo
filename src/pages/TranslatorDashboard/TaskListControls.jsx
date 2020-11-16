@@ -4,9 +4,10 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Badge, Radio } from 'antd';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import * as r from '~/app/routes';
 import { filters, useFilters } from '~/features/translator';
-import { selectTaskCountForFilter } from '~/features/translator/translatorSlice';
+import { selectTaskCountForFilter, selectAllSkills } from '~/features/translator/translatorSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
 import RadioButton from '~/shared/RadioButton';
@@ -55,9 +56,11 @@ function TaskListFilters() {
 
 function FilterOption({ value, text }) {
   const account = useSelector(selectAccount);
+  const skills = useShallowEqualSelector(selectAllSkills);
   const count = useSelector(state =>
     selectTaskCountForFilter(state, {
       account,
+      skills,
       filter: value,
     })
   );

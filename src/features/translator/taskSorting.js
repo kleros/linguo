@@ -1,4 +1,5 @@
 import { Task, TaskParty } from '~/features/tasks';
+import { createSkillsTaskMatcher } from './skillsMatchTask';
 import Web3 from 'web3';
 
 const { toBN } = Web3.utils;
@@ -9,9 +10,12 @@ const { toBN } = Web3.utils;
  * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} filterName The name of the filter
  * @param {Object} params The comparator params
  * @param {Object} params.account The account which is viewing the task list
+ * @param {Array= []} params.skills The translator skills.
  * @return TaskComparator a filter predicated function to be used with Array#filter.
  */
-export function getComparator(filterName, { account }) {
+export function getComparator(filterName, { account, skills = [] }) {
+  const skillsMatch = createSkillsTaskMatcher(skills);
+
   const comparatorMap = {
     all: {
       incomplete: (a, b) => Task.isIncomplete(a) - Task.isIncomplete(b),
@@ -25,6 +29,7 @@ export function getComparator(filterName, { account }) {
       ID: -1,
     },
     open: {
+      withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
       currentPricePerWordDesc: (a, b) => {
         const currentDate = new Date();
         return sortBNDescending(

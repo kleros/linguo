@@ -1,4 +1,5 @@
 import { Task, TaskParty, TaskStatus } from '~/features/tasks';
+import { createSkillsTaskMatcher } from './skillsMatchTask';
 
 export const filters = {
   all: 'all',
@@ -20,14 +21,17 @@ export function getFilter(filterName) {
   return filters[filterName] ?? filters.all;
 }
 
-const filterPredicates = {
-  all: () => true,
-  open: task => !Task.isIncomplete(task) && task.status === TaskStatus.Created,
-  inProgress: task => !Task.isIncomplete(task) && task.status === TaskStatus.Assigned,
-  inReview: ({ status }) => status === TaskStatus.AwaitingReview,
-  inDispute: ({ status }) => status === TaskStatus.DisputeCreated,
-  finished: task => !Task.isIncomplete(task) && task.status === TaskStatus.Resolved,
-  incomplete: task => Task.isIncomplete(task),
+const createFilterPredicates = {
+  all: () => () => true,
+  open: () => task => !Task.isIncomplete(task) && task.status === TaskStatus.Created,
+  inProgress: () => task => !Task.isIncomplete(task) && task.status === TaskStatus.Assigned,
+  inReview: () => ({ status }) => status === TaskStatus.AwaitingReview,
+  inDispute: () => ({ status }) => status === TaskStatus.DisputeCreated,
+  finished: () => task => !Task.isIncomplete(task) && task.status === TaskStatus.Resolved,
+  incomplete: ({ skills }) => {
+    const skillsMatch = createSkillsTaskMatcher(skills);
+    return task => Task.isIncomplete(task) && skillsMatch(task);
+  },
 };
 
 /**
@@ -36,8 +40,8 @@ const filterPredicates = {
  * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} filterName The filterName of the filter
  * @return TaskFilterPredicate a filter predicated function to be used with Array#filter.
  */
-export function getFilterPredicate(filterName) {
-  return filterPredicates[filterName] ?? filterPredicates.all;
+export function getFilterPredicate(filterName, { skills = [] } = {}) {
+  return createFilterPredicates[filterName]({ skills }) ?? createFilterPredicates.all({ skills });
 }
 
 const DEFAULT_FILTER = Symbol('@@default-filter');

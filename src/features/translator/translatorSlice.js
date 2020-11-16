@@ -11,6 +11,7 @@ import skillsReducer, * as skills from './skillsSlice';
 import { getFilter, getFilterPredicate, getSecondLevelFilter, getSecondLevelFilterPredicate } from './taskFilters';
 import { getComparator } from './taskSorting';
 import tasksReducer, * as tasks from './tasksSlice';
+import { createSkillsTaskMatcher } from './skillsMatchTask';
 
 const PERSISTANCE_KEY = 'translator';
 
@@ -63,20 +64,25 @@ export const selectTasksForFilter = createSelector(
     (_, { filter }) => filter,
     (_, { secondLevelFilter }) => secondLevelFilter,
     (_, { account }) => account,
+    (_, { skills }) => skills,
   ],
-  (tasks, filter, secondLevelFilter, account) =>
+  (tasks, filter, secondLevelFilter, account, skills) =>
     compose(
-      sort(getComparator(filter, { account })),
+      sort(getComparator(filter, { account, skills })),
       arrayFilter(getSecondLevelFilterPredicate(filter, secondLevelFilter, { account })),
-      arrayFilter(getFilterPredicate(filter))
+      arrayFilter(getFilterPredicate(filter, { skills }))
     )(tasks)
 );
 
-export const selectTaskCountForFilter = createSelector([selectTasksForFilter], _tasks => _tasks.length);
+export const selectTaskCountForFilter = createSelector(
+  [selectTasksForFilter, (_, { skills }) => createSkillsTaskMatcher(skills)],
+  (_tasks, skillsMatch) => arrayFilter(skillsMatch, _tasks).length
+);
 
 export const selectTasksForCurrentFilter = createSelector(
-  [state => state, (_, { account }) => account, selectFilter, selectSecondLevelFilter],
-  (state, account, filter, secondLevelFilter) => selectTasksForFilter(state, { account, filter, secondLevelFilter })
+  [state => state, (_, { account }) => account, (_, { skills }) => skills, selectFilter, selectSecondLevelFilter],
+  (state, account, skills, filter, secondLevelFilter) =>
+    selectTasksForFilter(state, { account, skills, filter, secondLevelFilter })
 );
 
 export function* onFilterChangeSaga(action) {

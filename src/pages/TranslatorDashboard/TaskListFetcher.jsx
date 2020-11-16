@@ -12,6 +12,7 @@ import {
   fetchTasks,
   selectTaskCountForFilter,
   selectTasksForCurrentFilter,
+  selectAllSkills,
 } from '~/features/translator/translatorSlice';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import { selectAccount } from '~/features/web3/web3Slice';
@@ -19,6 +20,7 @@ import { selectAccount } from '~/features/web3/web3Slice';
 export default function TaskListFetcher() {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
+  const skills = useShallowEqualSelector(selectAllSkills);
 
   const doFetchTasks = React.useCallback(() => {
     dispatch(fetchTasks({ account }));
@@ -30,7 +32,7 @@ export default function TaskListFetcher() {
 
   const [{ filter, secondLevelFilter }] = useFilters();
 
-  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account }));
+  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account, skills }));
   const showFootnote = [filters.open].includes(filter) && data.length > 0;
 
   return (
@@ -127,7 +129,6 @@ const filterDescriptionMap = {
 };
 
 function OptionalSecondLevelTabs({ children }) {
-  const account = useSelector(selectAccount);
   const [{ filter, secondLevelFilter }, setFilters] = useFilters();
 
   const handleTabChange = React.useCallback(
@@ -148,7 +149,7 @@ function OptionalSecondLevelTabs({ children }) {
         return (
           <StyledTabPane
             key={secondLevelFilterName}
-            tab={<FilterTab account={account} filter={filter} secondLevelFilter={secondLevelFilterName} />}
+            tab={<FilterTab filter={filter} secondLevelFilter={secondLevelFilterName} />}
           >
             {children}
           </StyledTabPane>
@@ -166,8 +167,10 @@ OptionalSecondLevelTabs.defaultProps = {
   children: null,
 };
 
-function FilterTab({ account, filter, secondLevelFilter }) {
-  const count = useSelector(state => selectTaskCountForFilter(state, { filter, secondLevelFilter, account }));
+function FilterTab({ filter, secondLevelFilter }) {
+  const account = useSelector(selectAccount);
+  const skills = useShallowEqualSelector(selectAllSkills);
+  const count = useSelector(state => selectTaskCountForFilter(state, { filter, secondLevelFilter, account, skills }));
 
   const tabContent = secondLevelFiltersDisplayNames[filter]?.[secondLevelFilter] ?? secondLevelFilter;
 
@@ -175,7 +178,6 @@ function FilterTab({ account, filter, secondLevelFilter }) {
 }
 
 FilterTab.propTypes = {
-  account: t.string,
   filter: t.string.isRequired,
   secondLevelFilter: t.string,
 };
