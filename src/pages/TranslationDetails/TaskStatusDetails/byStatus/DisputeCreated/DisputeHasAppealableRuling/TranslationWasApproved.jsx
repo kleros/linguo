@@ -13,7 +13,7 @@ function TranslationWasApproved() {
   const party = useCurrentParty();
 
   const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party: TaskParty.Challenger });
+  const totalAppealCost = Dispute.totalAppealCost(dispute, { party });
 
   const { requester, parties } = useTask();
   const challengerIsRequester = requester === parties[TaskParty.Challenger];
