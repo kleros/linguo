@@ -86,7 +86,7 @@ export default function TaskDetails() {
     {
       title: 'Quality Tier',
       content: name,
-      footer: `(${requiredLevel}+)`,
+      footer: `(${requiredLevel === 'C2' ? 'C2' : requiredLevel + '+'})`,
     },
   ];
 

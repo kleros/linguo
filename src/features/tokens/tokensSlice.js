@@ -1,8 +1,8 @@
-import { createSlice, createAction } from '@reduxjs/toolkit';
-import { call, delay, put } from 'redux-saga/effects';
+import { createAction, createSlice } from '@reduxjs/toolkit';
+import { call, delay, put, putResolve } from 'redux-saga/effects';
 import createAsyncAction from '~/shared/createAsyncAction';
-import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import createCancellableSaga from '~/shared/createCancellableSaga';
+import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { getEthPrice } from './tokensApi';
 
 const prepare = (payload, rest = {}) => ({ payload, ...rest });
@@ -78,22 +78,30 @@ export function* fetchEthPriceSaga(action) {
 
 export function* subscribeToEthPriceSaga(action) {
   const { chainId, interval, immediate = false } = action.payload ?? {};
+  const { thunk = { id: chainId }, ...meta } = action.meta ?? {};
 
   if (immediate) {
-    yield put(fetchEthPrice({ chainId }));
+    try {
+      yield putResolve(fetchEthPrice({ chainId }, { meta: { ...meta, thunk } }));
+    } catch {
+      // do nothing...
+    }
   }
 
   while (true) {
     yield delay(interval);
-    yield put(fetchEthPrice({ chainId }));
+    try {
+      yield putResolve(fetchEthPrice({ chainId }));
+    } catch {
+      // do nothing...
+    }
   }
 }
 
 export const sagas = {
   watchFetchTaskPrice: createWatcherSaga(
     {
-      takeType: TakeType.throttleByKey,
-      timeout: 10000,
+      takeType: TakeType.latestByKey,
       selector: action => action.payload.chainId,
     },
     fetchEthPriceSaga,

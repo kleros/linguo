@@ -73,6 +73,6 @@ const StyledWrapper = styled.div`
 const StyledIconWrapper = styled.span`
   position: absolute;
   top: 50%;
-  right: -1.25em;
+  right: -1.5em;
   transform: translateY(-50%);
 `;

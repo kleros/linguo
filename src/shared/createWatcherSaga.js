@@ -19,9 +19,9 @@ export const TakeType = {
   latestByKey: 'latestByKey',
   leading: 'leading',
   throttle: 'throttle',
-  debounceByKey: 'debounceByKey',
-  debounce: 'debounce',
   throttleByKey: 'throttleByKey',
+  debounce: 'debounce',
+  debounceByKey: 'debounceByKey',
 };
 
 function createWatcherSaga({ takeType = TakeType.every, additionalArgs = [], timeout, selector }, saga, pattern) {
