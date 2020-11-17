@@ -52,26 +52,32 @@ function useEthPricePolling({ interval = _1_MINUTE } = {}) {
 
   const chainId = useSelector(selectChainId);
 
-  const subscribe = React.useCallback(() => dispatch(subscribeToEthPrice({ chainId, interval })), [
+  const subscribe = React.useCallback(() => dispatch(subscribeToEthPrice({ chainId, interval, immediate: true })), [
     dispatch,
     chainId,
     interval,
   ]);
+
+  const subscribeLazy = React.useCallback(
+    () => dispatch(subscribeToEthPrice({ chainId, interval, immediate: false })),
+    [dispatch, chainId, interval]
+  );
+
   const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromEthPrice({ chainId })), [dispatch, chainId]);
 
   React.useEffect(() => {
     subscribe();
 
-    window.addEventListener('focus', subscribe);
+    window.addEventListener('focus', subscribeLazy);
     window.addEventListener('blur', unsubscribe);
 
     return () => {
       unsubscribe();
 
-      window.removeEventListener('focus', subscribe);
+      window.removeEventListener('focus', subscribeLazy);
       window.removeEventListener('blur', unsubscribe);
     };
-  }, [dispatch, subscribe, unsubscribe]);
+  }, [dispatch, subscribe, subscribeLazy, unsubscribe]);
 }
 
 Content.propTypes = {

@@ -13,6 +13,7 @@ import Spacer from '~/shared/Spacer';
 import FormattedNumber from '~/shared/FormattedNumber';
 import { useRemainingTime } from '~/shared/RemainingTime';
 import EthValue from '~/shared/EthValue';
+import EthFiatValue from '~/features/tokens/EthFiatValue';
 import BoxWrapper from '../../../components/BoxWrapper';
 import BoxTitle from '../../../components/BoxTitle';
 import BoxParagraph from '../../../components/BoxParagraph';
@@ -123,24 +124,7 @@ function AppealFundingSummary({
   remainingTime,
   isOngoing,
 }) {
-  const percent = percentage(paidFees, totalAppealCost) * 100;
-
   const isFullyFunded = greaterThanOrEqual(paidFees, totalAppealCost);
-
-  const remainingTimeCountdown = useRemainingTime(remainingTime);
-
-  let status;
-  if (percent >= 100) {
-    status = 'success';
-  } else if (remainingTimeCountdown > 0 && isOngoing) {
-    status = 'active';
-  } else if (finalAppealSide === AppealSide.Winner) {
-    status = 'success';
-  } else if (finalAppealSide === AppealSide.Loser) {
-    status = 'exception';
-  } else {
-    status = 'normal';
-  }
 
   const resultTextByAppealSide = {
     [AppealSide.Winner]: (
@@ -187,19 +171,28 @@ function AppealFundingSummary({
       </Row>
       <Spacer baseSize="sm" size={2} />
       <StyledFeeStatus>
-        <EthValue
-          amount={totalAppealCost}
-          suffixType="short"
-          render={({ formattedValue, suffix }) => (
-            <StyledDepositDescription>
-              Total Deposit Required ={' '}
-              <StyledDepositValue>
-                {formattedValue} {suffix}
-              </StyledDepositValue>
-            </StyledDepositDescription>
-          )}
+        <StyledDepositDescription>Total Deposit Required</StyledDepositDescription>
+        <StyledDepositValue>
+          <EthValue amount={totalAppealCost} suffixType="short" />
+        </StyledDepositValue>
+        <StyledDepositFiatValue>
+          <EthFiatValue amount={totalAppealCost} render={({ formattedValue }) => `(${formattedValue})`} />
+        </StyledDepositFiatValue>
+        <Spacer />
+        <MyProgress
+          remainingTime={remainingTime}
+          totalAppealCost={totalAppealCost}
+          finalAppealSide={finalAppealSide}
+          isOngoing={isOngoing}
+          paidFees={paidFees}
         />
-        <Progress percent={percent} status={status} showInfo={false} />
+        <StyledDepositDescription>Amount Paid</StyledDepositDescription>
+        <StyledDepositValue>
+          <EthValue amount={paidFees} suffixType="short" />
+        </StyledDepositValue>
+        <StyledDepositFiatValue>
+          <EthFiatValue amount={paidFees} render={({ formattedValue }) => `(${formattedValue})`} />
+        </StyledDepositFiatValue>
       </StyledFeeStatus>
       <Spacer baseSize="sm" size={2} />
       {isOngoing ? (
@@ -232,7 +225,7 @@ function AppealFundingSummary({
           )}
           {!isFullyFunded && (
             <Deadline
-              seconds={remainingTimeCountdown}
+              seconds={remainingTime}
               render={({ formattedValue, icon, endingSoon }) => (
                 <StyledDeadlineContent gutter={8} className={endingSoon ? 'ending-soon' : ''}>
                   <Col>{icon}</Col>
@@ -261,6 +254,34 @@ AppealFundingSummary.propTypes = {
   paidFees: t.string.isRequired,
   totalAppealCost: t.string.isRequired,
   reward: t.number.isRequired,
+  remainingTime: t.number.isRequired,
+  isOngoing: t.bool.isRequired,
+};
+
+function MyProgress({ remainingTime, finalAppealSide, isOngoing, paidFees, totalAppealCost }) {
+  const percent = percentage(paidFees, totalAppealCost) * 100;
+  const remainingTimeCountdown = useRemainingTime(remainingTime);
+
+  let status;
+  if (percent >= 100) {
+    status = 'success';
+  } else if (remainingTimeCountdown > 0 && isOngoing) {
+    status = 'active';
+  } else if (finalAppealSide === AppealSide.Winner) {
+    status = 'success';
+  } else if (finalAppealSide === AppealSide.Loser) {
+    status = 'exception';
+  } else {
+    status = 'normal';
+  }
+
+  return <Progress percent={percent} status={status} showInfo={false} />;
+}
+
+MyProgress.propTypes = {
+  finalAppealSide: t.oneOf(Object.values(AppealSide)).isRequired,
+  paidFees: t.string.isRequired,
+  totalAppealCost: t.string.isRequired,
   remainingTime: t.number.isRequired,
   isOngoing: t.bool.isRequired,
 };
@@ -309,10 +330,11 @@ const StyledTitleCaption = styled.span`
   color: inherit;
 `;
 
-const StyledFeeStatus = styled.div``;
+const StyledFeeStatus = styled.div`
+  text-align: center;
+`;
 
 const StyledSectionDescription = styled.p`
-  text-align: center;
   margin-bottom: 0;
   color: inherit;
 `;
@@ -323,8 +345,13 @@ const StyledDepositDescription = styled(StyledSectionDescription)`
   white-space: nowrap;
 `;
 
-const StyledDepositValue = styled.span`
+const StyledDepositValue = styled.div`
   font-weight: ${p => p.theme.fontWeight.bold};
+`;
+
+const StyledDepositFiatValue = styled.div`
+  font-weight: ${p => p.theme.fontWeight.regular};
+  font-size: ${p => p.theme.fontSize.xs};
 `;
 
 const StyledFundingCompleteWrapper = styled.div`

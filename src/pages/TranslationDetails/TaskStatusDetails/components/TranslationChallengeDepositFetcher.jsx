@@ -7,6 +7,7 @@ import { withErrorBoundary } from '~/shared/ErrorBoundary';
 import EthValue from '~/shared/EthValue';
 import { compose } from '~/shared/fp';
 import { getChallengerDeposit } from '~/features/tasks/tasksSlice';
+import EthFiatValue from '~/features/tokens/EthFiatValue';
 import useTask from '../../useTask';
 
 function TranslationChallengeDepositFetcher() {
@@ -57,9 +58,12 @@ const StyledWrapper = styled.div`
 function TranslationChallengeDeposit({ amount }) {
   return (
     <StyledWrapper>
-      <span>
+      <div>
         <EthValue amount={amount} suffixType="short" /> Deposit
-      </span>
+      </div>
+      <div>
+        <EthFiatValue amount={amount} render={({ formattedValue }) => `(${formattedValue})`} />
+      </div>
     </StyledWrapper>
   );
 }

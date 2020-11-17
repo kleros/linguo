@@ -8,12 +8,12 @@ import Card from '~/shared/Card';
 import FormattedNumber from '~/shared/FormattedNumber';
 import useInterval from '~/shared/useInterval';
 import { Task, TaskStatus } from '~/features/tasks';
+import EthFiatValue from '~/features/tokens/EthFiatValue';
 import TaskCardFooter from './TaskCardFooter';
 import TaskInfoGrid from './TaskInfoGrid';
 import TaskLanguages from './TaskLanguages';
 import TaskPrice from './TaskPrice';
 import { selectById } from './tasksSlice';
-import TaskPriceFiat from './TaskPriceFiat';
 
 const _1_MINUTE_MS = 60 * 1000;
 
@@ -44,7 +44,7 @@ export default function TaskCard({ id }) {
     {
       title: 'Price per Word',
       content: <TaskPrice showTooltip value={pricePerWord} />,
-      footer: <TaskPriceFiat value={pricePerWord} render={({ formattedValue }) => `(${formattedValue})`} />,
+      footer: <EthFiatValue amount={pricePerWord} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
       title: 'Word Count',
@@ -59,7 +59,7 @@ export default function TaskCard({ id }) {
           value={currentPrice}
         />
       ),
-      footer: <TaskPriceFiat value={currentPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
+      footer: <EthFiatValue amount={currentPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
       title: 'Quality Tier',

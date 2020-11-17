@@ -15,7 +15,7 @@ import FormattedNumber from '~/shared/FormattedNumber';
 import TranslationQualityDefinition from '~/shared/TranslationQualityDefinition';
 import TaskInfoGrid from '~/features/tasks/TaskInfoGrid';
 import TaskPrice from '~/features/tasks/TaskPrice';
-import TaskPriceFiat from '~/features/tasks/TaskPriceFiat';
+import EthFiatValue from '~/features/tokens/EthFiatValue';
 import DownloadLink from '~/shared/DownloadLink';
 import { Task, TaskStatus, getFileUrl } from '~/features/tasks';
 import useTask from './useTask';
@@ -72,7 +72,7 @@ export default function TaskDetails() {
     {
       title: 'Price per Word',
       content: <TaskPrice showTooltip value={pricePerWord} />,
-      footer: <TaskPriceFiat value={pricePerWord} render={({ formattedValue }) => `(${formattedValue})`} />,
+      footer: <EthFiatValue amount={pricePerWord} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
       title: 'Word Count',
@@ -81,7 +81,7 @@ export default function TaskDetails() {
     {
       title: 'Total Price',
       content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={actualPrice} />,
-      footer: <TaskPriceFiat value={actualPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
+      footer: <EthFiatValue amount={actualPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
       title: 'Quality Tier',

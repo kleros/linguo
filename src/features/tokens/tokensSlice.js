@@ -77,11 +77,15 @@ export function* fetchEthPriceSaga(action) {
 }
 
 export function* subscribeToEthPriceSaga(action) {
-  const { chainId, interval } = action.payload ?? {};
+  const { chainId, interval, immediate = false } = action.payload ?? {};
+
+  if (immediate) {
+    yield put(fetchEthPrice({ chainId }));
+  }
 
   while (true) {
-    yield put(fetchEthPrice({ chainId }));
     yield delay(interval);
+    yield put(fetchEthPrice({ chainId }));
   }
 }
 
@@ -96,7 +100,7 @@ export const sagas = {
     fetchEthPrice.type
   ),
   watchSubscribeToEthPrice: createWatcherSaga(
-    { takeType: TakeType.latestByKey, selector: action => action.payload.chainId },
+    { takeType: TakeType.every },
     createCancellableSaga(subscribeToEthPriceSaga, unsubscribeFromEthPrice, {
       additionalPayload: action => ({ chainId: action.payload?.chainId }),
       additionalArgs: action => ({ meta: action.meta }),

@@ -11,6 +11,7 @@ import { withErrorBoundary } from '~/shared/ErrorBoundary';
 import EthValue from '~/shared/EthValue';
 import { compose } from '~/shared/fp';
 import useTask from '../../useTask';
+import EthFiatValue from '~/features/tokens/EthFiatValue';
 
 function TranslationChallengeRewardFetcher() {
   const { id, status, sumDeposit } = useTask();
@@ -81,15 +82,26 @@ export default compose(errorBoundaryEnhancer)(TranslationChallengeRewardFetcher)
 function TranslationChallengeReward({ amount }) {
   return (
     <StyledAlert
-      showIcon
       type="info"
       description={
         <>
-          You can win up to{' '}
-          <strong>
-            <EthValue amount={amount} suffixType="short" />
-          </strong>{' '}
-          in case your challenge is sucessful.
+          <p>You can win up to:</p>
+          <p
+            css={`
+              margin: 0;
+            `}
+          >
+            <strong>
+              <EthValue amount={amount} suffixType="short" />
+            </strong>{' '}
+            <EthFiatValue
+              amount={amount}
+              render={({ formattedValue }) => `(${formattedValue})`}
+              css={`
+                font-size: ${p => p.theme.fontSize.xs};
+              `}
+            />
+          </p>
         </>
       }
     />
@@ -108,5 +120,4 @@ const StyledWrapper = styled.div`
 
 const StyledAlert = styled(Alert)`
   width: 100%;
-  text-align: left;
 `;
