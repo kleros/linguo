@@ -1,9 +1,9 @@
 import t from 'prop-types';
 
-function FormattedNumber({ value, decimals, style, currency, render }) {
+function FormattedNumber({ value, decimals, style, render, ...rest }) {
   const nf = new Intl.NumberFormat('en-US', {
+    ...rest,
     style,
-    currency,
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
     useGrouping: true,

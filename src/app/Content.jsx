@@ -3,16 +3,24 @@ import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { Layout } from 'antd';
 import styled from 'styled-components';
-import { subscribeToUpdates, unsubscribeFromUpdates } from '~/features/tasks/tasksSlice';
-import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import { selectLatestBlock } from '~/features/notifications/notificationsSlice';
+import { subscribeToUpdates, unsubscribeFromUpdates } from '~/features/tasks/tasksSlice';
+import { subscribeToEthPrice, unsubscribeFromEthPrice } from '~/features/tokens/tokensSlice';
+import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 
 export default function Content({ children }) {
+  useTaskUpdatesSubscription();
+  useEthPricePolling();
+
+  return <StyledContent>{children}</StyledContent>;
+}
+
+function useTaskUpdatesSubscription() {
+  const dispatch = useDispatch();
+
   const account = useSelector(selectAccount);
   const chainId = useSelector(selectChainId);
   const latestBlock = useSelector(state => selectLatestBlock(state, { chainId, account }));
-
-  const dispatch = useDispatch();
 
   const subscribe = React.useCallback(
     () => dispatch(subscribeToUpdates({ chainId, account, fromBlock: latestBlock + 1 })),
@@ -24,23 +32,46 @@ export default function Content({ children }) {
     if (account) {
       subscribe();
 
-      if (process.env.NODE_ENV === 'production') {
-        window.addEventListener('focus', subscribe);
-        window.addEventListener('blur', unsubscribe);
-      }
+      window.addEventListener('focus', subscribe);
+      window.addEventListener('blur', unsubscribe);
 
       return () => {
         unsubscribe();
 
-        if (process.env.NODE_ENV === 'production') {
-          window.removeEventListener('focus', subscribe);
-          window.removeEventListener('blur', unsubscribe);
-        }
+        window.removeEventListener('focus', subscribe);
+        window.removeEventListener('blur', unsubscribe);
       };
     }
   }, [dispatch, account, subscribe, unsubscribe]);
+}
 
-  return <StyledContent>{children}</StyledContent>;
+const _1_MINUTE = 60 * 1000;
+
+function useEthPricePolling({ interval = _1_MINUTE } = {}) {
+  const dispatch = useDispatch();
+
+  const chainId = useSelector(selectChainId);
+
+  const subscribe = React.useCallback(() => dispatch(subscribeToEthPrice({ chainId, interval })), [
+    dispatch,
+    chainId,
+    interval,
+  ]);
+  const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromEthPrice({ chainId })), [dispatch, chainId]);
+
+  React.useEffect(() => {
+    subscribe();
+
+    window.addEventListener('focus', subscribe);
+    window.addEventListener('blur', unsubscribe);
+
+    return () => {
+      unsubscribe();
+
+      window.removeEventListener('focus', subscribe);
+      window.removeEventListener('blur', unsubscribe);
+    };
+  }, [dispatch, subscribe, unsubscribe]);
 }
 
 Content.propTypes = {

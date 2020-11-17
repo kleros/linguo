@@ -15,6 +15,7 @@ import FormattedNumber from '~/shared/FormattedNumber';
 import TranslationQualityDefinition from '~/shared/TranslationQualityDefinition';
 import TaskInfoGrid from '~/features/tasks/TaskInfoGrid';
 import TaskPrice from '~/features/tasks/TaskPrice';
+import TaskPriceFiat from '~/features/tasks/TaskPriceFiat';
 import DownloadLink from '~/shared/DownloadLink';
 import { Task, TaskStatus, getFileUrl } from '~/features/tasks';
 import useTask from './useTask';
@@ -69,20 +70,23 @@ export default function TaskDetails() {
 
   const taskInfo = [
     {
-      title: 'Price per word',
+      title: 'Price per Word',
       content: <TaskPrice showTooltip value={pricePerWord} />,
+      footer: <TaskPriceFiat value={pricePerWord} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
-      title: 'Number of words',
+      title: 'Word Count',
       content: <FormattedNumber value={wordCount} />,
     },
     {
       title: 'Total Price',
       content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={actualPrice} />,
+      footer: <TaskPriceFiat value={actualPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
-      title: name,
-      content: requiredLevel,
+      title: 'Quality Tier',
+      content: name,
+      footer: `(${requiredLevel}+)`,
     },
   ];
 

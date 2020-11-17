@@ -7,6 +7,7 @@ import disputesReducer from '~/features/disputes/disputesSlice';
 import evidencesReducer from '~/features/evidences/evidencesSlice';
 import notificationsReducer from '~/features/notifications/notificationsSlice';
 import tasksReducer from '~/features/tasks/tasksSlice';
+import tokensReducer from '~/features/tokens/tokensSlice';
 import transactionsReducer from '~/features/transactions/transactionsSlice';
 import translatorReducer from '~/features/translator/translatorSlice';
 import uiReducer from '~/features/ui/uiSlice';
@@ -33,6 +34,7 @@ export const createRootReducer = additionalReducers =>
     notifications: notificationsReducer,
     requester: requesterReducer,
     tasks: tasksReducer,
+    tokens: tokensReducer,
     transactions: transactionsReducer,
     translator: translatorReducer,
     ui: uiReducer,

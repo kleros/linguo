@@ -14,10 +14,12 @@ function TaskPrice({ value, showTooltip, showFootnoteMark, className }) {
         <Tooltip
           title={showTooltip ? <EthValue amount={value} decimals={18} unit={EthUnit.ether} suffixType="short" /> : ''}
         >
-          <StyledWrapper className={clsx({ 'with-tooltip': showTooltip }, className)}>
-            {`${formattedValue} ${suffix}`.trim()}
-            {showFootnoteMark ? <sup>*</sup> : null}
-          </StyledWrapper>
+          <>
+            <StyledValueWrapper className={clsx({ 'with-tooltip': showTooltip }, className)}>
+              {`${formattedValue} ${suffix}`.trim()}
+              {showFootnoteMark ? <sup>*</sup> : null}
+            </StyledValueWrapper>
+          </>
         </Tooltip>
       )}
     />
@@ -39,7 +41,8 @@ TaskPrice.defaultProps = {
   className: '',
 };
 
-const StyledWrapper = styled.span`
+const StyledValueWrapper = styled.span`
+  display: block;
   &.with-tooltip {
     cursor: help;
   }

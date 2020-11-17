@@ -13,6 +13,7 @@ import TaskInfoGrid from './TaskInfoGrid';
 import TaskLanguages from './TaskLanguages';
 import TaskPrice from './TaskPrice';
 import { selectById } from './tasksSlice';
+import TaskPriceFiat from './TaskPriceFiat';
 
 const _1_MINUTE_MS = 60 * 1000;
 
@@ -41,11 +42,12 @@ export default function TaskCard({ id }) {
 
   const taskInfo = [
     {
-      title: 'Price per word',
+      title: 'Price per Word',
       content: <TaskPrice showTooltip value={pricePerWord} />,
+      footer: <TaskPriceFiat value={pricePerWord} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
-      title: 'Number of words',
+      title: 'Word Count',
       content: <FormattedNumber value={wordCount} />,
     },
     {
@@ -57,10 +59,12 @@ export default function TaskCard({ id }) {
           value={currentPrice}
         />
       ),
+      footer: <TaskPriceFiat value={currentPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
-      title: name,
-      content: requiredLevel,
+      title: 'Quality Tier',
+      content: name,
+      footer: `(${requiredLevel}+)`,
     },
   ];
 
