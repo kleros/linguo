@@ -1,8 +1,9 @@
 import React from 'react';
 import t from 'prop-types';
+import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { Layout } from 'antd';
-import styled from 'styled-components';
+import { nanoid } from 'nanoid';
 import { selectLatestBlock } from '~/features/notifications/notificationsSlice';
 import { subscribeToUpdates, unsubscribeFromUpdates } from '~/features/tasks/tasksSlice';
 import { subscribeToEthPrice, unsubscribeFromEthPrice } from '~/features/tokens/tokensSlice';
@@ -23,10 +24,10 @@ function useTaskUpdatesSubscription() {
   const latestBlock = useSelector(state => selectLatestBlock(state, { chainId, account }));
 
   const subscribe = React.useCallback(
-    () => dispatch(subscribeToUpdates({ chainId, account, fromBlock: latestBlock + 1 })),
+    () => dispatch(subscribeToUpdates({ chainId, account, fromBlock: latestBlock + 1 }, { meta: { groupId } })),
     [dispatch, account, chainId, latestBlock]
   );
-  const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromUpdates()), [dispatch]);
+  const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromUpdates({}, { meta: { groupId } })), [dispatch]);
 
   React.useEffect(() => {
     if (account) {
@@ -45,6 +46,7 @@ function useTaskUpdatesSubscription() {
   }, [dispatch, account, subscribe, unsubscribe]);
 }
 
+const groupId = nanoid(10);
 const _1_MINUTE = 60 * 1000;
 
 function useEthPricePolling({ interval = _1_MINUTE } = {}) {
@@ -52,32 +54,37 @@ function useEthPricePolling({ interval = _1_MINUTE } = {}) {
 
   const chainId = useSelector(selectChainId);
 
-  const subscribe = React.useCallback(() => dispatch(subscribeToEthPrice({ chainId, interval, immediate: true })), [
-    dispatch,
-    chainId,
-    interval,
-  ]);
-
-  const subscribeLazy = React.useCallback(
-    () => dispatch(subscribeToEthPrice({ chainId, interval, immediate: false })),
+  const subscribe = React.useCallback(
+    () => dispatch(subscribeToEthPrice({ chainId, interval, immediate: true }, { meta: { groupId } })),
     [dispatch, chainId, interval]
   );
 
-  const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromEthPrice({ chainId })), [dispatch, chainId]);
+  const subscribeLazy = React.useCallback(
+    () => dispatch(subscribeToEthPrice({ chainId, interval, immediate: false }, { meta: { groupId } })),
+    [dispatch, chainId, interval]
+  );
+
+  const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromEthPrice({ chainId }, { meta: { groupId } })), [
+    dispatch,
+    chainId,
+  ]);
 
   React.useEffect(() => {
     subscribe();
+    return () => {
+      unsubscribe();
+    };
+  }, [dispatch, subscribe, unsubscribe]);
 
+  React.useEffect(() => {
     window.addEventListener('focus', subscribeLazy);
     window.addEventListener('blur', unsubscribe);
 
     return () => {
-      unsubscribe();
-
       window.removeEventListener('focus', subscribeLazy);
       window.removeEventListener('blur', unsubscribe);
     };
-  }, [dispatch, subscribe, subscribeLazy, unsubscribe]);
+  }, [dispatch, subscribeLazy, unsubscribe]);
 }
 
 Content.propTypes = {

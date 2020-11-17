@@ -1,7 +1,8 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import { call, delay, put, putResolve } from 'redux-saga/effects';
 import createAsyncAction from '~/shared/createAsyncAction';
-import createCancellableSaga from '~/shared/createCancellableSaga';
+import createSagaWithRejectionOnCancelation from '~/shared/createSagaWithRejectionOnCancelation';
+import createCancelableSaga from '~/shared/createCancelableSaga';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { getEthPrice } from './tokensApi';
 
@@ -104,15 +105,15 @@ export const sagas = {
       takeType: TakeType.latestByKey,
       selector: action => action.payload.chainId,
     },
-    fetchEthPriceSaga,
+    createSagaWithRejectionOnCancelation(fetchEthPriceSaga, fetchEthPrice.rejected, {
+      additionalPayload: action => ({ chainId: action.payload?.chainId }),
+      additionalArgs: action => ({ meta: action.meta }),
+    }),
     fetchEthPrice.type
   ),
   watchSubscribeToEthPrice: createWatcherSaga(
     { takeType: TakeType.every },
-    createCancellableSaga(subscribeToEthPriceSaga, unsubscribeFromEthPrice, {
-      additionalPayload: action => ({ chainId: action.payload?.chainId }),
-      additionalArgs: action => ({ meta: action.meta }),
-    }),
+    createCancelableSaga(subscribeToEthPriceSaga, unsubscribeFromEthPrice),
     subscribeToEthPrice.type
   ),
 };

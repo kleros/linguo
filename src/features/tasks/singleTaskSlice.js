@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit';
 import { original } from 'immer';
 import { actionChannel, call, getContext, put } from 'redux-saga/effects';
 import createAsyncAction, { matchAnyAsyncType } from '~/shared/createAsyncAction';
-import createCancellableSaga from '~/shared/createCancellableSaga';
+import createSagaWithRejectionOnCancelation from '~/shared/createSagaWithRejectionOnCancelation';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { registerTxSaga } from '~/features/transactions/transactionsSlice';
 import { Task } from './entities';
@@ -367,7 +367,7 @@ const createWatchFetchByIdSaga = createWatcherSaga(
     takeType: TakeType.latestByKey,
     selector: action => action.payload?.id,
   },
-  createCancellableSaga(fetchByIdSaga, fetchById.rejected, {
+  createSagaWithRejectionOnCancelation(fetchByIdSaga, fetchById.rejected, {
     additionalPayload: action => ({ id: action.payload?.id }),
     additionalArgs: action => ({ meta: action.meta }),
   })

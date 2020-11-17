@@ -1,7 +1,7 @@
 import { call, cancelled, put } from 'redux-saga/effects';
 import CancellationError from './CancellationError';
 
-export default function createCancellableSaga(
+export default function createSagaWithRejectionOnCancelation(
   saga,
   cancelActionCreator,
   { additionalPayload = () => ({}), additionalArgs = () => ({}) } = {}
@@ -23,7 +23,7 @@ export default function createCancellableSaga(
   }
 
   Object.defineProperty(withCancellationSaga, 'name', {
-    value: `withCancellation(${saga.name ?? '<anonymous>'})`,
+    value: `withRejectionOnCancellation(${saga.name ?? '<anonymous>'})`,
   });
 
   return withCancellationSaga;

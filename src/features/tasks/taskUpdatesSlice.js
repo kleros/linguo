@@ -16,7 +16,7 @@ import {
 import { DisputeRuling } from '~/features/disputes';
 import { put as putNotification } from '~/features/notifications/notificationsSlice';
 import { selectTaskIdFromDisputeId } from '~/features/disputes/disputesSlice';
-import createCancellableSaga from '~/shared/createCancellableSaga';
+import createCancelableSaga from '~/shared/createCancelableSaga';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import createTaskUpdatesChannel, {
   taskAssigned,
@@ -166,10 +166,7 @@ export function* handleUpdatesSaga(action) {
 
 const createWatchSubscribeSaga = createWatcherSaga(
   { takeType: TakeType.every },
-  createCancellableSaga(subscribeSaga, unsubscribeFromUpdates, {
-    additionalPayload: action => ({ id: action.payload?.id }),
-    additionalArgs: action => ({ meta: action.meta }),
-  })
+  createCancelableSaga(subscribeSaga, unsubscribeFromUpdates)
 );
 
 export const sagaDescriptors = [[createWatchSubscribeSaga, actionChannel(subscribeToUpdates.type)]];

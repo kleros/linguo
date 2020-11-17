@@ -3,7 +3,7 @@ import { original } from 'immer';
 import { actionChannel, call, getContext, put } from 'redux-saga/effects';
 import createLinguoApiContext from '~/features/linguo/createSagaApiContext';
 import createAsyncAction, { matchAnyAsyncType } from '~/shared/createAsyncAction';
-import createCancellableSaga from '~/shared/createCancellableSaga';
+import createSagaWithRejectionOnCancelation from '~/shared/createSagaWithRejectionOnCancelation';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { watchAllWithBuffer } from '~/features/web3/runWithContext';
 import { Dispute } from './entities';
@@ -140,7 +140,7 @@ export function* fundAppealSaga(action) {
 
 const createWatchFetchByTaskIdSaga = createWatcherSaga(
   { takeType: TakeType.latest },
-  createCancellableSaga(fetchByTaskIdSaga, fetchByTaskId.rejected, {
+  createSagaWithRejectionOnCancelation(fetchByTaskIdSaga, fetchByTaskId.rejected, {
     additionalPayload: action => ({ taskId: action.payload?.taskId }),
     additionalArgs: action => ({ meta: action.meta }),
   })

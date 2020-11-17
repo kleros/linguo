@@ -10,7 +10,7 @@ import { confirm, registerTxSaga } from '~/features/transactions/transactionsSli
 import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
 import { watchAllWithBuffer } from '~/features/web3/runWithContext';
 import createAsyncAction, { prepare } from '~/shared/createAsyncAction';
-import createCancellableSaga from '~/shared/createCancellableSaga';
+import createSagaWithRejectionOnCancelation from '~/shared/createSagaWithRejectionOnCancelation';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { compose, filter, indexBy, mapValues, prop } from '~/shared/fp';
 import TaskParty from './entities/TaskParty';
@@ -252,7 +252,7 @@ function* handleTaskUpdatesSaga(action) {
 
 const createWatchFetchByPartySaga = createWatcherSaga(
   { takeType: TakeType.latest },
-  createCancellableSaga(fetchByPartySaga, fetchByParty.rejected, {
+  createSagaWithRejectionOnCancelation(fetchByPartySaga, fetchByParty.rejected, {
     additionalArgs: action => ({ meta: action.meta }),
   })
 );
