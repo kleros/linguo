@@ -39,10 +39,12 @@ export default function AffixContainer({ children, position, wrapperCss, classNa
   const displayStyles = showAffix
     ? css`
         opacity: 1;
+        transform: translateY(0);
       `
     : css`
         opacity: 0;
         pointer-events: none;
+        transform: translateY(${position === 'bottom' ? '100%' : '-100%'});
       `;
 
   return (
@@ -52,15 +54,15 @@ export default function AffixContainer({ children, position, wrapperCss, classNa
         className={className}
         css={`
           position: fixed;
-          transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
-          ${displayStyles}
-          ${positioningStyles}
           left: 0;
           right: 0;
           z-index: 10;
-          background-color: ${p => p.theme.color.background.light};
+          ${displayStyles}
+          ${positioningStyles}
+          transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
           padding: 1rem;
-          box-shadow: -4px 0 4px ${p => p.theme.color.shadow.ui};
+          background-color: ${p => p.theme.color.background.light};
+          box-shadow: 0 0 4px 2px ${p => p.theme.color.shadow.light};
         `}
       >
         <StyledWrapper css={wrapperCss}>{children}</StyledWrapper>
