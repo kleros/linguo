@@ -139,6 +139,7 @@ export const {
 export const {
   subscribeToUpdates,
   unsubscribeFromUpdates,
+  updateTransientNotifications,
   taskCreated,
   taskAssigned,
   translationSubmitted,

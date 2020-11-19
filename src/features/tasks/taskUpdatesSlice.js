@@ -14,7 +14,10 @@ import {
   take,
 } from 'redux-saga/effects';
 import { DisputeRuling } from '~/features/disputes';
-import { put as putNotification } from '~/features/notifications/notificationsSlice';
+import {
+  put as putNotification,
+  selectByAccount as selectNotificationsByAccount,
+} from '~/features/notifications/notificationsSlice';
 import { selectTaskIdFromDisputeId } from '~/features/disputes/disputesSlice';
 import createCancelableSaga from '~/shared/createCancelableSaga';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
@@ -36,6 +39,7 @@ const prepare = (payload, rest = {}) => ({ payload, ...rest });
 
 const subscribeToUpdates = createAction('tasks/updates/subscribe', prepare);
 const unsubscribeFromUpdates = createAction('tasks/updates/unsubscribe', prepare);
+const updateTransientNotifications = createAction('tasks/updates/updateTransientNotifications', prepare);
 
 export const initialState = {
   byAccount: {},
@@ -104,13 +108,12 @@ const taskUpdatesSlice = createSlice({
   },
 });
 
-const selectRole = (state, { account, id }) => state.byAccount[account]?.[id]?.role;
-
 export default taskUpdatesSlice.reducer;
 
 export const actions = {
   subscribeToUpdates,
   unsubscribeFromUpdates,
+  updateTransientNotifications,
   taskCreated,
   taskAssigned,
   translationSubmitted,
@@ -144,7 +147,7 @@ export function* subscribeSaga(action) {
         },
       };
       yield put(preparedEvent);
-      yield fork(handleUpdatesSaga, preparedEvent);
+      yield fork(makeNotificationsFromUpdates, preparedEvent);
     }
   } finally {
     if (yield cancelled()) {
@@ -153,23 +156,66 @@ export function* subscribeSaga(action) {
   }
 }
 
-export function* handleUpdatesSaga(action) {
-  const { id } = action.payload;
-  const { account } = action.meta;
-  const role = yield select(state => selectRole(state.tasks.updates, { id, account }));
+export function* updateTransientResolvedNotificationsSaga(action) {
+  const { account, chainId } = action.payload;
 
-  const handler = handlersByType[action.type];
-  if (handler) {
-    yield fork(handler, action, { role });
-  }
+  const transientNotifications = yield select(state =>
+    selectNotificationsByAccount(state, {
+      account,
+      chainId,
+      filter: notification => {
+        return /-TaskResolved-/.test(notification.id) && notification.data?.transient === true;
+      },
+    })
+  );
+
+  yield all(
+    transientNotifications.map(function* processTransientNotification({ id: notificationId }) {
+      const [blockNumber, __, ___, taskId] = notificationId.split('-');
+      const role = yield call(selectRole, { account, id: taskId });
+
+      const { data } = yield putResolve(
+        singleTaskActions.fetchById({ id: taskId }, { meta: { thunk: { id: taskId } } })
+      );
+
+      const notification = yield call(makeFinalResolvedNotification, {
+        id: taskId,
+        task: data,
+        role,
+        chainId,
+        account,
+        blockNumber,
+      });
+      yield put(notification);
+    })
+  );
 }
 
-const createWatchSubscribeSaga = createWatcherSaga(
+const createWatchSubscribe = createWatcherSaga(
   { takeType: TakeType.every },
   createCancelableSaga(subscribeSaga, unsubscribeFromUpdates)
 );
 
-export const sagaDescriptors = [[createWatchSubscribeSaga, actionChannel(subscribeToUpdates.type)]];
+const createWatchUpdateTransientResolvedNotifications = createWatcherSaga(
+  { takeType: TakeType.every },
+  updateTransientResolvedNotificationsSaga
+);
+
+export const sagaDescriptors = [
+  [createWatchSubscribe, actionChannel(subscribeToUpdates.type)],
+  [createWatchUpdateTransientResolvedNotifications, actionChannel(updateTransientNotifications.type)],
+];
+
+function* makeNotificationsFromUpdates(action) {
+  const { id } = action.payload;
+  const { account } = action.meta;
+  const role = yield call(selectRole, { id, account });
+
+  const handler = notificationMakersByType[action.type];
+  if (handler) {
+    yield fork(handler, action, { role });
+  }
+}
 
 const Role = {
   Requester: 'requester',
@@ -179,7 +225,7 @@ const Role = {
   Other: 'other',
 };
 
-const handlersByType = {
+const notificationMakersByType = {
   *[taskAssigned](action, { role }) {
     if (role !== Role.Requester) {
       return;
@@ -370,7 +416,7 @@ const handlersByType = {
     let task = yield call(selectTask, { id });
 
     if (task.status === TaskStatus.Resolved) {
-      const notification = yield call(buildFinalResolvedNotification, {
+      const notification = yield call(makeFinalResolvedNotification, {
         id,
         task,
         role,
@@ -380,7 +426,7 @@ const handlersByType = {
       });
       yield put(notification);
     } else {
-      const notification = yield call(buildInterimResolvedNotification, {
+      const notification = yield call(makeTransientResolvedNotification, {
         id,
         task,
         role,
@@ -395,7 +441,7 @@ const handlersByType = {
       task = yield call(selectTask, { id });
 
       if (task.status === TaskStatus.Resolved) {
-        const notification = yield call(buildFinalResolvedNotification, {
+        const notification = yield call(makeFinalResolvedNotification, {
           id,
           task,
           role,
@@ -407,7 +453,7 @@ const handlersByType = {
       } else {
         try {
           const { data } = yield putResolve(singleTaskActions.fetchById({ id }, { meta: { thunk: { id } } }));
-          const notification = yield call(buildFinalResolvedNotification, {
+          const notification = yield call(makeFinalResolvedNotification, {
             id,
             task: data,
             role,
@@ -429,6 +475,11 @@ function* selectTask({ id }) {
   return task;
 }
 
+function* selectRole({ id, account }) {
+  const role = yield select(state => state.tasks.updates.byAccount[account]?.[id]?.role);
+  return role;
+}
+
 function* waitForTaskFetch({ id }) {
   while (true) {
     const action = yield take(singleTaskActions.fetchById.fulfilled);
@@ -438,7 +489,7 @@ function* waitForTaskFetch({ id }) {
   }
 }
 
-function buildInterimResolvedNotification({ task, chainId, account, id, blockNumber }) {
+function makeTransientResolvedNotification({ task, chainId, account, id, blockNumber }) {
   const { hasDispute } = task;
 
   const text = hasDispute
@@ -461,7 +512,7 @@ function buildInterimResolvedNotification({ task, chainId, account, id, blockNum
   });
 }
 
-function buildFinalResolvedNotification({ task, role, chainId, account, id, blockNumber }) {
+function makeFinalResolvedNotification({ task, role, chainId, account, id, blockNumber }) {
   const {
     hasDispute,
     ruling,

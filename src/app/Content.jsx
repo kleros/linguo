@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Layout } from 'antd';
 import { nanoid } from 'nanoid';
 import { selectLatestBlock } from '~/features/notifications/notificationsSlice';
-import { subscribeToUpdates, unsubscribeFromUpdates } from '~/features/tasks/tasksSlice';
+import { subscribeToUpdates, unsubscribeFromUpdates, updateTransientNotifications } from '~/features/tasks/tasksSlice';
 import { subscribeToEthPrice, unsubscribeFromEthPrice } from '~/features/tokens/tokensSlice';
 import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 
@@ -28,6 +28,10 @@ function useTaskUpdatesSubscription() {
     [dispatch, account, chainId, latestBlock]
   );
   const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromUpdates({}, { meta: { groupId } })), [dispatch]);
+
+  React.useEffect(() => {
+    dispatch(updateTransientNotifications({ account, chainId }));
+  }, [dispatch, account, chainId]);
 
   React.useEffect(() => {
     if (account) {
