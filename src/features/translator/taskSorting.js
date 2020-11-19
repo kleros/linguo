@@ -50,6 +50,7 @@ export function getComparator(filterName, { account, skills = [] }) {
       ID: -1,
     },
     inReview: {
+      withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
       showFirstIfAccountIsTranslator: (a, b) => {
         const isTranslatorOfA = !!account && a.parties?.[TaskParty.Translator] === account;
         const isTranslatorOfB = !!account && b.parties?.[TaskParty.Translator] === account;
@@ -63,6 +64,7 @@ export function getComparator(filterName, { account, skills = [] }) {
       ID: -1,
     },
     inDispute: {
+      withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
       disputeID: -1,
     },
     finished: {

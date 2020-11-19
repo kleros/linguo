@@ -152,13 +152,13 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
 
     const taskIDsInReview = await _getTaskIDsFromEvent('TranslationSubmitted', { fromBlock });
 
-    const tasksInReviewMetadata = (await Promise.allSettled(taskIDsInReview.map(ID => _getTaskMetadata({ ID }))))
-      .filter(({ status }) => status === 'fulfilled')
-      .map(({ value }) => value);
-
     if (!Array.isArray(skills)) {
       return taskIDsInReview;
     }
+
+    const tasksInReviewMetadata = (await Promise.allSettled(taskIDsInReview.map(ID => _getTaskMetadata({ ID }))))
+      .filter(({ status }) => status === 'fulfilled')
+      .map(({ value }) => value);
 
     return tasksInReviewMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
   }

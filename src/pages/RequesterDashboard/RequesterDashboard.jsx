@@ -22,6 +22,13 @@ function RequesterDashboard() {
         <TopLoadingBar show={isLoading} />
         <AffixContainer
           position="top"
+          css={`
+            min-width: 384px;
+
+            @media (max-width: 575.98px) {
+              padding: 0;
+            }
+          `}
           wrapperCss={css`
             && {
               padding: 0 3rem;

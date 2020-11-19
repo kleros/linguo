@@ -72,7 +72,7 @@ function TranslatorTaskCard(props) {
   }, [targetLanguage, sourceLanguage, minimumLevel, skills]);
 
   return (
-    <Tooltip title={hasSkill ? '' : "You don't have the required skills to work on this task"}>
+    <Tooltip title={hasSkill ? '' : "You don't have the required skills for this task"}>
       <div>
         <ContentBlocker
           blocked={!hasSkill}

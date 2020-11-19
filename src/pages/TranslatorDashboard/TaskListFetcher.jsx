@@ -95,7 +95,7 @@ const filterDescriptionMap = {
   [secondLevelFilters[filters.inReview].toReview]: (
     <StyledDismissableAlert
       id="translator.filters.inReview.toReview"
-      message="Other translators delivered completed the translation tasks below."
+      message="Other translators completed the translation tasks below."
       description={
         <>
           <p>If you think there are issues with any of them, you can raise a challenge.</p>
