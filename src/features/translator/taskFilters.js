@@ -52,6 +52,18 @@ export const secondLevelFilters = {
     toReview: 'toReview',
     myTranslations: 'myTranslations',
   },
+  [filters.inDispute]: {
+    [DEFAULT_FILTER]: 'translated',
+    translated: 'translated',
+    challenged: 'challenged',
+    others: 'others',
+  },
+  [filters.finished]: {
+    [DEFAULT_FILTER]: 'translated',
+    translated: 'translated',
+    challenged: 'challenged',
+    others: 'others',
+  },
 };
 
 export function getSecondLevelFilter(filterName, secondLevelFilterName) {
@@ -75,6 +87,16 @@ export function getSecondLevelFilterPredicate(filterName, secondLevelFilterName,
     [filters.inReview]: {
       toReview: ({ parties }) => parties[TaskParty.Translator] !== account,
       myTranslations: ({ parties }) => parties[TaskParty.Translator] === account,
+    },
+    [filters.inDispute]: {
+      translated: ({ parties }) => parties[TaskParty.Translator] === account,
+      challenged: ({ parties }) => parties[TaskParty.Challenger] === account,
+      others: ({ parties }) => parties[TaskParty.Translator] !== account && parties[TaskParty.Challenger] !== account,
+    },
+    [filters.finished]: {
+      translated: ({ parties }) => parties[TaskParty.Translator] === account,
+      challenged: ({ parties }) => parties[TaskParty.Challenger] === account,
+      others: ({ parties }) => parties[TaskParty.Translator] !== account && parties[TaskParty.Challenger] !== account,
     },
   };
 

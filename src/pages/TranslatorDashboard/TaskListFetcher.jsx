@@ -37,7 +37,7 @@ export default function TaskListFetcher() {
 
   return (
     <OptionalSecondLevelTabs>
-      {filterDescriptionMap[secondLevelFilter ?? filter]}
+      {filterDescriptionMap[getFilterTreeName(filter, secondLevelFilter)]}
       <TaskList data={data} showFootnote={showFootnote} />
     </OptionalSecondLevelTabs>
   );
@@ -52,7 +52,7 @@ const StyledDismissableAlert = styled(DismissableAlert)`
 `;
 
 const filterDescriptionMap = {
-  [filters.open]: (
+  [getFilterTreeName('open')]: (
     <StyledDismissableAlert
       id="translator.filters.open"
       message="You will only be able to see tasks whose both source and target languages you have self-declared level B2 or higher."
@@ -72,13 +72,13 @@ const filterDescriptionMap = {
       }
     />
   ),
-  [filters.inProgress]: (
+  [getFilterTreeName('inProgress')]: (
     <StyledDismissableAlert
       id="translator.filters.inProgress"
       message="You are currently working on the translations below."
     />
   ),
-  [secondLevelFilters[filters.inReview].myTranslations]: (
+  [getFilterTreeName('inReview', 'myTranslations')]: (
     <StyledDismissableAlert
       id="translator.filters.inReview.myTranslations"
       message="You already delivered the translations below."
@@ -92,7 +92,7 @@ const filterDescriptionMap = {
       }
     />
   ),
-  [secondLevelFilters[filters.inReview].toReview]: (
+  [getFilterTreeName('inReview', 'toReview')]: (
     <StyledDismissableAlert
       id="translator.filters.inReview.toReview"
       message="Other translators completed the translation tasks below."
@@ -111,22 +111,61 @@ const filterDescriptionMap = {
       }
     />
   ),
-  [filters.finished]: (
+  [getFilterTreeName('inDispute', 'translated')]: (
     <StyledDismissableAlert
-      id="translator.filters.incomplete"
-      message="The finished translation tasks you participated in are shown below."
+      id="translator.filters.inDispute.translated"
+      message="These are the tasks which you translated and were challenged by someone else."
+    />
+  ),
+  [getFilterTreeName('inDispute', 'challenged')]: (
+    <StyledDismissableAlert
+      id="translator.filters.inDispute.challenged"
+      message="These are the tasks which someone else translated and were challenged by you."
+    />
+  ),
+  [getFilterTreeName('inDispute', 'others')]: (
+    <StyledDismissableAlert
+      id="translator.filters.inDispute.others"
+      message="These are the the latest translations which were challenged."
       description={
-        <p>You will see them regardless they were accepted or, in case there were a dispute, rejected by a jury.</p>
+        <p>
+          You can take a part in the dispute by participating in the discussion and providing evidences if you wish.
+        </p>
       }
     />
   ),
-  [filters.incomplete]: (
+  [getFilterTreeName('finished', 'translated')]: (
+    <StyledDismissableAlert
+      id="translator.filters.finished.translated"
+      message="These are the finished tasks which you translated"
+    />
+  ),
+  [getFilterTreeName('finished', 'challenged')]: (
+    <StyledDismissableAlert
+      id="translator.filters.finished.challenged"
+      message="These are the finished tasks which someone else translated and were challenged by you."
+    />
+  ),
+  [getFilterTreeName('finished', 'others')]: (
+    <StyledDismissableAlert
+      id="translator.filters.finished.others"
+      message="These are the the latest translations which were finished."
+    />
+  ),
+  [getFilterTreeName('incomplete')]: (
     <StyledDismissableAlert
       id="translator.filters.incomplete"
       message="You were assigned to the tasks below but were not able to deliver the translation within the deadline."
     />
   ),
 };
+
+function getFilterTreeName(firstLevelFilter, secondLevelFilter) {
+  const first = filters[firstLevelFilter];
+  const second = secondLevelFilters[firstLevelFilter]?.[secondLevelFilter];
+
+  return [first, second].filter(value => !!value).join('-');
+}
 
 function OptionalSecondLevelTabs({ children }) {
   const [{ filter, secondLevelFilter }, setFilters] = useFilters();
@@ -186,6 +225,16 @@ const secondLevelFiltersDisplayNames = {
   [filters.inReview]: {
     toReview: 'To Review',
     myTranslations: 'My Translations',
+  },
+  [filters.inDispute]: {
+    translated: 'Translated',
+    challenged: 'Challenged',
+    others: 'Others',
+  },
+  [filters.finished]: {
+    translated: 'Translated',
+    challenged: 'Challenged',
+    others: 'Others',
   },
 };
 

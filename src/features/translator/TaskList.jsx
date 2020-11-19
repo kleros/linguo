@@ -3,6 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Col, Row, Tooltip, Typography } from 'antd';
 import TaskCard from '~/features/tasks/TaskCard';
+import { TaskStatus } from '~/features/tasks';
 import ContentBlocker from '~/shared/ContentBlocker';
 import { selectAllSkills } from './translatorSlice';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
@@ -56,7 +57,7 @@ const minimumLevelByQuality = {
 };
 
 function TranslatorTaskCard(props) {
-  const { sourceLanguage, targetLanguage, expectedQuality } = props;
+  const { sourceLanguage, targetLanguage, expectedQuality, status } = props;
   const minimumLevel = minimumLevelByQuality[expectedQuality];
   const skills = useShallowEqualSelector(selectAllSkills);
 
@@ -71,15 +72,17 @@ function TranslatorTaskCard(props) {
     return hasSourceLanguageSkill && hasTargetLanguageSkill;
   }, [targetLanguage, sourceLanguage, minimumLevel, skills]);
 
+  const blocked = status < TaskStatus.DisputeCreated && !hasSkill;
+
   return (
-    <Tooltip title={hasSkill ? '' : "You don't have the required skills for this task"}>
+    <Tooltip title={blocked ? "You don't have the required skills for this task" : ''}>
       <div>
         <ContentBlocker
-          blocked={!hasSkill}
+          blocked={blocked}
           contentBlur={0}
           overlayColor="transparent"
           css={`
-            opacity: ${hasSkill ? 1 : 0.4};
+            opacity: ${blocked ? 0.4 : 1};
           `}
         >
           <TaskCard {...props} />
@@ -90,6 +93,7 @@ function TranslatorTaskCard(props) {
 }
 
 TranslatorTaskCard.propTypes = {
+  status: t.oneOf(Object.values(TaskStatus)).isRequired,
   sourceLanguage: t.string.isRequired,
   targetLanguage: t.string.isRequired,
   expectedQuality: t.string.isRequired,

@@ -78,69 +78,73 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
     account = account ?? ADDRESS_ZERO;
     skills = typeof skills === 'string' ? JSON.parse(skills) : skills;
 
-    const assignedTaskIDsPromise = _getTaskIDsFromEvent('TaskAssigned', {
+    const assignedToAccountTaskIdsPromise = _getTaskIdsFromEvent('TaskAssigned', {
       fromBlock: 0,
       filter: { _translator: account },
     });
-    const challengedTaskIDsPromise = _getTaskIDsFromEvent('TranslationChallenged', {
+    const challengedByAccountTaskIdsPromise = _getTaskIdsFromEvent('TranslationChallenged', {
       fromBlock: 0,
       filter: { _challenger: account },
     });
 
     const currentBlockNumber = await web3.eth.getBlockNumber();
-    const unassignedTaskIDsPromise = _getUnassignedTaskIDs({ skills, currentBlockNumber });
-    const inReviewTaskIdsPromise = _getInReviewTaskIDs({ skills, currentBlockNumber });
+    const unassignedTaskIdsPromise = _getUnassignedTaskIds({ skills, currentBlockNumber });
+    const inReviewTaskIdsPromise = _getInReviewTaskIds({ skills, currentBlockNumber });
+    const inDisputeTaskIdsPromise = _getInDisputeTaskIds({ skills, currentBlockNumber });
+    const resolvedTaskIdsPromise = _getResolvedTaskIds({ skills, currentBlockNumber });
 
-    const [taskIDs, ownTaskIDs] = await Promise.all([
+    const [taskIds, ownTaskIds] = await Promise.all([
       Promise.allSettled([
-        unassignedTaskIDsPromise,
+        unassignedTaskIdsPromise,
         inReviewTaskIdsPromise,
-        assignedTaskIDsPromise,
-        challengedTaskIDsPromise,
+        inDisputeTaskIdsPromise,
+        resolvedTaskIdsPromise,
+        assignedToAccountTaskIdsPromise,
+        challengedByAccountTaskIdsPromise,
       ]).then(result =>
         result
           .filter(({ status }) => status === 'fulfilled')
           .map(({ value }) => value)
           .flat()
       ),
-      _getTaskIDsCreatedByAccount({ account }),
+      _getTaskIdsCreatedByAccount({ account }),
     ]);
 
-    const taskIDsSet = new Set(taskIDs);
-    const ownTaskIDsSet = new Set(ownTaskIDs);
+    const taskIdsSet = new Set(taskIds);
+    const ownTaskIdsSet = new Set(ownTaskIds);
 
-    const relevantTaskIDs = [...taskIDsSet].filter(ID => !ownTaskIDsSet.has(ID));
+    const relevantTaskIds = [...taskIdsSet].filter(ID => !ownTaskIdsSet.has(ID));
 
-    const tasks = (await Promise.allSettled(relevantTaskIDs.map(async ID => getTaskById({ ID }))))
+    const tasks = (await Promise.allSettled(relevantTaskIds.map(async ID => getTaskById({ ID }))))
       .filter(({ status }) => status === 'fulfilled')
       .map(({ value }) => value);
 
     return tasks;
   }
 
-  async function _getUnassignedTaskIDs({ currentBlockNumber, skills }) {
+  async function _getUnassignedTaskIds({ currentBlockNumber, skills }) {
     // We are going back ~180 days (considering ~4 blocks / minute)
     const unassingedRelevantBlocks = 4 * 60 * 24 * 180;
     const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
-    const created = await _getTaskIDsFromEvent('TaskCreated', { fromBlock });
-    const assigned = await _getTaskIDsFromEvent('TaskAssigned', { fromBlock });
-    const resolved = await _getTaskIDsFromEvent('TaskResolved', { fromBlock });
+    const created = await _getTaskIdsFromEvent('TaskCreated', { fromBlock });
+    const assigned = await _getTaskIdsFromEvent('TaskAssigned', { fromBlock });
+    const resolved = await _getTaskIdsFromEvent('TaskResolved', { fromBlock });
 
-    const unassignedTaskIDs = created.filter(ID => !assigned.includes(ID) && !resolved.includes(ID));
+    const unassignedTaskIds = created.filter(ID => !assigned.includes(ID) && !resolved.includes(ID));
 
     if (!Array.isArray(skills)) {
-      return unassignedTaskIDs;
+      return unassignedTaskIds;
     }
 
-    const unassignedTasksMetadata = (await Promise.allSettled(unassignedTaskIDs.map(ID => _getTaskMetadata({ ID }))))
+    const unassignedTasksMetadata = (await Promise.allSettled(unassignedTaskIds.map(ID => _getTaskMetadata({ ID }))))
       .filter(({ status }) => status === 'fulfilled')
       .map(({ value }) => value);
 
     return unassignedTasksMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
   }
 
-  async function _getInReviewTaskIDs({ currentBlockNumber, skills }) {
+  async function _getInReviewTaskIds({ currentBlockNumber, skills }) {
     const reviewTimeout = await linguo.methods.reviewTimeout().call();
 
     /**
@@ -150,27 +154,73 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
     const relevantBlocksCount = Math.round((Number(reviewTimeout) * 1.3) / 15);
     const fromBlock = Math.max(0, currentBlockNumber - relevantBlocksCount);
 
-    const taskIDsInReview = await _getTaskIDsFromEvent('TranslationSubmitted', { fromBlock });
+    const taskIdsInReview = await _getTaskIdsFromEvent('TranslationSubmitted', { fromBlock });
 
     if (!Array.isArray(skills)) {
-      return taskIDsInReview;
+      return taskIdsInReview;
     }
 
-    const tasksInReviewMetadata = (await Promise.allSettled(taskIDsInReview.map(ID => _getTaskMetadata({ ID }))))
+    const tasksInReviewMetadata = (await Promise.allSettled(taskIdsInReview.map(ID => _getTaskMetadata({ ID }))))
       .filter(({ status }) => status === 'fulfilled')
       .map(({ value }) => value);
 
     return tasksInReviewMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
   }
 
-  async function _getTaskIDsCreatedByAccount({ account }) {
-    return _getTaskIDsFromEvent('TaskCreated', {
+  async function _getInDisputeTaskIds({ currentBlockNumber, skills }) {
+    // We are going back ~180 days (considering ~4 blocks / minute)
+    const inDisputeRelevantBlocks = 4 * 60 * 24 * 180;
+
+    /**
+     * We are adding 30% to the `reviewTimeout` to cope with fluctuations
+     * in the 15s per block mining period if review timeout is small
+     */
+    const fromBlock = Math.max(0, currentBlockNumber - inDisputeRelevantBlocks);
+
+    const taskIdsInDispute = await _getTaskIdsFromEvent('TranslationChallenged', { fromBlock });
+
+    if (!Array.isArray(skills)) {
+      return taskIdsInDispute;
+    }
+
+    const tasksInDisputeMetadata = (await Promise.allSettled(taskIdsInDispute.map(ID => _getTaskMetadata({ ID }))))
+      .filter(({ status }) => status === 'fulfilled')
+      .map(({ value }) => value);
+
+    return tasksInDisputeMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
+  }
+
+  async function _getResolvedTaskIds({ currentBlockNumber, skills }) {
+    // We are going back ~180 days (considering ~4 blocks / minute)
+    const resolvedRelevantBlocks = 4 * 60 * 24 * 180;
+
+    /**
+     * We are adding 30% to the `reviewTimeout` to cope with fluctuations
+     * in the 15s per block mining period if review timeout is small
+     */
+    const fromBlock = Math.max(0, currentBlockNumber - resolvedRelevantBlocks);
+
+    const taskIdsResolved = await _getTaskIdsFromEvent('TaskResolved', { fromBlock });
+
+    if (!Array.isArray(skills)) {
+      return taskIdsResolved;
+    }
+
+    const tasksResolvedMetadata = (await Promise.allSettled(taskIdsResolved.map(ID => _getTaskMetadata({ ID }))))
+      .filter(({ status }) => status === 'fulfilled')
+      .map(({ value }) => value);
+
+    return tasksResolvedMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
+  }
+
+  async function _getTaskIdsCreatedByAccount({ account }) {
+    return _getTaskIdsFromEvent('TaskCreated', {
       filter: { _requester: account },
       fromBlock: 0,
     });
   }
 
-  async function _getTaskIDsFromEvent(eventName, { fromBlock, toBlock, filter }) {
+  async function _getTaskIdsFromEvent(eventName, { fromBlock, toBlock, filter }) {
     const events = await _getPastEvents(linguo, eventName, {
       fromBlock,
       toBlock,
