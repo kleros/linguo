@@ -55,6 +55,13 @@ const menuItems = [
         pathname: r.TRANSLATOR_DASHBOARD,
         search: 'filter=open',
       }}
+      isActive={(match, location) => {
+        if (location.search.includes('filter=inReview')) {
+          return false;
+        }
+
+        return match;
+      }}
     >
       Work as a Translator
     </NavLink>
@@ -64,6 +71,13 @@ const menuItems = [
       to={{
         pathname: r.TRANSLATOR_DASHBOARD,
         search: 'filter=inReview&secondLevelFilter=toReview',
+      }}
+      isActive={(match, location) => {
+        if (!location.search.includes('filter=inReview')) {
+          return false;
+        }
+
+        return match;
       }}
     >
       Review Translations
@@ -126,10 +140,41 @@ const menuAnchorMixin = css`
     a {
       font-size: 1rem;
       color: ${p => p.theme.color.text.inverted};
+      position: relative;
+      display: inline-block;
 
-      &:hover {
+      ::after {
+        content: '';
+        position: absolute;
+        left: 16.67%;
+        right: 16.67%;
+        bottom: 50%;
+        height: 1px;
+        opacity: 0.75;
+        background-image: linear-gradient(
+          90deg,
+          rgba(251, 251, 251, 0) 0%,
+          currentColor 33.33%,
+          currentColor 66.67%,
+          rgba(251, 251, 251, 0) 100%
+        );
+        transform: scaleX(0) translateY(1rem);
+        transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
+      }
+
+      :hover {
         color: ${p => p.theme.color.text.inverted};
-        text-shadow: 0 0 5px ${p => p.theme.hexToRgba(p.theme.color.text.inverted, 0.25)};
+        text-shadow: 0 0 5px ${p => p.theme.hexToRgba(p.theme.color.text.inverted, 0.5)};
+      }
+
+      &.active {
+        font-weight: ${p => p.theme.fontWeight.semibold};
+        transform: scale(1.125);
+        text-shadow: 2px 0 1px ${p => p.theme.color.shadow.ui};
+
+        ::after {
+          transform: scaleX(1) translateY(1rem);
+        }
       }
     }
   }
