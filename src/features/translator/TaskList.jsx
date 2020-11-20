@@ -57,7 +57,7 @@ const minimumLevelByQuality = {
 };
 
 function TranslatorTaskCard(props) {
-  const { sourceLanguage, targetLanguage, expectedQuality, status } = props;
+  const { sourceLanguage, targetLanguage, expectedQuality } = props;
   const minimumLevel = minimumLevelByQuality[expectedQuality];
   const skills = useShallowEqualSelector(selectAllSkills);
 
@@ -72,7 +72,7 @@ function TranslatorTaskCard(props) {
     return hasSourceLanguageSkill && hasTargetLanguageSkill;
   }, [targetLanguage, sourceLanguage, minimumLevel, skills]);
 
-  const blocked = status < TaskStatus.DisputeCreated && !hasSkill;
+  const blocked = !hasSkill;
 
   return (
     <Tooltip title={blocked ? "You don't have the required skills for this task" : ''}>

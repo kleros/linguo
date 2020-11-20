@@ -72,7 +72,7 @@ const filterDescriptionMap = {
       }
     />
   ),
-  [getFilterTreeName('inProgress')]: (
+  [getFilterTreeName('inProgress', 'myTranslations')]: (
     <StyledDismissableAlert
       id="translator.filters.inProgress"
       message="You are currently working on the translations below."
@@ -152,7 +152,7 @@ const filterDescriptionMap = {
       message="These are the the latest translations which were finished."
     />
   ),
-  [getFilterTreeName('incomplete')]: (
+  [getFilterTreeName('incomplete', 'assigned')]: (
     <StyledDismissableAlert
       id="translator.filters.incomplete"
       message="You were assigned to the tasks below but were not able to deliver the translation within the deadline."
@@ -222,6 +222,10 @@ FilterTab.propTypes = {
 };
 
 const secondLevelFiltersDisplayNames = {
+  [filters.inProgress]: {
+    myTranslations: 'My Translations',
+    others: 'Others',
+  },
   [filters.inReview]: {
     toReview: 'To Review',
     myTranslations: 'My Translations',
@@ -234,6 +238,10 @@ const secondLevelFiltersDisplayNames = {
   [filters.finished]: {
     translated: 'Translated',
     challenged: 'Challenged',
+    others: 'Others',
+  },
+  [filters.incomplete]: {
+    assigned: 'Assigned To Me',
     others: 'Others',
   },
 };

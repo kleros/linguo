@@ -88,14 +88,17 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
     });
 
     const currentBlockNumber = await web3.eth.getBlockNumber();
-    const unassignedTaskIdsPromise = _getUnassignedTaskIds({ skills, currentBlockNumber });
-    const inReviewTaskIdsPromise = _getInReviewTaskIds({ skills, currentBlockNumber });
-    const inDisputeTaskIdsPromise = _getInDisputeTaskIds({ skills, currentBlockNumber });
-    const resolvedTaskIdsPromise = _getResolvedTaskIds({ skills, currentBlockNumber });
+
+    const unassignedTaskIdsPromise = _getUnassignedTaskIds({ currentBlockNumber, skills });
+    const assignedTaskIdsPromise = _getAssignedTaskIds({ currentBlockNumber });
+    const inReviewTaskIdsPromise = _getInReviewTaskIds({ currentBlockNumber, skills });
+    const inDisputeTaskIdsPromise = _getInDisputeTaskIds({ currentBlockNumber });
+    const resolvedTaskIdsPromise = _getResolvedTaskIds({ currentBlockNumber });
 
     const [taskIds, ownTaskIds] = await Promise.all([
       Promise.allSettled([
         unassignedTaskIdsPromise,
+        assignedTaskIdsPromise,
         inReviewTaskIdsPromise,
         inDisputeTaskIdsPromise,
         resolvedTaskIdsPromise,
@@ -144,6 +147,14 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
     return unassignedTasksMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
   }
 
+  async function _getAssignedTaskIds({ currentBlockNumber }) {
+    // We are going back ~180 days (considering ~4 blocks / minute)
+    const inDisputeRelevantBlocks = 4 * 60 * 24 * 180;
+    const fromBlock = Math.max(0, currentBlockNumber - inDisputeRelevantBlocks);
+
+    return _getTaskIdsFromEvent('TaskAssigned', { fromBlock });
+  }
+
   async function _getInReviewTaskIds({ currentBlockNumber, skills }) {
     const reviewTimeout = await linguo.methods.reviewTimeout().call();
 
@@ -167,50 +178,20 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
     return tasksInReviewMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
   }
 
-  async function _getInDisputeTaskIds({ currentBlockNumber, skills }) {
+  async function _getInDisputeTaskIds({ currentBlockNumber }) {
     // We are going back ~180 days (considering ~4 blocks / minute)
     const inDisputeRelevantBlocks = 4 * 60 * 24 * 180;
-
-    /**
-     * We are adding 30% to the `reviewTimeout` to cope with fluctuations
-     * in the 15s per block mining period if review timeout is small
-     */
     const fromBlock = Math.max(0, currentBlockNumber - inDisputeRelevantBlocks);
 
-    const taskIdsInDispute = await _getTaskIdsFromEvent('TranslationChallenged', { fromBlock });
-
-    if (!Array.isArray(skills)) {
-      return taskIdsInDispute;
-    }
-
-    const tasksInDisputeMetadata = (await Promise.allSettled(taskIdsInDispute.map(ID => _getTaskMetadata({ ID }))))
-      .filter(({ status }) => status === 'fulfilled')
-      .map(({ value }) => value);
-
-    return tasksInDisputeMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
+    return _getTaskIdsFromEvent('TranslationChallenged', { fromBlock });
   }
 
-  async function _getResolvedTaskIds({ currentBlockNumber, skills }) {
+  async function _getResolvedTaskIds({ currentBlockNumber }) {
     // We are going back ~180 days (considering ~4 blocks / minute)
     const resolvedRelevantBlocks = 4 * 60 * 24 * 180;
-
-    /**
-     * We are adding 30% to the `reviewTimeout` to cope with fluctuations
-     * in the 15s per block mining period if review timeout is small
-     */
     const fromBlock = Math.max(0, currentBlockNumber - resolvedRelevantBlocks);
 
-    const taskIdsResolved = await _getTaskIdsFromEvent('TaskResolved', { fromBlock });
-
-    if (!Array.isArray(skills)) {
-      return taskIdsResolved;
-    }
-
-    const tasksResolvedMetadata = (await Promise.allSettled(taskIdsResolved.map(ID => _getTaskMetadata({ ID }))))
-      .filter(({ status }) => status === 'fulfilled')
-      .map(({ value }) => value);
-
-    return tasksResolvedMetadata.filter(onlyIfMatchingSkills(skills)).map(({ ID }) => ID);
+    return _getTaskIdsFromEvent('TaskResolved', { fromBlock });
   }
 
   async function _getTaskIdsCreatedByAccount({ account }) {

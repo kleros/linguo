@@ -18,7 +18,7 @@ export function getComparator(filterName, { account, skills = [] }) {
 
   const comparatorMap = {
     all: {
-      incomplete: (a, b) => Task.isIncomplete(a) - Task.isIncomplete(b),
+      incompleteLast: (a, b) => Task.isIncomplete(a) - Task.isIncomplete(b),
       remainingTimeForSubmissionDesc: (a, b) => {
         const currentDate = new Date();
         return (
@@ -40,6 +40,7 @@ export function getComparator(filterName, { account, skills = [] }) {
       ID: -1,
     },
     inProgress: {
+      withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
       remainingTimeForSubmissionDesc: (a, b) => {
         const currentDate = new Date();
         return (

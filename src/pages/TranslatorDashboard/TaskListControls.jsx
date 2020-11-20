@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Badge, Radio } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import * as r from '~/app/routes';
-import { filters, useFilters } from '~/features/translator';
+import { filters, getSecondLevelFilter, useFilters } from '~/features/translator';
 import { selectTaskCountForFilter, selectAllSkills } from '~/features/translator/translatorSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
@@ -57,13 +57,29 @@ function TaskListFilters() {
 function FilterOption({ value, text }) {
   const account = useSelector(selectAccount);
   const skills = useShallowEqualSelector(selectAllSkills);
-  const count = useSelector(state =>
-    selectTaskCountForFilter(state, {
-      account,
-      skills,
-      filter: value,
-    })
-  );
+  const count = useSelector(state => {
+    const secondLevelFilters = secondLevelFiltersToCount[value];
+
+    if (secondLevelFilters === undefined) {
+      return selectTaskCountForFilter(state, {
+        account,
+        skills,
+        filter: value,
+      });
+    }
+
+    return secondLevelFilters.reduce(
+      (acc, secondLevelFilter) =>
+        acc +
+        selectTaskCountForFilter(state, {
+          account,
+          skills,
+          filter: value,
+          secondLevelFilter,
+        }),
+      0
+    );
+  });
 
   return (
     <StyledRadioButton key={value} value={value}>
@@ -75,6 +91,16 @@ function FilterOption({ value, text }) {
 FilterOption.propTypes = {
   value: t.string.isRequired,
   text: t.string.isRequired,
+};
+
+const secondLevelFiltersToCount = {
+  [filters.inProgress]: [getSecondLevelFilter('inProgress', 'myTranslations')],
+  [filters.inDispute]: [
+    getSecondLevelFilter('inDispute', 'translated'),
+    getSecondLevelFilter('inDispute', 'challenged'),
+  ],
+  [filters.finished]: [getSecondLevelFilter('finished', 'translated'), getSecondLevelFilter('finished', 'challenged')],
+  [filters.incomplete]: [getSecondLevelFilter('incomplete', 'assigned')],
 };
 
 const StyledActions = styled.div``;

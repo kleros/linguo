@@ -47,6 +47,11 @@ export function getFilterPredicate(filterName, { skills = [] } = {}) {
 const DEFAULT_FILTER = Symbol('@@default-filter');
 
 export const secondLevelFilters = {
+  [filters.inProgress]: {
+    [DEFAULT_FILTER]: 'myTranslations',
+    myTranslations: 'myTranslations',
+    others: 'others',
+  },
   [filters.inReview]: {
     [DEFAULT_FILTER]: 'toReview',
     toReview: 'toReview',
@@ -62,6 +67,11 @@ export const secondLevelFilters = {
     [DEFAULT_FILTER]: 'translated',
     translated: 'translated',
     challenged: 'challenged',
+    others: 'others',
+  },
+  [filters.incomplete]: {
+    [DEFAULT_FILTER]: 'assigned',
+    assigned: 'assigned',
     others: 'others',
   },
 };
@@ -84,6 +94,10 @@ export function hasSecondLevelFilters(filterName) {
  */
 export function getSecondLevelFilterPredicate(filterName, secondLevelFilterName, { account }) {
   const secondLevelFilterPredicates = {
+    [filters.inProgress]: {
+      myTranslations: ({ parties }) => parties[TaskParty.Translator] === account,
+      othes: ({ parties }) => parties[TaskParty.Translator] !== account,
+    },
     [filters.inReview]: {
       toReview: ({ parties }) => parties[TaskParty.Translator] !== account,
       myTranslations: ({ parties }) => parties[TaskParty.Translator] === account,
@@ -97,6 +111,10 @@ export function getSecondLevelFilterPredicate(filterName, secondLevelFilterName,
       translated: ({ parties }) => parties[TaskParty.Translator] === account,
       challenged: ({ parties }) => parties[TaskParty.Challenger] === account,
       others: ({ parties }) => parties[TaskParty.Translator] !== account && parties[TaskParty.Challenger] !== account,
+    },
+    [filters.incomplete]: {
+      assigned: ({ parties }) => parties[TaskParty.Translator] === account,
+      others: ({ parties }) => parties[TaskParty.Translator] !== account,
     },
   };
 
