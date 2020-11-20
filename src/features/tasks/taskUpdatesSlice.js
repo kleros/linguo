@@ -531,7 +531,7 @@ function makeFinalResolvedNotification({ task, role, chainId, account, id, block
     text = 'No translator was assigned to the task before the deadline.';
     type = 'warning';
     icon = 'bell';
-  } else if (!task.translatedText) {
+  } else if (!task.translatedTextUrl) {
     const appendedMessageByRole = {
       [Role.Requester]: 'You received the escrow deposit back + the translator deposit.',
       [Role.Translator]: 'Your translator deposit was sent to the requester.',
