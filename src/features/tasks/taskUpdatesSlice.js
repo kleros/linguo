@@ -493,7 +493,7 @@ function makeTransientResolvedNotification({ task, chainId, account, id, blockNu
   const { hasDispute } = task;
 
   const text = hasDispute
-    ? 'The jurors ruled about the translation task. Getting more details...'
+    ? 'The dispute about the translation task is over. Getting more details...'
     : 'The translation task was resolved. Getting more details...';
 
   return putNotification({

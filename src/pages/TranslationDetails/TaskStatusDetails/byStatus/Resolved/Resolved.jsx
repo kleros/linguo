@@ -113,8 +113,8 @@ const titleMap = {
   },
   true: {
     [DisputeRuling.RefuseToRule]: 'Final decision: the jurors refused to arbitrate the case',
-    [DisputeRuling.TranslationApproved]: 'Final decision: the jurors approved the translation',
-    [DisputeRuling.TranslationRejected]: 'Final decision: the jurors rejected the translation',
+    [DisputeRuling.TranslationApproved]: 'Final decision: translation approved',
+    [DisputeRuling.TranslationRejected]: 'Final decision: translation rejected',
   },
 };
 
