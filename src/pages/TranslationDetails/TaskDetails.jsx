@@ -22,6 +22,7 @@ import useTask from './useTask';
 import TaskStatusDetails from './TaskStatusDetails';
 import Evidences from './Evidences';
 import useInterval from '~/shared/useInterval';
+import AffixContainer from '~/shared/AffixContainer';
 
 const _1_MINUTE_MS = 60 * 1000;
 
@@ -101,15 +102,19 @@ export default function TaskDetails() {
           }
         `}
       >
-        <StyledTaskTitle level={2}>{title}</StyledTaskTitle>
-        <StyledDeadline>
-          <StyledDefinitionTerm>
-            <CalendarIcon /> Translation Deadline:{' '}
-          </StyledDefinitionTerm>
-          <StyledDefinitionDescription>
-            <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
-          </StyledDefinitionDescription>
-        </StyledDeadline>
+        <AffixContainer position="top">
+          <div>
+            <StyledTaskTitle level={2}>{title}</StyledTaskTitle>
+            <StyledDeadline>
+              <StyledDefinitionTerm>
+                <CalendarIcon /> Translation Deadline:{' '}
+              </StyledDefinitionTerm>
+              <StyledDefinitionDescription>
+                <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
+              </StyledDefinitionDescription>
+            </StyledDeadline>
+          </div>
+        </AffixContainer>
         <Spacer size={3} />
         <TaskInfoGrid data={taskInfo} />
         {showFootnote && (
