@@ -17,9 +17,33 @@ export default function OriginalSourceFields({ setFieldsValue }) {
   return (
     <Col span={24}>
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={24} md={12} lg={16} order={0}>
+        <Col
+          span={24}
+          css={`
+            margin: -0.5rem 0 1rem;
+
+            :empty {
+              display: none;
+            }
+          `}
+        >
+          <DismissableAlert
+            id="requester.form.multipleFiles"
+            message="If you want to send multiple files, you can put them all in a single .zip file."
+            description={
+              <StyledDisclaimer>
+                <p>Please make sure the actual files to be translated can be easily identified.</p>
+                <p>
+                  We recommend you to include a file in a simple format (i.e.: <em>instructions.pdf</em>) with general
+                  instructions for translators.
+                </p>
+              </StyledDisclaimer>
+            }
+          />
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={16}>
           <StyledFormItem
-            label="Original Text File"
+            label="Original File"
             name="originalTextFile"
             valuePropName="fileList"
             getValueFromEvent={normalizeFile}
@@ -27,7 +51,7 @@ export default function OriginalSourceFields({ setFieldsValue }) {
             rules={[
               {
                 required: true,
-                message: 'Please provide the file to be translated.',
+                message: 'Please provide the original file.',
               },
               {
                 validator: uploadValidator,
@@ -44,34 +68,7 @@ export default function OriginalSourceFields({ setFieldsValue }) {
             />
           </StyledFormItem>
         </Col>
-        <Col
-          xs={{ span: 24, order: 0 }}
-          sm={{ span: 24, order: 0 }}
-          md={{ span: 24, order: 1 }}
-          css={`
-            margin: -0.5rem 0 1rem;
-
-            :empty {
-              display: none;
-            }
-          `}
-        >
-          <DismissableAlert
-            id="requester.form.multipleFiles"
-            message="If you want to send multiple files, you can put them all in a single .zip
-            file."
-            description={
-              <StyledDisclaimer>
-                <p>Please make sure the actual files to be translated can be easily identified.</p>
-                <p>
-                  We recommend you to include a file in a simple format (i.e.: <em>instructions.pdf</em>) with general
-                  instructions for translators.
-                </p>
-              </StyledDisclaimer>
-            }
-          />
-        </Col>
-        <Col xs={24} sm={24} md={12} lg={8} order={0}>
+        <Col xs={24} sm={24} md={12} lg={8}>
           <StyledFormItem
             label="Word Count"
             name="wordCount"
@@ -84,16 +81,16 @@ export default function OriginalSourceFields({ setFieldsValue }) {
           >
             <InputNumberWithAddons
               type="number"
-              placeholder="The length of the text"
+              placeholder="The length of the content"
               min={1}
               step={1}
               addonAfter="words"
             />
           </StyledFormItem>
         </Col>
-        <Col xs={24} sm={24} md={24} lg={16} order={1}>
+        <Col xs={24} sm={24} md={24} lg={16}>
           <StyledFormItem
-            label="Original Text URL (optional)"
+            label="Original URL (optional)"
             name="originalTextUrl"
             rules={[
               {
