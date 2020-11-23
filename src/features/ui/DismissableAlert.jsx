@@ -1,5 +1,6 @@
 import React from 'react';
 import t from 'prop-types';
+import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { Alert } from 'antd';
@@ -16,7 +17,7 @@ export default function DismissableAlert({ id, type, showIcon, banner, message, 
   const isVisible = useSelector(selectAlertIsVisible(id));
 
   return isVisible ? (
-    <Alert
+    <StyledAlert
       closable
       banner={banner}
       onClose={handleDismiss}
@@ -54,3 +55,9 @@ const typeToIconMap = {
   error: <CloseCircleOutlined />,
   success: <CheckCircleOutlined />,
 };
+
+const StyledAlert = styled(Alert)`
+  & + & {
+    margin-top: 1rem;
+  }
+`;
