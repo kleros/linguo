@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import deepMerge from 'deepmerge';
 import Web3 from 'web3';
-import { nanoid } from 'nanoid';
 import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import challengeEvidenceTemplate from '~/assets/fixtures/challengeEvidenceTemplate';
@@ -664,7 +663,7 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
         : {};
 
     const evidence = await publishEvidence({
-      name: `linguo-evidence-${nanoid(10)}.json`,
+      name: 'evidence.json',
       template: evidenceTemplate,
       overrides: {
         name,
@@ -764,15 +763,15 @@ const publishMetaEvidence = async ({ account, ...metadata }, { chainId }) => {
   return path;
 };
 
-const encoder = new TextEncoder();
-
 const publishEvidence = async ({ name, template, overrides }) => {
-  const challengeEvidence = {
+  const encoder = new TextEncoder();
+
+  const evidence = {
     ...template,
     ...overrides,
   };
 
-  const { path } = await ipfs.publish(name, encoder.encode(JSON.stringify(challengeEvidence)));
+  const { path } = await ipfs.publish(name, encoder.encode(JSON.stringify(evidence)));
 
   return path;
 };
