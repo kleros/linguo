@@ -3,11 +3,15 @@ import { Titled } from 'react-titled';
 import t from 'prop-types';
 import clsx from 'clsx';
 import { useHistory, useLocation } from 'react-router';
+import { Col, Row, Typography } from 'antd';
 import { LinkOutlined } from '@ant-design/icons';
 import scrollIntoView from 'scroll-into-view-if-needed';
 import styled, { createGlobalStyle } from 'styled-components';
 import * as r from '~/app/routes';
 import CollapsibleSection from '~/shared/CollapsibleSection';
+import { TelegramIcon } from '~/shared/icons';
+import Button from '~/shared/Button';
+import Spacer from '~/shared/Spacer';
 import SingleCardLayout from './layouts/SingleCardLayout';
 
 function Faq() {
@@ -46,6 +50,34 @@ function Faq() {
         {faqs.map(([question, answer]) => (
           <QA question={question} key={question} answer={answer} />
         ))}
+        <Spacer size={3} />
+        <aside>
+          <StyledSectionTitle>Are you still in doubt?</StyledSectionTitle>
+          <Spacer />
+          <Row gutter={16}>
+            <Col>
+              <Button
+                variant="filled"
+                icon={<TelegramIcon />}
+                href="https://t.me/kleros"
+                target="_blank"
+                rel="noreferer noopener"
+              >
+                Get help on our Telegram Group
+              </Button>
+            </Col>
+            <Col>
+              <Button
+                variant="outlined"
+                href="https://blog.kleros.io/linguo-decentralized-translation-platform/"
+                target="_blank"
+                rel="noreferer noopener"
+              >
+                Linguo Guide
+              </Button>
+            </Col>
+          </Row>
+        </aside>
       </SingleCardLayout>
     </Titled>
   );
@@ -209,6 +241,12 @@ const StyledOrderedList = styled.ol`
     p + & {
       margin-top: 0.5rem;
     }
+  }
+`;
+
+const StyledSectionTitle = styled(Typography.Title)`
+  && {
+    font-size: ${p => p.theme.fontSize.xxl};
   }
 `;
 

@@ -11,6 +11,7 @@ import _AddIcon from '~/assets/images/icon-add.svg';
 import _CalendarIcon from '~/assets/images/icon-calendar.svg';
 import _HourGlassIcon from '~/assets/images/icon-hour-glass.svg';
 import _ClockIcon from '~/assets/images/icon-clock.svg';
+import _TelegramIcon from '~/assets/images/icon-telegram.svg';
 
 export const RemoveIcon = createCustomIcon(_RemoveIcon);
 export const EmailIcon = createCustomIcon(_EmailIcon);
@@ -24,3 +25,4 @@ export const AddIcon = createCustomIcon(_AddIcon);
 export const CalendarIcon = createCustomIcon(_CalendarIcon);
 export const HourGlassIcon = createCustomIcon(_HourGlassIcon);
 export const ClockIcon = createCustomIcon(_ClockIcon);
+export const TelegramIcon = createCustomIcon(_TelegramIcon);
