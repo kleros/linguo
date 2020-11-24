@@ -28,10 +28,11 @@ export default function TaskFetcher() {
       {error && (
         <>
           <Alert
-            type="warning"
+            showIcon
+            type={error.recoverable ? 'warning' : 'error'}
             message={error.message}
             description={
-              data
+              error.recoverable
                 ? 'You are currently viewing a cached version which not might reflect the current state in the blockchain.'
                 : null
             }
@@ -39,11 +40,11 @@ export default function TaskFetcher() {
           <Spacer size={2} />
         </>
       )}
-      {data && (
+      {data && (!error || error.recoverable) ? (
         <TaskProvider task={data}>
           <TaskDetails />
         </TaskProvider>
-      )}
+      ) : null}
     </Spin>
   );
 }

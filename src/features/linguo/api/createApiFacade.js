@@ -11,6 +11,7 @@ import {
   flatten,
   indexBy,
   map,
+  mapValues,
   omit,
   pick,
   prop,
@@ -55,12 +56,13 @@ export default async function createApiFacade({ web3, chainId }) {
   const addressesByLanguageGroupPair = getAddressesByLanguageGroupPairs({ chainId });
 
   const apisByLanguageGroupPairs = await asyncMapValues(
-    async address =>
+    asyncMap(async address =>
       createContractApis({
         web3,
         archon,
         contracts: await getLinguoContracts({ web3, chainId, address, deployment: Linguo }),
-      }),
+      })
+    ),
     addressesByLanguageGroupPair
   );
 
@@ -70,7 +72,7 @@ export default async function createApiFacade({ web3, chainId }) {
         [linguo.address]: linguo.api,
       }),
     {},
-    Object.values(apisByLanguageGroupPairs)
+    flatten(Object.values(apisByLanguageGroupPairs))
   );
 
   const propHandler = {
@@ -107,7 +109,7 @@ export default async function createApiFacade({ web3, chainId }) {
 
       const langGroupPair = LanguageGroupPair(getLanguageGroup(sourceLanguage), getLanguageGroup(targetLanguage));
 
-      const linguo = apisByLanguageGroupPairs[langGroupPair];
+      const linguo = apisByLanguageGroupPairs[langGroupPair]?.[0];
       if (!linguo) {
         throw new Error(`Cannot create a task for pair (${sourceLanguage}, ${targetLanguage})`);
       }
@@ -233,16 +235,16 @@ async function getLinguoContracts({ web3, chainId, address, deployment }) {
 function getAddressesByLanguageGroupPairs({ chainId }) {
   try {
     const addresses = JSON.parse(process.env.LINGUO_CONTRACT_ADDRESSES);
-    return addresses[chainId];
+    return mapValues(addresses => [].concat(addresses), addresses[chainId]);
   } catch (err) {
     throw new Error('Environment variable LINGUO_CONTRACT_ADDRESSES should be a valid JSON');
   }
 }
 
-function createContractApis({ web3, archon, contracts }) {
+async function createContractApis({ web3, archon, contracts }) {
   const linguo = {
     address: contracts.linguo.options.address,
-    api: createContractApi({ web3, archon, ...contracts }),
+    api: await createContractApi({ web3, archon, ...contracts }),
   };
 
   return linguo;

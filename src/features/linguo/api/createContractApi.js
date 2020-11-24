@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import deepMerge from 'deepmerge';
+import deepEqual from 'deep-equal';
 import Web3 from 'web3';
 import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
@@ -9,16 +10,17 @@ import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.j
 import { Dispute } from '~/features/disputes';
 import { Task, TaskParty } from '~/features/tasks';
 import promiseRetry from '~/shared/promiseRetry';
+import { pick } from '~/shared/fp';
 import { ADDRESS_ZERO, NON_PAYABLE_VALUE } from './constants';
 import getFileUrl from './getFileUrl';
 
 const { toBN } = Web3.utils;
 
-export default function createContractApi({ web3, archon, linguo, arbitrator }) {
-  const firstRelevantBlockByChainId = {
-    42: 0,
-    1: 11237802,
-  };
+export default async function createContractApi({ web3, archon, linguo, arbitrator }) {
+  const chainId = await web3.eth.getChainId();
+  const firstRelevantBlock = firstRelevantBlockByChainId[chainId] ?? 0;
+  const evidenceDisplayInterfaceURI = evidenceDisplayURIByChainId[chainId] ?? evidenceDisplayURIByChainId[1];
+  const dynamicScriptURI = dynamicScriptURIByChainId[chainId] ?? dynamicScriptURIByChainId[1];
 
   async function createTask(
     { account, deadline, minPrice, maxPrice, ...rest },
@@ -26,18 +28,13 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
   ) {
     deadline = dayjs(deadline).unix();
 
-    const chainId = await web3.eth.getChainId();
-
-    const metaEvidence = await publishMetaEvidence(
-      {
-        account,
-        deadline,
-        minPrice,
-        maxPrice,
-        ...rest,
-      },
-      { chainId }
-    );
+    const metaEvidence = await _publishMetaEvidence({
+      account,
+      deadline,
+      minPrice,
+      maxPrice,
+      ...rest,
+    });
 
     const tx = linguo.methods.createTask(deadline, minPrice, metaEvidence).send({
       from,
@@ -281,7 +278,7 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
       });
     } catch (err) {
       console.warn(`Failed to fetch task with ID ${ID}`, err);
-      throw new Error(`Failed to fetch task with ID ${ID}`);
+      throw err;
     }
   }
 
@@ -293,10 +290,12 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
         filter: { _metaEvidenceID: ID },
         fromBlock: 0,
       });
-      const { metadata } = await fetchMetaEvidenceFromEvents({
-        ID,
-        events: metaEvidenceEvents,
-      });
+      const { metadata } = _validateMetaEvidence(
+        await _fetchMetaEvidenceFromEvents({
+          ID,
+          events: metaEvidenceEvents,
+        })
+      );
 
       return { ID, ...metadata };
     } catch (err) {
@@ -623,7 +622,7 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
       throw new Error('Cannot submit a challenge without an evidence file');
     }
 
-    const evidence = await publishEvidence({
+    const evidence = await _publishEvidence({
       name: `linguo-challenge-${ID}.json`,
       template: challengeEvidenceTemplate,
       overrides: {
@@ -662,7 +661,7 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
           }
         : {};
 
-    const evidence = await publishEvidence({
+    const evidence = await _publishEvidence({
       name: 'evidence.json',
       template: evidenceTemplate,
       overrides: {
@@ -679,16 +678,12 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
   }
 
   async function subscribe({ fromBlock = 0, filter = {} } = {}) {
-    const chainId = await web3.eth.getChainId();
-    const firstRelevantBlock = firstRelevantBlockByChainId[chainId] ?? 0;
     fromBlock = fromBlock < firstRelevantBlock ? firstRelevantBlock : fromBlock;
 
     return linguo.events.allEvents({ fromBlock, filter });
   }
 
   async function subscribeToArbitrator({ fromBlock = 0, filter = {} } = {}) {
-    const chainId = await web3.eth.getChainId();
-    const firstRelevantBlock = firstRelevantBlockByChainId[chainId] ?? 0;
     fromBlock = fromBlock < firstRelevantBlock ? firstRelevantBlock : fromBlock;
 
     return arbitrator.events.allEvents({ fromBlock, filter });
@@ -698,6 +693,105 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
     const tx = linguo.methods.batchRoundWithdraw(account, ID, '0', '0').send({ from, gas, gasPrice });
 
     return { tx };
+  }
+
+  async function _publishMetaEvidence({ account, ...metadata }) {
+    const metaEvidence = deepMerge(metaEvidenceTemplate, {
+      evidenceDisplayInterfaceURI,
+      dynamicScriptURI,
+      aliases: {
+        [account]: 'Requester',
+      },
+      metadata: {
+        /**
+         * v1:
+         *  - Removed `text` field
+         *  - Added `wordCount` field
+         *  - `originalTextFile` is mandatory
+         */
+        __v: 1,
+        ...metadata,
+      },
+    });
+
+    const { path } = await ipfs.publish('linguo-meta-evidence.json', JSON.stringify(metaEvidence));
+
+    return path;
+  }
+
+  async function _publishEvidence({ name, template, overrides }) {
+    const encoder = new TextEncoder();
+
+    const evidence = {
+      ...template,
+      ...overrides,
+    };
+
+    const { path } = await ipfs.publish(name, encoder.encode(JSON.stringify(evidence)));
+
+    return path;
+  }
+
+  function _validateMetaEvidence(metaEvidence) {
+    const onlyRelevantFields = pick([
+      'title',
+      'description',
+      'rulingOptions',
+      'category',
+      'question',
+      'fileURI',
+      'evidenceDisplayInterfaceURI',
+      'dynamicScriptURI',
+    ]);
+
+    const currentTemplate = {
+      ...onlyRelevantFields(metaEvidenceTemplate),
+      evidenceDisplayInterfaceURI,
+      dynamicScriptURI,
+    };
+
+    const templatesToCompare = [currentTemplate];
+
+    const metaEvidenceToCompare = onlyRelevantFields(metaEvidence);
+
+    const isValid = !!templatesToCompare.some(template => deepEqual(metaEvidenceToCompare, template));
+
+    if (!isValid) {
+      throw new Error('This translation task is not valid.');
+    }
+
+    return metaEvidence;
+  }
+
+  async function _fetchMetaEvidenceFromEvents({ ID, events }) {
+    console.debug('Fetching MetaEvidence', events);
+    // There should be one and only one event
+    const [event] = events;
+    if (!event) {
+      throw new Error(`No MetaEvidence event found for task ${ID}`);
+    }
+
+    const { _evidence: path } = event.returnValues;
+    if (!path) {
+      throw new Error(`No evidence file found for task ${ID}`);
+    }
+
+    const url = getFileUrl(path);
+
+    try {
+      const response = await fetch(url, {
+        // mode: 'cors'
+      });
+      return response.json();
+    } catch (err) {
+      console.warn(`Failed to fetch evidence for task ${ID}`, err);
+      throw Object.create(new Error(`Failed to fetch evidence for task ${ID}`), {
+        recoverable: {
+          value: true,
+          enumerable: true,
+        },
+      });
+    }
   }
 
   return {
@@ -726,6 +820,11 @@ export default function createContractApi({ web3, archon, linguo, arbitrator }) 
   };
 }
 
+const firstRelevantBlockByChainId = {
+  42: 0,
+  1: 11237802,
+};
+
 const evidenceDisplayURIByChainId = {
   1: '/ipfs/QmXGDMfcxjfQi5SFwpBSb73pPjoZq2N8c6eWCgxx8pVqj7/index.html',
   42: '/ipfs/QmYbtF7K6qCfSYfu2k6nYnVRY8HY97rEAF6mgBWtDgfovw/index.html',
@@ -736,73 +835,7 @@ const dynamicScriptURIByChainId = {
   42: '/ipfs/QmZFcqdsR76jyHyLsBefc4SBuegj2boBDr2skxGauM5DNf/linguo-dynamic-script.js',
 };
 
-const publishMetaEvidence = async ({ account, ...metadata }, { chainId }) => {
-  const evidenceDisplayInterfaceURI = evidenceDisplayURIByChainId[chainId] ?? evidenceDisplayURIByChainId[1];
-  const dynamicScriptURI = dynamicScriptURIByChainId[chainId] ?? dynamicScriptURIByChainId[1];
-
-  const metaEvidence = deepMerge(metaEvidenceTemplate, {
-    evidenceDisplayInterfaceURI,
-    dynamicScriptURI,
-    aliases: {
-      [account]: 'Requester',
-    },
-    metadata: {
-      /**
-       * v1:
-       *  - Removed `text` field
-       *  - Added `wordCount` field
-       *  - `originalTextFile` is mandatory
-       */
-      __v: 1,
-      ...metadata,
-    },
-  });
-
-  const { path } = await ipfs.publish('linguo-meta-evidence.json', JSON.stringify(metaEvidence));
-
-  return path;
-};
-
-const publishEvidence = async ({ name, template, overrides }) => {
-  const encoder = new TextEncoder();
-
-  const evidence = {
-    ...template,
-    ...overrides,
-  };
-
-  const { path } = await ipfs.publish(name, encoder.encode(JSON.stringify(evidence)));
-
-  return path;
-};
-
 const getFileTypeFromPath = path => (path ?? '').split('.').slice(-1)?.[0];
-
-const fetchMetaEvidenceFromEvents = async ({ ID, events }) => {
-  console.debug('Fetching MetaEvidence', events);
-  // There should be one and only one event
-  const [event] = events;
-  if (!event) {
-    throw new Error(`No MetaEvidence event found for task ${ID}`);
-  }
-
-  const { _evidence: path } = event.returnValues;
-  if (!path) {
-    throw new Error(`No evidence file found for task ${ID}`);
-  }
-
-  const url = getFileUrl(path);
-
-  try {
-    const response = await fetch(url, {
-      // mode: 'cors'
-    });
-    return response.json();
-  } catch (err) {
-    console.warn(`Failed to fetch evidence for task ${ID}`, err);
-    throw new Error(`Failed to fetch evidence for task ${ID}`);
-  }
-};
 
 const onlyIfMatchingSkills = skills => ({ sourceLanguage, targetLanguage, expectedQuality }) => {
   /**

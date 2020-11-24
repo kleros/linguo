@@ -20,6 +20,5 @@
   "dynamicScriptRequiredParams": [
     "arbitrableContractAddress",
     "disputeID"
-  ],
-  "metadata": {}
+  ]
 }
