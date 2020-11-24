@@ -37,6 +37,7 @@ const getDescriptionByParty = {
 function ForTranslator({ totalAppealCost }) {
   const description = [
     'The Requester Deposit goes back to the task requester and your Translator Deposit goes to the challenger.',
+    'Note that you can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
     <EthValue
       key="appeal-deposit"
       amount={totalAppealCost}
@@ -59,9 +60,9 @@ function ForTranslator({ totalAppealCost }) {
 function ForChallenger({ challengerIsRequester, totalAppealCost }) {
   const description = [
     challengerIsRequester
-      ? 'The Requester Deposit + your Challenger Deposit goes to the translator.'
-      : 'Your Challenger Deposit goes to the translator.',
-    'Note that you can still appeal the decision, what will lead to another jurors round that may or may not revert this decision. To do so you need to deposit the appeal fee.',
+      ? 'Your Requester Deposit + your Challenger Deposit will be sent back to you.'
+      : 'Your Challenger Deposit will be sent back to you.',
+    'Note that the translator can still appeal the decision, which will lead to another jurors round that may or may not revert this decision. To do so you need to deposit the appeal fee.',
     <EthValue
       key="appeal-deposit"
       amount={totalAppealCost}
@@ -84,8 +85,8 @@ function ForChallenger({ challengerIsRequester, totalAppealCost }) {
 
 function ForRequester() {
   const description = [
-    'Your Requester Deposit goes to the translator.',
-    'Note that anyone can appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
+    'Your Requester Deposit wil be sent back to you.',
+    'Note that anyone can appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
   ];
 
   return description;
@@ -93,8 +94,8 @@ function ForRequester() {
 
 function ForOther() {
   const description = [
-    'The translator will receive the Requester Deposit + the Translator Deposit back + the Challenger Deposit - Arbitration Fees.',
-    'Note that anyone can appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
+    'The challenger will receive the Translator Deposit. The requester will be refunded of the Requester Deposit.',
+    'Note that anyone can appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
   ];
 
   return description;
