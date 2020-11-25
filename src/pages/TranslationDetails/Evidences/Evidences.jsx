@@ -21,7 +21,7 @@ export default function Evidences({ open }) {
   const { id: taskId } = useParams();
 
   const dispute = useShallowEqualSelector(selectDispute(taskId));
-  const isOngoingDispute = dispute.status === DisputeStatus.Waiting;
+  const isOngoingDispute = [DisputeStatus.Waiting, DisputeStatus.Appealable].includes(dispute.status);
 
   const isLoadingEvidences = useSelector(selectEvidenceIsLoading(taskId));
 
