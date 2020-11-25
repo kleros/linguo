@@ -109,6 +109,7 @@ export default async function createApiFacade({ web3, chainId }) {
 
       const langGroupPair = LanguageGroupPair(getLanguageGroup(sourceLanguage), getLanguageGroup(targetLanguage));
 
+      // By convention the first contract in the array is the one in which we add new tasks...
       const linguo = apisByLanguageGroupPairs[langGroupPair]?.[0];
       if (!linguo) {
         throw new Error(`Cannot create a task for pair (${sourceLanguage}, ${targetLanguage})`);
