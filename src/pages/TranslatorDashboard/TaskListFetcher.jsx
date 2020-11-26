@@ -55,7 +55,7 @@ const filterDescriptionMap = {
   [getFilterTreeName('open')]: (
     <StyledDismissableAlert
       id="translator.filters.open"
-      message="You will only be able to see tasks whose both source and target languages you have self-declared level B2 or higher."
+      message="You will only be able to work on tasks whose both source and target languages you have self-declared level B2 or higher."
       description={
         <>
           Learn more about this in our{' '}
