@@ -7,7 +7,7 @@ import { serializeError } from 'serialize-error';
 import { pick } from '~/shared/fp';
 import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
 import { getErrorMessage } from '~/features/web3';
-import { runOnceWhenReady } from '~/features/web3/runWithContext';
+import { runOnce } from '~/features/web3/runWithContext';
 import { getBlockExplorerTxUrl } from '~/features/web3/web3Slice';
 import createTransactionChannel from './createTransactionChannel';
 import createTtlChannel from './createTtlChannel';
@@ -280,7 +280,7 @@ function* updatePendingTxSaga({ web3, txHash }) {
 
 export const sagas = {
   removeAllExpiredTxsSaga,
-  updateAllPendingTxsSaga: runOnceWhenReady(updateAllPendingTxsSaga),
+  updateAllPendingTxsSaga: runOnce(updateAllPendingTxsSaga),
 };
 
 function getCurrentDate() {
