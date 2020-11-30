@@ -7,13 +7,15 @@ import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { Spin } from '~/adapters/antd';
 import Button from '~/shared/Button';
 import { EmailIcon } from '~/shared/icons';
+import { compose, flatten, mapValues } from '~/shared/fp';
 import { selectAccount } from '~/features/web3/web3Slice';
 import {
-  selectPreferences,
-  selectIsLoadingPreferences,
+  selectSettings,
+  selectIsLoadingSettings,
   update,
   fetchByAccount,
-} from '~/features/emailPreferences/emailPreferencesSlice';
+  DEFAULT_INITIAL_VALUES,
+} from '~/features/users/userSettingsSlice';
 import { notify } from '~/features/ui/uiSlice';
 import { Popover, Button as TrayButton, withToolbarStylesIcon } from './adapters';
 import { PopupNotificationLevel } from '~/features/ui/popupNotificationsSlice';
@@ -27,8 +29,8 @@ export default function EmailNotifications() {
 
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
-  const preferences = useShallowEqualSelector(state => selectPreferences(state, { account }));
-  const isLoadingPreferences = useSelector(state => selectIsLoadingPreferences(state, { account }));
+  const settings = useShallowEqualSelector(state => selectSettings(state, { account }));
+  const isLoadingPreferences = useSelector(state => selectIsLoadingSettings(state, { account }));
 
   React.useEffect(() => {
     dispatch(fetchByAccount({ account }));
@@ -68,7 +70,7 @@ export default function EmailNotifications() {
       arrowPointAtCenter
       content={
         <Spin spinning={isLoadingPreferences}>
-          <EmailNotificationsForm initialValues={preferences} onSubmit={handleFormSubmit} />
+          <EmailNotificationsForm initialValues={settings} onSubmit={handleFormSubmit} />
         </Spin>
       }
       placement="bottomRight"
@@ -88,8 +90,32 @@ function EmailNotificationsForm({ onSubmit, initialValues }) {
   const [form] = Form.useForm();
 
   React.useEffect(() => {
-    form.setFieldsValue({ ...DEFAULT_INITIAL_VALUES, ...initialValues });
+    form.setFieldsValue(initialValues);
   }, [form, initialValues]);
+
+  const initialEmailPreferences = React.useMemo(
+    () => compose(flatten, Object.values, mapValues(Object.values))(initialValues?.emailPreferences ?? {}),
+    [initialValues.emailPreferences]
+  );
+
+  const checkAll = useCheckAll({
+    initialValues: initialEmailPreferences,
+    getValues: React.useCallback(
+      () => compose(flatten, Object.values, mapValues(Object.values))(form.getFieldValue('emailPreferences')),
+      [form]
+    ),
+    setValues: React.useCallback(
+      checked => {
+        form.setFieldsValue({
+          emailPreferences: mapValues(
+            mapValues(() => checked),
+            DEFAULT_INITIAL_VALUES.emailPreferences
+          ),
+        });
+      },
+      [form]
+    ),
+  });
 
   return (
     <StyledForm
@@ -100,11 +126,20 @@ function EmailNotificationsForm({ onSubmit, initialValues }) {
       layout="vertical"
       scrollToFirstError
     >
+      <Form.Item>
+        <Checkbox
+          checked={checkAll.checked}
+          onChange={checkAll.handleAllCheckedChange}
+          indeterminate={checkAll.indeterminate}
+        >
+          Notify me of everything.
+        </Checkbox>
+      </Form.Item>
       {Object.entries(settings).map(([role, { label, items }]) => (
         <StyledGroupItem key={role} label={label}>
           {Object.entries(items).map(([key, description]) => (
-            <StyledCheckboxItem key={`${role}-${key}`} name={['preferences', role, key]} valuePropName="checked">
-              <Checkbox>{description}</Checkbox>
+            <StyledCheckboxItem key={`${role}-${key}`} name={['emailPreferences', role, key]} valuePropName="checked">
+              <Checkbox onChange={checkAll.handleItemCheckedChange}>{description}</Checkbox>
             </StyledCheckboxItem>
           ))}
         </StyledGroupItem>
@@ -147,53 +182,85 @@ function EmailNotificationsForm({ onSubmit, initialValues }) {
 EmailNotificationsForm.propTypes = {
   onSubmit: t.func,
   initialValues: t.shape({
-    requester: t.shape({
-      delivery: t.bool,
-      challenge: t.bool,
-      ruling: t.bool,
+    email: '',
+    fullName: '',
+    emailPreferences: t.shape({
+      requester: t.shape({
+        delivery: t.bool,
+        challenge: t.bool,
+        ruling: t.bool,
+      }),
+      translator: t.shape({
+        challenge: t.bool,
+        appealFunded: t.bool,
+        ruling: t.bool,
+      }),
+      challenger: t.shape({
+        appealFunded: t.bool,
+        ruling: t.bool,
+      }),
     }),
-    translator: t.shape({
-      challenge: t.bool,
-      appealFunded: t.bool,
-      ruling: t.bool,
-    }),
-    challenger: t.shape({
-      appealFunded: t.bool,
-      ruling: t.bool,
-    }),
-  }),
-};
-
-const DEFAULT_INITIAL_VALUES = {
-  email: '',
-  fullName: '',
-  preferences: {
-    requester: {
-      delivery: false,
-      challenge: false,
-      ruling: false,
-    },
-    translator: {
-      challenge: false,
-      appealFunded: false,
-      ruling: false,
-    },
-    challenger: {
-      appealFunded: false,
-      ruling: false,
-    },
-  },
+  }).isRequired,
 };
 
 EmailNotificationsForm.defaultProps = {
   onSubmit: () => {},
-  initialValues: DEFAULT_INITIAL_VALUES,
 };
+
+function useCheckAll({ initialValues, getValues, setValues }) {
+  const [checked, setChecked] = React.useState(() => {
+    const checked = initialValues.every(value => !!value);
+
+    return checked;
+  });
+
+  const [indeterminate, setIndeterminate] = React.useState(() => {
+    const allChecked = initialValues.every(value => !!value);
+    const noneChecked = initialValues.every(value => !value);
+
+    return !allChecked && !noneChecked;
+  });
+
+  React.useEffect(() => {
+    const allChecked = initialValues.every(value => !!value);
+    const noneChecked = initialValues.every(value => !value);
+
+    setIndeterminate(!allChecked && !noneChecked);
+    setChecked(allChecked);
+  }, [initialValues]);
+
+  const handleAllCheckedChange = React.useCallback(
+    e => {
+      setValues(e.target.checked);
+      setIndeterminate(false);
+      setChecked(e.target.checked);
+    },
+    [setValues]
+  );
+
+  const handleItemCheckedChange = React.useCallback(() => {
+    const values = getValues();
+
+    const allChecked = values.every(value => !!value);
+    const noneChecked = values.every(value => !value);
+
+    setIndeterminate(!allChecked && !noneChecked);
+    setChecked(allChecked);
+  }, [getValues]);
+
+  return {
+    checked,
+    indeterminate,
+    handleAllCheckedChange,
+    handleItemCheckedChange,
+  };
+}
 
 const settings = {
   requester: {
     label: 'Requester',
     items: {
+      assignment: 'The translation is assigned to a translator.',
       delivery: 'The translator delivers the translation.',
       challenge: 'The translation is challenged and goes to arbitration.',
       ruling: 'The jurors rule about the translation.',

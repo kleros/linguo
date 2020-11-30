@@ -5,19 +5,19 @@ const apiBaseUrlsByChainId = JSON.parse(process.env.USER_SETTINGS_API_BASE_URLS 
 
 export default function* createSagaApiContext({ library: web3 }) {
   if (!web3) {
-    return { emailPreferencesApi: yield call(createApiPlaceholder) };
+    return { usersApi: yield call(createApiPlaceholder) };
   }
 
   try {
     const chainId = yield call([web3.eth, 'getChainId']);
     return {
-      emailPreferencesApi: yield call(createApiInstance, {
+      usersApi: yield call(createApiInstance, {
         web3,
         apiBaseUrl: apiBaseUrlsByChainId[chainId],
       }),
     };
   } catch (err) {
     console.warn('Failed to create E-mail Preferences API', err);
-    return { emailPreferencesApi: yield call(createApiPlaceholder) };
+    return { usersApi: yield call(createApiPlaceholder) };
   }
 }

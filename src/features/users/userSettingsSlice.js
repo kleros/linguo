@@ -2,55 +2,80 @@ import { createSlice } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { actionChannel, call, getContext, put, select } from 'redux-saga/effects';
+import deepMerge from 'deepmerge';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { watchAllWithBuffer } from '~/features/web3/runWithContext';
 import createSagaApiContext from './createSagaApiContext';
 
-export const fetchByAccount = createAsyncAction('emailPrefrences/fetchByAccount');
-export const update = createAsyncAction('emailPrefrences/update');
+export const fetchByAccount = createAsyncAction('users/settings/fetchByAccount');
+export const update = createAsyncAction('users/settings/update');
+
+export const DEFAULT_INITIAL_VALUES = {
+  email: '',
+  fullName: '',
+  emailPreferences: {
+    requester: {
+      assignment: false,
+      delivery: false,
+      challenge: false,
+      ruling: false,
+    },
+    translator: {
+      challenge: false,
+      appealFunded: false,
+      ruling: false,
+    },
+    challenger: {
+      appealFunded: false,
+      ruling: false,
+    },
+  },
+};
 
 const INITIAL_ITEM_STATE = {
   loadingState: 'idle',
   error: null,
   token: null,
-  data: undefined,
+  data: DEFAULT_INITIAL_VALUES,
 };
 
-const emailPreferencesSlice = createSlice({
-  name: 'emailPreferences',
+const userSettingsSlice = createSlice({
+  name: 'users/settings',
   initialState: {
-    byAccount: {},
+    settings: {
+      byAccount: {},
+    },
   },
   extraReducers: builder => {
     builder.addCase(fetchByAccount.pending.type, (state, action) => {
       const { account } = action.payload;
 
-      if (!state.byAccount[account]) {
-        state.byAccount[account] = INITIAL_ITEM_STATE;
+      if (!state.settings.byAccount[account]) {
+        state.settings.byAccount[account] = INITIAL_ITEM_STATE;
       }
 
-      state.byAccount[account].loadingState = 'loading';
-      state.byAccount[account].error = null;
+      state.settings.byAccount[account].loadingState = 'loading';
+      state.settings.byAccount[account].error = null;
     });
 
     builder.addCase(fetchByAccount.fulfilled.type, (state, action) => {
       const { account, data } = action.payload;
 
-      if (state.byAccount[account]) {
-        state.byAccount[account].loadingState = 'idle';
-        state.byAccount[account].data = data;
+      if (state.settings.byAccount[account]) {
+        state.settings.byAccount[account].loadingState = 'idle';
+        state.settings.byAccount[account].data = deepMerge(DEFAULT_INITIAL_VALUES, data);
       }
     });
 
     builder.addCase(fetchByAccount.rejected.type, (state, action) => {
       const { account, error } = action.payload;
 
-      if (state.byAccount[account]) {
-        state.byAccount[account].loadingState = 'idle';
+      if (state.settings.byAccount[account]) {
+        state.settings.byAccount[account].loadingState = 'idle';
 
         if (error && error.name !== 'CancellationError') {
-          state.byAccount[account].error = error;
+          state.settings.byAccount[account].error = error;
         }
       }
     });
@@ -58,39 +83,39 @@ const emailPreferencesSlice = createSlice({
     builder.addCase(update.pending.type, (state, action) => {
       const { account, ...data } = action.payload;
 
-      if (!state.byAccount[account]) {
-        state.byAccount[account] = INITIAL_ITEM_STATE;
+      if (!state.settings.byAccount[account]) {
+        state.settings.byAccount[account] = INITIAL_ITEM_STATE;
       }
 
-      state.byAccount[account].loadingState = 'loading';
-      state.byAccount[account].error = null;
-      state.byAccount[account].data = data;
+      state.settings.byAccount[account].loadingState = 'loading';
+      state.settings.byAccount[account].error = null;
+      state.settings.byAccount[account].data = deepMerge(DEFAULT_INITIAL_VALUES, data);
     });
 
     builder.addCase(update.fulfilled.type, (state, action) => {
       const { account, token } = action.payload;
 
-      if (state.byAccount[account]) {
-        state.byAccount[account].loadingState = 'idle';
-        state.byAccount[account].token = token;
+      if (state.settings.byAccount[account]) {
+        state.settings.byAccount[account].loadingState = 'idle';
+        state.settings.byAccount[account].token = token;
       }
     });
 
     builder.addCase(update.rejected.type, (state, action) => {
       const { account, error } = action.payload;
 
-      if (state.byAccount[account]) {
-        state.byAccount[account].loadingState = 'idle';
+      if (state.settings.byAccount[account]) {
+        state.settings.byAccount[account].loadingState = 'idle';
 
         if (error && error.name !== 'CancellationError') {
-          state.byAccount[account].error = error;
+          state.settings.byAccount[account].error = error;
         }
       }
     });
   },
 });
 
-const PERSISTANCE_KEY = 'emailPreferences';
+const PERSISTANCE_KEY = 'users';
 
 function createPersistedReducer(reducer) {
   const persistConfig = {
@@ -103,26 +128,27 @@ function createPersistedReducer(reducer) {
   return persistReducer(persistConfig, reducer);
 }
 
-export default createPersistedReducer(emailPreferencesSlice.reducer);
+export default createPersistedReducer(userSettingsSlice.reducer);
 
-export const selectPreferences = (state, { account }) => state.emailPreferences.byAccount[account]?.data;
+export const selectSettings = (state, { account }) =>
+  state.users.settings.byAccount[account]?.data ?? DEFAULT_INITIAL_VALUES;
 
-export const selectIsLoadingPreferences = (state, { account }) =>
-  state.emailPreferences.byAccount[account]?.loadingState === 'loading';
+export const selectIsLoadingSettings = (state, { account }) =>
+  state.users.settings.byAccount[account]?.loadingState === 'loading';
 
-export const selectError = (state, { account }) => state.emailPreferences.byAccount[account]?.error ?? null;
+export const selectError = (state, { account }) => state.users.settings.byAccount[account]?.error ?? null;
 
-export const selectToken = (state, { account }) => state.emailPreferences.byAccount[account]?.token ?? null;
+export const selectToken = (state, { account }) => state.users.settings.byAccount[account]?.token ?? null;
 
 function* fetchByAccountSaga(action) {
-  const emailPreferencesApi = yield getContext('emailPreferencesApi');
+  const usersApi = yield getContext('usersApi');
 
   const { account } = action.payload;
   const token = yield select(state => selectToken(state, { account }));
   const { meta } = action;
 
   try {
-    const result = yield call([emailPreferencesApi, 'get'], { account, token });
+    const result = yield call([usersApi, 'getSettings'], { account, token });
     yield put(fetchByAccount.fulfilled({ account, data: result.data }, { meta }));
   } catch (err) {
     yield put(fetchByAccount.rejected({ account, error: err }, { meta }));
@@ -130,16 +156,14 @@ function* fetchByAccountSaga(action) {
 }
 
 function* updateSaga(action) {
-  const emailPreferencesApi = yield getContext('emailPreferencesApi');
+  const usersApi = yield getContext('usersApi');
 
-  const { account, email, fullName, preferences } = action.payload;
+  const { account, ...data } = action.payload;
   const token = yield select(state => selectToken(state, { account }));
   const { meta } = action;
 
-  const payload = { email, fullName, preferences };
-
   try {
-    const result = yield call([emailPreferencesApi, 'update'], { account, token, payload });
+    const result = yield call([usersApi, 'updateSettings'], { account, token, data });
     yield put(update.fulfilled({ account, data: result.data, token: result.token }, { meta }));
   } catch (err) {
     yield put(update.rejected({ account, error: err }, { meta }));
