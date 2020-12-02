@@ -19,15 +19,17 @@ export const DEFAULT_INITIAL_VALUES = {
       assignment: false,
       delivery: false,
       challenge: false,
+      resolution: false,
       ruling: false,
     },
     translator: {
       challenge: false,
-      appealFunded: false,
+      appealFunding: false,
+      resolution: false,
       ruling: false,
     },
     challenger: {
-      appealFunded: false,
+      appealFunding: false,
       ruling: false,
     },
   },
@@ -159,8 +161,9 @@ function* updateSaga(action) {
   const usersApi = yield getContext('usersApi');
 
   const { account, ...data } = action.payload;
-  const token = yield select(state => selectToken(state, { account }));
   const { meta } = action;
+
+  const token = yield select(state => selectToken(state, { account }));
 
   try {
     const result = yield call([usersApi, 'updateSettings'], { account, token, data });

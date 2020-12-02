@@ -159,3 +159,6 @@ tags
 .history
 
 # End of https://www.gitignore.io/api/vim,node,react,visualstudiocode
+
+# Local Netlify folder
+.netlify

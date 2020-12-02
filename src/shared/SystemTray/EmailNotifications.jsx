@@ -192,11 +192,11 @@ EmailNotificationsForm.propTypes = {
       }),
       translator: t.shape({
         challenge: t.bool,
-        appealFunded: t.bool,
+        appealFunding: t.bool,
         ruling: t.bool,
       }),
       challenger: t.shape({
-        appealFunded: t.bool,
+        appealFunding: t.bool,
         ruling: t.bool,
       }),
     }),
@@ -260,24 +260,26 @@ const settings = {
   requester: {
     label: 'Requester',
     items: {
-      assignment: 'The translation is assigned to a translator.',
-      delivery: 'The translator delivers the translation.',
-      challenge: 'The translation is challenged and goes to arbitration.',
-      ruling: 'The jurors rule about the translation.',
+      assignment: 'A translation is assigned to a translator.',
+      delivery: 'A translator delivers the translation.',
+      resolution: 'A translation task is resolved.',
+      challenge: 'A translation is challenged and goes to arbitration.',
+      ruling: 'The jurors rule about a challenged translation.',
     },
   },
   translator: {
     label: 'Translator',
     items: {
-      challenge: 'The translation is challenged and goes to arbitration.',
-      appealFunded: 'The challenger pays for the full appeal cost.',
-      ruling: 'The jurors rule about the translation.',
+      resolution: 'A translation task is resolved.',
+      challenge: 'A translation is challenged and goes to arbitration.',
+      appealFunding: 'The challenger pays the appeal cost of a dispute.',
+      ruling: 'The jurors rule about a challenged translation.',
     },
   },
   challenger: {
     label: 'Challenger',
     items: {
-      appealFunded: 'The translator pays for the full appeal cost.',
+      appealFunding: 'The translator pays the appeal cost of a dispute.',
       ruling: 'The jurors rule about the translation.',
     },
   },
