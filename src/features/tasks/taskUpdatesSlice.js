@@ -414,6 +414,9 @@ const notificationMakersByType = {
     const { chainId, account, blockNumber } = action.meta;
 
     let task = yield call(selectTask, { id });
+    if (!task) {
+      return;
+    }
 
     if (task.status === TaskStatus.Resolved) {
       const notification = yield call(makeFinalResolvedNotification, {
@@ -439,6 +442,9 @@ const notificationMakersByType = {
       const MAX_WAIT = 10000; // 10 seconds
       yield race([call(waitForTaskFetch, { id }), delay(MAX_WAIT)]);
       task = yield call(selectTask, { id });
+      if (!task) {
+        return;
+      }
 
       if (task.status === TaskStatus.Resolved) {
         const notification = yield call(makeFinalResolvedNotification, {

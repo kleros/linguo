@@ -4,7 +4,7 @@
     "name": "Cost Effective",
     "description": [
       "The conveyed meaning must be the similar, but nuances might be lost. Occasional typos and translation errors are acceptable.",
-      "Translators having a self-declared level B2 (CEFR) or higher will be able to see this task."
+      "Translators having a self-declared level B2 (CEFR) or higher will be able to work on this task."
     ],
     "requiredLevel": "B2"
   },
@@ -13,7 +13,7 @@
     "name": "Standard",
     "description": [
       "The meaning must be almost identical. Occasional typos are acceptable.",
-      "Translators having a self-declared level C1 (CEFR) or higher will be able to see this task."
+      "Translators having a self-declared level C1 (CEFR) or higher will be able to work on this task."
     ],
     "requiredLevel": "C1"
   },
@@ -22,7 +22,7 @@
     "name": "Professional",
     "description": [
       "Professional translation. The meaning and spirit of the translation must remain identical and the translator must reflect the style and nuances of the original text. Translators are expected to have their text reviewed before submission.",
-      "Only translators having a self-declared level C2 (CEFR) will be able to see this task."
+      "Only translators having a self-declared level C2 (CEFR) will be able to work on this task."
     ],
     "requiredLevel": "C2"
   },
@@ -31,7 +31,7 @@
     "name": "Professional",
     "description": [
       "Professional translation. The meaning and spirit of the translation must remain identical and the translator must reflect the style and nuances of the original text. Translators are expected to have their text reviewed before submission.",
-      "Only translators having a self-declared level C2 (CEFR) will be able to see this task."
+      "Only translators having a self-declared level C2 (CEFR) will be able to work on this task."
     ],
     "requiredLevel": "C2"
   }

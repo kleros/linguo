@@ -1,128 +1,77 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Form, Checkbox, Input, Row, notification } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { Form, Checkbox, Input, Row } from 'antd';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { Spin } from '~/adapters/antd';
 import Button from '~/shared/Button';
-import ContentBlocker from '~/shared/ContentBlocker';
 import { EmailIcon } from '~/shared/icons';
+import { compose, flatten, mapValues } from '~/shared/fp';
+import { selectAccount } from '~/features/web3/web3Slice';
+import {
+  selectSettings,
+  selectIsLoadingSettings,
+  update,
+  fetchByAccount,
+  DEFAULT_INITIAL_VALUES,
+} from '~/features/users/userSettingsSlice';
+import { notify } from '~/features/ui/uiSlice';
 import { Popover, Button as TrayButton, withToolbarStylesIcon } from './adapters';
+import { PopupNotificationLevel } from '~/features/ui/popupNotificationsSlice';
 
-const StyledForm = styled(Form)`
-  padding-top: 1rem;
-`;
-
-const StyleFormButtonRow = styled(Row)`
-  display: flex;
-  justify-content: flex-end;
-`;
-
-const settings = {
-  delivery: 'The translator delivers the translation (Review Time).',
-  challenge: 'The translation is challenged and goes to arbitration.',
-  ruling: 'The jurors rule about the translation.',
-};
-
-function EmailNotificationsForm({ onSubmit }) {
-  const [form] = Form.useForm();
-
-  const initialValues = {
-    delivery: false,
-    challenge: false,
-    ruling: false,
-  };
-
-  const onFinish = React.useCallback(
-    values => {
-      notification.success({
-        message: "You've updated your e-mail subscription settings!",
-        placement: 'bottomRight',
-        duration: 10,
-      });
-      onSubmit(values);
-    },
-    [onSubmit]
-  );
-
-  return (
-    <StyledForm form={form} initialValues={initialValues} onFinish={onFinish} layout="vertical" scrollToFirstError>
-      {Object.entries(settings).map(([key, label]) => (
-        <Form.Item key={key} name={key} valuePropName="checked">
-          <Checkbox>{label}</Checkbox>
-        </Form.Item>
-      ))}
-      <Form.Item
-        name={'email'}
-        rules={[
-          {
-            message: 'Please enter your email.',
-            required: true,
-          },
-          {
-            message: 'Please enter a valid email.',
-            type: 'email',
-          },
-        ]}
-      >
-        <Input placeholder="E-mail" />
-      </Form.Item>
-      <StyleFormButtonRow>
-        <Button htmlType="submit">Subscribe</Button>
-      </StyleFormButtonRow>
-    </StyledForm>
-  );
-}
-
-EmailNotificationsForm.propTypes = {
-  onSubmit: t.func,
-};
-
-EmailNotificationsForm.defaultProps = {
-  onSubmit: () => {},
-};
-
-const StyledPopover = styled(Popover)`
-  width: 28rem;
-`;
-
-const StyledEmailIcon = withToolbarStylesIcon(EmailIcon);
-
-function EmailNotifications() {
+export default function EmailNotifications() {
   const [visible, setVisible] = React.useState(false);
 
   const handleVisibilityChange = React.useCallback(visible => {
     setVisible(visible);
   }, []);
 
-  const handleFormSubmit = React.useCallback(() => {
-    setVisible(false);
-  }, []);
+  const dispatch = useDispatch();
+  const account = useSelector(selectAccount);
+  const settings = useShallowEqualSelector(state => selectSettings(state, { account }));
+  const isLoadingPreferences = useSelector(state => selectIsLoadingSettings(state, { account }));
+
+  React.useEffect(() => {
+    dispatch(fetchByAccount({ account }));
+  }, [dispatch, account]);
+
+  const handleFormSubmit = React.useCallback(
+    async values => {
+      try {
+        await dispatch(update({ account, ...values }, { meta: { thunk: { id: account } } }));
+
+        dispatch(
+          notify({
+            message: "You've updated your e-mail subscription settings!",
+            level: PopupNotificationLevel.success,
+            key: 'update-email-preferences',
+          })
+        );
+      } catch (err) {
+        console.warn('Error:', err.error);
+        dispatch(
+          notify({
+            message: 'Failed to update your e-mail subscription settings!',
+            description: 'Please try again.',
+            level: PopupNotificationLevel.error,
+            key: 'update-email-preferences',
+          })
+        );
+      } finally {
+        setVisible(false);
+      }
+    },
+    [dispatch, account]
+  );
 
   return (
     <StyledPopover
       arrowPointAtCenter
       content={
-        <ContentBlocker
-          blocked
-          contentBlur={2}
-          overlayText={
-            <div
-              css={`
-                transform: rotate(-30deg);
-                color: ${p => p.theme.color.danger.default};
-                background-color: ${p => p.theme.color.background.light};
-                padding: 0.5rem 1rem;
-                border-radius: 0.75rem;
-                font-size: ${p => p.theme.fontSize.xxl};
-                text-align: center;
-                white-space: nowrap;
-              `}
-            >
-              Coming soon...
-            </div>
-          }
-        >
-          <EmailNotificationsForm onSubmit={handleFormSubmit} />
-        </ContentBlocker>
+        <Spin spinning={isLoadingPreferences}>
+          <EmailNotificationsForm initialValues={settings} onSubmit={handleFormSubmit} />
+        </Spin>
       }
       placement="bottomRight"
       title="Notify me by e-mail when:"
@@ -137,4 +86,228 @@ function EmailNotifications() {
   );
 }
 
-export default EmailNotifications;
+function EmailNotificationsForm({ onSubmit, initialValues }) {
+  const [form] = Form.useForm();
+
+  React.useEffect(() => {
+    form.setFieldsValue(initialValues);
+  }, [form, initialValues]);
+
+  const initialEmailPreferences = React.useMemo(
+    () => compose(flatten, Object.values, mapValues(Object.values))(initialValues?.emailPreferences ?? {}),
+    [initialValues.emailPreferences]
+  );
+
+  const checkAll = useCheckAll({
+    initialValues: initialEmailPreferences,
+    getValues: React.useCallback(
+      () => compose(flatten, Object.values, mapValues(Object.values))(form.getFieldValue('emailPreferences')),
+      [form]
+    ),
+    setValues: React.useCallback(
+      checked => {
+        form.setFieldsValue({
+          emailPreferences: mapValues(
+            mapValues(() => checked),
+            DEFAULT_INITIAL_VALUES.emailPreferences
+          ),
+        });
+      },
+      [form]
+    ),
+  });
+
+  return (
+    <StyledForm
+      hideRequiredMark
+      form={form}
+      initialValues={initialValues}
+      onFinish={onSubmit}
+      layout="vertical"
+      scrollToFirstError
+    >
+      <Form.Item>
+        <Checkbox
+          checked={checkAll.checked}
+          onChange={checkAll.handleAllCheckedChange}
+          indeterminate={checkAll.indeterminate}
+        >
+          Notify me of everything.
+        </Checkbox>
+      </Form.Item>
+      {Object.entries(settings).map(([role, { label, items }]) => (
+        <StyledGroupItem key={role} label={label}>
+          {Object.entries(items).map(([key, description]) => (
+            <StyledCheckboxItem key={`${role}-${key}`} name={['emailPreferences', role, key]} valuePropName="checked">
+              <Checkbox onChange={checkAll.handleItemCheckedChange}>{description}</Checkbox>
+            </StyledCheckboxItem>
+          ))}
+        </StyledGroupItem>
+      ))}
+      <Form.Item
+        name="email"
+        label="E-mail"
+        rules={[
+          {
+            message: 'Please enter your email.',
+            required: true,
+          },
+          {
+            message: 'Please enter a valid email.',
+            type: 'email',
+          },
+        ]}
+      >
+        <Input placeholder="Your e-mail address" />
+      </Form.Item>
+      <Form.Item
+        name="fullName"
+        label="Full Name (optional)"
+        rules={[
+          {
+            message: 'Please enter you name or leave it empty.',
+            whitespace: true,
+          },
+        ]}
+      >
+        <Input placeholder="Your full name" />
+      </Form.Item>
+      <StyleFormButtonRow>
+        <Button htmlType="submit">Subscribe</Button>
+      </StyleFormButtonRow>
+    </StyledForm>
+  );
+}
+
+EmailNotificationsForm.propTypes = {
+  onSubmit: t.func,
+  initialValues: t.shape({
+    email: '',
+    fullName: '',
+    emailPreferences: t.shape({
+      requester: t.shape({
+        delivery: t.bool,
+        challenge: t.bool,
+        ruling: t.bool,
+      }),
+      translator: t.shape({
+        challenge: t.bool,
+        appealFunding: t.bool,
+        ruling: t.bool,
+      }),
+      challenger: t.shape({
+        appealFunding: t.bool,
+        ruling: t.bool,
+      }),
+    }),
+  }).isRequired,
+};
+
+EmailNotificationsForm.defaultProps = {
+  onSubmit: () => {},
+};
+
+function useCheckAll({ initialValues, getValues, setValues }) {
+  const [checked, setChecked] = React.useState(() => {
+    const checked = initialValues.every(value => !!value);
+
+    return checked;
+  });
+
+  const [indeterminate, setIndeterminate] = React.useState(() => {
+    const allChecked = initialValues.every(value => !!value);
+    const noneChecked = initialValues.every(value => !value);
+
+    return !allChecked && !noneChecked;
+  });
+
+  React.useEffect(() => {
+    const allChecked = initialValues.every(value => !!value);
+    const noneChecked = initialValues.every(value => !value);
+
+    setIndeterminate(!allChecked && !noneChecked);
+    setChecked(allChecked);
+  }, [initialValues]);
+
+  const handleAllCheckedChange = React.useCallback(
+    e => {
+      setValues(e.target.checked);
+      setIndeterminate(false);
+      setChecked(e.target.checked);
+    },
+    [setValues]
+  );
+
+  const handleItemCheckedChange = React.useCallback(() => {
+    const values = getValues();
+
+    const allChecked = values.every(value => !!value);
+    const noneChecked = values.every(value => !value);
+
+    setIndeterminate(!allChecked && !noneChecked);
+    setChecked(allChecked);
+  }, [getValues]);
+
+  return {
+    checked,
+    indeterminate,
+    handleAllCheckedChange,
+    handleItemCheckedChange,
+  };
+}
+
+const settings = {
+  requester: {
+    label: 'Requester',
+    items: {
+      assignment: 'A translation is assigned to a translator.',
+      delivery: 'A translator delivers the translation.',
+      resolution: 'A translation task is resolved.',
+      challenge: 'A translation is challenged and goes to arbitration.',
+      ruling: 'The jurors rule about a challenged translation.',
+    },
+  },
+  translator: {
+    label: 'Translator',
+    items: {
+      resolution: 'A translation task is resolved.',
+      challenge: 'A translation is challenged and goes to arbitration.',
+      appealFunding: 'The challenger pays the appeal cost of a dispute.',
+      ruling: 'The jurors rule about a challenged translation.',
+    },
+  },
+  challenger: {
+    label: 'Challenger',
+    items: {
+      appealFunding: 'The translator pays the appeal cost of a dispute.',
+      ruling: 'The jurors rule about the translation.',
+    },
+  },
+};
+
+const StyledPopover = styled(Popover)`
+  width: 28rem;
+`;
+
+const StyledEmailIcon = withToolbarStylesIcon(EmailIcon);
+
+const StyledForm = styled(Form)`
+  padding-top: 1rem;
+`;
+
+const StyledGroupItem = styled(Form.Item)`
+  .ant-form-item-label {
+    font-weight: ${p => p.theme.fontWeight.semibold};
+  }
+`;
+
+const StyledCheckboxItem = styled(Form.Item)`
+  && {
+    margin-bottom: 0;
+  }
+`;
+
+const StyleFormButtonRow = styled(Row)`
+  display: flex;
+  justify-content: flex-end;
+`;

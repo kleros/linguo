@@ -182,7 +182,7 @@ export function watchAllWithBuffer(sagaDescriptors, { createContext = ({ library
  * @param {CreateContext} [options.createContext]
  * @returns Generator
  */
-export function runOnceWhenReady(saga, { args = [], createContext = ({ library }) => ({ library }) } = {}) {
+export function runOnce(saga, { args = [], createContext = ({ library }) => ({ library }) } = {}) {
   return function* watchChangeLibrary() {
     while (true) {
       const action = yield take(`${changeLibrary}`);

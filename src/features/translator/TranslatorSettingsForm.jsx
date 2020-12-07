@@ -125,8 +125,8 @@ export default function TranslatorSettingsForm() {
               .
             </p>
             <p>
-              <strong>IMPORTANT:</strong> You will only be able to see tasks whose both source and target languages you
-              have self-declared level B2 or higher. Learn more about this in our{' '}
+              <strong>IMPORTANT:</strong> You will only be able to work on tasks whose both source and target languages
+              you have self-declared level B2 or higher. Learn more about this in our{' '}
               <Link
                 to={{
                   pathname: r.FAQ,

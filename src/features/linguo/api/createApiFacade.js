@@ -22,34 +22,6 @@ import getRelevantSkills from '../getRelevantSkills';
 import { getLanguageGroup, isSupportedLanguageGroupPair, LanguageGroupPair } from '../languagePairing';
 import createContractApi from './createContractApi';
 
-const apiSkeleton = {
-  createTask() {},
-  // Methods below fetch multiple tasks
-  getRequesterTasks() {},
-  getTranslatorTasks() {},
-  // Methods below interact with a single task
-  getTaskById() {},
-  getTaskPrice() {},
-  getTranslatorDeposit() {},
-  getChallengerDeposit() {},
-  getTaskDispute() {},
-  getTaskDisputeEvidences() {},
-  getWithdrawableAmount() {},
-  getArbitrationCost() {},
-  assignTask() {},
-  submitTranslation() {},
-  approveTranslation() {},
-  reimburseRequester() {},
-  acceptTranslation() {},
-  challengeTranslation() {},
-  fundAppeal() {},
-  submitEvidence() {},
-  withdrawAllFeesAndRewards() {},
-  // Methods here require special treatment
-  subscribe() {},
-  subscribeToArbitrator() {},
-};
-
 export default async function createApiFacade({ web3, chainId }) {
   const archon = withProvider(web3.currentProvider);
 
@@ -57,7 +29,7 @@ export default async function createApiFacade({ web3, chainId }) {
 
   const apisByLanguageGroupPairs = await asyncMapValues(
     asyncMap(async address =>
-      createContractApis({
+      createApiInstance({
         web3,
         archon,
         contracts: await getLinguoContracts({ web3, chainId, address, deployment: Linguo }),
@@ -174,7 +146,7 @@ export default async function createApiFacade({ web3, chainId }) {
   };
 
   const extractAddressFromIdHandler = {
-    apply: (target, thisArg, args) => {
+    apply: async (target, thisArg, args) => {
       const ID = args?.[0]?.ID;
 
       if (!ID) {
@@ -196,13 +168,22 @@ export default async function createApiFacade({ web3, chainId }) {
         ...rest,
       ];
 
-      const actualInstance = apiInstancesByAddress[address];
-
-      if (!actualInstance) {
-        throw new Error(`Task with ID ${ID} does not exist`);
+      const actualApi = apiInstancesByAddress[address];
+      if (actualApi) {
+        return actualApi[target.name].apply(actualApi, actualArgs);
       }
 
-      return actualInstance[target.name].apply(actualInstance, actualArgs);
+      if (!Object.keys(readOnlyApiSkeleton).includes(target.name)) {
+        throw new Error(`Task with ID ${ID} is read-only.`);
+      }
+
+      const transientInstance = await createApiInstance({
+        web3,
+        archon,
+        contracts: await getLinguoContracts({ web3, chainId, address, deployment: Linguo }),
+      });
+
+      return transientInstance.api[target.name].apply(actualApi, actualArgs);
     },
   };
 
@@ -216,6 +197,45 @@ export default async function createApiFacade({ web3, chainId }) {
 
   return new Proxy(apiSkeleton, propHandler);
 }
+
+const apiSkeleton = {
+  createTask() {},
+  // Methods below fetch multiple tasks
+  getRequesterTasks() {},
+  getTranslatorTasks() {},
+  // Methods below interact with a single task
+  getTaskById() {},
+  getTaskPrice() {},
+  getTranslatorDeposit() {},
+  getChallengerDeposit() {},
+  getTaskDispute() {},
+  getTaskDisputeEvidences() {},
+  getWithdrawableAmount() {},
+  getArbitrationCost() {},
+  assignTask() {},
+  submitTranslation() {},
+  approveTranslation() {},
+  reimburseRequester() {},
+  acceptTranslation() {},
+  challengeTranslation() {},
+  fundAppeal() {},
+  submitEvidence() {},
+  withdrawAllFeesAndRewards() {},
+  // Methods here require special treatment
+  subscribe() {},
+  subscribeToArbitrator() {},
+};
+
+const readOnlyApiSkeleton = {
+  getTaskById() {},
+  getTaskPrice() {},
+  getTranslatorDeposit() {},
+  getChallengerDeposit() {},
+  getTaskDispute() {},
+  getTaskDisputeEvidences() {},
+  getWithdrawableAmount() {},
+  getArbitrationCost() {},
+};
 
 async function getLinguoContracts({ web3, chainId, address, deployment }) {
   // set the max listeners warning threshold
@@ -242,13 +262,11 @@ function getAddressesByLanguageGroupPairs({ chainId }) {
   }
 }
 
-async function createContractApis({ web3, archon, contracts }) {
-  const linguo = {
+async function createApiInstance({ web3, archon, contracts }) {
+  return {
     address: contracts.linguo.options.address,
     api: await createContractApi({ web3, archon, ...contracts }),
   };
-
-  return linguo;
 }
 
 const getUniqueLanguageGroups = compose(uniq, map(compose(getLanguageGroup, prop('language'))));

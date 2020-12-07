@@ -4,6 +4,7 @@ import { reducer as sagaThunkReducer } from 'redux-saga-thunk';
 import requesterReducer from '~/features/requester/requesterSlice';
 import storage from 'redux-persist/lib/storage';
 import disputesReducer from '~/features/disputes/disputesSlice';
+import userSettingsReducer from '~/features/users/userSettingsSlice';
 import evidencesReducer from '~/features/evidences/evidencesSlice';
 import notificationsReducer from '~/features/notifications/notificationsSlice';
 import tasksReducer from '~/features/tasks/tasksSlice';
@@ -21,7 +22,7 @@ const persistConfig = {
    * We don't wish to persist router state (e.g.: current route) neither redux-saga-thunk state.
    * All other blacklisted slices have their own persistance config.
    */
-  blacklist: ['notifications', 'router', 'thunk', 'ui', 'web3', 'tasks', 'transactions', 'translator'],
+  blacklist: ['notifications', 'router', 'thunk', 'ui', 'users', 'web3', 'tasks', 'transactions', 'translator'],
 };
 
 export const createRootReducer = additionalReducers =>
@@ -38,5 +39,6 @@ export const createRootReducer = additionalReducers =>
     transactions: transactionsReducer,
     translator: translatorReducer,
     ui: uiReducer,
+    users: userSettingsReducer,
     web3: web3Reducer,
   });
