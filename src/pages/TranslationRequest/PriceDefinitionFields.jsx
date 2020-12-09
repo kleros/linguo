@@ -30,24 +30,19 @@ function PriceDefinitionFields({ setFieldsValue }) {
   const [minMaxPriceNumeric, setMinMaxPriceNumeric] = React.useState(0.01);
   const handleMinPriceNumericChange = React.useCallback(
     value => {
-      setMinMaxPriceNumeric(value);
-
-      if (!Number.isNaN(parseInt(value, 10))) {
-        setFieldsValue({
-          minPrice: normalizeBaseUnit(value),
-        });
-      }
+      setMinMaxPriceNumeric(Math.max(0.01, value));
+      setFieldsValue({
+        minPrice: Number.isNaN(parseInt(value, 10)) ? '0' : normalizeBaseUnit(value),
+      });
     },
     [setFieldsValue]
   );
 
   const handleMaxPriceNumericChange = React.useCallback(
     value => {
-      if (!Number.isNaN(parseInt(value, 10))) {
-        setFieldsValue({
-          maxPrice: normalizeBaseUnit(value),
-        });
-      }
+      setFieldsValue({
+        maxPrice: Number.isNaN(parseInt(value, 10)) ? '0' : normalizeBaseUnit(value),
+      });
     },
     [setFieldsValue]
   );
@@ -63,32 +58,6 @@ function PriceDefinitionFields({ setFieldsValue }) {
       <Form.Item name="maxPrice" initialValue="0">
         <Input type="hidden" />
       </Form.Item>
-      <Col xs={24} sm={24} md={12} lg={8}>
-        <Form.Item
-          label="Minimum Price"
-          name="minPriceNumeric"
-          rules={[
-            {
-              required: true,
-              message: 'Please set a minimum price.',
-            },
-            {
-              type: 'number',
-              min: 0.01,
-              message: `Minimum price must be at least 0.01 ETH.`,
-            },
-          ]}
-        >
-          <InputNumberWithAddons
-            type="number"
-            placeholder="e.g.: 1.2"
-            min={0.01}
-            step={0.01}
-            addonAfter="ETH"
-            onChange={handleMinPriceNumericChange}
-          />
-        </Form.Item>
-      </Col>
       <Col xs={24} sm={24} md={12} lg={8}>
         <Form.Item
           label="Maximum Price"
@@ -113,6 +82,28 @@ function PriceDefinitionFields({ setFieldsValue }) {
             step={0.01}
             addonAfter="ETH"
             onChange={handleMaxPriceNumericChange}
+          />
+        </Form.Item>
+      </Col>
+      <Col xs={24} sm={24} md={12} lg={8}>
+        <Form.Item
+          label="Minimum Price (optional)"
+          name="minPriceNumeric"
+          rules={[
+            {
+              type: 'number',
+              min: 0.0,
+              message: `Minimum price must be non-negative.`,
+            },
+          ]}
+        >
+          <InputNumberWithAddons
+            type="number"
+            placeholder="e.g.: 1.2"
+            min={0.0}
+            step={0.01}
+            addonAfter="ETH"
+            onChange={handleMinPriceNumericChange}
           />
         </Form.Item>
       </Col>
