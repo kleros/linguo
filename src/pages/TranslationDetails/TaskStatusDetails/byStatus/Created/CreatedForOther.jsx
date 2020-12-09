@@ -1,11 +1,30 @@
 import React from 'react';
+import { Tooltip } from 'antd';
 import Spacer from '~/shared/Spacer';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { selectAllSkills } from '~/features/translator/translatorSlice';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskInteractionButton from '../../components/TaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskAssignmentDepositFetcher from '../../components/TaskAssignmentDepositFetcher';
+import useTask from '../../../useTask';
 
-function CreatedForOther() {
+export default function CreatedForOther() {
+  const { sourceLanguage, targetLanguage, expectedQuality } = useTask();
+  const minimumLevel = minimumLevelByQuality[expectedQuality];
+  const skills = useShallowEqualSelector(selectAllSkills);
+
+  const hasSkill = React.useMemo(() => {
+    const hasSourceLanguageSkill = skills.some(
+      ({ language, level }) => sourceLanguage === language && level >= minimumLevel
+    );
+    const hasTargetLanguageSkill = skills.some(
+      ({ language, level }) => targetLanguage === language && level >= minimumLevel
+    );
+
+    return hasSourceLanguageSkill && hasTargetLanguageSkill;
+  }, [targetLanguage, sourceLanguage, minimumLevel, skills]);
+
   const props = {
     title: 'Translate this text',
     description: [
@@ -29,7 +48,21 @@ function CreatedForOther() {
     ),
   };
 
-  return <TaskStatusDetailsLayout {...props} />;
+  return (
+    <Tooltip title={!hasSkill ? "You don't have the required skills for this task" : ''}>
+      <div
+        css={`
+          opacity: ${!hasSkill ? '0.4' : '1'};
+        `}
+      >
+        <TaskStatusDetailsLayout {...props} />
+      </div>
+    </Tooltip>
+  );
 }
 
-export default CreatedForOther;
+const minimumLevelByQuality = {
+  costEffective: 'B2',
+  standard: 'C1',
+  professional: 'C2',
+};

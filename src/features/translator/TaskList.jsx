@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Col, Row, Tooltip, Typography } from 'antd';
 import TaskCard from '~/features/tasks/TaskCard';
 import { TaskStatus } from '~/features/tasks';
-import ContentBlocker from '~/shared/ContentBlocker';
 import { selectAllSkills } from './translatorSlice';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 
@@ -72,21 +71,14 @@ function TranslatorTaskCard(props) {
     return hasSourceLanguageSkill && hasTargetLanguageSkill;
   }, [targetLanguage, sourceLanguage, minimumLevel, skills]);
 
-  const blocked = !hasSkill;
-
   return (
-    <Tooltip title={blocked ? "You don't have the required skills for this task" : ''}>
-      <div>
-        <ContentBlocker
-          blocked={blocked}
-          contentBlur={0}
-          overlayColor="transparent"
-          css={`
-            opacity: ${blocked ? 0.4 : 1};
-          `}
-        >
-          <TaskCard {...props} />
-        </ContentBlocker>
+    <Tooltip title={!hasSkill ? "You don't have the required skills for this task" : ''}>
+      <div
+        css={`
+          opacity: ${!hasSkill ? '0.4' : '1'};
+        `}
+      >
+        <TaskCard {...props} />
       </div>
     </Tooltip>
   );
