@@ -4,12 +4,22 @@ import styled from 'styled-components';
 import { Col, Form, Input, Row, Typography, message } from 'antd';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import DismissableAlert from '~/features/ui/DismissableAlert';
+import { flatten } from '~/shared/fp';
 import SingleFileUpload, { validator as singleFileUploadValidator } from '~/shared/SingleFileUpload';
 
 export default function OriginalSourceFields({ setFieldsValue }) {
   const handleOriginalTextFileChange = React.useCallback(
-    ({ fileList }) => {
-      setFieldsValue({ originalTextFile: [...fileList] });
+    async ({ fileList }) => {
+      const files = [...fileList].slice(-1);
+      setFieldsValue({ originalTextFile: files });
+
+      const file = files[0];
+      if (countWordsByFileType[file?.type]) {
+        const wordCount = await countWordsByFileType[file?.type](file.originFileObj);
+        setFieldsValue({ wordCount });
+      } else {
+        setFieldsValue({ wordCount: undefined });
+      }
     },
     [setFieldsValue]
   );
@@ -136,6 +146,67 @@ async function uploadValidator(rule, value) {
   }
 
   return singleFileUploadValidator(value);
+}
+
+const countWordsByFileType = {
+  async 'text/plain'(file) {
+    const content = await readFileContents(file);
+    return content.split(/\s+/g).filter(str => str !== '').length;
+  },
+  async 'text/markdown'(file) {
+    const content = await readFileContents(file);
+    return content
+      .split(/\s+/g)
+      .map(str => str.replace(/\W/g, ''))
+      .filter(str => str !== '').length;
+  },
+  async 'application/json'(file) {
+    const content = await readFileContents(file);
+
+    try {
+      const data = JSON.parse(content);
+      const allValues = (function recur(item) {
+        if (['[object Object]', '[object Array]'].includes({}.toString.apply(item))) {
+          return flatten(Object.values(item).map(prop => recur(prop)));
+        }
+        return item;
+      })(data);
+      return allValues.reduce(
+        (count, content) =>
+          count +
+          content
+            .split(/\s+/g)
+            .map(str => str.replace(/\W/g, ''))
+            .filter(str => str !== '').length,
+        0
+      );
+    } catch (err) {
+      return 0;
+    }
+  },
+};
+
+function readFileContents(file) {
+  let res;
+  let rej;
+
+  const deferred = new Promise((resolve, reject) => {
+    res = resolve;
+    rej = reject;
+  });
+
+  const reader = new FileReader();
+  reader.onload = event => {
+    res(event.target.result);
+  };
+  reader.onerror = () => {
+    rej(reader.error);
+    reader.abort();
+  };
+
+  reader.readAsText(file);
+
+  return deferred;
 }
 
 const StyledFormItem = styled(Form.Item)``;
