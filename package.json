@@ -27,7 +27,7 @@
     "caniuse-lite": "1.0.30001129"
   },
   "dependencies": {
-    "@ant-design/icons": "^4.0.2",
+    "@ant-design/icons": "^4.3.0",
     "@ethersproject/address": "^5.0.5",
     "@ethersproject/contracts": "^5.0.5",
     "@ethersproject/networks": "^5.0.4",
