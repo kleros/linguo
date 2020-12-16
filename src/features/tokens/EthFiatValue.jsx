@@ -65,7 +65,7 @@ EthFiatValue.defaultProps = {
   className: '',
 };
 
-const StyledWrapper = styled.div`
+const StyledWrapper = styled.span`
   display: inline-block;
   position: relative;
 `;

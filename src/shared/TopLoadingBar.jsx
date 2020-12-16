@@ -6,13 +6,24 @@ import { Progress } from 'antd';
 import styled from 'styled-components';
 
 export default function TopLoadingBar({ show }) {
-  return createPortal(
+  return createPortal(<LocalTopLoadingBar show={show} />, document.querySelector('#top-loading-bar'));
+}
+
+TopLoadingBar.propTypes = {
+  show: t.bool.isRequired,
+};
+
+export function LocalTopLoadingBar({ show }) {
+  return (
     <StyledWrapper>
-      <StyledProgress className={clsx({ show })} status="active" percent={99.9999} showInfo={false} strokeWidth={5} />
-    </StyledWrapper>,
-    document.querySelector('#top-loading-bar')
+      <StyledProgress className={clsx({ show })} status="active" percent={100} showInfo={false} strokeWidth={5} />
+    </StyledWrapper>
   );
 }
+
+LocalTopLoadingBar.propTypes = {
+  show: t.bool.isRequired,
+};
 
 TopLoadingBar.propTypes = {
   show: t.bool.isRequired,

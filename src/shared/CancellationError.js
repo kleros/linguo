@@ -15,6 +15,11 @@ export default function CancellationError(message, rest = {}) {
     ...restDescriptors,
     name: {
       value: CancellationError.name,
+      enumerable: true,
+    },
+    recoverable: {
+      value: true,
+      enumerable: true,
     },
     type: {
       value: cancellationErrorType,

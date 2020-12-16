@@ -8,7 +8,7 @@ function AssignedForRequester() {
   const { reviewTimeout } = useTask();
 
   const props = {
-    title: 'This translation task was assigned by a translator',
+    title: 'This translation task was assigned to a translator',
     description: [
       'You will be informed when the translation is delivered.',
       <FormattedRelativeDate

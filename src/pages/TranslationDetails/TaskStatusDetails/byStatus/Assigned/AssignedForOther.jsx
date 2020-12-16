@@ -8,7 +8,7 @@ function AssignedForOther() {
   const { reviewTimeout } = useTask();
 
   const props = {
-    title: 'This translation task was assigned by a translator',
+    title: 'This translation task was assigned to a translator',
     description: [
       <FormattedRelativeDate
         key="next-steps"

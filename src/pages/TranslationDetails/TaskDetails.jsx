@@ -21,6 +21,7 @@ import { Task, TaskStatus, getFileUrl } from '~/features/tasks';
 import useTask from './useTask';
 import TaskStatusDetails from './TaskStatusDetails';
 import Evidences from './Evidences';
+import Comments from './Comments';
 import useInterval from '~/shared/useInterval';
 import AffixContainer from '~/shared/AffixContainer';
 
@@ -207,6 +208,8 @@ export default function TaskDetails() {
         </StyledDownloadTextWrapper>
         <Spacer size={3} />
         <TaskStatusDetails />
+        <Spacer size={3} />
+        <Comments />
         {hasDispute && (
           <>
             <Spacer size={3} />
