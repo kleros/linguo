@@ -332,6 +332,25 @@ export const isIncomplete = (
 };
 
 /**
+ * Returns if a task is finalized by either being incomplete or being resolved.
+ * A finalized task is such that no further actions can be performed in them.
+ *
+ * @function
+ *
+ * @param {Object} task The task object
+ * @param {TaskStatus} task.status The task status
+ * @param {Date|number|dayjs} task.submissionTimeout The task last interaction value
+ * @param {Date|number|dayjs} task.lastInteraction The task last interaction value
+ * @param {number} task.reviewTimeout The task review timeout value in seconds
+ * @param {Object} params The update params
+ * @param {Date} params.currentDate The date in which the submission was made
+ * @return {boolean} Whether the translation task was incomplete or not
+ */
+export const isFinalized = (task, { currentDate = new Date() } = {}) => {
+  return task.status === TaskStatus.Resolved || isIncomplete(task, { currentDate });
+};
+
+/**
  * Returns if a transltion task is still pending.
  *
  * @function

@@ -56,7 +56,7 @@ export default function AffixContainer({ children, position, wrapperCss, classNa
           position: fixed;
           left: 0;
           right: 0;
-          z-index: 10;
+          z-index: 500;
           ${displayStyles}
           ${positioningStyles}
           transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);

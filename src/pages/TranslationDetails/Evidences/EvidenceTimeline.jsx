@@ -15,17 +15,22 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import ReactBlockies from 'react-blockies';
-import { composeRefs } from '~/adapters/react/';
+import { composeRefs } from '~/adapters/react';
+import { mapValues } from '~/shared/fp';
 import EthAddress from '~/shared/EthAddress';
 import FormattedDate from '~/shared/FormattedDate';
 import { getFileUrl } from '~/features/evidences';
 import { TaskParty } from '~/features/tasks';
+import useTask from '../useTask';
 
 export default function EvidenceTimeline({ data, lastItemRef, firstItemRef }) {
   /**
    * Evidences must be in descending order
    */
   const sortedData = [...data].sort((a, b) => b.submittedAt - a.submittedAt);
+
+  const task = useTask();
+  const normalizedParties = mapValues(address => String(address).toLowerCase(), task.parties);
 
   return sortedData.length === 0 ? (
     <StyledEmptyList>Wow, such empty!</StyledEmptyList>
@@ -35,12 +40,27 @@ export default function EvidenceTimeline({ data, lastItemRef, firstItemRef }) {
         const isLast = index === 0;
         const isFirst = index === data.length - 1;
         const ref = composeRefs(isLast ? lastItemRef : null, isFirst ? firstItemRef : null);
-
         const position = data.length - index;
+
+        submittedBy = String(submittedBy).toLowerCase();
+        const role =
+          submittedBy === normalizedParties[TaskParty.Challenger]
+            ? '(Challenger)'
+            : submittedBy === normalizedParties[TaskParty.Translator]
+            ? '(Translator)'
+            : submittedBy === normalizedParties[TaskParty.Requester]
+            ? '(Requester)'
+            : '';
 
         return (
           <StyledEvidenceListItem key={transactionHash} ref={ref}>
-            <EvidenceCard {...evidenceJSON} position={position} submittedAt={submittedAt} submittedBy={submittedBy} />
+            <EvidenceCard
+              {...evidenceJSON}
+              position={position}
+              submittedAt={submittedAt}
+              submittedBy={submittedBy}
+              role={role}
+            />
           </StyledEvidenceListItem>
         );
       })}
@@ -57,6 +77,7 @@ EvidenceTimeline.propTypes = {
 function EvidenceCard({
   submittedAt,
   submittedBy,
+  role,
   name,
   position,
   description,
@@ -80,8 +101,8 @@ function EvidenceCard({
         </StyledAvatar>
         <StyledMetadata>
           <p>
-            <strong>#{position}</strong> submitted by <EthAddress address={submittedBy} /> in favor of:{' '}
-            <strong>{supportingSideText}</strong>
+            <strong>#{position}</strong> submitted by <EthAddress address={submittedBy} />
+            {role ? ` ${role}` : null} in favor of: <strong>{supportingSideText}</strong>
           </p>
           <time dateTime={submittedAtDate.toISOString()}>
             <FormattedDate
@@ -109,12 +130,17 @@ function EvidenceCard({
 EvidenceCard.propTypes = {
   submittedAt: t.oneOfType([t.string, t.number, t.instanceOf(Date)]).isRequired,
   submittedBy: t.string.isRequired,
+  role: t.string,
   position: t.number.isRequired,
   name: t.string.isRequired,
   description: t.string.isRequired,
   supportingSide: t.oneOf(Object.values(TaskParty)).isRequired,
   fileURI: t.string,
   fileTypeExtension: t.string,
+};
+
+EvidenceCard.defaultProps = {
+  role: '',
 };
 
 const fileTypeIcons = {
