@@ -53,24 +53,51 @@ const StyledDismissableAlert = styled(DismissableAlert)`
 
 const filterDescriptionMap = {
   [getFilterTreeName('open')]: (
-    <StyledDismissableAlert
-      id="translator.filters.open"
-      message="You will only be able to work on tasks whose both source and target languages you have self-declared level B2 or higher."
-      description={
-        <>
-          Learn more about this in our{' '}
-          <Link
-            to={{
-              pathname: r.FAQ,
-              hash: '#how-does-my-skill-levels-affect-the-amount-of-tasks-i-will-be-able-to-work-on-as-a-translator',
-            }}
-          >
-            FAQ
-          </Link>
-          .
-        </>
-      }
-    />
+    <>
+      <StyledDismissableAlert
+        id="translator.filters.open"
+        message="You will only be able to work on tasks whose both source and target languages you have self-declared level B2 or higher."
+        description={
+          <>
+            Learn more about this in our{' '}
+            <Link
+              to={{
+                pathname: r.FAQ,
+                hash: '#how-does-my-skill-levels-affect-the-amount-of-tasks-i-will-be-able-to-work-on-as-a-translator',
+              }}
+            >
+              FAQ
+            </Link>
+            .
+          </>
+        }
+      />
+      <StyledDismissableAlert
+        type="warning"
+        id="translator.wordCount"
+        message="Always double-check the word count."
+        description={
+          <>
+            <p>
+              There is no fail-proof way for Linguo to get the word count for a given task, so its input is ultimately
+              under control of the requester.
+            </p>
+            <p>
+              Learn more about this in our{' '}
+              <Link
+                to={{
+                  pathname: r.FAQ,
+                  hash: '#should-i-trust-the-word-count-for-a-given-translation-task-displayed-on-the-linguo-interface',
+                }}
+              >
+                FAQ
+              </Link>
+              .
+            </p>
+          </>
+        }
+      />
+    </>
   ),
   [getFilterTreeName('inProgress', 'myTranslations')]: (
     <StyledDismissableAlert

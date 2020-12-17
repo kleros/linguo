@@ -102,7 +102,7 @@ export function* fetchTasksSaga(action) {
 
 export function* handleTaskCreateTxnMined(action) {
   const { account, sourceLanguage, targetLanguage } = action.payload ?? {};
-  const languageGroupPair = LanguageGroupPair.of([sourceLanguage, targetLanguage].map(getLanguageGroup));
+  const languageGroupPair = String(LanguageGroupPair.of([sourceLanguage, targetLanguage].map(getLanguageGroup)));
 
   yield put(fetchTasks({ account }, { meta: { hints: { languageGroupPairs: [languageGroupPair] } } }));
 }

@@ -419,4 +419,18 @@ const faqs = [
       </p>
     </>,
   ],
+  [
+    'Should I trust the word count for a given translation task displayed on the Linguo interface?',
+    <>
+      <p>Short answer is: no! Always double-check it yourself.</p>
+      <p>
+        Linguo works with several languages and a miriad of file formats. There is currently no fail-proof way to
+        determine the word count for a translation task.
+      </p>
+      <p>
+        While we do have some heuristics in place to get the approximate word count for text-based file formats, such as
+        TXT, PDF or JSON, its input is ultimately controlled by the translation requester.
+      </p>
+    </>,
+  ],
 ];
