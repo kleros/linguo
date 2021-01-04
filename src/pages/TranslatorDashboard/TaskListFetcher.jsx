@@ -72,31 +72,6 @@ const filterDescriptionMap = {
           </>
         }
       />
-      <StyledDismissableAlert
-        type="warning"
-        id="translator.wordCount"
-        message="Always double-check the word count."
-        description={
-          <>
-            <p>
-              There is no fail-proof way for Linguo to get the word count for a given task, so its input is ultimately
-              under control of the requester.
-            </p>
-            <p>
-              Learn more about this in our{' '}
-              <Link
-                to={{
-                  pathname: r.FAQ,
-                  hash: '#should-i-trust-the-word-count-for-a-given-translation-task-displayed-on-the-linguo-interface',
-                }}
-              >
-                FAQ
-              </Link>
-              .
-            </p>
-          </>
-        }
-      />
     </>
   ),
   [getFilterTreeName('inProgress', 'myTranslations')]: (
