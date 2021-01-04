@@ -6,20 +6,17 @@ import { Web3ReactProvider } from '@web3-react/core';
 import Web3 from 'web3';
 import theme from '~/features/ui/theme';
 import { useWatchLibrary, useWeb3ReactBootstrap } from '~/features/web3';
-import { CommentsProvider } from '~/features/comments';
 import MainRouter from './MainRouter';
 
 function App() {
   return (
     <Web3ReactProvider getLibrary={getLibrary}>
-      <CommentsProvider>
-        <ThemeProvider theme={theme}>
-          <Initializer>
-            <GlobalStyle />
-            <MainRouter />
-          </Initializer>
-        </ThemeProvider>
-      </CommentsProvider>
+      <ThemeProvider theme={theme}>
+        <Initializer>
+          <GlobalStyle />
+          <MainRouter />
+        </Initializer>
+      </ThemeProvider>
     </Web3ReactProvider>
   );
 }

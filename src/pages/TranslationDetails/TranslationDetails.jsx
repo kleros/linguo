@@ -6,6 +6,7 @@ import TopLoadingBar from '~/shared/TopLoadingBar';
 import { selectIsLoadingById } from '~/features/tasks/tasksSlice';
 import { selectIsLoadingByTaskId } from '~/features/disputes/disputesSlice';
 import RequiredWeb3Gateway from '~/features/web3/RequiredWeb3Gateway';
+import { CommentsProvider } from '~/features/comments';
 import SingleCardLayout from '../layouts/SingleCardLayout';
 import TaskFetcher from './TaskFetcher';
 
@@ -19,7 +20,9 @@ function TranslationDetails() {
     <Titled title={title => `Translation Details | ${title}`}>
       <SingleCardLayout title="Translation Task Details" beforeContent={<TopLoadingBar show={isLoading} />}>
         <RequiredWeb3Gateway>
-          <TaskFetcher />
+          <CommentsProvider>
+            <TaskFetcher />
+          </CommentsProvider>
         </RequiredWeb3Gateway>
       </SingleCardLayout>
     </Titled>
