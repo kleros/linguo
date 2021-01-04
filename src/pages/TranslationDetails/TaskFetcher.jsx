@@ -15,6 +15,8 @@ export default function TaskFetcher() {
   const data = useShallowEqualSelector(selectById(id));
   const error = useShallowEqualSelector(selectErrorById(id));
 
+  const showError = error && !/MetaMask Tx Signature:\s+/i.test(error.message);
+
   const doFetch = React.useCallback(() => {
     dispatch(fetchById({ id }));
   }, [dispatch, id]);
@@ -25,7 +27,7 @@ export default function TaskFetcher() {
 
   return (
     <Spin tip="Getting task details..." spinning={isLoading && !data}>
-      {error && (
+      {showError && (
         <>
           <Alert
             showIcon
@@ -40,7 +42,7 @@ export default function TaskFetcher() {
           <Spacer size={2} />
         </>
       )}
-      {data && (!error || error.recoverable) ? (
+      {data && (!showError || error.recoverable) ? (
         <TaskProvider task={data}>
           <TaskDetails />
         </TaskProvider>
