@@ -111,7 +111,7 @@ function createPersistedReducer(reducer) {
   const persistConfig = {
     key: PERSISTANCE_KEY,
     storage,
-    version: 2,
+    version: 3,
     migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
     blacklist: [],
   };
@@ -169,6 +169,9 @@ export const selectIsLoadingById = id => state => singleTaskSlice.selectors.sele
 export const selectHasFailedById = id => state => singleTaskSlice.selectors.selectHasFailed(state.tasks.entities[id]);
 
 export const selectErrorById = id => state => singleTaskSlice.selectors.selectError(state.tasks.entities[id]);
+
+export const selectLatestBlock = ({ account, chainId }) => state =>
+  taskUpdatesSlice.selectors.selectLatestBlock(state.tasks.updates, { account, chainId });
 
 export function* fetchByPartySaga(action) {
   const linguoApi = yield getContext('linguoApi');

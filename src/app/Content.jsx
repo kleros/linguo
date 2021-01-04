@@ -4,8 +4,12 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { Layout } from 'antd';
 import { nanoid } from 'nanoid';
-import { selectLatestBlock } from '~/features/notifications/notificationsSlice';
-import { subscribeToUpdates, unsubscribeFromUpdates, updateTransientNotifications } from '~/features/tasks/tasksSlice';
+import {
+  selectLatestBlock,
+  subscribeToUpdates,
+  unsubscribeFromUpdates,
+  updateTransientNotifications,
+} from '~/features/tasks/tasksSlice';
 import { subscribeToEthPrice, unsubscribeFromEthPrice } from '~/features/tokens/tokensSlice';
 import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 
@@ -21,7 +25,7 @@ function useTaskUpdatesSubscription() {
 
   const account = useSelector(selectAccount);
   const chainId = useSelector(selectChainId);
-  const latestBlock = useSelector(state => selectLatestBlock(state, { chainId, account }));
+  const latestBlock = useSelector(selectLatestBlock({ chainId, account }));
 
   const subscribe = React.useCallback(
     () => dispatch(subscribeToUpdates({ chainId, account, fromBlock: latestBlock + 1 }, { meta: { groupId } })),

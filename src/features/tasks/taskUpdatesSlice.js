@@ -105,6 +105,31 @@ const taskUpdatesSlice = createSlice({
         }
       }
     });
+
+    builder.addMatcher(
+      action =>
+        [
+          taskAssigned.match(action),
+          taskCreated.match(action),
+          taskResolved.match(action),
+          translationChallenged.match(action),
+          receivedAppealableRuling.match(action),
+          appealContribution.match(action),
+          paidAppealFee.match(action),
+          disputeAppealed.match(action),
+          translationSubmitted.match(action),
+        ].some(x => !!x),
+      (state, action) => {
+        const { account, blockNumber, chainId } = action.meta;
+        state.byAccount[account] = state.byAccount[account] ?? {};
+        state.byAccount[account].meta = state.byAccount[account].meta ?? { byChainId: {} };
+
+        if (blockNumber > (state.byAccount[account].meta.byChainId[chainId]?.latestBlock ?? 0)) {
+          state.byAccount[account].meta.byChainId[chainId] = state.byAccount[account].meta.byChainId[chainId] ?? {};
+          state.byAccount[account].meta.byChainId[chainId].latestBlock = blockNumber;
+        }
+      }
+    );
   },
 });
 
@@ -122,6 +147,11 @@ export const actions = {
   paidAppealFee,
   taskResolved,
   ...taskUpdatesSlice.actions,
+};
+
+export const selectors = {
+  selectLatestBlock: (state, { account, chainId }) =>
+    state.byAccount[account]?.meta?.byChainId?.[chainId]?.latestBlock ?? 0,
 };
 
 export function* subscribeSaga(action) {

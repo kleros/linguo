@@ -71,9 +71,6 @@ const notificationsSlice = createSlice({
         state.byChainId[chainId].byAccount[account].ids = [
           ...new Set([...(state.byChainId[chainId].byAccount[account].ids ?? []), id]),
         ];
-        if (blockNumber > (state.byChainId[chainId].byAccount[account].latestBlock ?? 0)) {
-          state.byChainId[chainId].byAccount[account].latestBlock = blockNumber;
-        }
       }
     },
   },
@@ -98,6 +95,3 @@ export const selectTotalCountByAccount = (state, { chainId, account = null } = {
   const ids = state.notifications.byChainId[chainId]?.byAccount[account]?.ids ?? [];
   return ids.length;
 };
-
-export const selectLatestBlock = (state, { chainId, account = null }) =>
-  state.notifications.byChainId[chainId]?.byAccount[account]?.latestBlock ?? 0;
