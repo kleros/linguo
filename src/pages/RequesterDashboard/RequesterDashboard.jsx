@@ -1,25 +1,17 @@
 import React from 'react';
 import { Titled } from 'react-titled';
-import { useSelector } from 'react-redux';
 import styled, { css } from 'styled-components';
 import { Divider } from 'antd';
-import { selectIsLoading } from '~/features/requester/requesterSlice';
-import TopLoadingBar from '~/shared/TopLoadingBar';
 import AffixContainer from '~/shared/AffixContainer';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
-import { selectAccount } from '~/features/web3/web3Slice';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListControls from './TaskListControls';
 import TaskListFetcher from './TaskListFetcher';
 
 function RequesterDashboard() {
-  const account = useSelector(selectAccount);
-  const isLoading = useSelector(state => selectIsLoading(state, { account }));
-
   return (
     <Titled title={title => `Requester Dashboard | ${title}`}>
       <MultiCardLayout>
-        <TopLoadingBar show={isLoading} />
         <AffixContainer
           position="top"
           css={`
@@ -43,7 +35,7 @@ function RequesterDashboard() {
         </AffixContainer>
         <StyledDivider />
         <StyledContentWrapper>
-          <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum wallet.">
+          <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum Wallet.">
             <TaskListFetcher />
           </RequiredWalletGateway>
         </StyledContentWrapper>

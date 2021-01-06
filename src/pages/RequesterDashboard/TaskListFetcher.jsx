@@ -2,15 +2,18 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { Spin } from '~/adapters/antd';
 import { filters, useFilter } from '~/features/requester';
-import { fetchTasks, selectTasksForCurrentFilter } from '~/features/requester/requesterSlice';
+import { fetchTasks, selectTasksForCurrentFilter, selectIsLoading } from '~/features/requester/requesterSlice';
 import TaskList from '~/features/tasks/TaskList';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import { selectAccount } from '~/features/web3/web3Slice';
+import TopLoadingBar from '~/shared/TopLoadingBar';
 
 export default function TaskListFetcher() {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
+  const isLoading = useSelector(state => selectIsLoading(state, { account }));
 
   const doFetchTasks = React.useCallback(() => {
     dispatch(fetchTasks({ account }));
@@ -20,15 +23,20 @@ export default function TaskListFetcher() {
     doFetchTasks();
   }, [doFetchTasks]);
 
-  const displayableData = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account }));
+  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account }));
   const [filterName] = useFilter();
 
-  const showFootnote = [filters.open].includes(filterName) && displayableData.length > 0;
+  const showFootnote = [filters.open].includes(filterName) && data.length > 0;
 
   return (
     <>
-      {filterDescriptionMap[filterName]}
-      <TaskList data={displayableData} showFootnote={showFootnote} />
+      <TopLoadingBar show={isLoading} />
+      <Spin $centered tip="Loading translation tasks..." spinning={isLoading && data.length === 0}>
+        <>
+          {filterDescriptionMap[filterName]}
+          <TaskList data={data} showFootnote={showFootnote} />
+        </>
+      </Spin>
     </>
   );
 }

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Badge, Tabs } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { Spin } from '~/adapters/antd';
 import * as r from '~/app/routes';
 import TaskList from '~/features/translator/TaskList';
 import { filters, hasSecondLevelFilters, secondLevelFilters, useFilters } from '~/features/translator';
@@ -13,13 +14,16 @@ import {
   selectTaskCountForFilter,
   selectTasksForCurrentFilter,
   selectAllSkills,
+  selectIsLoading,
 } from '~/features/translator/translatorSlice';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import { selectAccount } from '~/features/web3/web3Slice';
+import TopLoadingBar from '~/shared/TopLoadingBar';
 
 export default function TaskListFetcher() {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
+  const isLoading = useSelector(state => selectIsLoading(state, { account }));
   const skills = useShallowEqualSelector(selectAllSkills);
 
   const doFetchTasks = React.useCallback(() => {
@@ -36,10 +40,15 @@ export default function TaskListFetcher() {
   const showFootnote = [filters.open].includes(filter) && data.length > 0;
 
   return (
-    <OptionalSecondLevelTabs>
-      {filterDescriptionMap[getFilterTreeName(filter, secondLevelFilter)]}
-      <TaskList data={data} showFootnote={showFootnote} />
-    </OptionalSecondLevelTabs>
+    <>
+      <TopLoadingBar show={isLoading} />
+      <Spin $centered tip="Loading translation tasks..." spinning={isLoading && data.length === 0}>
+        <OptionalSecondLevelTabs>
+          {filterDescriptionMap[getFilterTreeName(filter, secondLevelFilter)]}
+          <TaskList data={data} showFootnote={showFootnote} />
+        </OptionalSecondLevelTabs>
+      </Spin>
+    </>
   );
 }
 

@@ -22,6 +22,30 @@ function RequiredWalletGateway({ message, children, missing, error, render, rend
   );
 }
 
+export function withRequiredWalletGateway({ message, missing, error, render, renderMissing, renderError }) {
+  return Component => {
+    function WithRequiredWallet(props) {
+      return (
+        <RequiredWalletGateway
+          message={message}
+          missing={missing}
+          error={error}
+          render={render}
+          renderMissing={renderMissing}
+          renderError={renderError}
+        >
+          <Component {...props} />
+        </RequiredWalletGateway>
+      );
+    }
+
+    const componentName = Component.displayName || Component.name || '<anonymous>';
+    Object.defineProperty(WithRequiredWallet, 'name', { value: `WithRequiredWallet(${componentName})` });
+
+    return WithRequiredWallet;
+  };
+}
+
 RequiredWalletGateway.propTypes = {
   message: t.node.isRequired,
   children: t.node,
