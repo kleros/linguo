@@ -47,7 +47,7 @@ export function MainMenu() {
 
 const menuItems = [
   <Menu.Item key="request-translation">
-    <NavLink to={r.REQUESTER_DASHBOARD}>My Translations</NavLink>
+    <NavLink to={r.REQUESTER_DASHBOARD}>Request Translations</NavLink>
   </Menu.Item>,
   <Menu.Item key="work-as-translator">
     <NavLink
@@ -55,32 +55,8 @@ const menuItems = [
         pathname: r.TRANSLATOR_DASHBOARD,
         search: 'filter=open',
       }}
-      isActive={(match, location) => {
-        if (location.search.includes('filter=inReview')) {
-          return false;
-        }
-
-        return match;
-      }}
     >
       Work as a Translator
-    </NavLink>
-  </Menu.Item>,
-  <Menu.Item key="review-translations">
-    <NavLink
-      to={{
-        pathname: r.TRANSLATOR_DASHBOARD,
-        search: 'filter=inReview&secondLevelFilter=toReview',
-      }}
-      isActive={(match, location) => {
-        if (!location.search.includes('filter=inReview')) {
-          return false;
-        }
-
-        return match;
-      }}
-    >
-      Review Translations
     </NavLink>
   </Menu.Item>,
 ];
