@@ -14,7 +14,10 @@ export default function createSagaWithRejectionOnCancelation(
         const finalAdditionalArgs = typeof additionalArgs === 'function' ? additionalArgs(...args) : additionalArgs;
         yield put(
           cancelActionCreator(
-            { error: new CancellationError('Action was cancelled'), ...additionalPayload(...args) },
+            {
+              error: new CancellationError('Action was cancelled'),
+              ...additionalPayload(...args),
+            },
             finalAdditionalArgs
           )
         );

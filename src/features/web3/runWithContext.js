@@ -70,7 +70,7 @@ export function watchAll(sagas, { createContext = ({ library }) => ({ library })
                 console.warn('Error in saga:', err);
               } finally {
                 if (yield cancelled()) {
-                  console.info('Cancelling saga:', saga.name);
+                  console.info('Canceling saga:', saga.name);
                   isCancelled = true;
                 }
               }
@@ -138,12 +138,13 @@ export function watchAllWithBuffer(sagaDescriptors, { createContext = ({ library
 
             while (!isCancelled) {
               try {
+                console.info('Spawning saga:', saga.name);
                 yield call(saga);
               } catch (err) {
                 console.warn('Error in saga:', err);
               } finally {
                 if (yield cancelled()) {
-                  console.info('Cancelling saga:', saga.name);
+                  console.info('Canceling saga:', saga.name);
                   isCancelled = true;
                 }
               }

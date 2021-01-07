@@ -291,7 +291,7 @@ export function getContractInstancesForTranslator({ skills, addressesByLanguageG
 /**
  * Considers 4 blocks per minute on average.
  */
-const BLOCKS_IN_60_DAYS = 60 * 24 * 60 * 60 * 4;
+const BLOCKS_IN_60_DAYS = 30 * 24 * 60 * 60 * 4;
 
 async function getContractAddressesForRequester({ chainId, account, web3, apiInstancesByAddress }) {
   if (!account) {
