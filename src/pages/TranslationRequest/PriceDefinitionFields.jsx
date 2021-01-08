@@ -24,13 +24,15 @@ export default function PriceDefinitionFieldsWrapper() {
   );
 }
 
+const MIN_REPRESENTABLE_VALUE = 0.000000000000000001;
+
 function PriceDefinitionFields({ setFieldsValue }) {
   const account = useSelector(selectAccount);
 
-  const [minMaxPriceNumeric, setMinMaxPriceNumeric] = React.useState(0.01);
+  const [minMaxPriceNumeric, setMinMaxPriceNumeric] = React.useState(MIN_REPRESENTABLE_VALUE);
   const handleMinPriceNumericChange = React.useCallback(
     value => {
-      setMinMaxPriceNumeric(Math.max(0.01, value));
+      setMinMaxPriceNumeric(Math.max(MIN_REPRESENTABLE_VALUE, value));
       setFieldsValue({
         minPrice: Number.isNaN(parseInt(value, 10)) ? '0' : normalizeBaseUnit(value),
       });

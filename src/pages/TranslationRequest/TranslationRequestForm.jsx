@@ -81,6 +81,7 @@ function TranslationRequestForm() {
       initialValues={initialValues}
       onFinish={handleFinish}
       onFinishFailed={handleFinishFailed}
+      noValidate
     >
       <Row gutter={rowGutter}>
         <LanguagesSelectionFields setFieldsValue={form.setFieldsValue} />
