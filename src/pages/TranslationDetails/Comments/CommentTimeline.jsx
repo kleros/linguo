@@ -1,7 +1,9 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
+import clsx from 'clsx';
 import { Typography } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
 import ReactBlockies from 'react-blockies';
 import { composeRefs } from '~/adapters/react';
 import { mapValues } from '~/shared/fp';
@@ -11,19 +13,14 @@ import { TaskParty } from '~/features/tasks';
 import useTask from '../useTask';
 
 export default function CommentTimeline({ data, lastItemRef, firstItemRef }) {
-  /**
-   * Comments must be in ascending order
-   */
-  const sortedData = [...data].sort((a, b) => a.timestamp - b.timestamp);
-
   const task = useTask();
   const normalizedParties = mapValues(address => String(address).toLowerCase(), task.parties);
 
-  return sortedData.length === 0 ? (
+  return data.length === 0 ? (
     <StyledEmptyList>Wow, such empty!</StyledEmptyList>
   ) : (
     <StyledCommentList>
-      {data.map(({ postId, author, message, timestamp }, index) => {
+      {data.map(({ postId, author, message, timestamp, pending }, index) => {
         const isLast = index === data.length - 1;
         const isFirst = index === 0;
         const ref = composeRefs(isLast ? lastItemRef : null, isFirst ? firstItemRef : null);
@@ -39,10 +36,18 @@ export default function CommentTimeline({ data, lastItemRef, firstItemRef }) {
             : '';
 
         return (
-          <StyledCommentListItem key={postId} ref={ref}>
+          <StyledCommentListItem key={postId} ref={ref} className={clsx({ pending })}>
             <StyledCardSurface>
               <StyledCardContent>
-                <StyledCardDescription>{message}</StyledCardDescription>
+                <StyledCardDescription>
+                  {pending ? (
+                    <>
+                      <LoadingOutlined /> {message}
+                    </>
+                  ) : (
+                    message
+                  )}
+                </StyledCardDescription>
               </StyledCardContent>
               <StyledCardFooter>
                 <StyledAvatar>
@@ -102,6 +107,10 @@ const StyledCommentList = styled.ol`
 const StyledCommentListItem = styled.li`
   & + & {
     margin-top: 1.5rem;
+  }
+
+  &.pending {
+    opacity: 0.5;
   }
 `;
 

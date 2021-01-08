@@ -11,6 +11,7 @@ export default function CollapsibleSection({
   defaultOpen,
   forceOpen,
   tabIndex,
+  lazy,
   children,
   className,
   ...attrs
@@ -42,7 +43,7 @@ export default function CollapsibleSection({
         <Typography.Title level={titleLevel}>{title}</Typography.Title>
         {icon}
       </StyledSummary>
-      <StyledCollapsibleContent>{children}</StyledCollapsibleContent>
+      <StyledCollapsibleContent>{forceOpen || isOpen || !lazy ? children : null}</StyledCollapsibleContent>
     </StyledDetails>
   );
 }
@@ -54,6 +55,7 @@ CollapsibleSection.propTypes = {
   defaultOpen: t.bool,
   forceOpen: t.bool,
   children: t.node,
+  lazy: t.bool,
   className: t.string,
 };
 
@@ -62,6 +64,7 @@ CollapsibleSection.defaultProps = {
   forceOpen: false,
   tabIndex: 10,
   children: null,
+  lazy: true,
   className: '',
 };
 

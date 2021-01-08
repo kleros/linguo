@@ -31,7 +31,7 @@ const StyledSpin = styled(BaseSpin)`
 `;
 
 const centeredStyles = css`
-  position: fixed !important;
+  position: absolute !important;
   left: 50% !important;
   top: 50% !important;
   transform: translate(-50%, -50%);

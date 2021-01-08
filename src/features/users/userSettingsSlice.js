@@ -54,7 +54,7 @@ const userSettingsSlice = createSlice({
       const { account } = action.payload;
 
       if (!state.settings.byAccount[account]) {
-        state.settings.byAccount[account] = { ...INITIAL_ITEM_STATE };
+        state.settings.byAccount[account] = deepMerge({}, INITIAL_ITEM_STATE);
       }
 
       state.settings.byAccount[account].loadingState = 'loading';

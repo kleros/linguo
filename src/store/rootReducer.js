@@ -3,6 +3,7 @@ import { persistCombineReducers } from 'redux-persist';
 import { reducer as sagaThunkReducer } from 'redux-saga-thunk';
 import requesterReducer from '~/features/requester/requesterSlice';
 import storage from 'redux-persist/lib/storage';
+import commentsReducer from '~/features/comments/commentsSlice';
 import disputesReducer from '~/features/disputes/disputesSlice';
 import userSettingsReducer from '~/features/users/userSettingsSlice';
 import evidencesReducer from '~/features/evidences/evidencesSlice';
@@ -30,6 +31,7 @@ export const createRootReducer = additionalReducers =>
     ...additionalReducers,
     router: connectRouter(history),
     thunk: sagaThunkReducer,
+    comments: commentsReducer,
     disputes: disputesReducer,
     evidences: evidencesReducer,
     notifications: notificationsReducer,

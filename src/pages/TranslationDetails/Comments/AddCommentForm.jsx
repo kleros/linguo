@@ -12,8 +12,8 @@ export default function AddCommentForm({ onFinish, disabled }) {
     async values => {
       setState('loading');
       try {
-        await onFinish(values);
         form.resetFields();
+        await onFinish(values);
       } finally {
         setState('idle');
       }
@@ -22,7 +22,15 @@ export default function AddCommentForm({ onFinish, disabled }) {
   );
 
   return (
-    <Form hideRequiredMark layout="vertical" form={form} onFinish={handleFinish}>
+    <Form
+      hideRequiredMark
+      layout="vertical"
+      form={form}
+      onFinish={handleFinish}
+      css={`
+        opacity: ${disabled ? '0.5' : '1'};
+      `}
+    >
       <Form.Item
         label="Add a Comment"
         name="comment"
@@ -49,7 +57,7 @@ export default function AddCommentForm({ onFinish, disabled }) {
           disabled={disabled || state === 'loading'}
           icon={state === 'loading' ? <LoadingOutlined /> : null}
         >
-          {state === 'loading' ? 'Submitting' : 'Submit'}
+          {state === 'loading' ? 'Submitting' : 'Submit Comment'}
         </Button>
       </div>
     </Form>

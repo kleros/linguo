@@ -6,7 +6,6 @@ import TopLoadingBar from '~/shared/TopLoadingBar';
 import { selectIsLoadingById } from '~/features/tasks/tasksSlice';
 import { selectIsLoadingByTaskId } from '~/features/disputes/disputesSlice';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
-import { CommentsProvider } from '~/features/comments';
 import SingleCardLayout from '../layouts/SingleCardLayout';
 import TaskFetcher from './TaskFetcher';
 
@@ -20,9 +19,7 @@ function TranslationDetails() {
     <Titled title={title => `Translation Details | ${title}`}>
       <SingleCardLayout title="Translation Task Details" beforeContent={<TopLoadingBar show={isLoading} />}>
         <RequiredWalletGateway message="To view the details of this translation task you need an Ethereum Wallet.">
-          <CommentsProvider>
-            <TaskFetcher />
-          </CommentsProvider>
+          <TaskFetcher />
         </RequiredWalletGateway>
       </SingleCardLayout>
     </Titled>

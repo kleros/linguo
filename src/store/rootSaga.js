@@ -1,4 +1,5 @@
 import { all, call, spawn } from 'redux-saga/effects';
+import { sagas as commentsSagas } from '~/features/comments/commentsSlice';
 import { sagas as disputesSagas } from '~/features/disputes/disputesSlice';
 import { sagas as userSettingsSagas } from '~/features/users/userSettingsSlice';
 import { sagas as evidencesSagas } from '~/features/evidences/evidencesSlice';
@@ -12,6 +13,7 @@ import { sagas as web3Sagas } from '~/features/web3/web3Slice';
 
 export default function* rootSaga() {
   const sagas = [
+    ...Object.values(commentsSagas),
     ...Object.values(disputesSagas),
     ...Object.values(evidencesSagas),
     ...Object.values(requesterSagas),
