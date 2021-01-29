@@ -96,7 +96,7 @@ export function getSecondLevelFilterPredicate(filterName, secondLevelFilterName,
   const secondLevelFilterPredicates = {
     [filters.inProgress]: {
       myTranslations: ({ parties }) => parties[TaskParty.Translator] === account,
-      othes: ({ parties }) => parties[TaskParty.Translator] !== account,
+      others: ({ parties }) => parties[TaskParty.Translator] !== account,
     },
     [filters.inReview]: {
       toReview: ({ parties }) => parties[TaskParty.Translator] !== account,
