@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { notification } from 'antd';
+import { notification, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { submitTranslation } from '~/features/tasks/tasksSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
@@ -74,9 +74,13 @@ export default function TranslationUploadButton({ buttonProps }) {
         }}
       />
       <Spacer />
-      <Button {...buttonProps} icon={icon} disabled={!uploadedFile || hasPendingTxn} onClick={handleSubmit}>
-        {hasPendingTxn ? 'Submitting Translation...' : 'Submit Translation'}
-      </Button>
+      <Tooltip title={!uploadedFile ? 'Please upload the translated text first' : ''}>
+        <span>
+          <Button {...buttonProps} icon={icon} disabled={!uploadedFile || hasPendingTxn} onClick={handleSubmit}>
+            {hasPendingTxn ? 'Submitting Translation...' : 'Submit Translation'}
+          </Button>
+        </span>
+      </Tooltip>
     </StyledWrapper>
   );
 }

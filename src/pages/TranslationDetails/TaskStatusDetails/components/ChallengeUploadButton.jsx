@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { notification } from 'antd';
+import { notification, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { selectAccount } from '~/features/web3/web3Slice';
 import { challengeTranslation } from '~/features/tasks/tasksSlice';
@@ -74,9 +74,13 @@ export default function ChallengeUploadButton({ buttonProps }) {
         }}
       />
       <Spacer />
-      <Button {...buttonProps} icon={icon} disabled={!uploadedFile || hasPendingTxn} onClick={handleSubmit}>
-        {hasPendingTxn ? 'Submitting Challenge...' : 'Challenge It'}
-      </Button>
+      <Tooltip title={!uploadedFile ? 'Please upload the evidence for the challenge first' : ''}>
+        <span>
+          <Button {...buttonProps} icon={icon} disabled={!uploadedFile || hasPendingTxn} onClick={handleSubmit}>
+            {hasPendingTxn ? 'Submitting Challenge...' : 'Challenge It'}
+          </Button>
+        </span>
+      </Tooltip>
     </StyledWrapper>
   );
 }
