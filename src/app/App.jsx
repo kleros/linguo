@@ -23,16 +23,18 @@ function App() {
 
 export default hot(module)(App);
 
-function Initializer({ children }) {
+function _Initializer({ children }) {
   useWeb3ReactBootstrap();
   useWatchLibrary();
 
   return children;
 }
 
-Initializer.propTypes = {
+_Initializer.propTypes = {
   children: t.node,
 };
+
+const Initializer = React.memo(_Initializer);
 
 function getLibrary(provider) {
   return new Web3(provider);

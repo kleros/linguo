@@ -25,7 +25,7 @@ const RequesterDashboard = loadable(() => import('~/pages/RequesterDashboard'), 
 const TranslationRequest = loadable(() => import('~/pages/TranslationRequest'), { fallback });
 const TranslationDetails = loadable(() => import('~/pages/TranslationDetails'), { fallback });
 
-function MainRouter() {
+export default function MainRouter() {
   const defaultPage = useSelector(selectPreference('page.default'));
 
   return (
@@ -114,5 +114,3 @@ function MainRouter() {
     </ConnectedRouter>
   );
 }
-
-export default MainRouter;
