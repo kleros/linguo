@@ -7,7 +7,7 @@ const StyledWrapper = styled.section`
   display: flex;
   flex-flow: column nowrap;
   border: none;
-  border-radius: 0.625rem;
+  border-radius: 12px;
   box-shadow: 0 0.375rem 2rem ${props => props.theme.color.shadow.default};
   font-size: 1rem;
   color: ${props => props.theme.color.text.default};
@@ -17,9 +17,10 @@ const StyledWrapper = styled.section`
     background-color: ${props => props.theme.color.primary.default};
     color: ${props => props.theme.color.text.inverted};
     border: none;
-    border-top-left-radius: 0.625rem;
-    border-top-right-radius: 0.625rem;
-    flex: 3.75rem 0 0;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    flex: 3rem 0 0;
+    max-height: 3rem;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -44,8 +45,8 @@ const StyledWrapper = styled.section`
     margin-top: auto;
     padding: 1.5rem;
     background-color: ${props => props.theme.color.background.default};
-    border-bottom-left-radius: 0.625rem;
-    border-bottom-right-radius: 0.625rem;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
   }
 `;
 

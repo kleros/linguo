@@ -95,13 +95,13 @@ const variantStyles = {
   filled: css`
     border: none;
     color: ${p => p.theme.color.text.inverted};
-    background-color: ${p => p.theme.color.secondary.default};
+    background-color: ${p => p.theme.color.primary.default};
     fill: currentColor;
 
     :active,
     :focus,
     :hover {
-      background-color: ${p => p.theme.color.secondary.default};
+      background-color: ${p => p.theme.color.primary.default};
       color: ${p => p.theme.color.text.inverted};
     }
 
@@ -131,8 +131,8 @@ const variantStyles = {
     ::before {
       background-image: linear-gradient(
         260.5deg,
-        ${p => p.theme.color.secondary.default} 0%,
-        ${p => p.theme.color.primary.default} 100%
+        ${p => p.theme.color.primary.default} 0%,
+        ${p => p.theme.color.primary.dark} 100%
       );
       transform: translateX(-100%);
     }
@@ -140,8 +140,8 @@ const variantStyles = {
     ::after {
       background-image: linear-gradient(
         99.5deg,
-        ${p => p.theme.color.secondary.default} 0%,
-        ${p => p.theme.color.primary.default} 100%
+        ${p => p.theme.color.primary.default} 0%,
+        ${p => p.theme.color.primary.dark} 100%
       );
       transform: translateX(0);
     }
@@ -185,7 +185,7 @@ const variantStyles = {
     :focus,
     :hover {
       color: ${p => p.theme.color.primary.default};
-      background-color: ${p => p.theme.color.background.default};
+      background-color: ${p => p.theme.color.background.blueish};
       border-color: currentColor;
     }
 

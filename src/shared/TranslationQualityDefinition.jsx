@@ -35,15 +35,16 @@ TranslationQualityDefinition.propTypes = {
 
 const StyledWrapper = styled.div`
   padding: 2rem;
-  background-color: ${p => p.theme.color.background.default};
-  border-radius: 0.75rem;
+  background: ${p => p.theme.color.background.default};
+  border: 1px solid ${p => p.theme.color.border.default};
+  border-radius: 9px;
 `;
 
 const StyledTitle = styled(Typography.Title)`
   && {
     font-size: ${p => p.theme.fontSize.xxl};
     font-weight: ${p => p.theme.fontWeight.semibold};
-    color: ${p => p.theme.color.primary.default};
+    color: ${p => p.theme.color.text.default};
   }
 `;
 
@@ -53,10 +54,6 @@ const StyledDescription = styled(Typography.Paragraph)`
     font-weight: ${p => p.theme.fontWeight.regular};
     color: ${p => p.theme.color.text.default};
     margin: 0;
-
-    & + & {
-      margin-top: 1rem;
-    }
   }
 `;
 
@@ -65,20 +62,15 @@ const StyledLevelTag = styled(Tag)`
   display: flex;
   justify-content: center;
   align-items: center;
-  pointer-events: none;
   user-select: none;
   max-width: 10rem;
-  height: 6.5rem;
+  height: 5rem;
   font-size: 3rem;
   font-weight: ${p => p.theme.fontWeight.semibold};
-  color: ${p => p.theme.color.text.inverted};
-  background: linear-gradient(
-    117.04deg,
-    ${p => p.theme.color.secondary.default} 37.47%,
-    ${p => p.theme.color.secondary.light} 94.76%
-  );
-  border: none;
-  border-radius: 0.75rem;
+  color: ${p => p.theme.color.secondary.default};
+  background: ${p => p.theme.color.background.light};
+  border: 1px solid ${p => p.theme.color.border.default};
+  border-radius: 9px;
 
   :hover {
     opacity: 1;

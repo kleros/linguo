@@ -6,7 +6,7 @@ import getLanguageFlag from '~/shared/helpers/getLanguageFlag';
 
 const StyledBaseSelect = styled(Select)`
   &&& {
-    height: 5.75rem;
+    height: 5rem;
     color: ${props => props.theme.color.text.inverted};
 
     &.ant-select-single.ant-select-open .ant-select-selection-item {
@@ -29,14 +29,14 @@ const StyledBaseSelect = styled(Select)`
 
     &.ant-select:not(.ant-select-borderless).ant-select-open .ant-select-selector,
     &.ant-select:not(.ant-select-borderless).ant-select-focused .ant-select-selector {
-      border-width: 0.3125rem !important;
+      border-width: 3px !important;
     }
 
     .ant-select-selector {
       height: 100%;
       padding: 0 2rem;
       border-radius: 0.75rem;
-      border-width: 0.3125rem !important;
+      border-width: 3px !important;
       border-color: ${props => props.theme.color.border.default};
 
       .ant-select-selection-search-input {

@@ -7,7 +7,7 @@ const StyledTitle = styled(Typography.Title)`
   && {
     font-size: ${props => props.theme.fontSize.xxl};
     font-weight: ${p => p.theme.fontWeight.semibold};
-    color: ${props => props.theme.color.primary.default};
+    color: ${props => props.theme.color.text.default};
   }
 `;
 

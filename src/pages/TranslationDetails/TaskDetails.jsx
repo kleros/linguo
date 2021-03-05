@@ -41,7 +41,6 @@ export default function TaskDetails() {
     targetLanguage,
     originalTextUrl,
     translatedTextUrl,
-    hasDispute,
     version,
   } = task;
 
@@ -117,7 +116,13 @@ export default function TaskDetails() {
           </div>
         </AffixContainer>
         <Spacer size={3} />
-        <TaskInfoGrid data={taskInfo} />
+        <TaskInfoGrid
+          data={taskInfo}
+          css={`
+            max-width: 30rem;
+            margin: 0 auto;
+          `}
+        />
         {showFootnote && (
           <>
             <Spacer baseSize="xs" />
@@ -210,12 +215,8 @@ export default function TaskDetails() {
         <TaskStatusDetails />
         <Spacer size={3} />
         <Comments />
-        {hasDispute && (
-          <>
-            <Spacer size={3} />
-            <Evidences />
-          </>
-        )}
+        <Spacer size={3} />
+        <Evidences />
       </div>
     </Titled>
   );
@@ -234,8 +235,8 @@ const StyledDefinitionList = styled.dl`
 `;
 
 const StyledDefinitionTerm = styled.dt`
-  font-size: ${p => p.theme.fontSize.lg};
-  font-weight: ${p => p.theme.fontWeight.semibold};
+  font-size: ${p => p.theme.fontSize.md};
+  font-weight: ${p => p.theme.fontWeight.regular};
   margin-bottom: 1rem;
 `;
 
@@ -245,6 +246,7 @@ const StyledDefinitionDescription = styled.dd`
 
 const StyledDeadline = styled(StyledDefinitionList)`
   && {
+    color: ${p => p.theme.color.text.light};
     font-size: ${p => p.theme.fontSize.sm};
     font-weight: ${p => p.theme.fontWeight.regular};
     text-align: center;
@@ -321,15 +323,11 @@ LanguageInfo.propTypes = {
 };
 
 const StyledLanguageDisplay = styled.div`
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  border: 5px solid ${p => p.theme.color.border.default};
-  background-image: linear-gradient(
-    122.98deg,
-    ${p => p.theme.color.primary.default} 40.84%,
-    ${p => p.theme.color.primary.dark} 89.37%
-  );
-  color: ${p => p.theme.color.text.inverted};
+  padding: 1.25rem;
+  border-radius: 9px;
+  border: 1px solid ${p => p.theme.color.border.default};
+  background-color: ${p => p.theme.color.background.default};
+  color: ${p => p.theme.color.text.default};
   font-size: ${p => p.theme.fontSize.xxl};
 
   display: flex;
@@ -378,10 +376,10 @@ const StyledDownloadTextWrapper = styled.div`
 
 const JumboButton = styled(Button)`
   font-size: ${p => p.theme.fontSize.xxl};
-  height: 6rem;
-  border-radius: 0.75rem;
+  height: 5rem;
+  border-radius: 9px;
   padding: 0 2rem;
-  border: 5px solid ${p => p.theme.color.border.default};
+  border: 3px solid ${p => p.theme.color.border.default};
   max-width: 100%;
 
   &.ant-btn {

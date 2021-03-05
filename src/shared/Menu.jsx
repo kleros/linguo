@@ -84,7 +84,7 @@ const StyledLayoutSider = styled(Layout.Sider)`
     }
 
     .ant-menu-item-selected {
-      background: ${props => props.theme.color.secondary.default};
+      background: ${props => props.theme.color.primary.default};
     }
 
     .ant-layout-sider-zero-width-trigger {
@@ -94,8 +94,10 @@ const StyledLayoutSider = styled(Layout.Sider)`
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
 
-      :hover svg {
-        filter: drop-shadow(0 0 2px ${p => p.theme.color.glow.default});
+      :hover {
+        svg {
+          filter: drop-shadow(0 0 2px ${p => p.theme.color.glow.default});
+        }
       }
     }
 
@@ -105,7 +107,11 @@ const StyledLayoutSider = styled(Layout.Sider)`
       .ant-layout-sider-zero-width-trigger {
         border-radius: 2px;
         right: -50px;
-        background-color: ${props => props.theme.color.secondary.default};
+        background-color: ${props => props.theme.color.primary.default};
+
+        :hover {
+          background-color: ${props => props.theme.color.secondary.default};
+        }
       }
     }
   }
@@ -145,11 +151,14 @@ const menuAnchorMixin = css`
 
       &.active {
         font-weight: ${p => p.theme.fontWeight.semibold};
-        transform: scale(1.125);
         text-shadow: 2px 0 1px ${p => p.theme.color.shadow.ui};
 
         ::after {
           transform: scaleX(1) translateY(1rem);
+        }
+
+        @media (min-width: 768px) {
+          transform: scale(1.125);
         }
       }
     }
@@ -202,6 +211,10 @@ const StyledMainMenu = styled(Menu)`
     &.ant-menu {
       background: transparent;
       color: ${p => p.theme.color.text.inverted};
+    }
+
+    &.ant-menu-horizontal {
+      border-bottom: none;
     }
 
     .ant-menu-item-selected {

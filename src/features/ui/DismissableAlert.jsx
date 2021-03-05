@@ -3,7 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { Alert } from 'antd';
+import { Alert } from '~/adapters/antd';
 import { InfoIcon, WarningIcon } from '~/shared/icons';
 import { dismissAlert, selectAlertIsVisible } from './uiSlice';
 

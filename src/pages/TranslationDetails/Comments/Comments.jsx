@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Alert } from 'antd';
+import { Alert, Spin } from '~/adapters/antd';
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 import { nanoid } from 'nanoid';
 import scrollIntoView from 'scroll-into-view-if-needed';
-import { Spin } from '~/adapters/antd';
+
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { Task } from '~/features/tasks';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
@@ -145,11 +145,9 @@ function CommentsFetcher() {
 
 const StyledContent = styled.article`
   padding: 2rem;
-  background-color: ${p => p.theme.color.background.default};
 
   @media (max-width: 767.98px) {
     padding: 2rem 0;
-    background-color: transparent;
   }
 `;
 

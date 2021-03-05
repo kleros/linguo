@@ -3,9 +3,9 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Typography, Row, Col } from 'antd';
 
-function TaskInfoGrid({ data }) {
+export default function TaskInfoGrid({ data, className }) {
   return (
-    <StyledGrid>
+    <StyledGrid className={className}>
       {data.map(({ title, content, footer = null }) => (
         <GridCell key={title} title={title} content={content} footer={footer} />
       ))}
@@ -21,9 +21,12 @@ TaskInfoGrid.propTypes = {
       footer: t.node,
     })
   ).isRequired,
+  className: t.string,
 };
 
-export default TaskInfoGrid;
+TaskInfoGrid.defaultProps = {
+  className: '',
+};
 
 function GridCell({ title, content, footer }) {
   return (
@@ -43,7 +46,7 @@ GridCell.propTypes = {
 
 const StyledGrid = styled(Row)`
   background-color: ${props => props.theme.color.background.default};
-  border: 1px solid ${props => props.theme.color.primary.default};
+  border: 1px solid ${props => props.theme.color.border.default};
   border-radius: 0.75rem;
 `;
 
@@ -58,12 +61,12 @@ const StyledCell = styled(Col)`
   padding: 1.25rem 0.75rem;
 
   :nth-child(odd) {
-    border-right: 1px solid ${props => props.theme.color.primary.default};
+    border-right: 1px solid ${props => props.theme.color.border.default};
   }
 
   // :nth-child(n + 3) means ignore the first 2 elements
   :nth-child(n + 3) {
-    border-top: 1px solid ${props => props.theme.color.primary.default};
+    border-top: 1px solid ${props => props.theme.color.border.default};
   }
 `;
 

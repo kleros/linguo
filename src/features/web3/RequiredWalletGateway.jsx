@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Alert } from 'antd';
+import { Alert } from '~/adapters/antd';
 import WalletConnectionModal from './WalletConnectionModal';
 import RequiredWeb3Gateway from './RequiredWeb3Gateway';
 import { selectIsConnected, selectIsConnecting, selectAccount } from './web3Slice';

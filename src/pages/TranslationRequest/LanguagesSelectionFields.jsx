@@ -139,7 +139,7 @@ const StyledSwapButtonCol = styled(Col)`
 
     @media (min-width: 768px) {
       position: absolute;
-      top: 3.6rem;
+      top: 3.125rem;
       z-index: 10;
     }
 

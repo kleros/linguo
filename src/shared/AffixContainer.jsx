@@ -88,11 +88,7 @@ AffixContainer.defaultProps = {
 const StyledWrapper = styled.div`
   margin: 0 auto;
   max-width: 74rem;
-  padding: 0 8rem;
-
-  @media (max-width: 767.98px) {
-    padding: 0 6rem;
-  }
+  padding: 0 6rem;
 
   @media (max-width: 575.98px) {
     padding: 0 1rem;

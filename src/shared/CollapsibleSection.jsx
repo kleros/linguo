@@ -69,34 +69,27 @@ CollapsibleSection.defaultProps = {
 };
 
 const StyledDetails = styled.details`
-  border-radius: 0.1875rem;
+  border-radius: 3px;
 `;
 
 const StyledSummary = styled.summary`
-  background-color: ${p => p.theme.color.primary.default};
   height: 3rem;
   padding: 0 2rem;
   display: flex;
   justify-content: space-between;
+  border: 1px solid ${p => p.theme.color.border.default};
+  background-color: ${p => p.theme.color.background.default};
+  color: ${p => p.theme.color.text.default};
   align-items: center;
-  color: ${p => p.theme.color.text.inverted};
   cursor: pointer;
   outline: none;
+  border-radius: 3px;
 
   > h1,
   > h2,
   > h3,
   > h4 {
     flex: 1;
-  }
-
-  &.open {
-    border-top-left-radius: 0.1875rem;
-    border-top-right-radius: 0.1875rem;
-  }
-
-  &.closed {
-    border-radius: 0.1875rem;
   }
 
   .ant-typography {

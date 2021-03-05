@@ -1,17 +1,10 @@
-import styled, { css } from 'styled-components';
-
-const outlinedStyles = css`
-  border: 1px solid ${p => p.theme.color.primary.default};
-`;
-
-const filledStyles = css`
-  background: ${p => p.theme.color.background.default};
-`;
+import styled from 'styled-components';
 
 const BoxWrapper = styled.div`
-  border-radius: 0.75rem;
+  border-radius: 9px;
   padding: 2rem;
-  ${p => (p.variant === 'outlined' ? outlinedStyles : filledStyles)}
+  border: 1px solid ${p => p.theme.color.border.default};
+  background-color: ${p => p.theme.color.background.default};
 `;
 
 export default BoxWrapper;

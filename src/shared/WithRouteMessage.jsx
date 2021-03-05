@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
-import { Alert } from 'antd';
+import { Alert } from '~/adapters/antd';
 import { InfoIcon } from '~/shared/icons';
 
 const StyledAlert = styled(Alert)`

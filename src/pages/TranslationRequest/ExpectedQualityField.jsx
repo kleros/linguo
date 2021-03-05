@@ -38,19 +38,19 @@ const StyledRadioButton = styled(Radio.Button)`
       justify-content: center;
       align-items: center;
       text-align: center;
-      height: 5.75rem;
+      height: 5rem;
       font-size: ${props => props.theme.fontSize.xxl};
       font-weight: ${p => p.theme.fontWeight.regular};
-      border-radius: 0.75rem;
+      border-radius: 9px;
+      border: 3px solid ${props => props.theme.color.border.default};
       color: ${props => props.theme.color.primary.default};
-      border-color: ${props => props.theme.color.primary.default};
       background-color: ${props => props.theme.color.background.light};
       transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
 
       :hover,
       :focus,
       :active {
-        background: ${props => props.theme.color.background.default};
+        background: ${props => props.theme.color.background.blueish};
       }
 
       :focus,
@@ -80,7 +80,6 @@ const StyledRadioButton = styled(Radio.Button)`
 
     &.ant-radio-button-wrapper-checked {
       color: ${props => props.theme.color.text.inverted};
-      border: 0.3125rem solid ${props => props.theme.color.border.default};
       background-color: ${props => props.theme.color.primary.default};
       background-image: linear-gradient(
         118.61deg,

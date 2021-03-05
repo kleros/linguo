@@ -47,26 +47,23 @@ const StyledCard = styled(Card)`
   }
 
   &.card {
-    box-shadow: 0 0.375rem 5.625rem ${props => props.theme.color.shadow.default};
+    box-shadow: 0 2px 2px ${props => props.theme.color.shadow.default};
     width: 100%;
   }
 
   .card-header-title {
-    font-size: ${props => props.theme.fontSize.xxl};
+    font-size: ${props => props.theme.fontSize.md};
     font-weight: ${props => props.theme.fontWeight.semibold};
     padding: 0;
   }
 
+  .card-footer,
   .card-body {
-    padding: 5rem;
+    padding: 3rem;
   }
 
   && {
     @media (max-width: 767.98px) {
-      .card-footer,
-      .card-body {
-        padding: 3rem;
-      }
     }
 
     @media (max-width: 575.98px) {
@@ -83,6 +80,17 @@ const StyledCard = styled(Card)`
       .card-footer,
       .card-body {
         padding: 2rem;
+      }
+
+      /* Merge the card header with the top navbar to save up some space */
+      .card-header {
+        position: absolute;
+        background: none;
+        top: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        pointer-events: none;
       }
     }
   }

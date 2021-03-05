@@ -1,6 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
-import { Alert, Spin } from 'antd';
+import { Spin } from 'antd';
+import { Alert } from '~/adapters/antd';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import { withErrorBoundary } from '~/shared/ErrorBoundary';
 import Spacer from '~/shared/Spacer';

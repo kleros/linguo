@@ -1,7 +1,8 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Row, Typography, Skeleton, Alert } from 'antd';
+import { Row, Typography, Skeleton } from 'antd';
+import { Alert } from '~/adapters/antd';
 import ReactBlockies from 'react-blockies';
 import EthLogo from '~/assets/images/logo-eth.svg';
 import EthAddress from '~/shared/EthAddress';

@@ -2,7 +2,8 @@ import React from 'react';
 import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { Alert, Spin } from 'antd';
+import { Spin } from 'antd';
+import { Alert } from '~/adapters/antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import {
   fetchByTaskId,

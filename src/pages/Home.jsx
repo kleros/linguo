@@ -109,8 +109,8 @@ const StyledLayout = styled(Layout)`
   padding: 1rem 4rem 4rem;
   max-width: 68rem;
   background-color: ${props => props.theme.color.background.light};
-  box-shadow: 0 0.375rem 5.625rem ${props => props.theme.color.shadow.default};
-  border-radius: 0.75rem;
+  box-shadow: 0 2px 3px ${props => props.theme.color.shadow.default};
+  border-radius: 12px;
   align-self: stretch;
 
   @media (max-width: 575.98px) {
@@ -159,7 +159,7 @@ const StyledTitle = styled(Typography.Title)`
 
 const StyledButton = styled(Button)`
   && {
-    border: 0.625rem solid ${props => props.theme.color.border.default};
+    border: 0.3125rem solid ${props => props.theme.color.border.default};
     border-radius: 1.325rem;
     font-size: ${props => props.theme.fontSize.xl};
     padding: 1rem;
@@ -172,7 +172,7 @@ const StyledButton = styled(Button)`
     :hover,
     :active,
     :focus {
-      border: 0.625rem solid ${props => props.theme.color.border.default};
+      border: 0.3125rem solid ${props => props.theme.color.border.default};
     }
 
     > span {
@@ -203,4 +203,8 @@ const StyledSwitchWrapper = styled.div`
   color: ${p => p.theme.color.text.light};
   font-size: ${p => p.theme.fontSize.sm};
   font-weight: ${p => p.theme.fontWeight.regular};
+
+  .ant-switch-inner > .anticon {
+    display: none;
+  }
 `;

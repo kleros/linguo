@@ -3,7 +3,7 @@ import t from 'prop-types';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
-import { Alert } from 'antd';
+import { Alert } from '~/adapters/antd';
 import { subtract } from '~/adapters/big-number';
 import { TaskStatus } from '~/features/tasks';
 import { getArbitrationCost } from '~/features/tasks/tasksSlice';

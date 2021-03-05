@@ -45,7 +45,7 @@ export default function Evidences({ open }) {
   };
 
   return (
-    <CollapsibleSection defaultOpen={open} title="Evidence" titleLevel={3} tabIndex={100}>
+    <CollapsibleSection defaultOpen={open} title="Evidences" titleLevel={3} tabIndex={100}>
       <LocalTopLoadingBar show={isLoadingEvidences} />
       <StyledContent>
         <StyledActionsContainer>
@@ -90,11 +90,9 @@ Evidences.defaultProps = {
 
 const StyledContent = styled.article`
   padding: 2rem;
-  background-color: ${p => p.theme.color.background.default};
 
   @media (max-width: 767.98px) {
     padding: 2rem 0;
-    background-color: transparent;
   }
 `;
 

@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import produce from 'immer';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { Alert, Col, Form, Row, Typography } from 'antd';
+import { Col, Form, Row, Typography } from 'antd';
+import { Alert } from '~/adapters/antd';
 import * as r from '~/app/routes';
 import allLanguages from '~/assets/fixtures/languages';
 import Button from '~/shared/Button';
@@ -99,6 +100,7 @@ export default function TranslatorSettingsForm() {
       </Form.List>
 
       <Alert
+        showIcon
         type="info"
         message="Linguo considers language skills as defined by the Common European Framework of Reference (CEFR)."
         description={

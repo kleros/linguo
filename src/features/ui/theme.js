@@ -10,8 +10,11 @@ export default {
       dark: '#00308D',
     },
     secondary: {
-      default: '#00AAFF',
+      default: '#009AFF',
       light: '#3DBEFF',
+    },
+    info: {
+      default: '#009AFF',
     },
     warning: {
       default: '#FAAD14',
@@ -25,19 +28,20 @@ export default {
       light: '#389E0D',
     },
     background: {
-      default: '#F2FFFE',
+      default: '#FBFFFF',
       light: '#FFFFFF',
+      blueish: '#F2FFFE',
       neutral: '#F5F1FD',
     },
     link: {
-      default: '#0043C5',
-      highlight: '#00AAFF',
+      default: '#009AFF',
+      highlight: '#0043C5',
       inverted: '#FFFFFF',
     },
     shadow: {
-      default: 'rgba(24, 0, 255, 0.5)',
-      light: 'rgba(24, 0, 255, 0.25)',
-      ui: 'rgba(0, 67, 197, 0.5);',
+      default: 'rgba(0, 0, 0, 0.06)',
+      light: 'rgba(0, 0, 0, 0.06)',
+      ui: 'rgba(0, 0, 0, 0.06)',
     },
     glow: {
       default: 'rgba(255, 255, 255, 0.5)',
