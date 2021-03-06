@@ -15,13 +15,13 @@ export default function TranslationQualityDefinition({ tierValue }) {
           margin-bottom: -16px !important;
         `}
       >
-        <Col xs={24} sm={24} md={16}>
+        <Col xs={24} sm={24} md={18}>
           <StyledTitle level={3}>{tier.name}</StyledTitle>
           {tier.description.map((paragraph, index) => (
             <StyledDescription key={index}>{paragraph}</StyledDescription>
           ))}
         </Col>
-        <Col xs={24} sm={24} md={8}>
+        <Col xs={24} sm={24} md={6}>
           <StyledLevelTag>{tier.requiredLevel}</StyledLevelTag>
         </Col>
       </Row>
@@ -59,11 +59,12 @@ const StyledDescription = styled(Typography.Paragraph)`
 
 const StyledLevelTag = styled(Tag)`
   margin-left: auto;
+  margin-right: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   user-select: none;
-  max-width: 10rem;
+  max-width: 8rem;
   height: 5rem;
   font-size: 3rem;
   font-weight: ${p => p.theme.fontWeight.semibold};

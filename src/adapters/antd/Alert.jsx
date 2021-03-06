@@ -3,8 +3,10 @@ import { Alert as BaseAlert } from 'antd';
 
 const StyledAlert = styled(BaseAlert)`
   &.ant-alert {
-    background-color: ${p => p.theme.color.background.light};
-    border-radius: 3px;
+    :not(.ant-alert-banner) {
+      background-color: ${p => p.theme.color.background.light};
+      border-radius: 3px;
+    }
 
     > .anticon {
       top: 50%;

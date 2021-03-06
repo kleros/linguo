@@ -15,11 +15,11 @@ function TaskStatusDetailsLayout({ title, description, interaction, illustration
           margin-bottom: -16px !important;
         `}
       >
-        <Col xs={24} sm={24} md={24} lg={16}>
+        <Col xs={24} sm={24} md={24} lg={18}>
           <BoxTitle>{title}</BoxTitle>
           <StatusDescription items={description} />
         </Col>
-        <Col xs={24} sm={24} md={24} lg={8}>
+        <Col xs={24} sm={24} md={24} lg={6}>
           {illustration && <StyledIllustrationWrapper>{illustration}</StyledIllustrationWrapper>}
           {interaction && <StyledInteractionWrapper>{interaction}</StyledInteractionWrapper>}
         </Col>
@@ -42,7 +42,7 @@ const StyledIllustrationWrapper = styled.div`
   justify-content: flex-end;
 
   > svg {
-    width: 10rem;
+    width: 8rem;
   }
 
   @media (max-width: 991.98px) {

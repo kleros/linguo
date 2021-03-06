@@ -352,25 +352,16 @@ const StyledDownloadTextWrapper = styled.div`
   text-align: center;
   display: flex;
   justify-content: center;
+  gap: 1rem;
 
   .col {
     min-width: 0;
     flex: 22rem 0 1;
-
-    :first-child:not(only-child) {
-      margin-right: 1rem;
-    }
   }
 
   @media (max-width: 991.98px) {
     flex-wrap: wrap;
-
-    .col {
-      :first-child:not(only-child) {
-        margin-right: 0;
-        margin-bottom: 2rem;
-      }
-    }
+    gap: 2rem;
   }
 `;
 

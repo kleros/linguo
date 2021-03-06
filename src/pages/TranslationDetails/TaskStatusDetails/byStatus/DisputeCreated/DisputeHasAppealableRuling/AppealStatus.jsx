@@ -1,12 +1,13 @@
 import React from 'react';
 import t from 'prop-types';
 import styled, { css } from 'styled-components';
+import clsx from 'clsx';
 import { Row, Col, Progress } from 'antd';
-import { CheckCircleOutlined, DislikeOutlined, LikeOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { DislikeOutlined, LikeOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { percentage, greaterThanOrEqual } from '~/adapters/big-number';
+import { Alert } from '~/adapters/antd';
 import { AppealSide } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
-import { percentage, greaterThanOrEqual } from '~/adapters/big-number';
-import { InfoIcon, WarningIcon, DisputeIcon } from '~/shared/icons';
 import Button from '~/shared/Button';
 import Deadline from '~/shared/Deadline';
 import Spacer from '~/shared/Spacer';
@@ -44,51 +45,34 @@ export default function AppealStatus() {
 function AppealStatusLayout({ leftSideContext, rightSideContent, isOngoing }) {
   const title = isOngoing ? 'Appeal the decision' : 'An appeal could not be issued';
   const description = isOngoing ? (
-    <>
-      <BoxParagraph>
-        In order to appeal the decision, you need to complete the crowdfunding deposit. The case will only be sent to
-        the jurors when the full deposit of both sides is reached.
-      </BoxParagraph>
-      <BoxParagraph>
-        <InfoIcon /> Anyone can contribute to appeal crowdfunding. If you help funding the dispute, if the side you
-        supported wins, you will receive a reward.
-      </BoxParagraph>
-    </>
+    <BoxParagraph>
+      In order to appeal the decision, you need to complete the crowdfunding deposit. The case will only be sent to the
+      jurors when the full deposit of both sides is reached.
+    </BoxParagraph>
   ) : (
-    <>
-      <BoxParagraph>One or more parties failed to pay the full appeal fee within the deadline.</BoxParagraph>
-    </>
+    <BoxParagraph>One or more parties failed to pay the full appeal fee within the deadline.</BoxParagraph>
   );
 
-  const colProps = isOngoing
-    ? {
-        winner: { xs: 24, sm: 24, md: 12, lg: 12, xl: 9 },
-        loser: { xs: 24, sm: 24, md: 12, lg: 12, xl: 9 },
-        warning: { xs: 24, sm: 24, md: 24, lg: 24, xl: 6 },
-      }
-    : {
-        winner: { xs: 24, sm: 24, md: 12 },
-        loser: { xs: 24, sm: 24, md: 12 },
-        warning: { span: 0 },
-      };
+  const colProps = {
+    winner: { xs: 24, sm: 24, md: 24, lg: 12, xl: 12 },
+    loser: { xs: 24, sm: 24, md: 24, lg: 12, xl: 12 },
+  };
 
   return (
     <BoxWrapper variant="filled">
       <BoxTitle>{title}</BoxTitle>
       {description}
+      <Spacer size={3} />
+      <Alert
+        showIcon
+        type="info"
+        message="Contributors can fund the appeal and win rewards"
+        description="Note that help funding the dispute can make you win rewards if the side you contributed won."
+      />
       <Spacer size={2} />
       <StyledCardRow gutter={[16, 16]}>
         <Col {...colProps.winner}>{leftSideContext}</Col>
         <Col {...colProps.loser}>{rightSideContent}</Col>
-        <Col {...colProps.warning}>
-          <StyledCard>
-            <StyledDisclaimer>
-              <StyledWarningIcon /> If the loser complete its appeal funding, the winner of the previous round should
-              also fully fund the appeal.{' '}
-              <strong>Otherwise, the current winner party will automatically lose the case.</strong>
-            </StyledDisclaimer>
-          </StyledCard>
-        </Col>
       </StyledCardRow>
       {isOngoing && (
         <>
@@ -158,27 +142,30 @@ function AppealFundingSummary({
 
   return (
     <StyledCard>
-      <Row gutter={8}>
-        <Col>
-          <DisputeIcon />
-        </Col>
-        <Col>
-          <StyledSectionTitle>
-            <StyledTitleCaption>{descriptionByAppealSide[appealSide]}</StyledTitleCaption>
-            {descriptionByParty[party]}
-          </StyledSectionTitle>
-        </Col>
-      </Row>
+      <StyledSectionTitle>
+        {descriptionByParty[party]}
+        <StyledTitleCaption>{descriptionByAppealSide[appealSide]}</StyledTitleCaption>
+      </StyledSectionTitle>
       <Spacer baseSize="sm" size={2} />
       <StyledFeeStatus>
-        <StyledDepositDescription>Total Deposit Required</StyledDepositDescription>
-        <StyledDepositValue>
-          <EthValue amount={totalAppealCost} suffixType="short" />
-        </StyledDepositValue>
-        <StyledDepositFiatValue>
-          <EthFiatValue amount={totalAppealCost} render={({ formattedValue }) => `(${formattedValue})`} />
-        </StyledDepositFiatValue>
-        <Spacer />
+        {isFullyFunded ? (
+          <StyledSectionDescription
+            css={`
+              color: ${p => p.theme.color.success.light};
+            `}
+          >
+            100% Funded
+          </StyledSectionDescription>
+        ) : (
+          <StyledSectionDescription>
+            Required Deposit = <EthValue amount={paidFees} suffixType="short" /> of{' '}
+            <EthValue amount={totalAppealCost} suffixType="short" />{' '}
+            <StyledDepositFiatValue>
+              <EthFiatValue amount={totalAppealCost} render={({ formattedValue }) => `(${formattedValue})`} />
+            </StyledDepositFiatValue>
+          </StyledSectionDescription>
+        )}
+        <Spacer baseSize="sm" size={0.25} />
         <MyProgress
           remainingTime={remainingTime}
           totalAppealCost={totalAppealCost}
@@ -186,62 +173,50 @@ function AppealFundingSummary({
           isOngoing={isOngoing}
           paidFees={paidFees}
         />
-        <StyledDepositDescription>Amount Paid</StyledDepositDescription>
-        <StyledDepositValue>
-          <EthValue amount={paidFees} suffixType="short" />
-        </StyledDepositValue>
-        <StyledDepositFiatValue>
-          <EthFiatValue amount={paidFees} render={({ formattedValue }) => `(${formattedValue})`} />
-        </StyledDepositFiatValue>
       </StyledFeeStatus>
-      <Spacer baseSize="sm" size={2} />
       {isOngoing ? (
         <>
-          {isFullyFunded ? (
-            <StyledFundingCompleteWrapper>
-              <CheckCircleOutlined />
-            </StyledFundingCompleteWrapper>
-          ) : (
-            <>
-              <StyledRewardBox>
-                <StyledSectionTitle>For third party contributors</StyledSectionTitle>
-                <Spacer baseSize="sm" size={0.25} />
-                <StyledSectionDescription>
-                  If this side wins, you can receive back your contribution + a reward.
-                </StyledSectionDescription>
-                <Spacer baseSize="sm" />
-                <FormattedNumber
-                  value={reward}
-                  style="percent"
-                  render={({ formattedValue }) => (
-                    <StyledRewardDisplay>
-                      {formattedValue} Reward<sup>*</sup>
-                    </StyledRewardDisplay>
-                  )}
-                />
-              </StyledRewardBox>
-              <Spacer baseSize="sm" size={2} />
-            </>
-          )}
-          {!isFullyFunded && (
+          <StyledOptionalContent className={clsx({ hidden: isFullyFunded || !isOngoing })}>
+            <Spacer baseSize="sm" size={0.25} />
             <Deadline
               seconds={remainingTime}
               render={({ formattedValue, icon, endingSoon }) => (
                 <StyledDeadlineContent gutter={8} className={endingSoon ? 'ending-soon' : ''}>
                   <Col>{icon}</Col>
                   <Col>
-                    <StyledSectionTitle>
-                      <StyledTitleCaption>{deadlineDescriptionByAppealSide[appealSide]}</StyledTitleCaption>
-                      {formattedValue}
-                    </StyledSectionTitle>
+                    <StyledSectionTitle>{formattedValue}</StyledSectionTitle>
                   </Col>
                 </StyledDeadlineContent>
               )}
             />
-          )}
+          </StyledOptionalContent>
+          <Spacer baseSize="sm" size={2} />
+          <Alert
+            showIcon
+            type="info"
+            message="For contributors"
+            description={
+              <FormattedNumber
+                value={reward}
+                style="percent"
+                render={({ formattedValue }) => (
+                  <>
+                    If this side wins, you can receive back your contribution + a{' '}
+                    <strong>
+                      {formattedValue} reward
+                      <sup>*</sup>
+                    </strong>
+                  </>
+                )}
+              />
+            }
+          />
         </>
       ) : (
-        <StyledResultBox finalAppealSide={finalAppealSide}>{resultTextByAppealSide[finalAppealSide]}</StyledResultBox>
+        <>
+          <Spacer baseSize="sm" size={2} />
+          <StyledResultBox finalAppealSide={finalAppealSide}>{resultTextByAppealSide[finalAppealSide]}</StyledResultBox>
+        </>
       )}
     </StyledCard>
   );
@@ -293,14 +268,8 @@ const descriptionByAppealSide = {
 };
 
 const descriptionByParty = {
-  [TaskParty.Translator]: 'Translator',
-  [TaskParty.Challenger]: 'Challenger',
-};
-
-const deadlineDescriptionByAppealSide = {
-  [AppealSide.Tie]: 'Deadline',
-  [AppealSide.Winner]: 'Winner Dealine',
-  [AppealSide.Loser]: 'Loser Deadline',
+  [TaskParty.Translator]: 'Approve the Translation',
+  [TaskParty.Challenger]: 'Reject the Translation',
 };
 
 const StyledCardRow = styled(Row)`
@@ -309,10 +278,11 @@ const StyledCardRow = styled(Row)`
 
 const StyledCard = styled.div`
   background: ${p => p.theme.color.background.light};
-  border-radius: 0.75rem;
+  border-radius: 3px;
+  border: 1px solid ${p => p.theme.color.border.default};
+  box-shadow: 0 2px 3px ${p => p.theme.color.shadow.default};
   padding: 1.5rem;
   height: 100%;
-  box-shadow: 0 0.375rem 2rem ${props => props.theme.color.shadow.default};
   font-size: ${p => p.theme.fontSize.sm};
   font-weight: ${p => p.theme.fontWeight.regular};
 `;
@@ -327,6 +297,7 @@ const StyledSectionTitle = styled.h4`
 const StyledTitleCaption = styled.span`
   display: block;
   font-weight: ${p => p.theme.fontWeight.regular};
+  font-size: ${p => p.theme.fontSize.xs};
   color: inherit;
 `;
 
@@ -334,50 +305,25 @@ const StyledFeeStatus = styled.div`
   text-align: center;
 `;
 
+const StyledOptionalContent = styled.div`
+  &.hidden {
+    visibility: hidden;
+  }
+`;
+
 const StyledSectionDescription = styled.p`
+  font-size: ${p => p.theme.fontSize.sm};
   margin-bottom: 0;
   color: inherit;
 `;
 
-const StyledDepositDescription = styled(StyledSectionDescription)`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const StyledDepositValue = styled.div`
-  font-weight: ${p => p.theme.fontWeight.bold};
-`;
-
-const StyledDepositFiatValue = styled.div`
+const StyledDepositFiatValue = styled.span`
+  display: inline;
+  align-items: center;
+  gap: 0.25rem;
+  color: ${p => p.theme.color.text.light};
   font-weight: ${p => p.theme.fontWeight.regular};
   font-size: ${p => p.theme.fontSize.xs};
-`;
-
-const StyledFundingCompleteWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: ${p => p.theme.color.success.default};
-  flex: 1;
-
-  > .anticon {
-    min-width: 1rem;
-    max-width: 2rem;
-    width: 100%;
-
-    > svg {
-      width: 100%;
-      height: 100%;
-    }
-  }
-`;
-
-const StyledRewardBox = styled.div`
-  border-radius: 0.75rem;
-  background: ${p => p.theme.color.background.neutral};
-  padding: 1rem;
-  text-align: center;
 `;
 
 const colorsByAppealSide = {
@@ -402,39 +348,6 @@ const StyledResult = styled.article`
     gap: 0.5rem;
     color: inherit;
     line-height: 1.33;
-  }
-`;
-
-const StyledRewardDisplay = styled.div`
-  font-size: ${p => p.theme.fontSize.xxl};
-  font-weight: ${p => p.theme.fontWeight.semibold};
-  color: inherit;
-`;
-
-const StyledWarningIcon = styled(WarningIcon)``;
-
-const StyledDisclaimer = styled.p`
-  color: ${p => p.theme.color.primary.default};
-  font-weight: ${p => p.theme.fontWeight.regular};
-  margin-bottom: 0;
-
-  @media (min-width: 1200px) {
-    height: 100%;
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: center;
-    text-align: center;
-
-    ${StyledWarningIcon} {
-      display: block;
-      width: 2rem;
-      height: 2rem;
-      margin: 0 auto 1rem;
-      svg {
-        width: 100%;
-        height: 100%;
-      }
-    }
   }
 `;
 
