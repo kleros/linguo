@@ -13,7 +13,7 @@ import DisputeLink from '~/shared/DisputeLink';
 import EthValue from '~/shared/EthValue';
 import Spacer from '~/shared/Spacer';
 import useTask from '../../../useTask';
-import TaskInteractionButton from '../../components/TaskInteractionButton';
+import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../hooks/useCurrentParty';
 
@@ -80,9 +80,9 @@ function usePendingWithdrawal() {
 
   return withdrawableAmount === '0' ? null : (
     <>
-      <TaskInteractionButton
+      <ContextAwareTaskInteractionButton
         onSuccess={registerWithdrawal}
-        interaction={TaskInteractionButton.Interaction.Withdraw}
+        interaction={ContextAwareTaskInteractionButton.Interaction.Withdraw}
         buttonProps={{
           fullWidth: true,
         }}

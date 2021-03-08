@@ -4,7 +4,7 @@ import Spacer from '~/shared/Spacer';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { selectAllSkills } from '~/features/translator/translatorSlice';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
-import TaskInteractionButton from '../../components/TaskInteractionButton';
+import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskAssignmentDepositFetcher from '../../components/TaskAssignmentDepositFetcher';
 import useTask from '../../../useTask';
@@ -35,8 +35,8 @@ export default function CreatedForOther() {
       <>
         <TaskDeadline />
         <Spacer />
-        <TaskInteractionButton
-          interaction={TaskInteractionButton.Interaction.Assign}
+        <ContextAwareTaskInteractionButton
+          interaction={ContextAwareTaskInteractionButton.Interaction.Assign}
           content={{
             idle: { text: 'Translate It' },
           }}

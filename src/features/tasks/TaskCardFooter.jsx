@@ -1,46 +1,39 @@
 import React from 'react';
 import t from 'prop-types';
-import clsx from 'clsx';
-import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { LoadingOutlined } from '@ant-design/icons';
 import { Col, Row } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
-import * as r from '~/app/routes';
-import Button from '~/shared/Button';
 import RemainingTime from '~/shared/RemainingTime';
 import { Task, TaskStatus } from '~/features/tasks';
 import { selectAccount } from '~/features/web3/web3Slice';
 import TaskParty from './entities/TaskParty';
-import { selectById, reimburseRequester } from './tasksSlice';
+import { selectById } from './tasksSlice';
+import TaskInteractionButton from './TaskInteractionButton';
 
-const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
-
-export default function TaskCardFooter({ id }) {
+export default function TaskCardFooter({ id, rightSideContent }) {
   const task = useShallowEqualSelector(selectById(id));
 
   return (
     <Row gutter={16} align="middle">
       <Col span={12}>
-        <TaskFooterInfo {...task} />
+        <LeftSideContent {...task} />
       </Col>
-      <Col span={12}>
-        <Link to={getTaskDetailsRoute({ id })}>
-          <Button fullWidth variant="filled" color="primary">
-            See details
-          </Button>
-        </Link>
-      </Col>
+      <Col span={12}>{rightSideContent}</Col>
     </Row>
   );
 }
 
 TaskCardFooter.propTypes = {
   id: t.oneOfType([t.number, t.string]).isRequired,
+  rightSideContent: t.node,
 };
 
-function TaskFooterInfo(task) {
+TaskCardFooter.defaultProps = {
+  rightSideContent: null,
+};
+
+function LeftSideContent(task) {
   const { id, status } = task;
   const account = useSelector(selectAccount);
 
@@ -49,12 +42,13 @@ function TaskFooterInfo(task) {
       const isRequester = task.parties[TaskParty.Requester] === account;
 
       return isRequester ? (
-        <RequestReimbursementButton
+        <TaskInteractionButton
           id={id}
-          buttonProps={{
-            fullWidth: true,
-            variant: 'outlined',
+          interaction={TaskInteractionButton.Interaction.Reimburse}
+          content={{
+            idle: { text: 'Reimburse Me' },
           }}
+          buttonProps={{ fullWidth: true }}
         />
       ) : null;
     }
@@ -66,14 +60,11 @@ function TaskFooterInfo(task) {
       <RemainingTime
         initialValueSeconds={timeout}
         render={({ formattedValue, endingSoon }) => (
-          <StyledTaskDeadline
-            className={clsx({
-              'ending-soon': endingSoon,
-            })}
-          >
-            <div className="title">Deadline</div>
-            <div className="value">{formattedValue}</div>
-          </StyledTaskDeadline>
+          <TaskCardFooterInfoDisplay
+            title="Deadline"
+            content={formattedValue}
+            color={endingSoon ? 'danger' : 'default'}
+          />
         )}
       />
     );
@@ -87,21 +78,15 @@ function TaskFooterInfo(task) {
       <RemainingTime
         initialValueSeconds={timeout}
         render={({ formattedValue, endingSoon }) => (
-          <StyledTaskDeadline
-            className={clsx({
-              'ending-soon': endingSoon,
-            })}
-          >
-            <div className="title">Deadline</div>
-            <div className="value">{formattedValue}</div>
-          </StyledTaskDeadline>
+          <TaskCardFooterInfoDisplay
+            title="Deadline"
+            content={formattedValue}
+            color={endingSoon ? 'danger' : 'default'}
+          />
         )}
       />
     ) : (
-      <StyledCallToAction>
-        <div className="headline">Review time is over!</div>
-        <div className="text">See details to proceed.</div>
-      </StyledCallToAction>
+      <TaskCardFooterInfoDisplay title="Review time is over" content="Click to see more" />
     );
   };
 
@@ -117,81 +102,65 @@ function TaskFooterInfo(task) {
   return <Component />;
 }
 
-function RequestReimbursementButton({ id, buttonProps }) {
-  const dispatch = useDispatch();
-  const account = useSelector(selectAccount);
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  const handleClick = React.useCallback(async () => {
-    setIsLoading(true);
-
-    try {
-      await dispatch(
-        reimburseRequester(
-          { id, account },
-          {
-            meta: {
-              thunk: { id },
-              tx: { wait: 0 },
-            },
-          }
-        )
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [dispatch, id, account]);
-
-  const icon = isLoading ? <LoadingOutlined /> : null;
+export function TaskCardFooterInfoDisplay({ title, content, titleLevel, color }) {
+  const TitleTag = `h${titleLevel}`;
 
   return (
-    <Button {...buttonProps} onClick={handleClick} disabled={isLoading} icon={icon}>
-      Reimburse Me
-    </Button>
+    <StyledInfoDisplay className={color}>
+      <TitleTag className="title">{title}</TitleTag>
+      <div className="content">{content}</div>
+    </StyledInfoDisplay>
   );
 }
 
-RequestReimbursementButton.propTypes = {
-  id: t.string.isRequired,
-  buttonProps: t.object,
+TaskCardFooterInfoDisplay.propTypes = {
+  title: t.node.isRequired,
+  content: t.node.isRequired,
+  titleLevel: t.oneOf([1, 2, 3, 4, 5, 6]),
+  color: t.oneOf(['default', 'danger', 'success', 'info', 'warning']),
 };
 
-RequestReimbursementButton.defaultProps = {
-  buttonProps: {},
+TaskCardFooterInfoDisplay.defaultProps = {
+  titleLevel: 4,
 };
 
-const StyledTaskDeadline = styled.div`
+const StyledInfoDisplay = styled.div`
   text-align: center;
-  line-height: 1.33;
 
-  &.ending-soon {
-    color: ${p => p.theme.color.danger.default};
-  }
-
-  .title {
-    margin-bottom: -0.25rem;
-    color: ${p => p.theme.color.text.ligther};
+  > .title {
     font-size: ${p => p.theme.fontSize.sm};
     font-weight: ${p => p.theme.fontWeight.regular};
+    color: ${p => p.theme.color.text.lighter};
+    margin-bottom: -0.25rem;
   }
 
-  .value {
+  > .content {
     font-size: ${p => p.theme.fontSize.md};
     font-weight: ${p => p.theme.fontWeight.semibold};
-  }
-`;
-
-const StyledCallToAction = styled.div`
-  text-align: center;
-
-  .headline {
-    font-size: ${p => p.theme.fontSize.sm};
-    font-weight: ${p => p.theme.fontWeight.bold};
+    color: ${p => p.theme.color.text.default};
   }
 
-  .text {
-    font-size: ${p => p.theme.fontSize.xs};
-    font-weight: ${p => p.theme.fontWeight.regular};
-    color: ${p => p.theme.color.text.light};
+  &.info {
+    > .content {
+      color: ${p => p.theme.color.info.default};
+    }
+  }
+
+  &.warning {
+    > .content {
+      color: ${p => p.theme.color.warning.default};
+    }
+  }
+
+  &.danger {
+    > .content {
+      color: ${p => p.theme.color.danger.default};
+    }
+  }
+
+  &.success {
+    > .content {
+      color: ${p => p.theme.color.success.default};
+    }
   }
 `;

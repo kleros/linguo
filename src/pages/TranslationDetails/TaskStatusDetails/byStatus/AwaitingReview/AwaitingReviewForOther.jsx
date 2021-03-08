@@ -5,7 +5,7 @@ import FormattedRelativeDate from '~/shared/FormattedRelativeDate';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
-import TaskInteractionButton from '../../components/TaskInteractionButton';
+import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import ChallengeUploadButton from '../../components/ChallengeUploadButton';
 import TranslationChallengeRewardFetcher from '../../components/TranslationChallengeRewardFetcher';
 import TranslationChallengeDepositFetcher from '../../components/TranslationChallengeDepositFetcher';
@@ -54,9 +54,9 @@ function AwaitingReviewForOther() {
         <TaskDeadline />
         <Spacer />
         {remainingTime === 0 ? (
-          <TaskInteractionButton
+          <ContextAwareTaskInteractionButton
             ID={task.ID}
-            interaction={TaskInteractionButton.Interaction.Approve}
+            interaction={ContextAwareTaskInteractionButton.Interaction.Approve}
             content={{
               idle: { text: 'Pay Translator' },
             }}

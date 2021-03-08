@@ -4,7 +4,7 @@ import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
 import Spacer from '~/shared/Spacer';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
-import TaskInteractionButton from '../../components/TaskInteractionButton';
+import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
 
 function IncompleteForRequester() {
@@ -30,8 +30,8 @@ function IncompleteForRequester() {
           <>
             <TaskDeadline />
             <Spacer />
-            <TaskInteractionButton
-              interaction={TaskInteractionButton.Interaction.Reimburse}
+            <ContextAwareTaskInteractionButton
+              interaction={ContextAwareTaskInteractionButton.Interaction.Reimburse}
               content={{
                 idle: { text: isAssigned ? 'Send Deposit' : 'Reimburse Requester' },
               }}

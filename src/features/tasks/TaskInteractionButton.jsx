@@ -3,68 +3,12 @@ import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckOutlined, LoadingOutlined, SendOutlined } from '@ant-design/icons';
 import Button from '~/shared/Button';
-import {
-  approveTranslation,
-  assignTranslator,
-  reimburseRequester,
-  withdrawAllFeesAndRewards,
-} from '~/features/tasks/tasksSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import useStateMachine from '~/shared/useStateMachine';
-import useTask from '../../useTask';
+import { approveTranslation, assignTranslator, reimburseRequester, withdrawAllFeesAndRewards } from './tasksSlice';
 
-const buttonStateMachine = {
-  initial: 'idle',
-  states: {
-    idle: {
-      on: {
-        START: 'pending',
-      },
-    },
-    pending: {
-      on: {
-        SUCCESS: 'succeeded',
-        ERROR: 'idle',
-      },
-    },
-    succeeded: {
-      final: true,
-    },
-  },
-};
-
-const TaskInteraction = {
-  Assign: 'assign',
-  Approve: 'approve',
-  Reimburse: 'reimburse',
-  Withdraw: 'withdraw',
-};
-
-const interactionToActionCreator = {
-  [TaskInteraction.Assign]: assignTranslator,
-  [TaskInteraction.Approve]: approveTranslation,
-  [TaskInteraction.Reimburse]: reimburseRequester,
-  [TaskInteraction.Withdraw]: withdrawAllFeesAndRewards,
-};
-
-const defaultButtonContent = {
-  idle: {
-    text: 'Send',
-    icon: <SendOutlined />,
-  },
-  pending: {
-    text: 'Sending...',
-    icon: <LoadingOutlined />,
-  },
-  succeeded: {
-    text: 'Done!',
-    icon: <CheckOutlined />,
-  },
-};
-
-export default function TaskInteractionButton({ interaction, content, buttonProps, onSuccess, onFailure }) {
+export default function TaskInteractionButton({ id, interaction, content, buttonProps, onSuccess, onFailure }) {
   const dispatch = useDispatch();
-  const { id } = useTask();
   const account = useSelector(selectAccount);
 
   const [state, send] = useStateMachine(buttonStateMachine);
@@ -118,7 +62,15 @@ const contentItemShape = t.shape({
   icon: t.node,
 });
 
+const TaskInteraction = {
+  Assign: 'assign',
+  Approve: 'approve',
+  Reimburse: 'reimburse',
+  Withdraw: 'withdraw',
+};
+
 TaskInteractionButton.propTypes = {
+  id: t.string.isRequired,
   interaction: t.oneOf(Object.values(TaskInteraction)).isRequired,
   content: t.shape({
     idle: contentItemShape,
@@ -138,3 +90,45 @@ TaskInteractionButton.defaultProps = {
 };
 
 TaskInteractionButton.Interaction = TaskInteraction;
+
+const buttonStateMachine = {
+  initial: 'idle',
+  states: {
+    idle: {
+      on: {
+        START: 'pending',
+      },
+    },
+    pending: {
+      on: {
+        SUCCESS: 'succeeded',
+        ERROR: 'idle',
+      },
+    },
+    succeeded: {
+      final: true,
+    },
+  },
+};
+
+const interactionToActionCreator = {
+  [TaskInteraction.Assign]: assignTranslator,
+  [TaskInteraction.Approve]: approveTranslation,
+  [TaskInteraction.Reimburse]: reimburseRequester,
+  [TaskInteraction.Withdraw]: withdrawAllFeesAndRewards,
+};
+
+const defaultButtonContent = {
+  idle: {
+    text: 'Send',
+    icon: <SendOutlined />,
+  },
+  pending: {
+    text: 'Sending...',
+    icon: <LoadingOutlined />,
+  },
+  succeeded: {
+    text: 'Done!',
+    icon: <CheckOutlined />,
+  },
+};

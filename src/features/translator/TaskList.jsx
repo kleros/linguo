@@ -6,6 +6,7 @@ import TaskCard from '~/features/tasks/TaskCard';
 import { TaskStatus } from '~/features/tasks';
 import { selectAllSkills } from './translatorSlice';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { TaskCardFooterInfoDisplay } from '../tasks/TaskCardFooter';
 
 export default function TaskList({ data, showFootnote }) {
   return data.length === 0 ? (
@@ -13,7 +14,10 @@ export default function TaskList({ data, showFootnote }) {
   ) : (
     <>
       <StyledTaskCountText>
-        Showing {data.length} {pluralize(data.length, { single: 'task', many: 'tasks' })}
+        Showing{' '}
+        <strong>
+          {data.length} {pluralize(data.length, { single: 'task', many: 'tasks' })}
+        </strong>
       </StyledTaskCountText>
       <StyledListWrapper>
         <StyledRow
@@ -73,13 +77,18 @@ function TranslatorTaskCard(props) {
 
   return (
     <Tooltip title={!hasSkill ? "You don't have the required skills for this task" : ''}>
-      <div
-        css={`
-          opacity: ${!hasSkill ? '0.4' : '1'};
-        `}
-      >
-        <TaskCard {...props} />
-      </div>
+      <TaskCard
+        {...props}
+        footerProps={{
+          rightSideContent: (
+            <TaskCardFooterInfoDisplay
+              title="Skills Match"
+              content={hasSkill ? 'Yes' : 'No'}
+              color={hasSkill ? 'success' : 'danger'}
+            />
+          ),
+        }}
+      />
     </Tooltip>
   );
 }

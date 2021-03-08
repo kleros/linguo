@@ -5,7 +5,7 @@ import Spacer from '~/shared/Spacer';
 import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
-import TaskInteractionButton from '../../components/TaskInteractionButton';
+import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 
 function AwaitingReviewForTranslator() {
   const task = useTask();
@@ -47,9 +47,9 @@ function AwaitingReviewForTranslator() {
             <>
               <TaskDeadline />
               <Spacer />
-              <TaskInteractionButton
+              <ContextAwareTaskInteractionButton
                 ID={task.ID}
-                interaction={TaskInteractionButton.Interaction.Approve}
+                interaction={ContextAwareTaskInteractionButton.Interaction.Approve}
                 content={{
                   idle: { text: 'Claim Payment' },
                 }}
