@@ -46,8 +46,9 @@ function AppealStatusLayout({ leftSideContext, rightSideContent, isOngoing }) {
   const title = isOngoing ? 'Appeal the decision' : 'An appeal could not be issued';
   const description = isOngoing ? (
     <BoxParagraph>
-      In order to appeal the decision, you need to complete the crowdfunding deposit. The case will only be sent to the
-      jurors when the full deposit of both sides is reached.
+      In order to appeal the decision, you need to pay the appeal deposit. The dispute will be sent to the jurors when
+      the full deposit is reached. Note that if the previous round loser funds their side, the previous round winner
+      should also fully fund their side in order not to lose the case.
     </BoxParagraph>
   ) : (
     <BoxParagraph>One or more parties failed to pay the full appeal fee within the deadline.</BoxParagraph>
@@ -158,7 +159,7 @@ function AppealFundingSummary({
           </StyledSectionDescription>
         ) : (
           <StyledSectionDescription>
-            Required Deposit = <EthValue amount={paidFees} suffixType="short" /> of{' '}
+            Deposit = <EthValue amount={paidFees} suffixType="short" /> of{' '}
             <EthValue amount={totalAppealCost} suffixType="short" />{' '}
             <StyledDepositFiatValue>
               <EthFiatValue amount={totalAppealCost} render={({ formattedValue }) => `(${formattedValue})`} />
