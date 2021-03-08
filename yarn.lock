@@ -4035,15 +4035,16 @@ browserslist@4.14.2, browserslist@^4.0.0, browserslist@^4.1.0, browserslist@^4.1
     escalade "^3.0.2"
     node-releases "^1.1.61"
 
-browserslist@^4.14.6:
-  version "4.14.6"
-  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.14.6.tgz#97702a9c212e0c6b6afefad913d3a1538e348457"
-  integrity sha512-zeFYcUo85ENhc/zxHbiIp0LGzzTrE2Pv2JhxvS7kpUb9Q9D38kUX6Bie7pGutJ/5iF5rOxE7CepAuWD56xJ33A==
+browserslist@^4.16.3:
+  version "4.16.3"
+  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.16.3.tgz#340aa46940d7db878748567c5dea24a48ddf3717"
+  integrity sha512-vIyhWmIkULaq04Gt93txdh+j02yX/JzlyhLYbV3YQCn/zvES3JnY7TifHHvvr1w5hTDluNKMkV05cs4vy8Q7sw==
   dependencies:
-    caniuse-lite "^1.0.30001154"
-    electron-to-chromium "^1.3.585"
+    caniuse-lite "^1.0.30001181"
+    colorette "^1.2.1"
+    electron-to-chromium "^1.3.649"
     escalade "^3.1.1"
-    node-releases "^1.1.65"
+    node-releases "^1.1.70"
 
 bs58@^4.0.0, bs58@^4.0.1:
   version "4.0.1"
@@ -4266,7 +4267,7 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@1.0.30001129, caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001061, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001154:
+caniuse-lite@1.0.30001129, caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001061, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001181:
   version "1.0.30001129"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001129.tgz#e6514b94c0ef50f98cf7476daa91228ddd2ef7bc"
   integrity sha512-9945fTVKS810DZITpsAbuhQG7Lam0tEfVbZlsBaCFZaszepbryrArS05PWmJSBQ6mta+v9iz0pUIAbW1eBILIg==
@@ -4649,6 +4650,11 @@ color@^3.0.0:
   dependencies:
     color-convert "^1.9.1"
     color-string "^1.5.2"
+
+colorette@^1.2.1:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/colorette/-/colorette-1.2.2.tgz#cbcc79d5e99caea2dbf10eb3a26fd8b3e6acfa94"
+  integrity sha512-MKGMzyfeuutC/ZJ1cba9NqcNpfeqMUcYmyF1ZFY6/Cn7CNSAKx6a+s48sqLqyAiZuaP2TcqMhoo+dlwFnVxT9w==
 
 combined-stream@^1.0.6, combined-stream@^1.0.8, combined-stream@~1.0.6:
   version "1.0.8"
@@ -5778,10 +5784,15 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
-electron-to-chromium@^1.3.564, electron-to-chromium@^1.3.585:
+electron-to-chromium@^1.3.564:
   version "1.3.586"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.586.tgz#1484f59b2f820f5f3278f0c6ead71d05b19a1311"
   integrity sha512-or8FCbQCRlPZHkOoqBULOI9hzTiStVIQqDLgAPt8pzY+swTrW+89vsqd24Zn+Iv4guAJLxRBD6OR5AmbpabGDA==
+
+electron-to-chromium@^1.3.649:
+  version "1.3.682"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.682.tgz#f4b5c8d4479df96b61e508a721d6c32c1262ef23"
+  integrity sha512-zok2y37qR00U14uM6qBz/3iIjWHom2eRfC2S1StA0RslP7x34jX+j4mxv80t8OEOHLJPVG54ZPeaFxEI7gPrwg==
 
 elegant-spinner@^2.0.0:
   version "2.0.0"
@@ -11631,10 +11642,15 @@ node-pre-gyp@^0.13.0:
     semver "^5.3.0"
     tar "^4"
 
-node-releases@^1.1.61, node-releases@^1.1.65:
+node-releases@^1.1.61:
   version "1.1.65"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.65.tgz#52d9579176bd60f23eba05c4438583f341944b81"
   integrity sha512-YpzJOe2WFIW0V4ZkJQd/DGR/zdVwc/pI4Nl1CZrBO19FdRcSTmsuhdttw9rsTzzJLrNcSloLiBbEYx1C4f6gpA==
+
+node-releases@^1.1.70:
+  version "1.1.71"
+  resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.71.tgz#cb1334b179896b1c89ecfdd4b725fb7bbdfc7dbb"
+  integrity sha512-zR6HoT6LrLCRBwukmrVbHv0EpEQjksO6GmFcZQQuCAy139BEsoVKPYnf3jongYW83fAa1torLGYwxxky/p28sg==
 
 nodeify@^1.0.1:
   version "1.0.1"

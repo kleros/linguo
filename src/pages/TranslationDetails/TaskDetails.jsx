@@ -213,9 +213,9 @@ export default function TaskDetails() {
         </StyledDownloadTextWrapper>
         <Spacer size={3} />
         <TaskStatusDetails />
-        <Spacer size={3} />
+        <Spacer size={2} />
         <Comments />
-        <Spacer size={3} />
+        <Spacer size={2} />
         <Evidences />
       </div>
     </Titled>
@@ -246,7 +246,7 @@ const StyledDefinitionDescription = styled.dd`
 
 const StyledDeadline = styled(StyledDefinitionList)`
   && {
-    color: ${p => p.theme.color.text.light};
+    color: ${p => p.theme.color.text.lighter};
     font-size: ${p => p.theme.fontSize.sm};
     font-weight: ${p => p.theme.fontWeight.regular};
     text-align: center;

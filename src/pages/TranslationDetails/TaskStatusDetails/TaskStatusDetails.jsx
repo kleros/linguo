@@ -6,7 +6,7 @@ import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
 import useTask from '../useTask';
 import byStatus from './byStatus';
 
-function TaskStatusDetails() {
+export default function TaskStatusDetails() {
   const task = useTask();
   const isIncomplete = Task.isIncomplete(task);
 
@@ -27,5 +27,3 @@ function TaskStatusDetails() {
     </RequiredWalletGateway>
   );
 }
-
-export default TaskStatusDetails;

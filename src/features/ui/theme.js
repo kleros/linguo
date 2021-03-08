@@ -3,6 +3,7 @@ export default {
     text: {
       default: '#000000',
       light: '#4A4A4A',
+      lighter: '#8C8C8C',
       inverted: '#FFFFFF',
     },
     primary: {
