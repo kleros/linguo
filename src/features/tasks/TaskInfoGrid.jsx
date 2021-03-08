@@ -1,11 +1,12 @@
 import React from 'react';
 import t from 'prop-types';
+import clsx from 'clsx';
 import styled from 'styled-components';
 import { Typography, Row, Col } from 'antd';
 
-export default function TaskInfoGrid({ data, className }) {
+export default function TaskInfoGrid({ data, size, className }) {
   return (
-    <StyledGrid className={className}>
+    <StyledGrid className={clsx(size, className)}>
       {data.map(({ title, content, footer = null }) => (
         <GridCell key={title} title={title} content={content} footer={footer} />
       ))}
@@ -21,10 +22,12 @@ TaskInfoGrid.propTypes = {
       footer: t.node,
     })
   ).isRequired,
+  size: t.oneOf(['default', 'small']),
   className: t.string,
 };
 
 TaskInfoGrid.defaultProps = {
+  size: 'default',
   className: '',
 };
 
@@ -43,12 +46,6 @@ GridCell.propTypes = {
   content: t.node.isRequired,
   footer: t.node,
 };
-
-const StyledGrid = styled(Row)`
-  background-color: ${props => props.theme.color.background.default};
-  border: 1px solid ${props => props.theme.color.border.default};
-  border-radius: 0.75rem;
-`;
 
 const StyledCell = styled(Col)`
   display: flex;
@@ -82,7 +79,6 @@ const GridCellTitle = styled(Typography.Title)`
 const GridCellContent = styled(Typography.Paragraph)`
   && {
     color: ${props => props.theme.color.text.light};
-    font-size: ${props => props.theme.fontSize.xl};
     font-weight: ${p => p.theme.fontWeight.semibold};
     max-width: 100%;
     margin-bottom: 0;
@@ -93,6 +89,24 @@ const GridCellContent = styled(Typography.Paragraph)`
       text-overflow: ellipsis;
       word-break: break-word;
       white-space: nowrap;
+    }
+  }
+`;
+
+const StyledGrid = styled(Row)`
+  background-color: ${props => props.theme.color.background.default};
+  border: 1px solid ${props => props.theme.color.border.default};
+  border-radius: 0.75rem;
+
+  &.default {
+    ${GridCellContent} {
+      font-size: ${props => props.theme.fontSize.xl};
+    }
+  }
+
+  &.small {
+    ${GridCellContent} {
+      font-size: ${props => props.theme.fontSize.md};
     }
   }
 `;

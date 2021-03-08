@@ -50,6 +50,14 @@ export default {
     border: {
       default: '#CDDEFF',
     },
+    status: {
+      open: '#00C2FF',
+      inProgress: '#87C700',
+      inReview: '#FF9900',
+      inDispute: '#9013FE',
+      incomplete: '#6C6C6C',
+      finished: '#0043C5',
+    },
   },
   fontSize: {
     xxl: '1.5rem',
@@ -73,6 +81,10 @@ export default {
   },
   debug: 'outline: 2px solid red',
   hexToRgba: (hexColor, alpha) => {
+    if (!hexColor) {
+      return;
+    }
+
     let hexValues = hexColor.replace('#', '');
     const isShorthand = hexValues.length === 3;
 

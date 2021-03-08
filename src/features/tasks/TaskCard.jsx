@@ -1,14 +1,16 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip, Typography } from 'antd';
+import { Badge, Tooltip, Typography } from 'antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Card from '~/shared/Card';
 import FormattedNumber from '~/shared/FormattedNumber';
 import useInterval from '~/shared/useInterval';
+import Spacer from '~/shared/Spacer';
 import { Task, TaskStatus } from '~/features/tasks';
 import EthFiatValue from '~/features/tokens/EthFiatValue';
+import KlerosLogoOutlined from '~/assets/images/logo-kleros-outlined.svg';
 import TaskCardFooter from './TaskCardFooter';
 import TaskInfoGrid from './TaskInfoGrid';
 import TaskLanguages from './TaskLanguages';
@@ -68,12 +70,17 @@ export default function TaskCard({ id }) {
     },
   ];
 
+  const cardProps = Task.isIncomplete(task) ? taskStatusToProps.incomplete : taskStatusToProps[status];
+
   return (
-    <StyledCard
-      title={<TaskLanguages fullWidth source={sourceLanguage} target={targetLanguage} />}
+    <StyledTaskCard
+      $colorKey={cardProps.colorKey}
+      title={cardProps.title}
       titleLevel={2}
       footer={<TaskCardFooter id={id} />}
     >
+      <TaskLanguages fullWidth source={sourceLanguage} target={targetLanguage} />
+      <Spacer />
       <Tooltip title={title} placement="top" mouseEnterDelay={0.5} arrowPointAtCenter>
         {/* The wrapping div fixes an issue with styled compnents not
             properly performing ref forwarding for function components. */}
@@ -85,8 +92,8 @@ export default function TaskCard({ id }) {
           <StyledTaskTitle level={3}>{title}</StyledTaskTitle>
         </div>
       </Tooltip>
-      <TaskInfoGrid data={taskInfo} />
-    </StyledCard>
+      <TaskInfoGrid size="small" data={taskInfo} />
+    </StyledTaskCard>
   );
 }
 
@@ -94,9 +101,72 @@ TaskCard.propTypes = {
   id: t.string.isRequired,
 };
 
-const StyledCard = styled(Card)`
+const taskStatusToProps = {
+  [TaskStatus.Created]: {
+    title: <Badge status="default" text="Open Task" />,
+    colorKey: 'open',
+  },
+  [TaskStatus.Assigned]: {
+    title: <Badge status="default" text="In Progress" />,
+    colorKey: 'inProgress',
+  },
+  [TaskStatus.AwaitingReview]: {
+    title: <Badge status="default" text="In Review" />,
+    colorKey: 'inReview',
+  },
+  [TaskStatus.DisputeCreated]: {
+    title: (
+      <>
+        <Badge status="default" text="In Dispute" />
+        <KlerosLogoOutlined />
+      </>
+    ),
+    colorKey: 'inDispute',
+  },
+  [TaskStatus.Resolved]: {
+    title: <Badge status="default" text="Finished" />,
+    colorKey: 'finished',
+  },
+  incomplete: {
+    title: <Badge status="default" text="Incomplete" />,
+    colorKey: 'incomplete',
+  },
+};
+
+const StyledTaskCard = styled(Card)`
   && {
     height: 100%;
+    border-radius: 3px;
+
+    .card-header {
+      background-color: ${p => p.theme.hexToRgba(p.theme.color.status[p.$colorKey], '0.06')};
+      color: ${p => p.theme.color.status[p.$colorKey]};
+      border: none;
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+      border-top: 5px solid;
+    }
+
+    .ant-badge-status-dot {
+      background-color: ${p => p.theme.color.status[p.$colorKey]};
+    }
+
+    .ant-badge-status-text,
+    .card-header-title {
+      font-size: ${p => p.theme.fontSize.md};
+      color: inherit;
+      text-align: left;
+    }
+
+    .card-header-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      svg {
+        fill: currentColor;
+      }
+    }
   }
 `;
 
@@ -105,9 +175,9 @@ const StyledTaskTitle = styled(Typography.Title)`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: ${props => props.theme.color.text.light};
+    color: ${props => props.theme.color.text.lighter};
     font-size: ${props => props.theme.fontSize.md};
-    font-weight: ${p => p.theme.fontWeight.semibold};
+    font-weight: ${p => p.theme.fontWeight.regular};
     margin-bottom: 1rem;
   }
 `;

@@ -56,10 +56,10 @@ const StyledTaskLanguages = styled.span`
   flex-flow: row nowrap;
   align-items: center;
   font-size: ${props => props.theme.fontSize.md};
+  gap: 0.5rem;
 
   .separator {
     flex: 0;
-    margin: 0 0.75rem;
     font-size: ${props => props.theme.fontSize.sm};
   }
 
@@ -67,6 +67,7 @@ const StyledTaskLanguages = styled.span`
     flex: 1 0;
     display: flex;
     align-items: center;
+    gap: 1rem;
 
     .flag {
       order: 0;
@@ -81,7 +82,6 @@ const StyledTaskLanguages = styled.span`
       flex: 1;
       order: 1;
       text-align: left;
-      margin-left: 0.5rem;
     }
 
     &.source {
@@ -92,8 +92,6 @@ const StyledTaskLanguages = styled.span`
       .text {
         text-align: right;
         order: 0;
-        margin-left: 0;
-        margin-right: 0.5rem;
       }
     }
   }

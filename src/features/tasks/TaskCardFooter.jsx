@@ -17,7 +17,7 @@ import { selectById, reimburseRequester } from './tasksSlice';
 
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
-function TaskCardFooter({ id }) {
+export default function TaskCardFooter({ id }) {
   const task = useShallowEqualSelector(selectById(id));
 
   return (
@@ -39,8 +39,6 @@ function TaskCardFooter({ id }) {
 TaskCardFooter.propTypes = {
   id: t.oneOfType([t.number, t.string]).isRequired,
 };
-
-export default TaskCardFooter;
 
 function TaskFooterInfo(task) {
   const { id, status } = task;
@@ -119,7 +117,7 @@ function TaskFooterInfo(task) {
   return <Component />;
 }
 
-const RequestReimbursementButton = function RequestReimbursement({ id, buttonProps }) {
+function RequestReimbursementButton({ id, buttonProps }) {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -151,7 +149,7 @@ const RequestReimbursementButton = function RequestReimbursement({ id, buttonPro
       Reimburse Me
     </Button>
   );
-};
+}
 
 RequestReimbursementButton.propTypes = {
   id: t.string.isRequired,
@@ -167,17 +165,18 @@ const StyledTaskDeadline = styled.div`
   line-height: 1.33;
 
   &.ending-soon {
-    color: ${props => props.theme.color.danger.default};
+    color: ${p => p.theme.color.danger.default};
   }
 
   .title {
-    font-size: ${props => props.theme.fontSize.sm};
     margin-bottom: -0.25rem;
-    font-weight: ${p => p.theme.fontWeight.medium};
+    color: ${p => p.theme.color.text.ligther};
+    font-size: ${p => p.theme.fontSize.sm};
+    font-weight: ${p => p.theme.fontWeight.regular};
   }
 
   .value {
-    font-size: ${props => props.theme.fontSize.xl};
+    font-size: ${p => p.theme.fontSize.md};
     font-weight: ${p => p.theme.fontWeight.semibold};
   }
 `;
@@ -186,13 +185,13 @@ const StyledCallToAction = styled.div`
   text-align: center;
 
   .headline {
-    font-size: ${props => props.theme.fontSize.sm};
+    font-size: ${p => p.theme.fontSize.sm};
     font-weight: ${p => p.theme.fontWeight.bold};
   }
 
   .text {
-    font-size: ${props => props.theme.fontSize.xs};
+    font-size: ${p => p.theme.fontSize.xs};
     font-weight: ${p => p.theme.fontWeight.regular};
-    color: ${props => props.theme.color.text.light};
+    color: ${p => p.theme.color.text.light};
   }
 `;

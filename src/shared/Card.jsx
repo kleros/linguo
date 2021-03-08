@@ -3,54 +3,7 @@ import t from 'prop-types';
 import clsx from 'clsx';
 import styled from 'styled-components';
 
-const StyledWrapper = styled.section`
-  display: flex;
-  flex-flow: column nowrap;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 0.375rem 2rem ${props => props.theme.color.shadow.default};
-  font-size: 1rem;
-  color: ${props => props.theme.color.text.default};
-  background: ${props => props.theme.color.background.light};
-
-  .card-header {
-    background-color: ${props => props.theme.color.primary.default};
-    color: ${props => props.theme.color.text.inverted};
-    border: none;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    flex: 3rem 0 0;
-    max-height: 3rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem 1.5rem;
-  }
-
-  .card-header-title {
-    text-align: center;
-    font-size: ${props => props.theme.fontSize.md};
-    font-weight: ${props => props.theme.fontWeight.semibold};
-    color: ${props => props.theme.color.text.inverted};
-    width: 100%;
-    margin: 0;
-  }
-
-  .card-body {
-    padding: 1.5rem;
-    flex: 1;
-  }
-
-  .card-footer {
-    margin-top: auto;
-    padding: 1.5rem;
-    background-color: ${props => props.theme.color.background.default};
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-  }
-`;
-
-function Card({ title, titleLevel, footer, children, className }) {
+export default function Card({ title, titleLevel, footer, children, className }) {
   const TitleTag = `h${titleLevel}`;
   return (
     <StyledWrapper className={clsx('card', className)}>
@@ -78,4 +31,49 @@ Card.defaultProps = {
   className: '',
 };
 
-export default Card;
+const StyledWrapper = styled.section`
+  display: flex;
+  flex-flow: column nowrap;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 3px ${props => props.theme.color.shadow.default};
+  font-size: 1rem;
+  color: ${props => props.theme.color.text.default};
+  background: ${props => props.theme.color.background.light};
+
+  .card-header {
+    background-color: ${props => props.theme.color.primary.default};
+    color: ${props => props.theme.color.text.inverted};
+    border: none;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    flex: 3rem 0 0;
+    max-height: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 1.25rem;
+  }
+
+  .card-header-title {
+    text-align: center;
+    font-size: ${props => props.theme.fontSize.md};
+    font-weight: ${props => props.theme.fontWeight.semibold};
+    color: ${props => props.theme.color.text.inverted};
+    width: 100%;
+    margin: 0;
+  }
+
+  .card-body {
+    padding: 1rem 1.25rem;
+    flex: 1;
+  }
+
+  .card-footer {
+    margin-top: auto;
+    padding: 0 1.25rem 1rem;
+    background-color: ${props => props.theme.color.background.default};
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
+`;
