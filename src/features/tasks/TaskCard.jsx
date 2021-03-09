@@ -163,18 +163,50 @@ const MainLink = styled.a`
 
 const StyledTaskCard = styled(Card)`
   && {
+    overflow: hidden;
     position: relative;
     height: 100%;
     border-radius: 3px;
     transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
     z-index: 1;
 
-    @media (min-width: 576px) {
+    @media (hover: hover) and (min-width: 576px) {
       :active,
       :hover {
         transform: scale(1.025);
         z-index: 2;
         box-shadow: 0 4px 6px 2px ${props => props.theme.color.shadow.default};
+      }
+    }
+
+    @media (hover: none) {
+      ::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+        pointer-events: none;
+        background: radial-gradient(
+            circle,
+            ${p => p.theme.hexToRgba(p.theme.color.secondary.default, 0.25)} 1%,
+            transparent 1%
+          )
+          center/25000% no-repeat;
+        transform: scale(2, 2);
+        opacity: 0;
+        transition: all 0.5s;
+      }
+
+      :active {
+        ::after {
+          background-size: 0%;
+          transform: scale(0, 0);
+          opacity: 1;
+          transition: none;
+        }
       }
     }
 

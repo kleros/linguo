@@ -72,7 +72,7 @@ const StyledWrapper = styled.section`
   .card-footer {
     margin-top: auto;
     padding: 0 1.25rem 1rem;
-    background-color: ${props => props.theme.color.background.default};
+    background-color: transparent;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
   }

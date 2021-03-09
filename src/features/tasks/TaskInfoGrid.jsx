@@ -113,7 +113,7 @@ const StyledGrid = styled(Row)`
 
 const GridCellFooter = styled.footer`
   && {
-    color: ${props => props.theme.color.text.light};
+    color: ${props => props.theme.color.text.lighter};
     font-size: ${props => props.theme.fontSize.xs};
     font-weight: ${p => p.theme.fontWeight.regular};
   }
