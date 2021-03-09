@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import produce from 'immer';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { Col, Form, Row, Typography } from 'antd';
+import { Col, Form, Row } from 'antd';
 import { Alert } from '~/adapters/antd';
 import * as r from '~/app/routes';
 import allLanguages from '~/assets/fixtures/languages';
 import Button from '~/shared/Button';
-import { AddIcon, InfoIcon, RemoveIcon } from '~/shared/icons';
+import { AddIcon, RemoveIcon } from '~/shared/icons';
 import { LanguageSelect, LevelSelect } from '~/shared/LanguageSelect';
 import AffixContainer from '~/shared/AffixContainer';
 import Spacer from '~/shared/Spacer';
@@ -106,15 +106,6 @@ export default function TranslatorSettingsForm() {
         description={
           <>
             <p>
-              <a
-                href="https://www.coe.int/en/web/common-european-framework-reference-languages/level-descriptions"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Click here to find out more about CEFR.
-              </a>
-            </p>
-            <p>
               If the languages you speak are not part of the CEFR, please choose the level closer to what is described
               in this{' '}
               <a
@@ -127,8 +118,20 @@ export default function TranslatorSettingsForm() {
               .
             </p>
             <p>
-              <strong>IMPORTANT:</strong> You will only be able to work on tasks whose both source and target languages
-              you have self-declared level B2 or higher. Learn more about this in our{' '}
+              <a
+                href="https://www.coe.int/en/web/common-european-framework-reference-languages/level-descriptions"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Click here to find out more about CEFR.
+              </a>
+            </p>
+            <p>
+              <strong>Important:</strong> You will only be able to work on tasks whose both source and target languages
+              you have self-declared level B2 or higher.
+            </p>
+            <p>
+              Learn more about this in our{' '}
               <Link
                 to={{
                   pathname: r.FAQ,
@@ -143,20 +146,15 @@ export default function TranslatorSettingsForm() {
           </>
         }
       />
-      <Spacer />
-      <StyledDisclaimer>
-        <InfoIcon /> You can update your language level or add more languages anytime in settings.
-      </StyledDisclaimer>
-      <Spacer size={3} />
+      <Spacer size={2} />
       <AffixContainer>
         <Row gutter={16} justify="space-between">
-          <Col lg={6} md={8} sm={10} xs={12}>
+          <Col xl={4} lg={6} md={8} sm={10} xs={12}>
             <Button fullWidth htmlType="button" variant="outlined" onClick={handleReturnClick}>
               Return
             </Button>
           </Col>
-
-          <Col lg={6} md={8} sm={10} xs={12}>
+          <Col xl={4} lg={6} md={8} sm={10} xs={12}>
             <Button fullWidth htmlType="submit">
               Save
             </Button>
@@ -170,12 +168,6 @@ export default function TranslatorSettingsForm() {
 const StyledJumboButton = styled(Button)`
   height: 5.75rem;
   border-radius: 0.75rem;
-`;
-
-const StyledDisclaimer = styled(Typography.Text)`
-  display: block;
-  color: ${props => props.theme.color.text.default};
-  font-weight: ${p => p.theme.fontWeight.regular};
 `;
 
 const EMPTY_SKILL = {
