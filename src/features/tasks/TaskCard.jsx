@@ -130,7 +130,11 @@ const taskStatusToProps = {
     title: (
       <>
         <Badge status="default" text="In Dispute" />
-        <KlerosLogoOutlined />
+        <KlerosLogoOutlined
+          css={`
+            width: 1.5rem;
+          `}
+        />
       </>
     ),
     colorKey: 'inDispute',

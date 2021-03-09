@@ -77,13 +77,6 @@ function AppealStatusLayout({ leftSideContent, rightSideContent, isOngoing }) {
     <StyledContent>
       <BoxTitle>{title}</BoxTitle>
       {description}
-      <Spacer size={3} />
-      <Alert
-        showIcon
-        type="info"
-        message="Contributors can fund the appeal and win rewards"
-        description="Note that help funding the dispute can make you win rewards if the side you contributed won."
-      />
       <Spacer size={2} />
       <StyledCardRow gutter={[16, 16]}>
         <Col {...colProps}>{leftSideContent}</Col>

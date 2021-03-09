@@ -1,7 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 import { useSelector } from 'react-redux';
-import KlerosLogo from '~/assets/images/logo-kleros.svg';
+import KlerosLogoOutlined from '~/assets/images/logo-kleros-outlined.svg';
 import { selectChainId } from '~/features/web3/web3Slice';
 
 export default function DisputeLink({ disputeID }) {
@@ -15,32 +15,20 @@ export default function DisputeLink({ disputeID }) {
       href={`https://court.kleros.io/cases/${disputeID}`}
       css={`
         display: inline-flex;
-        align-content: center;
-        font-size: ${p => p.theme.fontSize.lg};
+        align-items: center;
+        gap: 0.25rem;
       `}
     >
-      <KlerosLogo
+      See case #{disputeID} on{' '}
+      <KlerosLogoOutlined
         css={`
-          width: 1.5rem;
+          height: ${p => p.theme.fontSize.lg};
         `}
-      />
-      <span
-        css={`
-          display: inline-block;
-          margin-left: 0.375rem;
-        `}
-      >
-        See case #{disputeID} on Kleros
-      </span>
+      />{' '}
+      Kleros
     </a>
   ) : (
-    <span
-      css={`
-        font-size: ${p => p.theme.fontSize.lg};
-      `}
-    >
-      Case #{disputeID}
-    </span>
+    <span>Case #{disputeID}</span>
   );
 }
 
