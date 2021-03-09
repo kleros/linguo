@@ -1,9 +1,10 @@
 import React from 'react';
+import { Alert } from '~/adapters/antd';
+import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
 import { Dispute } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
-import { WarningIcon } from '~/shared/icons';
 import EthValue from '~/shared/EthValue';
-import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
+import Spacer from '~/shared/Spacer';
 import useTask from '../../../../useTask';
 import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../../hooks/useCurrentParty';
@@ -38,24 +39,22 @@ function forTranslator({ totalAppealCost }) {
   const description = [
     'You will receive only your Translator Deposit - Arbitration Fees back.',
     'Note anyone appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
-    <EthValue
-      key="appeal-deposit"
-      amount={totalAppealCost}
-      suffixType="short"
-      render={({ formattedValue, suffix }) => (
-        <span
-          css={`
-            color: ${p => p.theme.color.warning.default};
-          `}
-        >
-          <WarningIcon /> If there is an appeal, you be required a{' '}
+    <Spacer key="spacer" />,
+    <Alert
+      key="alert"
+      showIcon
+      type="info"
+      size="small"
+      message={
+        <>
+          If there is an appeal, you be required a{' '}
           <strong>
-            {formattedValue} {suffix}
+            <EthValue key="appeal-deposit" amount={totalAppealCost} suffixType="short" />
           </strong>{' '}
-          deposit, which you can provide yourself or be crowdfunded. If you fail to do so, you will automatically lose
-          the dispute.
-        </span>
-      )}
+          deposit. You can provide it yourself or it can be crowdfunded. If you fail to do so, you will automatically
+          lose the dispute.
+        </>
+      }
     />,
   ];
 
@@ -68,24 +67,21 @@ function forChallenger({ challengerIsRequester, totalAppealCost }) {
       ? 'You will receive the Requester Deposit + your Challenger Deposit - Arbitration Fees back.'
       : 'You will receive your Challenger Deposit - Arbitration Fees back.',
     'Note anyone appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
-    <EthValue
-      key="appeal-deposit"
-      amount={totalAppealCost}
-      suffixType="short"
-      render={({ formattedValue, suffix }) => (
-        <span
-          css={`
-            color: ${p => p.theme.color.warning.default};
-          `}
-        >
-          <WarningIcon /> If there is an appeal, you be required a{' '}
+    <Spacer key="spacer" />,
+    <Alert
+      key="alert"
+      showIcon
+      type="info"
+      message={
+        <>
+          If there is an appeal, you be required a{' '}
           <strong>
-            {formattedValue} {suffix}
+            <EthValue key="appeal-deposit" amount={totalAppealCost} suffixType="short" />
           </strong>{' '}
-          deposit, which you can provide yourself or be crowdfunded. If you fail to do so, you will automatically lose
-          the dispute.
-        </span>
-      )}
+          deposit. You can provide it yourself or it can be crowdfunded. If you fail to do so, you will automatically
+          lose the dispute.
+        </>
+      }
     />,
   ];
 

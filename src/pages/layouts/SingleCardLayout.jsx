@@ -4,11 +4,13 @@ import styled from 'styled-components';
 import { Layout } from 'antd';
 import Card from '~/shared/Card';
 
-export default function SingleCardLayout({ title, beforeContent, children }) {
+export default function SingleCardLayout({ title, beforeContent, children, className }) {
   return (
     <StyledLayout>
       {beforeContent}
-      <StyledCard title={title}>{children}</StyledCard>
+      <StyledCard title={title} className={className}>
+        {children}
+      </StyledCard>
     </StyledLayout>
   );
 }
@@ -17,11 +19,13 @@ SingleCardLayout.propTypes = {
   title: t.node.isRequired,
   beforeContent: t.node,
   children: t.node,
+  className: t.string,
 };
 
 SingleCardLayout.defaultProps = {
   beforeContent: null,
   children: null,
+  className: '',
 };
 
 const StyledLayout = styled(Layout)`
@@ -63,9 +67,6 @@ const StyledCard = styled(Card)`
   }
 
   && {
-    @media (max-width: 767.98px) {
-    }
-
     @media (max-width: 575.98px) {
       flex: auto;
       box-shadow: none;
@@ -86,7 +87,7 @@ const StyledCard = styled(Card)`
       .card-header {
         position: absolute;
         background: none;
-        top: -60px;
+        top: -56px;
         left: 50%;
         transform: translateX(-50%);
         width: 100%;

@@ -17,7 +17,7 @@ function RequiredWalletGateway({ message, children, missing, error, render, rend
 
   return (
     <RequiredWeb3Gateway missing={missingWalletWarning} error={error} renderError={renderError}>
-      {hasAccount ? children || render({ account }) : !isConnecting ? missingWalletWarning : null}
+      {hasAccount ? children || render({ account }) : isConnecting ? null : missingWalletWarning}
     </RequiredWeb3Gateway>
   );
 }

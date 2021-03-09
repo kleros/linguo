@@ -97,7 +97,7 @@ export default function TaskDetails() {
         css={`
           @media (min-width: 576px) {
             &:only-child {
-              margin-top: -2rem;
+              margin-top: -1rem;
             }
           }
         `}

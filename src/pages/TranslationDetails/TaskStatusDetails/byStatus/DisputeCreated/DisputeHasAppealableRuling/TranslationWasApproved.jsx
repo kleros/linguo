@@ -1,8 +1,9 @@
 import React from 'react';
+import { Alert } from '~/adapters/antd';
 import { TaskParty } from '~/features/tasks';
 import { Dispute } from '~/features/disputes';
-import { WarningIcon } from '~/shared/icons';
 import EthValue from '~/shared/EthValue';
+import Spacer from '~/shared/Spacer';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import useTask from '../../../../useTask';
 import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';
@@ -38,20 +39,21 @@ function ForTranslator({ totalAppealCost }) {
   const description = [
     'You will receive the Requester Deposit + your Translator Deposit back + the Challenger Deposit - Arbitration Fees.',
     'Note that the challenger can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
-    <EthValue
-      key="appeal-deposit"
-      amount={totalAppealCost}
-      suffixType="short"
-      render={({ formattedValue, suffix }) => (
+    <Spacer key="spacer" />,
+    <Alert
+      key="alert"
+      showIcon
+      type="info"
+      message={
         <>
-          <WarningIcon /> If there is an appeal, you be required a{' '}
+          If there is an appeal, you be required a{' '}
           <strong>
-            {formattedValue} {suffix}
+            <EthValue key="appeal-deposit" amount={totalAppealCost} suffixType="short" />
           </strong>{' '}
-          deposit, which you can provide yourself or be crowdfunded. If you fail to do so, you will automatically lose
-          the dispute.
+          deposit. You can provide it yourself or it can be crowdfunded. If you fail to do so, you will automatically
+          lose the dispute.
         </>
-      )}
+      }
     />,
   ];
 
@@ -64,19 +66,22 @@ function ForChallenger({ challengerIsRequester, totalAppealCost }) {
       ? 'The Requester Deposit + your Challenger Deposit goes to the translator.'
       : 'Your Challenger Deposit goes to the translator.',
     'Note that you can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
-    <EthValue
-      key="appeal-deposit"
-      amount={totalAppealCost}
-      suffixType="short"
-      render={({ formattedValue, suffix }) => (
+    <Spacer key="spacer" />,
+    <Alert
+      key="alert"
+      showIcon
+      type="info"
+      size="small"
+      message={
         <>
           The appeal will require a{' '}
           <strong>
-            {formattedValue} {suffix}
+            <EthValue key="appeal-deposit" amount={totalAppealCost} suffixType="short" />
           </strong>{' '}
-          deposit, which you can provide yourself or be crowdfunded.
+          deposit. You can provide it yourself or it can be crowdfunded. If you fail to do so, you will automatically
+          lose the dispute.
         </>
-      )}
+      }
     />,
   ];
 
@@ -86,20 +91,23 @@ function ForChallenger({ challengerIsRequester, totalAppealCost }) {
 function ForRequester({ totalAppealCost }) {
   const description = [
     'Your Requester Deposit goes to the translator.',
-    'Note that anyone can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
-    <EthValue
-      key="appeal-deposit"
-      amount={totalAppealCost}
-      suffixType="short"
-      render={({ formattedValue, suffix }) => (
+    'Note that anyone (including yourself) can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
+    <Spacer key="spacer" />,
+    <Alert
+      key="alert"
+      showIcon
+      type="info"
+      size="small"
+      message={
         <>
           The appeal will require a{' '}
           <strong>
-            {formattedValue} {suffix}
+            <EthValue key="appeal-deposit" amount={totalAppealCost} suffixType="short" />
           </strong>{' '}
-          deposit, which you can provide yourself or be crowdfunded.
+          deposit. You can provide it yourself or it can be crowdfunded. If you fail to do so, you will automatically
+          lose the dispute.
         </>
-      )}
+      }
     />,
   ];
 

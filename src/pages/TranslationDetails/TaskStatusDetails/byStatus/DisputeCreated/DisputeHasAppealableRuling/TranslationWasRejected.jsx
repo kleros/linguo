@@ -1,8 +1,9 @@
 import React from 'react';
+import { Alert } from '~/adapters/antd';
 import { TaskParty } from '~/features/tasks';
 import { Dispute } from '~/features/disputes';
-import { WarningIcon } from '~/shared/icons';
 import EthValue from '~/shared/EthValue';
+import Spacer from '~/shared/Spacer';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
 import useTask from '../../../../useTask';
 import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';
@@ -38,19 +39,22 @@ function ForTranslator({ totalAppealCost }) {
   const description = [
     'The Requester Deposit goes back to the task requester and your Translator Deposit goes to the challenger.',
     'Note that you can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
-    <EthValue
-      key="appeal-deposit"
-      amount={totalAppealCost}
-      suffixType="short"
-      render={({ formattedValue, suffix }) => (
+    <Spacer key="spacer" />,
+    <Alert
+      key="alert"
+      showIcon
+      type="info"
+      size="small"
+      message={
         <>
           The appeal will require a{' '}
           <strong>
-            {formattedValue} {suffix}
+            <EthValue key="appeal-deposit" amount={totalAppealCost} suffixType="short" />
           </strong>{' '}
-          deposit, which you can provide yourself or be crowdfunded.
+          deposit. You can provide it yourself or it can be crowdfunded. If you fail to do so, you will automatically
+          lose the dispute.
         </>
-      )}
+      }
     />,
   ];
 
@@ -63,20 +67,22 @@ function ForChallenger({ challengerIsRequester, totalAppealCost }) {
       ? 'Your Requester Deposit + your Challenger Deposit will be sent back to you.'
       : 'Your Challenger Deposit will be sent back to you.',
     'Note that the translator can still appeal the decision, which will lead to another jurors round that may or may not revert this decision. To do so you need to deposit the appeal fee.',
-    <EthValue
-      key="appeal-deposit"
-      amount={totalAppealCost}
-      suffixType="short"
-      render={({ formattedValue, suffix }) => (
+    <Spacer key="spacer" />,
+    <Alert
+      key="alert"
+      showIcon
+      type="info"
+      size="small"
+      message={
         <>
-          <WarningIcon /> If there is an appeal, you be required a{' '}
+          If there is an appeal, you be required a{' '}
           <strong>
-            {formattedValue} {suffix}
+            <EthValue key="appeal-deposit" amount={totalAppealCost} suffixType="short" />
           </strong>{' '}
-          deposit, which you can provide yourself or be crowdfunded. If you fail to do so, you will automatically lose
-          the dispute.
+          deposit. You can provide it yourself or it can be crowdfunded. If you fail to do so, you will automatically
+          lose the dispute.
         </>
-      )}
+      }
     />,
   ];
 

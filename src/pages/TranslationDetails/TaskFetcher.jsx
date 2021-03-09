@@ -1,4 +1,5 @@
 import React from 'react';
+import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { Spin } from 'antd';
@@ -7,9 +8,8 @@ import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { fetchById, selectById, selectIsLoadingById, selectErrorById } from '~/features/tasks/tasksSlice';
 import Spacer from '~/shared/Spacer';
 import { TaskProvider } from './TaskContext';
-import TaskDetails from './TaskDetails';
 
-export default function TaskFetcher() {
+export default function TaskFetcher({ children }) {
   const { id } = useParams();
   const dispatch = useDispatch();
   const isLoading = useSelector(selectIsLoadingById(id));
@@ -27,7 +27,14 @@ export default function TaskFetcher() {
   }, [doFetch]);
 
   return (
-    <Spin tip="Getting task details..." spinning={isLoading && !data}>
+    <>
+      <Spin
+        tip="Getting task details..."
+        spinning={isLoading && !data}
+        css={`
+          width: 100%;
+        `}
+      />
       {showError && (
         <>
           <Alert
@@ -44,10 +51,12 @@ export default function TaskFetcher() {
         </>
       )}
       {data && (!showError || error.recoverable) ? (
-        <TaskProvider task={data}>
-          <TaskDetails />
-        </TaskProvider>
+        <TaskProvider task={data}>{typeof children === 'function' ? children(data) : children}</TaskProvider>
       ) : null}
-    </Spin>
+    </>
   );
 }
+
+TaskFetcher.propTypes = {
+  children: t.oneOfType([t.node, t.func]).isRequired,
+};
