@@ -24,7 +24,7 @@ const translatorTasksSlice = createSlice({
   initialState,
   reducers: {
     setFilters(state, action) {
-      const { status, allTasks } = action.payload ?? {};
+      const { status, allTasks = false } = action.payload ?? {};
 
       state.filters.status = getStatusFilter(status);
       state.filters.allTasks = allTasks;

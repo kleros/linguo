@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { replace } from 'connected-react-router';
 import { useQuery } from '~/adapters/react-router-dom';
@@ -27,10 +27,9 @@ export default function useFilters() {
     [dispatch]
   );
 
-  return [
-    {
-      status: statusFilterFromUrl ?? statusFilterFromStore,
-    },
-    _setFilter,
-  ];
+  const status = statusFilterFromUrl ?? statusFilterFromStore;
+
+  const filters = useMemo(() => ({ status }), [status]);
+
+  return [filters, _setFilter];
 }

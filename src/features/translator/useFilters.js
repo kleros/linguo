@@ -1,8 +1,8 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { replace } from 'connected-react-router';
 import { useQuery } from '~/adapters/react-router-dom';
-import { setFilters, selectStatusFilter, selectAllTasksFilter } from './translatorSlice';
+import { selectAllTasksFilter, selectStatusFilter, setFilters } from './translatorSlice';
 
 export default function useFilter() {
   const dispatch = useDispatch();
@@ -12,10 +12,10 @@ export default function useFilter() {
   const allTasksFilterFromStore = useSelector(selectAllTasksFilter);
 
   const statusFilterFromUrl = queryParams.status;
-  const allTasksFilterFromUrl = queryParams.secondLevelFilter;
+  const allTasksFilterFromUrl = queryParams.allTasks === 'true';
 
   useEffect(() => {
-    if (!statusFilterFromUrl) {
+    if (!statusFilterFromUrl && allTasksFilterFromStore !== undefined) {
       const allTasksFilterMixin = allTasksFilterFromStore ? { allTasks: allTasksFilterFromStore } : {};
 
       const search = new URLSearchParams({
@@ -38,11 +38,16 @@ export default function useFilter() {
     [dispatch]
   );
 
-  return [
-    {
-      status: statusFilterFromUrl ?? statusFilterFromStore,
-      allTasks: allTasksFilterFromUrl ?? allTasksFilterFromStore,
-    },
-    _setFilters,
-  ];
+  const status = statusFilterFromUrl ?? statusFilterFromStore;
+  const allTasks = allTasksFilterFromUrl ?? allTasksFilterFromStore;
+
+  const filters = useMemo(
+    () => ({
+      status,
+      allTasks,
+    }),
+    [status, allTasks]
+  );
+
+  return [filters, _setFilters];
 }
