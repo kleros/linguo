@@ -9,6 +9,8 @@ import TaskResolveReason from './TaskResolveReason';
 
 const { toBN, BN } = Web3.utils;
 
+const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
+
 /**
  * Normalize task data to use JS-friendly types.
  *
@@ -135,8 +137,6 @@ const extractEventsReturnValues = (lifecycleEvents = {}) =>
     {}
   );
 
-const ETH_ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
-
 const normalizePropsFnMap = {
   status: TaskStatus.of,
   submissionTimeout: Number,
@@ -144,8 +144,8 @@ const normalizePropsFnMap = {
   lastInteraction: lastInteraction => dayjs.unix(lastInteraction).toISOString(),
   deadline: deadline => dayjs.unix(deadline).toISOString(),
   parties: ([_ignored, translator, challenger]) => ({
-    [TaskParty.Translator]: translator === ETH_ADDRESS_ZERO ? undefined : translator,
-    [TaskParty.Challenger]: challenger === ETH_ADDRESS_ZERO ? undefined : challenger,
+    [TaskParty.Translator]: translator === ADDRESS_ZERO ? undefined : translator,
+    [TaskParty.Challenger]: challenger === ADDRESS_ZERO ? undefined : challenger,
   }),
   disputeID: Number,
   ruling: DisputeRuling.of,
@@ -361,6 +361,27 @@ export const isFinalized = (task, { currentDate = new Date() } = {}) => {
  */
 export const isPending = ({ status } = {}) => {
   return [TaskStatus.Created, TaskStatus.Assigned].includes(status);
+};
+
+/**
+ * Returns the party of a given account on the task.
+ *
+ * @function
+ *
+ * @param {Object} task The task object
+ * @param {TaskParties} task.parties The task parties
+ * @param {Object} params The params
+ * @param {string|null} params.account The account get the respective party
+ * @return {TaskParty} The task party
+ */
+export const partyOf = ({ parties } = {}, { account }) => {
+  return parties[TaskParty.Translator] === account
+    ? TaskParty.Translator
+    : parties[TaskParty.Challenger] === account
+    ? TaskParty.Challenger
+    : parties[TaskParty.Requester] === account
+    ? TaskParty.Requester
+    : TaskParty.OtherJ;
 };
 
 /**

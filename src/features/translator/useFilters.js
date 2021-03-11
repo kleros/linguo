@@ -2,48 +2,46 @@ import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { replace } from 'connected-react-router';
 import { useQuery } from '~/adapters/react-router-dom';
-import { setFilters, selectFilter, selectSecondLevelFilter } from './translatorSlice';
+import { setFilters, selectStatusFilter, selectAllTasksFilter } from './translatorSlice';
 
 export default function useFilter() {
   const dispatch = useDispatch();
   const queryParams = useQuery();
 
-  const filterFromStore = useSelector(selectFilter);
-  const secondLevelFilterFromStore = useSelector(selectSecondLevelFilter);
+  const statusFilterFromStore = useSelector(selectStatusFilter);
+  const allTasksFilterFromStore = useSelector(selectAllTasksFilter);
 
-  const filterFromUrl = queryParams.filter;
-  const secondLevelFilterFromUrl = queryParams.secondLevelFilter;
+  const statusFilterFromUrl = queryParams.status;
+  const allTasksFilterFromUrl = queryParams.secondLevelFilter;
 
   useEffect(() => {
-    if (!filterFromUrl) {
-      const secondLevelFilterMixin = secondLevelFilterFromStore
-        ? { secondLevelFilter: secondLevelFilterFromStore }
-        : {};
+    if (!statusFilterFromUrl) {
+      const allTasksFilterMixin = allTasksFilterFromStore ? { allTasks: allTasksFilterFromStore } : {};
 
       const search = new URLSearchParams({
-        filter: filterFromStore,
-        ...secondLevelFilterMixin,
+        status: statusFilterFromStore,
+        ...allTasksFilterMixin,
       });
 
       dispatch(replace({ search: search.toString() }));
-    } else if (filterFromUrl !== filterFromStore || secondLevelFilterFromUrl !== secondLevelFilterFromStore) {
-      const secondLevelFilterMixin = secondLevelFilterFromUrl ? { secondLevelFilter: secondLevelFilterFromUrl } : {};
+    } else if (statusFilterFromUrl !== statusFilterFromStore || allTasksFilterFromUrl !== allTasksFilterFromStore) {
+      const allTasksFilterMixin = allTasksFilterFromUrl ? { allTasks: allTasksFilterFromUrl } : {};
 
-      dispatch(setFilters({ filter: filterFromUrl, ...secondLevelFilterMixin }));
+      dispatch(setFilters({ status: statusFilterFromUrl, ...allTasksFilterMixin }));
     }
-  }, [dispatch, filterFromStore, filterFromUrl, secondLevelFilterFromStore, secondLevelFilterFromUrl]);
+  }, [dispatch, statusFilterFromStore, statusFilterFromUrl, allTasksFilterFromStore, allTasksFilterFromUrl]);
 
   const _setFilters = useCallback(
-    ({ filter, secondLevelFilter }, additionalArgs = {}) => {
-      dispatch(setFilters({ filter, secondLevelFilter, ...additionalArgs }));
+    ({ status, allTasks }, additionalArgs = {}) => {
+      dispatch(setFilters({ status, allTasks, ...additionalArgs }));
     },
     [dispatch]
   );
 
   return [
     {
-      filter: filterFromUrl ?? filterFromStore,
-      secondLevelFilter: secondLevelFilterFromUrl ?? secondLevelFilterFromStore,
+      status: statusFilterFromUrl ?? statusFilterFromStore,
+      allTasks: allTasksFilterFromUrl ?? allTasksFilterFromStore,
     },
     _setFilters,
   ];

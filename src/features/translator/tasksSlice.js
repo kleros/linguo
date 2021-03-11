@@ -6,13 +6,15 @@ import { TaskParty } from '~/features/tasks';
 import { fetchByParty } from '~/features/tasks/tasksSlice';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
-import { filters, getFilter, getSecondLevelFilter, hasSecondLevelFilters } from './taskFilters';
+import { getStatusFilter, statusFilters } from './taskFilters';
 import { selectAllSkills } from './translatorSlice';
 
 export const initialState = {
   byAccount: {},
-  filter: filters.open,
-  secondLevelFilter: {},
+  filters: {
+    status: statusFilters.open,
+    allTasks: false,
+  },
 };
 
 export const fetchTasks = createAsyncAction('translator/tasks/fetch');
@@ -22,13 +24,10 @@ const translatorTasksSlice = createSlice({
   initialState,
   reducers: {
     setFilters(state, action) {
-      const { filter, secondLevelFilter } = action.payload ?? {};
+      const { status, allTasks } = action.payload ?? {};
 
-      state.filter = getFilter(filter);
-      if (hasSecondLevelFilters(filter) && secondLevelFilter) {
-        state.secondLevelFilter = state.secondLevelFilter ?? {};
-        state.secondLevelFilter[state.filter] = getSecondLevelFilter(filter, secondLevelFilter);
-      }
+      state.filters.status = getStatusFilter(status);
+      state.filters.allTasks = allTasks;
     },
   },
   extraReducers: builder => {
@@ -65,11 +64,9 @@ export const actions = {
   ...translatorTasksSlice.actions,
 };
 
-export const selectFilter = state => state.filter;
+export const selectStatusFilter = state => state.filters?.status ?? statusFilters.open;
 
-export const selectSecondLevelFilter = state => state.secondLevelFilter?.[state.filter];
-
-export const selectSecondLevelFilterForFilter = (state, { filter }) => state.secondLevelFilter?.[filter];
+export const selectAllTasksFilter = state => state.filters?.allTasks ?? false;
 
 export const selectLoadingState = (state, { account = null }) => state.byAccount[account]?.loadingState ?? 'idle';
 export const selectIsIdle = (state, { account }) => selectLoadingState(state, { account }) === 'idle';
@@ -80,9 +77,8 @@ export const selectHasFailed = (state, { account }) => selectLoadingState(state,
 export const selectTaskIds = (state, { account }) => state.byAccount[account]?.ids ?? [];
 
 export const selectors = {
-  selectFilter,
-  selectSecondLevelFilter,
-  selectSecondLevelFilterForFilter,
+  selectStatusFilter,
+  selectAllTasksFilter,
   selectIsIdle,
   selectIsLoading,
   selectHasFetched,

@@ -53,7 +53,7 @@ const menuItems = [
     <NavLink
       to={{
         pathname: r.TRANSLATOR_DASHBOARD,
-        search: 'filter=open',
+        search: 'status=open',
       }}
     >
       Work as a Translator

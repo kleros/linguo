@@ -6,4 +6,10 @@ export default {
       state.tasks.secondLevelFilter = {};
     }
   }),
+  1: produce(state => {
+    delete state.tasks?.filter;
+    delete state.tasks?.secondLevelFilter;
+
+    state.tasks.filters = {};
+  }),
 };

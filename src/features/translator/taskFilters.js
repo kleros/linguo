@@ -1,7 +1,7 @@
 import { Task, TaskParty, TaskStatus } from '~/features/tasks';
 import { createSkillsTaskMatcher } from './skillsMatchTask';
 
-export const filters = {
+export const statusFilters = {
   all: 'all',
   open: 'open',
   inProgress: 'inProgress',
@@ -17,11 +17,11 @@ export const filters = {
  * @param {string} filterName The filterName of the filter
  * @return {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} the name of the filter or 'all' if it does not exist.
  */
-export function getFilter(filterName) {
-  return filters[filterName] ?? filters.all;
+export function getStatusFilter(filterName) {
+  return statusFilters[filterName] ?? statusFilters.all;
 }
 
-const createFilterPredicates = {
+const createStatusFilterPredicates = {
   all: () => () => true,
   open: () => task => !Task.isIncomplete(task) && task.status === TaskStatus.Created,
   inProgress: () => task => !Task.isIncomplete(task) && task.status === TaskStatus.Assigned,
@@ -40,88 +40,22 @@ const createFilterPredicates = {
  * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} filterName The filterName of the filter
  * @return TaskFilterPredicate a filter predicated function to be used with Array#filter.
  */
-export function getFilterPredicate(filterName, { skills = [] } = {}) {
-  return createFilterPredicates[filterName]({ skills }) ?? createFilterPredicates.all({ skills });
-}
-
-const DEFAULT_FILTER = Symbol('@@default-filter');
-
-export const secondLevelFilters = {
-  [filters.inProgress]: {
-    [DEFAULT_FILTER]: 'myTranslations',
-    myTranslations: 'myTranslations',
-    others: 'others',
-  },
-  [filters.inReview]: {
-    [DEFAULT_FILTER]: 'toReview',
-    toReview: 'toReview',
-    myTranslations: 'myTranslations',
-  },
-  [filters.inDispute]: {
-    [DEFAULT_FILTER]: 'translated',
-    translated: 'translated',
-    challenged: 'challenged',
-    others: 'others',
-  },
-  [filters.finished]: {
-    [DEFAULT_FILTER]: 'translated',
-    translated: 'translated',
-    challenged: 'challenged',
-    others: 'others',
-  },
-  [filters.incomplete]: {
-    [DEFAULT_FILTER]: 'assigned',
-    assigned: 'assigned',
-    others: 'others',
-  },
-};
-
-export function getSecondLevelFilter(filterName, secondLevelFilterName) {
-  const firstLevel = secondLevelFilters[filterName];
-  return firstLevel?.[secondLevelFilterName] ?? firstLevel?.[DEFAULT_FILTER];
-}
-
-export function hasSecondLevelFilters(filterName) {
-  return secondLevelFilters[filterName] !== undefined;
+export function getStatusFilterPredicate(filterName, { skills = [] } = {}) {
+  return createStatusFilterPredicates[filterName]({ skills }) ?? createStatusFilterPredicates.all({ skills });
 }
 
 /**
  * @param {'all'|'open'|'inProgress'|'inReview'|'inDispute'|'finished'|'incomplete'} filterName The name of the first level filter
- * @param {string} secondLevelFilterName The name of the second level filter
+ * @param {string} allTasks The name of the second level filter
  * @param {object} params
  * @param string params.account the ethereum address of the user
  * @return {TaskFilterPredicate} a filter predicated function to be used with Array#filter.
  */
-export function getSecondLevelFilterPredicate(filterName, secondLevelFilterName, { account }) {
-  const secondLevelFilterPredicates = {
-    [filters.inProgress]: {
-      myTranslations: ({ parties }) => parties[TaskParty.Translator] === account,
-      others: ({ parties }) => parties[TaskParty.Translator] !== account,
-    },
-    [filters.inReview]: {
-      toReview: ({ parties }) => parties[TaskParty.Translator] !== account,
-      myTranslations: ({ parties }) => parties[TaskParty.Translator] === account,
-    },
-    [filters.inDispute]: {
-      translated: ({ parties }) => parties[TaskParty.Translator] === account,
-      challenged: ({ parties }) => parties[TaskParty.Challenger] === account,
-      others: ({ parties }) => parties[TaskParty.Translator] !== account && parties[TaskParty.Challenger] !== account,
-    },
-    [filters.finished]: {
-      translated: ({ parties }) => parties[TaskParty.Translator] === account,
-      challenged: ({ parties }) => parties[TaskParty.Challenger] === account,
-      others: ({ parties }) => parties[TaskParty.Translator] !== account && parties[TaskParty.Challenger] !== account,
-    },
-    [filters.incomplete]: {
-      assigned: ({ parties }) => parties[TaskParty.Translator] === account,
-      others: ({ parties }) => parties[TaskParty.Translator] !== account,
-    },
-  };
-
-  return secondLevelFilterPredicates[filterName]?.[secondLevelFilterName] ?? allPass;
+export function getAllTasksFilterPredicate(allTasks, { account }) {
+  return allTasks
+    ? () => true
+    : ({ parties }) => parties[TaskParty.Translator] === account || parties[TaskParty.Challenger] === account;
 }
-
-const allPass = () => true;
 
 /**
  * This callback is displayed as a global member.

@@ -52,9 +52,9 @@ export function getComparator(filterName, { account, skills = [] }) {
     },
     inReview: {
       withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
-      showFirstIfAccountIsTranslator: (a, b) => {
-        const isTranslatorOfA = !!account && a.parties?.[TaskParty.Translator] === account;
-        const isTranslatorOfB = !!account && b.parties?.[TaskParty.Translator] === account;
+      showLastIfIsTranslator: (a, b) => {
+        const isTranslatorOfA = Task.partyOf(a, { account }) === TaskParty.Translator;
+        const isTranslatorOfB = Task.partyOf(b, { account }) === TaskParty.Translator;
 
         return isTranslatorOfA === isTranslatorOfB ? 0 : isTranslatorOfB ? -1 : 1;
       },
@@ -66,17 +66,27 @@ export function getComparator(filterName, { account, skills = [] }) {
     },
     inDispute: {
       withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
+      showFirstIfIsTranslatorOrChallenger: (a, b) => {
+        const isTranslatorOrChallengerOfA = [TaskParty.Translator, TaskParty.Challenger].includes(
+          Task.partyOf(a, { account })
+        );
+        const isTranslatorOrChallengerOfB = [TaskParty.Translator, TaskParty.Challenger].includes(
+          Task.partyOf(b, { account })
+        );
+
+        return isTranslatorOrChallengerOfA === isTranslatorOrChallengerOfB ? 0 : isTranslatorOrChallengerOfB ? 1 : -1;
+      },
       disputeID: -1,
     },
     finished: {
       ID: -1,
     },
     incomplete: {
-      showFirstIfAccountIsTranslator: (a, b) => {
-        const isTranslatorOfA = !!account && a.parties?.[TaskParty.Translator] === account;
-        const isTranslatorOfB = !!account && b.parties?.[TaskParty.Translator] === account;
+      showFirstIfIsTranslator: (a, b) => {
+        const isTranslatorOfA = Task.partyOf(a, { account }) === TaskParty.Translator;
+        const isTranslatorOfB = Task.partyOf(b, { account }) === TaskParty.Translator;
 
-        return isTranslatorOfA === isTranslatorOfB ? 0 : isTranslatorOfB ? -1 : 1;
+        return isTranslatorOfA === isTranslatorOfB ? 0 : isTranslatorOfB ? 1 : -1;
       },
       status: -1,
       lastInteraction: -1,

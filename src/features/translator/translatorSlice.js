@@ -8,7 +8,7 @@ import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { compose, filter as arrayFilter, mapValues, sort } from '~/shared/fp';
 import migrations from './migrations';
 import skillsReducer, * as skills from './skillsSlice';
-import { getFilter, getFilterPredicate, getSecondLevelFilter, getSecondLevelFilterPredicate } from './taskFilters';
+import { getStatusFilter, getStatusFilterPredicate, getAllTasksFilterPredicate } from './taskFilters';
 import { getComparator } from './taskSorting';
 import tasksReducer, * as tasks from './tasksSlice';
 import { createSkillsTaskMatcher } from './skillsMatchTask';
@@ -19,7 +19,7 @@ function createPersistedReducer(reducer) {
   const persistConfig = {
     key: PERSISTANCE_KEY,
     storage,
-    version: 0,
+    version: 1,
     migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
     blacklist: [],
   };
@@ -43,9 +43,8 @@ export const { selectAllSkillLanguages, selectAllSkills } = mapValues(
 );
 
 export const {
-  selectFilter,
-  selectSecondLevelFilter,
-  selectSecondLevelFilterForFilter,
+  selectStatusFilter,
+  selectAllTasksFilter,
   selectIsIdle,
   selectIsLoading,
   selectHasSucceeded,
@@ -61,16 +60,16 @@ export const selectAllTasks = (state, { account }) => {
 export const selectTasksForFilter = createSelector(
   [
     selectAllTasks,
-    (_, { filter }) => filter,
-    (_, { secondLevelFilter }) => secondLevelFilter,
+    (_, { status }) => status,
+    (_, { allTasks }) => allTasks,
     (_, { account }) => account,
     (_, { skills }) => skills,
   ],
-  (tasks, filter, secondLevelFilter, account, skills) =>
+  (tasks, status, allTasks, account, skills) =>
     compose(
-      sort(getComparator(filter, { account, skills })),
-      arrayFilter(getSecondLevelFilterPredicate(filter, secondLevelFilter, { account })),
-      arrayFilter(getFilterPredicate(filter, { skills }))
+      sort(getComparator(status, { account, skills })),
+      arrayFilter(getAllTasksFilterPredicate(allTasks, { account })),
+      arrayFilter(getStatusFilterPredicate(status, { skills }))
     )(tasks)
 );
 
@@ -80,32 +79,30 @@ export const selectTaskCountForFilter = createSelector(
 );
 
 export const selectTasksForCurrentFilter = createSelector(
-  [state => state, (_, { account }) => account, (_, { skills }) => skills, selectFilter, selectSecondLevelFilter],
-  (state, account, skills, filter, secondLevelFilter) =>
-    selectTasksForFilter(state, { account, skills, filter, secondLevelFilter })
+  [state => state, (_, { account }) => account, (_, { skills }) => skills, selectStatusFilter, selectAllTasksFilter],
+  (state, account, skills, status, allTasks) => selectTasksForFilter(state, { account, skills, status, allTasks })
 );
 
 export function* onFilterChangeSaga(action) {
-  const filterFromAction = action.payload?.filter;
-  const secondLevelFilterFromAction = action.payload?.secondLevelFilter;
+  const statusFilterFromAction = action.payload?.status;
+  const allTasksFilterFromAction = action.payload?.allTasks;
   const additionalParams = action.payload?.additionalParams ?? {};
 
-  const filter = getFilter(filterFromAction);
+  const statusFilter = getStatusFilter(statusFilterFromAction);
 
-  const secondLevelFilterFromStore = yield select(state => selectSecondLevelFilterForFilter(state, { filter }));
+  const allTasksFilterFromStore = yield select(tasks.selectAllTasksFilter);
+  const allTasksFilter = allTasksFilterFromAction ?? allTasksFilterFromStore;
 
-  const secondLevelFilter = getSecondLevelFilter(filter, secondLevelFilterFromAction ?? secondLevelFilterFromStore);
-
-  const secondLevelFilterMixin = secondLevelFilter ? { secondLevelFilter } : {};
+  const allTasksFilterMixin = allTasksFilter ? { allTasks: allTasksFilter } : {};
 
   const search = new URLSearchParams({
-    filter: filter,
-    ...secondLevelFilterMixin,
+    status: statusFilter,
+    ...allTasksFilterMixin,
     ...additionalParams,
   });
 
-  const currentFilter = yield select(selectFilter);
-  const routerAction = filter === currentFilter ? replace : push;
+  const currentFilter = yield select(selectStatusFilter);
+  const routerAction = statusFilter === currentFilter ? replace : push;
 
   yield put(routerAction({ search: search.toString() }));
 }
