@@ -15,13 +15,16 @@ function TaskStatusDetailsLayout({ title, description, interaction, illustration
           margin-bottom: -16px !important;
         `}
       >
-        <Col xs={24} sm={24} md={24} lg={18}>
+        <Col xs={24} sm={24} md={24} lg={illustration ? 18 : 16}>
           <BoxTitle>{title}</BoxTitle>
           <StatusDescription items={description} />
         </Col>
-        <Col xs={24} sm={24} md={24} lg={6}>
-          {illustration && <StyledIllustrationWrapper>{illustration}</StyledIllustrationWrapper>}
-          {interaction && <StyledInteractionWrapper>{interaction}</StyledInteractionWrapper>}
+        <Col xs={24} sm={24} md={24} lg={illustration ? 6 : 8}>
+          {illustration ? (
+            <StyledIllustrationWrapper>{illustration}</StyledIllustrationWrapper>
+          ) : interaction ? (
+            <StyledInteractionWrapper>{interaction}</StyledInteractionWrapper>
+          ) : null}
         </Col>
       </Row>
     </BoxWrapper>
