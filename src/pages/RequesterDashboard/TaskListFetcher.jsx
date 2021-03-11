@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { Spin } from '~/adapters/antd';
-import { filters, useFilter } from '~/features/requester';
+import { statusFilters, useFilters } from '~/features/requester';
 import { fetchTasks, selectTasksForCurrentFilter, selectIsLoading } from '~/features/requester/requesterSlice';
 import TaskList from '~/features/tasks/TaskList';
 import DismissableAlert from '~/features/ui/DismissableAlert';
@@ -24,14 +24,14 @@ export default function TaskListFetcher() {
   }, [doFetchTasks]);
 
   const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account }));
-  const [filterName] = useFilter();
+  const [filterName] = useFilters();
 
-  const showFootnote = [filters.open].includes(filterName) && data.length > 0;
+  const showFootnote = [statusFilters.open].includes(filterName) && data.length > 0;
 
   return (
     <>
       <TopLoadingBar show={isLoading} />
-      <Spin $centered tip="Loading translation tasks..." spinning={isLoading && data.length === 0}>
+      <Spin $fixed tip="Loading translation tasks..." spinning={isLoading && data.length === 0}>
         <>
           {filterDescriptionMap[filterName]}
           <TaskList data={data} showFootnote={showFootnote} />
@@ -50,19 +50,19 @@ const StyledDismissableAlert = styled(DismissableAlert)`
 `;
 
 const filterDescriptionMap = {
-  [filters.open]: (
+  [statusFilters.open]: (
     <StyledDismissableAlert
       id="requester.filterNames.open"
       message="These are the tasks created by you which were not picked by any translators yet."
     />
   ),
-  [filters.inProgress]: (
+  [statusFilters.inProgress]: (
     <StyledDismissableAlert
       id="requester.filterNames.inProgress"
       message="Translators are currently working on these tasks."
     />
   ),
-  [filters.inReview]: (
+  [statusFilters.inReview]: (
     <StyledDismissableAlert
       id="requester.filterNames.inReview"
       message="The translated texts have been delivered by the translators."
@@ -79,19 +79,19 @@ const filterDescriptionMap = {
       }
     />
   ),
-  [filters.inDispute]: (
+  [statusFilters.inDispute]: (
     <StyledDismissableAlert
       id="requester.filterNames.inDispute"
       message="The translations below are being evaluated by specialized jurors on Kleros."
     />
   ),
-  [filters.finished]: (
+  [statusFilters.finished]: (
     <StyledDismissableAlert
       id="requester.filterNames.finished"
       message="The translations below were delivered and their translators received their payments."
     />
   ),
-  [filters.incomplete]: (
+  [statusFilters.incomplete]: (
     <StyledDismissableAlert
       id="requester.filterNames.incomplete"
       message="Incomplete task are those which were not assigned to any translator or whose translator did not submit the translated text within the specified deadline."

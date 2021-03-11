@@ -1,19 +1,24 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { put, putResolve, select } from 'redux-saga/effects';
+import { persistReducer, createMigrate } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import { push, replace } from 'connected-react-router';
 import { TaskParty } from '~/features/tasks';
 import { fetchByParty, create, selectAllFilterByIds } from '~/features/tasks/tasksSlice';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
-import { compose, filter as arrayFilter, sort } from '~/shared/fp';
-import { filters, getFilter, getFilterPredicate } from './filters';
+import { compose, filter, sort } from '~/shared/fp';
+import migrations from './migrations';
+import { statusFilters, getStatusFilter, getStatusFilterPredicate } from './filters';
 import { getComparator } from './sorting';
 import { LanguageGroupPair, getLanguageGroup } from '../linguo/languagePairing';
 
 export const initialState = {
   tasks: {
     byAccount: {},
-    filter: filters.open,
+    filters: {
+      status: statusFilters.all,
+    },
   },
 };
 
@@ -24,7 +29,8 @@ const requesterSlice = createSlice({
   initialState,
   reducers: {
     setFilter(state, action) {
-      state.tasks.filter = getFilter(action.payload.filter);
+      state.tasks.filters = state.tasks.filters ?? {};
+      state.tasks.filters.status = getStatusFilter(action.payload.status);
     },
   },
   extraReducers: builder => {
@@ -54,7 +60,23 @@ const requesterSlice = createSlice({
   },
 });
 
-export const selectFilter = state => state.requester.tasks.filter ?? filters.open;
+const PERSISTANCE_KEY = 'requester';
+
+function createPersistedReducer(reducer) {
+  const persistConfig = {
+    key: PERSISTANCE_KEY,
+    storage,
+    version: 0,
+    migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
+    blacklist: [],
+  };
+
+  return persistReducer(persistConfig, reducer);
+}
+
+export default createPersistedReducer(requesterSlice.reducer);
+
+export const selectStatusFilter = state => state.requester.tasks?.filters?.status ?? statusFilters.all;
 
 const selectLoadingState = (state, { account = null }) =>
   state.requester.tasks.byAccount[account]?.loadingState ?? 'idle';
@@ -69,18 +91,16 @@ export const selectAllTasks = (state, { account }) => {
   return selectAllFilterByIds(taskIds)(state);
 };
 
-export const selectTasksForFilter = createSelector([selectAllTasks, (_, { filter }) => filter], (tasks, filter) =>
-  compose(sort(getComparator(filter)), arrayFilter(getFilterPredicate(filter)))(tasks)
+export const selectTasksForFilter = createSelector([selectAllTasks, (_, { status }) => status], (tasks, status) =>
+  compose(sort(getComparator(status)), filter(getStatusFilterPredicate(status)))(tasks)
 );
 
 export const selectTaskCountForFilter = createSelector([selectTasksForFilter], tasks => tasks.length);
 
 export const selectTasksForCurrentFilter = createSelector(
-  [state => state, (_, { account }) => account, selectFilter],
-  (state, account, filter) => selectTasksForFilter(state, { account, filter })
+  [state => state, (_, { account }) => account, selectStatusFilter],
+  (state, account, status) => selectTasksForFilter(state, { account, status })
 );
-
-export default requesterSlice.reducer;
 
 export const { setFilter } = requesterSlice.actions;
 
@@ -108,16 +128,16 @@ export function* handleTaskCreateTxnMined(action) {
 }
 
 export function* onFilterChangeSaga(action) {
-  const currentFilterName = yield select(selectFilter);
-  const { filter: newFilter, additionalParams } = action.payload ?? {};
+  const currentStatus = yield select(selectStatusFilter);
+  const { status, additionalParams } = action.payload ?? {};
 
-  const normalizedNewFilterName = getFilter(newFilter);
+  const normalizedStatus = getStatusFilter(status);
   const search = new URLSearchParams({
-    filter: normalizedNewFilterName,
+    status: normalizedStatus,
     ...additionalParams,
   });
 
-  const routerAction = normalizedNewFilterName === currentFilterName ? replace : push;
+  const routerAction = normalizedStatus === currentStatus ? replace : push;
 
   yield put(routerAction({ search: search.toString() }));
 }

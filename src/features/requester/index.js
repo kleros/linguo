@@ -1,2 +1,2 @@
-export { filters, getFilter, getFilterPredicate } from './filters';
-export { default as useFilter } from './useFilter';
+export { statusFilters, getStatusFilter, getStatusFilterPredicate } from './filters';
+export { default as useFilters } from './useFilters';

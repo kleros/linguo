@@ -5,7 +5,7 @@ import { Divider } from 'antd';
 import AffixContainer from '~/shared/AffixContainer';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
 import MultiCardLayout from '../layouts/MultiCardLayout';
-import TaskListControls from './TaskListControls';
+import TaskListHeader from './TaskListHeader';
 import TaskListFetcher from './TaskListFetcher';
 
 function RequesterDashboard() {
@@ -31,7 +31,7 @@ function RequesterDashboard() {
             }
           `}
         >
-          <TaskListControls />
+          <TaskListHeader />
         </AffixContainer>
         <StyledDivider />
         <StyledContentWrapper>
@@ -54,7 +54,7 @@ const StyledContentWrapper = styled.div`
 
 const StyledDivider = styled(Divider)`
   border-top-color: ${props => props.theme.color.primary.default};
-  margin: 2.5rem 0;
+  margin: 1rem 0;
 
   @media (max-width: 575.98px) {
     border-top-color: transparent;
