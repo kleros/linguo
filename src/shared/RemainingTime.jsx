@@ -1,6 +1,9 @@
 import t from 'prop-types';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import useCountdownTimer from '~/shared/useCountdownTimer';
+
+dayjs.extend(relativeTime);
 
 const _1_SECOND_IN_MILISECONDS = 1000;
 const _5_MINUTES_IN_MILISECONDS = 5 * 60 * 1000;
