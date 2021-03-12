@@ -9,9 +9,9 @@ import TaskList from '~/features/translator/TaskList';
 import { statusFilters, useFilters } from '~/features/translator';
 import {
   fetchTasks,
+  selectTasksForCurrentFilter,
   selectAllSkills,
   selectIsLoading,
-  selectTasksForFilter,
 } from '~/features/translator/translatorSlice';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import { selectAccount } from '~/features/web3/web3Slice';
@@ -33,14 +33,7 @@ export default function TaskListFetcher() {
 
   const [{ status, allTasks }] = useFilters();
 
-  const data = useShallowEqualSelector(state =>
-    selectTasksForFilter(state, {
-      status,
-      allTasks: status === statusFilters.open ? true : allTasks,
-      account,
-      skills,
-    })
-  );
+  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account, skills }));
   const showFootnote = [statusFilters.open].includes(status) && data.length > 0;
 
   return (

@@ -51,10 +51,13 @@ export function getStatusFilterPredicate(filterName, { skills = [] } = {}) {
  * @param string params.account the ethereum address of the user
  * @return {TaskFilterPredicate} a filter predicated function to be used with Array#filter.
  */
-export function getAllTasksFilterPredicate(allTasks, { account }) {
+export function getAllTasksFilterPredicate(allTasks, { status, account }) {
   return allTasks
     ? () => true
-    : ({ parties }) => parties[TaskParty.Translator] === account || parties[TaskParty.Challenger] === account;
+    : ({ parties }) =>
+        status === statusFilters.open
+          ? true // Always show open tasks, since there's no concept of "My Tasks" for tasks in Created state.
+          : parties[TaskParty.Translator] === account || parties[TaskParty.Challenger] === account;
 }
 
 /**

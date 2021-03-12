@@ -68,7 +68,7 @@ export const selectTasksForFilter = createSelector(
   (tasks, status, allTasks, account, skills) =>
     compose(
       sort(getComparator(status, { account, skills })),
-      arrayFilter(getAllTasksFilterPredicate(allTasks, { account })),
+      arrayFilter(getAllTasksFilterPredicate(allTasks, { status, account })),
       arrayFilter(getStatusFilterPredicate(status, { skills }))
     )(tasks)
 );
