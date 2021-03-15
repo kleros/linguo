@@ -229,5 +229,11 @@ const StyledMainMenu = styled(Menu)`
         text-shadow: 0 0 5px ${p => p.theme.hexToRgba(p.theme.color.text.inverted, 0.25)};
       }
     }
+
+    &.ant-menu-horizontal > .ant-menu-item {
+      margin-top: 1px;
+      top: 0;
+      border: none;
+    }
   }
 `;

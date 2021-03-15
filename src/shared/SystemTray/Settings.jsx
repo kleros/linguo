@@ -1,27 +1,28 @@
 import React from 'react';
-import t from 'prop-types';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Row, Col, Typography, Divider } from 'antd';
-import { selectHasError } from '~/features/web3/web3Slice';
+import { Tabs, Typography } from 'antd';
+import AntdButton from '~/adapters/antd/Button';
 import * as r from '~/app/routes';
-import { SettingsIcon } from '~/shared/icons';
-import Button from '~/shared/Button';
-import WalletConnectionButton from '~/features/web3/WalletConnectionButton';
+import { HelpIcon, SettingsIcon } from '~/shared/icons';
+import Spacer from '~/shared/Spacer';
+import { Popover } from './adapters';
+import NetworkStatus from './NetworkStatus';
+import SystemTrayButton from './SystemTrayButton';
+import WalletBalance from './WalletBalance';
 import WalletInformation from './WalletInformation';
-import { Popover, Button as TrayButton, withToolbarStylesIcon } from './adapters';
+import EmailNotifications from './EmailNotifications';
 
-function Settings() {
-  const hasError = useSelector(selectHasError);
+const { TabPane } = Tabs;
 
+export default function Settings() {
   const [visible, setVisible] = React.useState(false);
 
   const handleVisibilityChange = React.useCallback(visible => {
     setVisible(visible);
   }, []);
 
-  const handleTranslatorSetupButtonClick = React.useCallback(() => {
+  const handlePopoverDismissOnClick = React.useCallback(() => {
     setVisible(false);
   }, []);
 
@@ -29,116 +30,76 @@ function Settings() {
     <StyledPopover
       arrowPointAtCenter
       content={
-        <>
-          <Row
-            gutter={16}
-            align="middle"
-            css={`
-              margin-bottom: 1rem;
-            `}
-          >
-            <Col span={18}>
-              <WalletConnectionButton variant="outlined" size="small" />
-            </Col>
-            <Col span={6}>
-              <StyledSectionTitle
-                level={3}
-                css={`
-                  text-align: right;
-                  && {
-                    margin-bottom: 0;
-
-                    .anticon {
-                      width: 0.875rem;
-                      height: 0.875rem;
-                      margin-left: 0.375rem;
-                    }
-
-                    svg {
-                      fill: currentColor;
-                    }
-                  }
-                `}
-              >
-                <span>Settings</span>
-                <SettingsIcon />
-              </StyledSectionTitle>
-            </Col>
-          </Row>
-          {!hasError && <WalletInformation />}
-          <StyledDivider />
-          <TranslatorSetup onClick={handleTranslatorSetupButtonClick} />
-        </>
+        <StyledTabs defaultActiveKey="1" type="line">
+          <TabPane key="1" tab="General">
+            <GeneralSettings />
+          </TabPane>
+          <TabPane key="2" tab="E-mail">
+            <EmailNotifications />
+          </TabPane>
+        </StyledTabs>
       }
+      footer={
+        <StyledHelperText>
+          Any doubts?{' '}
+          <Link to={r.FAQ} component={AntdButton} type="link" onClick={handlePopoverDismissOnClick}>
+            Visit our FAQ <HelpIcon />
+          </Link>
+        </StyledHelperText>
+      }
+      title="Settings"
       placement="bottomRight"
       trigger="click"
       visible={visible}
       onVisibleChange={handleVisibilityChange}
     >
-      <TrayButton shape="round">
-        <StyledSettingsIcon />
-      </TrayButton>
+      <SystemTrayButton icon={<SettingsIcon />}></SystemTrayButton>
     </StyledPopover>
   );
 }
 
-export default Settings;
-
-const StyledSection = styled.section`
-  margin: 1rem 0;
-
-  :last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const StyledSectionTitle = styled(Typography.Title)`
-  && {
-    color: ${props => props.theme.color.text.default};
-    font-size: 0.875rem;
-    line-height: 0.875rem;
-    font-weight: ${p => p.theme.fontWeight.regular};
-    margin-bottom: 1rem;
-  }
-`;
-
-function TranslatorSetup({ onClick }) {
+function GeneralSettings() {
   return (
-    <StyledSection>
-      <StyledSectionTitle
-        level={3}
-        css={`
-          text-align: center;
-          && {
-            font-weight: ${p => p.theme.fontWeight.semibold};
-          }
-        `}
-      >
-        Translator
-      </StyledSectionTitle>
-      <Link to={r.TRANSLATOR_SETTINGS}>
-        <Button fullWidth onClick={onClick}>
-          Update your language skills
-        </Button>
-      </Link>
-    </StyledSection>
+    <StyledGeneralSettings>
+      <Spacer />
+      <NetworkStatus />
+      <Spacer size={2} />
+      <WalletInformation />
+      <Spacer size={2} />
+      <WalletBalance />
+    </StyledGeneralSettings>
   );
 }
 
-TranslatorSetup.propTypes = {
-  onClick: t.func,
-};
-
-TranslatorSetup.defaultProps = {
-  onClick: () => {},
-};
+const StyledGeneralSettings = styled.div`
+  text-align: center;
+`;
 
 const StyledPopover = styled(Popover)`
   width: 32rem;
 `;
 
-const StyledDivider = styled(Divider)`
-  border-top-color: ${props => props.theme.color.background.light};
+const StyledTabs = styled(Tabs)`
+  && {
+    .ant-tabs-nav-list {
+      width: 100%;
+
+      > .ant-tabs-tab {
+        flex: 1;
+        justify-content: center;
+        font-weight: ${p => p.theme.fontWeight.semibold};
+      }
+    }
+  }
 `;
 
-const StyledSettingsIcon = withToolbarStylesIcon(SettingsIcon);
+const StyledHelperText = styled(Typography.Text)`
+  color: inherit;
+
+  && {
+    > .ant-btn-link {
+      font-weight: ${p => p.theme.fontWeight.semibold};
+      padding: 0;
+    }
+  }
+`;

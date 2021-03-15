@@ -3,19 +3,22 @@ import t from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
-import { List, Skeleton, Button as AntdButton } from 'antd';
+import { List, Skeleton } from 'antd';
 import {
   CloseOutlined as AntdCloseOutlinedIcon,
   CheckOutlined as AntdCheckOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
+import AntdButton from '~/adapters/antd/Button';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { selectByAccount, markAsRead, markAllFromAccountAsRead } from '~/features/notifications/notificationsSlice';
 import { selectAccount, selectBlockDate, getBlockInfo, selectChainId } from '~/features/web3/web3Slice';
 import { CheckIcon, DisputeIcon, NotificationIcon } from '~/shared/icons';
 import TimeAgo from '~/shared/TimeAgo';
 import Spacer from '~/shared/Spacer';
-import { Badge, Button, Popover, withToolbarStylesIcon } from './adapters';
+import { Popover } from './adapters';
+import SystemTrayBadge from './SystemTrayBadge';
+import SystemTrayButton from './SystemTrayButton';
 
 export default function Notifications() {
   const dispatch = useDispatch();
@@ -102,11 +105,9 @@ export default function Notifications() {
       trigger="click"
     >
       <span>
-        <Badge count={totalCount}>
-          <Button shape="round">
-            <StyledNotificationIcon />
-          </Button>
-        </Badge>
+        <SystemTrayBadge dot count={totalCount} title={totalCount >= 100 ? totalCount : ''}>
+          <SystemTrayButton icon={<NotificationIcon />}></SystemTrayButton>
+        </SystemTrayBadge>
       </span>
     </StyledPopover>
   );
@@ -130,8 +131,6 @@ function useLoadableList(list, { initialCount = 10, additionalCount = initialCou
 }
 
 const locale = { emptyText: 'Wow, such empty!' };
-
-const StyledNotificationIcon = withToolbarStylesIcon(NotificationIcon);
 
 const StyledPopover = styled(Popover)`
   width: 32rem;

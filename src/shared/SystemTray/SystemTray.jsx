@@ -1,25 +1,35 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Row } from 'antd';
+import { useSelector } from 'react-redux';
+import theme from '~/features/ui/theme';
+import { selectAccount } from '~/features/web3/web3Slice';
+import WalletConnection from './WalletConnection';
 import Notifications from './Notifications';
-import EmailNotifications from './EmailNotifications';
 import Settings from './Settings';
+import NetworkStatus from './NetworkStatus';
+import HelpNav from './HelpNav';
 
-const StyledRow = styled(Row)`
-  height: 4rem;
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-`;
+export default function SystemTray() {
+  const isConnected = !!useSelector(selectAccount);
 
-function SystemTray() {
   return (
     <StyledRow>
+      {isConnected ? <NetworkStatus textColor={theme.color.text.inverted} /> : <WalletConnection />}
       <Notifications />
-      <EmailNotifications />
       <Settings />
+      <HelpNav />
     </StyledRow>
   );
 }
 
-export default SystemTray;
+const StyledRow = styled.div`
+  height: 4rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  .ant-btn,
+  .ant-badge {
+    display: block;
+  }
+`;

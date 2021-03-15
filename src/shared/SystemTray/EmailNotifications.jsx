@@ -2,31 +2,23 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { Form, Checkbox, Input, Row } from 'antd';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { Checkbox, Form, Input, Row } from 'antd';
 import { Spin } from '~/adapters/antd';
-import Button from '~/shared/Button';
-import { EmailIcon } from '~/shared/icons';
-import { compose, flatten, mapValues } from '~/shared/fp';
-import { selectAccount } from '~/features/web3/web3Slice';
-import {
-  selectSettings,
-  selectIsLoadingSettings,
-  update,
-  fetchByAccount,
-  DEFAULT_INITIAL_VALUES,
-} from '~/features/users/userSettingsSlice';
-import { notify } from '~/features/ui/uiSlice';
-import { Popover, Button as TrayButton, withToolbarStylesIcon } from './adapters';
+import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { PopupNotificationLevel } from '~/features/ui/popupNotificationsSlice';
+import { notify } from '~/features/ui/uiSlice';
+import {
+  DEFAULT_INITIAL_VALUES,
+  fetchByAccount,
+  selectIsLoadingSettings,
+  selectSettings,
+  update,
+} from '~/features/users/userSettingsSlice';
+import { selectAccount } from '~/features/web3/web3Slice';
+import Button from '~/shared/Button';
+import { compose, flatten, mapValues } from '~/shared/fp';
 
 export default function EmailNotifications() {
-  const [visible, setVisible] = React.useState(false);
-
-  const handleVisibilityChange = React.useCallback(visible => {
-    setVisible(visible);
-  }, []);
-
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
   const settings = useShallowEqualSelector(state => selectSettings(state, { account }));
@@ -58,31 +50,15 @@ export default function EmailNotifications() {
             key: 'update-email-preferences',
           })
         );
-      } finally {
-        setVisible(false);
       }
     },
     [dispatch, account]
   );
 
   return (
-    <StyledPopover
-      arrowPointAtCenter
-      content={
-        <Spin spinning={isLoadingPreferences}>
-          <EmailNotificationsForm initialValues={settings} onSubmit={handleFormSubmit} />
-        </Spin>
-      }
-      placement="bottomRight"
-      title="Notify me by e-mail when:"
-      trigger="click"
-      visible={visible}
-      onVisibleChange={handleVisibilityChange}
-    >
-      <TrayButton shape="round">
-        <StyledEmailIcon />
-      </TrayButton>
-    </StyledPopover>
+    <Spin $centered spinning={isLoadingPreferences}>
+      <EmailNotificationsForm initialValues={settings} onSubmit={handleFormSubmit} />
+    </Spin>
   );
 }
 
@@ -126,24 +102,6 @@ function EmailNotificationsForm({ onSubmit, initialValues }) {
       layout="vertical"
       scrollToFirstError
     >
-      <Form.Item>
-        <Checkbox
-          checked={checkAll.checked}
-          onChange={checkAll.handleAllCheckedChange}
-          indeterminate={checkAll.indeterminate}
-        >
-          Notify me of everything.
-        </Checkbox>
-      </Form.Item>
-      {Object.entries(settings).map(([role, { label, items }]) => (
-        <StyledGroupItem key={role} label={label}>
-          {Object.entries(items).map(([key, description]) => (
-            <StyledCheckboxItem key={`${role}-${key}`} name={['emailPreferences', role, key]} valuePropName="checked">
-              <Checkbox onChange={checkAll.handleItemCheckedChange}>{description}</Checkbox>
-            </StyledCheckboxItem>
-          ))}
-        </StyledGroupItem>
-      ))}
       <Form.Item
         name="email"
         label="E-mail"
@@ -172,8 +130,33 @@ function EmailNotificationsForm({ onSubmit, initialValues }) {
       >
         <Input placeholder="Your full name" />
       </Form.Item>
+      <Form.Item>
+        <Checkbox
+          checked={checkAll.checked}
+          onChange={checkAll.handleAllCheckedChange}
+          indeterminate={checkAll.indeterminate}
+        >
+          Notify me of everything.
+        </Checkbox>
+      </Form.Item>
+      {Object.entries(settings).map(([role, { label, items }]) => (
+        <StyledGroupItem key={role} label={label}>
+          {Object.entries(items).map(([key, description]) => (
+            <StyledCheckboxItem key={`${role}-${key}`} name={['emailPreferences', role, key]} valuePropName="checked">
+              <Checkbox onChange={checkAll.handleItemCheckedChange}>{description}</Checkbox>
+            </StyledCheckboxItem>
+          ))}
+        </StyledGroupItem>
+      ))}
       <StyleFormButtonRow>
-        <Button htmlType="submit">Subscribe</Button>
+        <Button
+          htmlType="submit"
+          css={`
+            flex: 8rem 0 1;
+          `}
+        >
+          Save
+        </Button>
       </StyleFormButtonRow>
     </StyledForm>
   );
@@ -284,12 +267,6 @@ const settings = {
     },
   },
 };
-
-const StyledPopover = styled(Popover)`
-  width: 28rem;
-`;
-
-const StyledEmailIcon = withToolbarStylesIcon(EmailIcon);
 
 const StyledForm = styled(Form)`
   padding-top: 1rem;

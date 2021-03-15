@@ -1,7 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 import styled, { css } from 'styled-components';
-import { Button as BaseButton } from 'antd';
+import AntdButton from '~/adapters/antd/Button';
 
 function Button({ variant, size, color, fullWidth, children, ...props }) {
   return (
@@ -13,7 +13,7 @@ function Button({ variant, size, color, fullWidth, children, ...props }) {
 
 Button.propTypes = {
   variant: t.oneOf(['filled', 'outlined', 'link', 'unstyled']),
-  size: t.oneOf(['small', 'default', 'large']),
+  size: t.oneOf(['small', 'middle', 'large']),
   color: t.oneOf(['primary', 'secondary', 'primary-light', 'secondary-dark']),
   fullWidth: t.bool,
   children: t.node,
@@ -21,7 +21,7 @@ Button.propTypes = {
 
 Button.defaultProps = {
   variant: 'filled',
-  size: 'default',
+  size: 'middle',
   color: 'primary',
   fullWidth: false,
   children: null,
@@ -35,7 +35,7 @@ const sizeStyles = {
     line-height: 1.15;
     min-height: 2rem;
   `,
-  default: css`
+  middle: css`
     font-size: ${p => p.theme.fontSize.sm};
     line-height: 1.33;
     min-height: 2.5rem;
@@ -199,7 +199,7 @@ const variantStyles = {
   `,
 };
 
-const StyledButton = styled(BaseButton)`
+const StyledButton = styled(AntdButton)`
   display: ${p => (p.block ? 'flex' : 'inline-flex')};
   width: ${p => (p.block ? '100%' : 'auto')};
   justify-content: center;
