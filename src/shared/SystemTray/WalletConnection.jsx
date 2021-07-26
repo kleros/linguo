@@ -3,6 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { Button as AntdButton, Spin, Typography } from 'antd';
+import { Popover } from '~/adapters/antd';
 import FortmaticLogo from '~/assets/images/logo-fortmatic.svg';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
 import { useConnectToProvider } from '~/features/web3';
@@ -11,7 +12,6 @@ import { fortmatic, injected } from '~/features/web3/connectors';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import { HelpIcon } from '~/shared/icons';
-import { Popover } from './adapters';
 import SystemTrayButton from './SystemTrayButton';
 
 export default function WalletConnection() {
