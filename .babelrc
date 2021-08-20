@@ -3,6 +3,7 @@
     [
       "@babel/preset-env",
       {
+        "loose": true,
         "useBuiltIns": "usage",
         "corejs": 3,
         "exclude": ["@babel/plugin-transform-regenerator"]
@@ -17,6 +18,7 @@
         "regenerator": false
       }
     ],
+    "@babel/plugin-proposal-class-properties",
     [
       "import",
       {
@@ -31,8 +33,25 @@
         "pure": true
       }
     ],
-    "@babel/plugin-proposal-class-properties",
     "react-hot-loader/babel"
   ],
-  "sourceMaps": "inline"
+  "sourceMaps": "inline",
+  "env": {
+    "production": {
+      "plugins": [
+        [
+          "transform-react-remove-prop-types",
+          {
+            "removeImport": true
+          }
+        ],
+        [
+          "styled-components",
+          {
+            "displayName": false
+          }
+        ]
+      ]
+    }
+  }
 }
