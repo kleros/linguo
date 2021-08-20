@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import deepMerge from 'deepmerge';
 import deepEqual from 'deep-equal';
 import Web3 from 'web3';
+import localforage from 'localforage';
 import ipfs from '~/app/ipfs';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
 import challengeEvidenceTemplate from '~/assets/fixtures/challengeEvidenceTemplate';
@@ -21,6 +22,10 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   const firstRelevantBlock = firstRelevantBlockByChainId[chainId] ?? 0;
   const evidenceDisplayInterfaceURI = evidenceDisplayURIByChainId[chainId] ?? evidenceDisplayURIByChainId[1];
   const dynamicScriptURI = dynamicScriptURIByChainId[chainId] ?? dynamicScriptURIByChainId[1];
+
+  const metadataStore = localforage.createInstance({
+    name: `task-metadata@eip155:${chainId}`,
+  });
 
   async function createTask(
     { account, deadline, minPrice, maxPrice, ...rest },
@@ -284,6 +289,13 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
 
   async function _getTaskMetadata({ ID }) {
     ID = String(ID);
+    const contract = linguo.options.address;
+    const globalId = Task.normalize({ ID, contract }).id;
+
+    const item = await metadataStore.getItem(globalId);
+    if (item !== null) {
+      return item;
+    }
 
     try {
       const metaEvidenceEvents = await _getPastEvents(linguo, 'MetaEvidence', {
@@ -297,7 +309,11 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
         })
       );
 
-      return { ID, ...metadata };
+      const result = { ID, ...metadata };
+
+      await metadataStore.setItem(globalId, result);
+
+      return result;
     } catch (err) {
       console.warn('Error feching task metadata', err);
       throw err;

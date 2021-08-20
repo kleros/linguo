@@ -14,7 +14,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <Initializer>
           <GlobalStyle />
-          <MainRouter />
+          <MainRouter />{' '}
         </Initializer>
       </ThemeProvider>
     </Web3ReactProvider>
@@ -50,8 +50,12 @@ const GlobalStyle = createGlobalStyle`
     color: ${props => props.theme.color.text.default};
   }
 
-  body > img[src*=fortmatic] {
+  body > img[src*="fortmatic"] {
     display: none;
+  }
+
+  body > iframe[src*="3box"] {
+    display: none !important;
   }
 
   a {

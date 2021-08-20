@@ -6,13 +6,22 @@ export default function* createSagaApiContext({ library: web3 }) {
   const chainId = yield select(selectChainId);
 
   if (!chainId || !web3) {
-    return { linguoApi: yield call(createApiPlaceholder) };
+    return {
+      linguoApi: yield call(createApiPlaceholder),
+      web3,
+    };
   }
 
   try {
-    return { linguoApi: yield call(createApiFacade, { web3, chainId }) };
+    return {
+      linguoApi: yield call(createApiFacade, { web3, chainId }),
+      web3,
+    };
   } catch (err) {
     console.warn('Failed to create Linguo API Facade', err);
-    return { linguoApi: yield call(createApiPlaceholder) };
+    return {
+      linguoApi: yield call(createApiPlaceholder),
+      web3,
+    };
   }
 }
