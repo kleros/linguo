@@ -63,4 +63,5 @@ const StyledOverlayText = styled.div`
   font-weight: ${p => p.theme.fontWeight.medium};
   font-size: ${p => p.theme.fontSize.xl};
   pointer-events: none;
+  text-align: center;
 `;

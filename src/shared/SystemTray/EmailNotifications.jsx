@@ -12,6 +12,7 @@ import { notify } from '~/features/ui/uiSlice';
 import { fetchByAccount, selectIsLoadingSettings, selectSettings, update } from '~/features/users/userSettingsSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
+import ContentBlocker from '~/shared/ContentBlocker';
 import { mapValues } from '~/shared/fp';
 
 const CheckAllState = {
@@ -20,7 +21,34 @@ const CheckAllState = {
   Indeterminate: 2,
 };
 
-export default function EmailNotifications() {
+export default function EmailNotificationsWrapper() {
+  return (
+    <ContentBlocker
+      blocked
+      overlayText={
+        <span
+          css={`
+            color: ${p => p.theme.color.danger.default};
+            background-color: ${p => p.theme.color.background.light};
+            font-size: ${p => p.theme.fontSize.xxl};
+            font-weight: ${p => p.theme.fontWeight.bold};
+            padding: 0.25rem 1rem;
+            border-radius: 3px;
+            white-space: nowrap;
+            display: inline-block;
+            transform: rotateZ(-15deg);
+          `}
+        >
+          Temporarily Unavailable
+        </span>
+      }
+    >
+      <EmailNotifications />
+    </ContentBlocker>
+  );
+}
+
+function EmailNotifications() {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
   const settings = useShallowEqualSelector(state => selectSettings(state, { account }));

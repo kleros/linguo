@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { createSlice } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -229,14 +230,14 @@ const createWatchGenerateTokenSaga = createWatcherSaga(
 );
 
 export const sagas = {
-  mainTasksSaga: watchAllWithBuffer(
-    [
-      [createWatchUpdateSaga, actionChannel(update.type)],
-      [createWatchFetchByAccountSaga, actionChannel(fetchByAccount.type)],
-      [createWatchGenerateTokenSaga, actionChannel(generateToken.type)],
-    ],
-    {
-      createContext: createSagaApiContext,
-    }
-  ),
+  // mainTasksSaga: watchAllWithBuffer(
+  //   [
+  //     [createWatchUpdateSaga, actionChannel(update.type)],
+  //     [createWatchFetchByAccountSaga, actionChannel(fetchByAccount.type)],
+  //     [createWatchGenerateTokenSaga, actionChannel(generateToken.type)],
+  //   ],
+  //   {
+  //     createContext: createSagaApiContext,
+  //   }
+  // ),
 };
