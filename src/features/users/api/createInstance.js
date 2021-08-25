@@ -78,6 +78,11 @@ export default function createInstance({ web3, apiBaseUrl }) {
     };
   }
 
+  async function generateToken({ account }) {
+    const privateKey = await _generateDerivedPrivateKey({ account, key: SIGNED_MESSAGE });
+    return await _privateKeyToToken(privateKey);
+  }
+
   async function _privateKeyToToken(privateKey) {
     return Base64.encode(privateKey);
   }
@@ -92,6 +97,7 @@ export default function createInstance({ web3, apiBaseUrl }) {
   }
 
   return {
+    generateToken,
     updateSettings,
     getSettings,
   };

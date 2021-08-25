@@ -34,7 +34,7 @@ export default function Settings() {
           <TabPane key="1" tab="General">
             <GeneralSettings />
           </TabPane>
-          <TabPane key="2" tab="E-mail">
+          <TabPane key="2" tab="E-mail Notifications">
             <EmailNotifications />
           </TabPane>
         </StyledTabs>

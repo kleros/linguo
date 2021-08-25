@@ -1,28 +1,30 @@
 import React from 'react';
 import t from 'prop-types';
+import clsx from 'clsx';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { Checkbox, Form, Input, Row } from 'antd';
+import { Checkbox, Form, Input, Row, Switch } from 'antd';
+import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { Spin } from '~/adapters/antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { PopupNotificationLevel } from '~/features/ui/popupNotificationsSlice';
 import { notify } from '~/features/ui/uiSlice';
-import {
-  DEFAULT_INITIAL_VALUES,
-  fetchByAccount,
-  selectIsLoadingSettings,
-  selectSettings,
-  update,
-} from '~/features/users/userSettingsSlice';
+import { fetchByAccount, selectIsLoadingSettings, selectSettings, update } from '~/features/users/userSettingsSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
-import { compose, flatten, mapValues } from '~/shared/fp';
+import { mapValues } from '~/shared/fp';
+
+const CheckAllState = {
+  Unchecked: 0,
+  Checked: 1,
+  Indeterminate: 2,
+};
 
 export default function EmailNotifications() {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
   const settings = useShallowEqualSelector(state => selectSettings(state, { account }));
-  const isLoadingPreferences = useSelector(state => selectIsLoadingSettings(state, { account }));
+  const isLoadingSettings = useSelector(state => selectIsLoadingSettings(state, { account }));
 
   React.useEffect(() => {
     dispatch(fetchByAccount({ account }));
@@ -31,7 +33,7 @@ export default function EmailNotifications() {
   const handleFormSubmit = React.useCallback(
     async values => {
       try {
-        await dispatch(update({ account, ...values }, { meta: { thunk: { id: account } } }));
+        await dispatch(update({ account, ...formValuesToSettings(values) }, { meta: { thunk: { id: account } } }));
 
         dispatch(
           notify({
@@ -56,48 +58,68 @@ export default function EmailNotifications() {
   );
 
   return (
-    <Spin $centered spinning={isLoadingPreferences}>
-      <EmailNotificationsForm initialValues={settings} onSubmit={handleFormSubmit} />
+    <Spin $centered spinning={isLoadingSettings}>
+      <EmailNotificationsForm settings={settings} onSubmit={handleFormSubmit} />
     </Spin>
   );
 }
 
-function EmailNotificationsForm({ onSubmit, initialValues }) {
+const formValuesToSettings = values => {
+  const { email, fullName, emailPreferences } = values;
+
+  return {
+    email,
+    fullName,
+    emailPreferences: mapValues(
+      selected => selected.reduce((acc, item) => Object.assign(acc, { [item]: true }), {}),
+      emailPreferences
+    ),
+  };
+};
+
+const settingsToFormValues = settings => {
+  const { email, fullName, emailPreferences } = settings;
+  const transformedValues = {
+    email,
+    fullName,
+    emailPreferences: mapValues(
+      settings => Object.entries(settings).reduce((acc, [key, value]) => (value ? [...acc, key] : acc), []),
+      emailPreferences
+    ),
+  };
+
+  return transformedValues;
+};
+
+function EmailNotificationsForm({ onSubmit, settings }) {
   const [form] = Form.useForm();
+
+  const initialValues = React.useMemo(() => settingsToFormValues(settings), [settings]);
+
+  const groupCheckboxes = useCheckboxNestedGroups({
+    allOptions: allEmailPreferencesOptions,
+    initialValues: initialValues?.emailPreferences ?? {},
+    getFormValues: React.useCallback(() => form.getFieldValue(['emailPreferences']), [form]),
+    setFormValues: React.useCallback(values => form.setFieldsValue({ emailPreferences: values }), [form]),
+  });
 
   React.useEffect(() => {
     form.setFieldsValue(initialValues);
   }, [form, initialValues]);
 
-  const initialEmailPreferences = React.useMemo(
-    () => compose(flatten, Object.values, mapValues(Object.values))(initialValues?.emailPreferences ?? {}),
-    [initialValues.emailPreferences]
+  const handleValuesChange = React.useCallback(
+    (changedValues, allValues) => {
+      groupCheckboxes.all.setValues(allValues?.emailPreferences ?? {});
+    },
+    [groupCheckboxes.all]
   );
-
-  const checkAll = useCheckAll({
-    initialValues: initialEmailPreferences,
-    getValues: React.useCallback(
-      () => compose(flatten, Object.values, mapValues(Object.values))(form.getFieldValue('emailPreferences')),
-      [form]
-    ),
-    setValues: React.useCallback(
-      checked => {
-        form.setFieldsValue({
-          emailPreferences: mapValues(
-            mapValues(() => checked),
-            DEFAULT_INITIAL_VALUES.emailPreferences
-          ),
-        });
-      },
-      [form]
-    ),
-  });
 
   return (
     <StyledForm
       hideRequiredMark
       form={form}
       initialValues={initialValues}
+      onValuesChange={handleValuesChange}
       onFinish={onSubmit}
       layout="vertical"
       scrollToFirstError
@@ -130,41 +152,37 @@ function EmailNotificationsForm({ onSubmit, initialValues }) {
       >
         <Input placeholder="Your full name" />
       </Form.Item>
-      <Form.Item>
+      <StyledSelectAllItem>
         <Checkbox
-          checked={checkAll.checked}
-          onChange={checkAll.handleAllCheckedChange}
-          indeterminate={checkAll.indeterminate}
+          {...checkAllStateToCheckboxProps(groupCheckboxes.all.state)}
+          onChange={groupCheckboxes.all.handleChange}
         >
-          Notify me of everything.
+          Notify me of everything
         </Checkbox>
-      </Form.Item>
-      {Object.entries(settings).map(([role, { label, items }]) => (
-        <StyledGroupItem key={role} label={label}>
-          {Object.entries(items).map(([key, description]) => (
-            <StyledCheckboxItem key={`${role}-${key}`} name={['emailPreferences', role, key]} valuePropName="checked">
-              <Checkbox onChange={checkAll.handleItemCheckedChange}>{description}</Checkbox>
-            </StyledCheckboxItem>
-          ))}
-        </StyledGroupItem>
+      </StyledSelectAllItem>
+      {Object.entries(settingsDisplayData).map(([role, { label, items }]) => (
+        <EmailPreferencesGroup
+          key={role}
+          role={role}
+          label={label}
+          items={items}
+          state={groupCheckboxes[role].state}
+          onChange={groupCheckboxes[role].handleChange}
+        />
       ))}
-      <StyleFormButtonRow>
-        <Button
-          htmlType="submit"
-          css={`
-            flex: 8rem 0 1;
-          `}
-        >
+
+      <Row>
+        <Button fullWidth htmlType="submit">
           Save
         </Button>
-      </StyleFormButtonRow>
+      </Row>
     </StyledForm>
   );
 }
 
 EmailNotificationsForm.propTypes = {
   onSubmit: t.func,
-  initialValues: t.shape({
+  settings: t.shape({
     email: '',
     fullName: '',
     emailPreferences: t.shape({
@@ -190,58 +208,139 @@ EmailNotificationsForm.defaultProps = {
   onSubmit: () => {},
 };
 
-function useCheckAll({ initialValues, getValues, setValues }) {
-  const [checked, setChecked] = React.useState(() => {
-    const checked = initialValues.every(value => !!value);
-
-    return checked;
-  });
-
-  const [indeterminate, setIndeterminate] = React.useState(() => {
-    const allChecked = initialValues.every(value => !!value);
-    const noneChecked = initialValues.every(value => !value);
-
-    return !allChecked && !noneChecked;
-  });
+function EmailPreferencesGroup({ role, label, items, state, onChange }) {
+  const [showDetails, setShowDetails] = React.useState(state === CheckAllState.Indeterminate);
 
   React.useEffect(() => {
-    const allChecked = initialValues.every(value => !!value);
-    const noneChecked = initialValues.every(value => !value);
+    setShowDetails(current => current || state === CheckAllState.Indeterminate);
+  }, [state]);
 
-    setIndeterminate(!allChecked && !noneChecked);
-    setChecked(allChecked);
-  }, [initialValues]);
+  const disablePropagation = React.useCallback((_, evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    evt.persist();
+    evt.nativeEvent.stopImmediatePropagation();
+  }, []);
 
-  const handleAllCheckedChange = React.useCallback(
-    e => {
-      setValues(e.target.checked);
-      setIndeterminate(false);
-      setChecked(e.target.checked);
-    },
-    [setValues]
+  return (
+    <StyledGroupItem
+      className={clsx({ 'no-details': !showDetails })}
+      key={role}
+      name={['emailPreferences', role]}
+      label={
+        <Checkbox name={role} {...checkAllStateToCheckboxProps(state)} onChange={onChange}>
+          <span
+            css={`
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+            `}
+          >
+            {label}
+            <Switch
+              size="small"
+              checked={showDetails}
+              onChange={setShowDetails}
+              onClick={disablePropagation}
+              checkedChildren={<MinusOutlined />}
+              unCheckedChildren={<PlusOutlined />}
+            />
+          </span>
+        </Checkbox>
+      }
+    >
+      <StyledCheckboxGroup
+        className={clsx({ hidden: !showDetails })}
+        options={Object.entries(items).map(([key, description]) => ({ label: description, value: key }))}
+      />
+    </StyledGroupItem>
   );
-
-  const handleItemCheckedChange = React.useCallback(() => {
-    const values = getValues();
-
-    const allChecked = values.every(value => !!value);
-    const noneChecked = values.every(value => !value);
-
-    setIndeterminate(!allChecked && !noneChecked);
-    setChecked(allChecked);
-  }, [getValues]);
-
-  return {
-    checked,
-    indeterminate,
-    handleAllCheckedChange,
-    handleItemCheckedChange,
-  };
 }
 
-const settings = {
+EmailPreferencesGroup.propTypes = {
+  role: t.string.isRequired,
+  label: t.node.isRequired,
+  items: t.object.isRequired,
+  state: t.oneOf(Object.values(CheckAllState)).isRequired,
+  onChange: t.func.isRequired,
+};
+
+function useCheckboxNestedGroups({ initialValues, allOptions, getFormValues, setFormValues }) {
+  const [checkboxGroupsState, setCheckboxGroupsState] = React.useState(() => deriveCheckboxGroupsState(initialValues));
+
+  const setCheckboxGroupsStateFromValues = React.useCallback(values => {
+    setCheckboxGroupsState(deriveCheckboxGroupsState(values));
+  }, []);
+
+  React.useEffect(() => {
+    setCheckboxGroupsStateFromValues(initialValues);
+    setFormValues(initialValues);
+  }, [setCheckboxGroupsStateFromValues, setFormValues, initialValues]);
+
+  const handleCheckAllChange = React.useCallback(
+    evt => {
+      const { checked } = evt.target;
+      const newValue = checked ? allOptions : mapValues(() => [], allOptions);
+
+      setCheckboxGroupsStateFromValues(newValue);
+      setFormValues(newValue);
+    },
+    [allOptions, setCheckboxGroupsStateFromValues, setFormValues]
+  );
+
+  const handleCheckGroupChange = React.useCallback(
+    evt => {
+      const { checked, name } = evt.target;
+      const currentValues = getFormValues();
+      const valuePatch = checked ? allOptions[name] : [];
+      const newValue = { ...currentValues, [name]: valuePatch };
+
+      setCheckboxGroupsStateFromValues(newValue);
+      setFormValues(newValue);
+    },
+    [allOptions, getFormValues, setCheckboxGroupsStateFromValues, setFormValues]
+  );
+
+  return React.useMemo(
+    () => ({
+      ...mapValues(
+        state => ({
+          state,
+          handleChange: handleCheckGroupChange,
+        }),
+        checkboxGroupsState
+      ),
+      all: {
+        state: checkboxGroupsState.all,
+        handleChange: handleCheckAllChange,
+        setValues: setCheckboxGroupsStateFromValues,
+      },
+    }),
+    [checkboxGroupsState, setCheckboxGroupsStateFromValues, handleCheckAllChange, handleCheckGroupChange]
+  );
+}
+
+const deriveCheckboxGroupsState = values => {
+  const statesByKey = mapValues((options, key) => {
+    const length = values?.[key]?.length ?? 0;
+    return length === 0
+      ? CheckAllState.Unchecked
+      : length === options.length
+      ? CheckAllState.Checked
+      : CheckAllState.Indeterminate;
+  }, allEmailPreferencesOptions);
+
+  const states = Object.values(statesByKey);
+  const allChecked = states.every(state => state === CheckAllState.Checked);
+  const allUnchecked = states.every(state => state === CheckAllState.Unchecked);
+  const all = allChecked ? CheckAllState.Checked : allUnchecked ? CheckAllState.Unchecked : CheckAllState.Indeterminate;
+
+  return { ...statesByKey, all };
+};
+
+const settingsDisplayData = {
   requester: {
-    label: 'Requester',
+    label: 'Requester Notifications',
     items: {
       assignment: 'A translation is assigned to a translator.',
       delivery: 'A translator delivers the translation.',
@@ -251,7 +350,7 @@ const settings = {
     },
   },
   translator: {
-    label: 'Translator',
+    label: 'Translator Notifications',
     items: {
       resolution: 'A translation task is resolved.',
       challenge: 'A translation is challenged and goes to arbitration.',
@@ -260,7 +359,7 @@ const settings = {
     },
   },
   challenger: {
-    label: 'Challenger',
+    label: 'Challenger Notifications',
     items: {
       appealFunding: 'The translator pays the appeal cost of a dispute.',
       ruling: 'The jurors rule about the translation.',
@@ -268,23 +367,43 @@ const settings = {
   },
 };
 
+const allEmailPreferencesOptions = mapValues(({ items }) => Object.keys(items), settingsDisplayData);
+
+const checkAllStateToCheckboxProps = state => ({
+  checked: state === CheckAllState.Checked,
+  indeterminate: state === CheckAllState.Indeterminate,
+});
+
 const StyledForm = styled(Form)`
   padding-top: 1rem;
 `;
 
-const StyledGroupItem = styled(Form.Item)`
-  .ant-form-item-label {
-    font-weight: ${p => p.theme.fontWeight.semibold};
-  }
-`;
-
-const StyledCheckboxItem = styled(Form.Item)`
+const StyledSelectAllItem = styled(Form.Item)`
   && {
-    margin-bottom: 0;
+    margin-bottom: 12px;
   }
 `;
 
-const StyleFormButtonRow = styled(Row)`
-  display: flex;
-  justify-content: flex-end;
+const StyledGroupItem = styled(Form.Item)`
+  margin-left: 24px;
+
+  &.no-details {
+    margin-bottom: 12px;
+
+    > .ant-form-item-control {
+      display: none;
+    }
+  }
+`;
+
+const StyledCheckboxGroup = styled(Checkbox.Group)`
+  &.hidden {
+    display: none;
+  }
+
+  && {
+    .ant-checkbox-wrapper {
+      margin-left: 24px;
+    }
+  }
 `;

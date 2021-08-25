@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { actionChannel, call, getContext, put, select } from 'redux-saga/effects';
+import { actionChannel, call, getContext, put, putResolve, select } from 'redux-saga/effects';
 import deepMerge from 'deepmerge';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
@@ -10,8 +10,9 @@ import createSagaApiContext from './createSagaApiContext';
 
 export const fetchByAccount = createAsyncAction('users/settings/fetchByAccount');
 export const update = createAsyncAction('users/settings/update');
+export const generateToken = createAsyncAction('users/settings/generateToken');
 
-export const DEFAULT_INITIAL_VALUES = {
+export const DEFAULT_SETTINGS = {
   email: '',
   fullName: '',
   emailPreferences: {
@@ -39,7 +40,7 @@ const INITIAL_ITEM_STATE = {
   loadingState: 'idle',
   error: null,
   token: null,
-  data: DEFAULT_INITIAL_VALUES,
+  data: DEFAULT_SETTINGS,
 };
 
 const userSettingsSlice = createSlice({
@@ -66,7 +67,7 @@ const userSettingsSlice = createSlice({
 
       if (state.settings.byAccount[account]) {
         state.settings.byAccount[account].loadingState = 'idle';
-        state.settings.byAccount[account].data = deepMerge(DEFAULT_INITIAL_VALUES, data);
+        state.settings.byAccount[account].data = deepMerge(DEFAULT_SETTINGS, data);
       }
     });
 
@@ -91,7 +92,7 @@ const userSettingsSlice = createSlice({
 
       state.settings.byAccount[account].loadingState = 'loading';
       state.settings.byAccount[account].error = null;
-      state.settings.byAccount[account].data = deepMerge(DEFAULT_INITIAL_VALUES, data);
+      state.settings.byAccount[account].data = deepMerge(DEFAULT_SETTINGS, data);
     });
 
     builder.addCase(update.fulfilled.type, (state, action) => {
@@ -114,6 +115,16 @@ const userSettingsSlice = createSlice({
         }
       }
     });
+
+    builder.addCase(generateToken.fulfilled.type, (state, action) => {
+      const { account, token } = action.payload;
+
+      if (!state.settings.byAccount[account]) {
+        state.settings.byAccount[account] = INITIAL_ITEM_STATE;
+      }
+
+      state.settings.byAccount[account].token = token;
+    });
   },
 });
 
@@ -132,8 +143,7 @@ function createPersistedReducer(reducer) {
 
 export default createPersistedReducer(userSettingsSlice.reducer);
 
-export const selectSettings = (state, { account }) =>
-  state.users.settings.byAccount[account]?.data ?? DEFAULT_INITIAL_VALUES;
+export const selectSettings = (state, { account }) => state.users.settings.byAccount[account]?.data ?? DEFAULT_SETTINGS;
 
 export const selectIsLoadingSettings = (state, { account }) =>
   state.users.settings.byAccount[account]?.loadingState === 'loading';
@@ -142,12 +152,33 @@ export const selectError = (state, { account }) => state.users.settings.byAccoun
 
 export const selectToken = (state, { account }) => state.users.settings.byAccount[account]?.token ?? null;
 
-function* fetchByAccountSaga(action) {
+function* generateTokenSaga(action) {
   const usersApi = yield getContext('usersApi');
 
   const { account } = action.payload;
-  const token = yield select(state => selectToken(state, { account }));
   const { meta } = action;
+
+  try {
+    const token = yield call([usersApi, 'generateToken'], { account });
+    yield put(generateToken.fulfilled({ account, token }, { meta }));
+  } catch (err) {
+    yield put(generateToken.rejected({ account, error: err }, { meta }));
+  }
+}
+
+function* fetchByAccountSaga(action) {
+  const usersApi = yield getContext('usersApi');
+
+  const account = action.payload?.account ?? null;
+  const thunk = action.meta?.thunk ?? { id: account };
+  const meta = { ...action.meta, thunk };
+
+  let token = yield select(state => selectToken(state, { account }));
+  // eslint-disable-next-line security/detect-possible-timing-attacks
+  if (token === null) {
+    yield putResolve(generateToken({ account }, { meta }));
+    token = yield select(state => selectToken(state, { account }));
+  }
 
   try {
     const result = yield call([usersApi, 'getSettings'], { account, token });
@@ -189,11 +220,20 @@ const createWatchFetchByAccountSaga = createWatcherSaga(
   fetchByAccountSaga
 );
 
+const createWatchGenerateTokenSaga = createWatcherSaga(
+  {
+    takeType: TakeType.latestByKey,
+    selector: action => action.payload?.account,
+  },
+  generateTokenSaga
+);
+
 export const sagas = {
   mainTasksSaga: watchAllWithBuffer(
     [
       [createWatchUpdateSaga, actionChannel(update.type)],
       [createWatchFetchByAccountSaga, actionChannel(fetchByAccount.type)],
+      [createWatchGenerateTokenSaga, actionChannel(generateToken.type)],
     ],
     {
       createContext: createSagaApiContext,
