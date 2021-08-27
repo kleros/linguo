@@ -27,10 +27,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
     name: `task-metadata@eip155:${chainId}`,
   });
 
-  async function createTask(
-    { account, deadline, minPrice, maxPrice, ...rest },
-    { from = account, gas, gasPrice } = {}
-  ) {
+  async function createTask({ account, deadline, minPrice, maxPrice, ...rest }, { from = account, gas } = {}) {
     deadline = dayjs(deadline).unix();
 
     const metaEvidence = await _publishMetaEvidence({
@@ -44,7 +41,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
     const tx = linguo.methods.createTask(deadline, minPrice, metaEvidence).send({
       from,
       gas,
-      gasPrice,
+
       value: maxPrice,
     });
 
@@ -594,44 +591,44 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
     return arbitrationCost;
   }
 
-  async function assignTask({ ID }, { from, gas, gasPrice } = {}) {
+  async function assignTask({ ID }, { from, gas } = {}) {
     const value = await getTranslatorDeposit({ ID });
-    const tx = linguo.methods.assignTask(ID).send({ from, value, gas, gasPrice });
+    const tx = linguo.methods.assignTask(ID).send({ from, value, gas });
 
     return { tx };
   }
 
-  async function submitTranslation({ ID, uploadedFile }, { from, gas, gasPrice } = {}) {
+  async function submitTranslation({ ID, uploadedFile }, { from, gas } = {}) {
     const { path, hash } = uploadedFile ?? {};
 
     if (!path || !hash) {
       throw new Error('Cannot submit a translation without a file');
     }
 
-    const tx = linguo.methods.submitTranslation(ID, path).send({ from, gas, gasPrice });
+    const tx = linguo.methods.submitTranslation(ID, path).send({ from, gas });
 
     return { tx };
   }
 
-  async function approveTranslation({ ID }, { from, gas, gasPrice } = {}) {
-    const tx = linguo.methods.acceptTranslation(ID).send({ from, gas, gasPrice });
+  async function approveTranslation({ ID }, { from, gas } = {}) {
+    const tx = linguo.methods.acceptTranslation(ID).send({ from, gas });
 
     return { tx };
   }
 
-  async function reimburseRequester({ ID }, { from, gas, gasPrice } = {}) {
-    const tx = linguo.methods.reimburseRequester(ID).send({ from, gas, gasPrice });
+  async function reimburseRequester({ ID }, { from, gas } = {}) {
+    const tx = linguo.methods.reimburseRequester(ID).send({ from, gas });
 
     return { tx };
   }
 
-  async function acceptTranslation({ ID }, { from, gas, gasPrice } = {}) {
-    const tx = linguo.methods.acceptTranslation(ID).send({ from, gas, gasPrice });
+  async function acceptTranslation({ ID }, { from, gas } = {}) {
+    const tx = linguo.methods.acceptTranslation(ID).send({ from, gas });
 
     return { tx };
   }
 
-  async function challengeTranslation({ ID, uploadedFile }, { from, gas, gasPrice } = {}) {
+  async function challengeTranslation({ ID, uploadedFile }, { from, gas } = {}) {
     const { path, hash } = uploadedFile ?? {};
 
     if (!path || !hash) {
@@ -650,18 +647,18 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
     });
 
     const value = await getChallengerDeposit({ ID });
-    const tx = linguo.methods.challengeTranslation(ID, evidence).send({ from, value, gas, gasPrice });
+    const tx = linguo.methods.challengeTranslation(ID, evidence).send({ from, value, gas });
 
     return { tx };
   }
 
-  async function fundAppeal({ ID, side }, { from, value, gas, gasPrice } = {}) {
-    const tx = linguo.methods.fundAppeal(ID, side).send({ from, value, gas, gasPrice });
+  async function fundAppeal({ ID, side }, { from, value, gas } = {}) {
+    const tx = linguo.methods.fundAppeal(ID, side).send({ from, value, gas });
 
     return { tx };
   }
 
-  async function submitEvidence({ ID, supportingSide, name, description, uploadedFile }, { from, gas, gasPrice } = {}) {
+  async function submitEvidence({ ID, supportingSide, name, description, uploadedFile }, { from, gas } = {}) {
     if (![TaskParty.Translator, TaskParty.Challenger].includes(supportingSide)) {
       throw new Error('Evidence must either support the translator or the challenger');
     }
@@ -688,7 +685,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
       },
     });
 
-    const tx = linguo.methods.submitEvidence(ID, evidence).send({ from, gas, gasPrice });
+    const tx = linguo.methods.submitEvidence(ID, evidence).send({ from, gas });
 
     return { tx };
   }
@@ -705,8 +702,8 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
     return arbitrator.events.allEvents({ fromBlock, filter });
   }
 
-  function withdrawAllFeesAndRewards({ ID, account }, { from = account, gas, gasPrice } = {}) {
-    const tx = linguo.methods.batchRoundWithdraw(account, ID, '0', '0').send({ from, gas, gasPrice });
+  function withdrawAllFeesAndRewards({ ID, account }, { from = account, gas } = {}) {
+    const tx = linguo.methods.batchRoundWithdraw(account, ID, '0', '0').send({ from, gas });
 
     return { tx };
   }
