@@ -12,20 +12,26 @@ export default function AffixContainer({ children, position, wrapperCss, classNa
   const lastScrollPosRef = React.useRef(0);
 
   React.useEffect(() => {
+    let mounted = true;
     const listener = () => {
-      if (window.scrollY > lastScrollPosRef.current) {
-        setScrollDirection('bottom');
-      }
-      if (window.scrollY < lastScrollPosRef.current) {
-        setScrollDirection('top');
-      }
+      if (mounted) {
+        if (window.scrollY > lastScrollPosRef.current) {
+          setScrollDirection('bottom');
+        }
+        if (window.scrollY < lastScrollPosRef.current) {
+          setScrollDirection('top');
+        }
 
-      lastScrollPosRef.current = window.scrollY;
+        lastScrollPosRef.current = window.scrollY;
+      }
     };
 
     window.addEventListener('scroll', listener, true);
 
-    return () => window.removeEventListener('scroll', listener);
+    return () => {
+      window.removeEventListener('scroll', listener);
+      mounted = false;
+    };
   }, []);
 
   const positioningStyles =

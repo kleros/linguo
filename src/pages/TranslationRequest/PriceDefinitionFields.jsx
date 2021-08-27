@@ -14,7 +14,6 @@ export default function PriceDefinitionFieldsWrapper() {
   return (
     <Form.Item
       noStyle
-      dependencies={['sourceLanguage', 'targetLanguage']}
       shouldUpdate={(prev, current) =>
         prev.sourceLanguage !== current.sourceLanguage || prev.targetLanguage !== current.targetLanguage
       }
@@ -89,7 +88,7 @@ function PriceDefinitionFields({ setFieldsValue }) {
       </Col>
       <Col xs={24} sm={24} md={12} lg={8}>
         <Form.Item
-          label="Minimum Price (optional)"
+          label="Minimum Price"
           name="minPriceNumeric"
           rules={[
             {

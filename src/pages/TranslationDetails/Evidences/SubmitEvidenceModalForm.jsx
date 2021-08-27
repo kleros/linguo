@@ -95,7 +95,7 @@ export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
       {modalTrigger}
       <EvidenceModal visible={visible} setVisible={setVisible} onCancel={handleReset}>
         <StyledForm
-          hideRequiredMark
+          requiredMark={false}
           layout="vertical"
           form={form}
           onFinish={handleFinish}

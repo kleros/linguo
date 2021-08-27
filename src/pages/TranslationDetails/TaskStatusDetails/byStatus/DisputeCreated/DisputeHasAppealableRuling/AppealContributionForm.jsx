@@ -104,7 +104,7 @@ export default function AppealContributionForm({ totalAppealCost, paidFees, part
 
   return (
     <Form
-      hideRequiredMark
+      requiredMark={false}
       form={form}
       onFinish={handleFinish}
       onValuesChange={handleValuesChange}

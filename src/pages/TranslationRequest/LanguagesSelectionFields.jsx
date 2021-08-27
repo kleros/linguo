@@ -3,7 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { SwapOutlined } from '@ant-design/icons';
-import { Col, Form } from 'antd';
+import { Col, Form, Row } from 'antd';
 import * as r from '~/app/routes';
 import { getAvailableLanguagePairing } from '~/features/linguo';
 import DismissableAlert from '~/features/ui/DismissableAlert';
@@ -64,51 +64,53 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
           }
         />
       </Col>
-      <StyledWrapper>
-        <Col xs={24} sm={24} md={11} lg={10}>
-          <StyledLanguageSelectionFormItem
-            name="sourceLanguage"
-            label="Source Language"
-            rules={[
-              {
-                required: true,
-                message: 'Please select a source language',
-              },
-            ]}
-          >
-            <LanguageSelect
-              showSearch
-              placeholder="Choose..."
-              options={availableSourceLanguages}
-              onChange={handleSourceLanguageChange}
-            />
-          </StyledLanguageSelectionFormItem>
-        </Col>
-        <StyledSwapButtonCol xs={24} sm={24}>
-          <StyledSwapButton variant="unstyled" onClick={handleSwapLanguages}>
-            <SwapOutlined />
-          </StyledSwapButton>
-        </StyledSwapButtonCol>
-        <Col xs={24} sm={24} md={11} lg={10}>
-          <StyledLanguageSelectionFormItem
-            name="targetLanguage"
-            label="Target Language"
-            rules={[
-              {
-                required: true,
-                message: 'Please select a target language',
-              },
-            ]}
-          >
-            <LanguageSelect
-              showSearch
-              placeholder="Choose..."
-              options={availableTargetLanguages}
-              onChange={handleTargetLanguageChange}
-            />
-          </StyledLanguageSelectionFormItem>
-        </Col>
-      </StyledWrapper>
+      <Col span={24}>
+        <StyledNestedRow>
+          <Col xs={24} sm={24} md={11} lg={10}>
+            <StyledLanguageSelectionFormItem
+              name="sourceLanguage"
+              label="Source Language"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a source language',
+                },
+              ]}
+            >
+              <LanguageSelect
+                showSearch
+                placeholder="Choose..."
+                options={availableSourceLanguages}
+                onChange={handleSourceLanguageChange}
+              />
+            </StyledLanguageSelectionFormItem>
+          </Col>
+          <StyledSwapButtonCol xs={24} sm={24}>
+            <StyledSwapButton variant="unstyled" onClick={handleSwapLanguages}>
+              <SwapOutlined />
+            </StyledSwapButton>
+          </StyledSwapButtonCol>
+          <Col xs={24} sm={24} md={11} lg={10}>
+            <StyledLanguageSelectionFormItem
+              name="targetLanguage"
+              label="Target Language"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a target language',
+                },
+              ]}
+            >
+              <LanguageSelect
+                showSearch
+                placeholder="Choose..."
+                options={availableTargetLanguages}
+                onChange={handleTargetLanguageChange}
+              />
+            </StyledLanguageSelectionFormItem>
+          </Col>
+        </StyledNestedRow>
+      </Col>
     </>
   );
 }
@@ -117,12 +119,15 @@ LanguagesSelectionFields.propTypes = {
   setFieldsValue: t.func.isRequired,
 };
 
-const StyledWrapper = styled.div`
+const StyledNestedRow = styled(Row)`
   position: relative;
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
-  width: 100%;
+
+  @media (min-width: 768px) {
+    gap: 16px;
+  }
 `;
 
 const StyledLanguageSelectionFormItem = styled(Form.Item)`
@@ -144,7 +149,7 @@ const StyledSwapButtonCol = styled(Col)`
     }
 
     @media (max-width: 767.98px) {
-      margin: -1rem 0 1rem;
+      margin: -1rem 0 0.5rem;
     }
   }
 `;

@@ -3,18 +3,26 @@ import t from 'prop-types';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import utc from 'dayjs/plugin/utc';
+import weekday from 'dayjs/plugin/weekday';
+import localeData from 'dayjs/plugin/localeData';
 import { Form, Col } from 'antd';
 import { DatePicker } from '~/adapters/antd';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utc);
+/**
+ * The plugins below are required to work with DatePicker component from antd@4.5.x
+ */
+dayjs.extend(weekday);
+dayjs.extend(localeData);
 
 export default function DeadlineField({ setFieldsValue }) {
   const handleDateChange = React.useCallback(
     value => {
-      setFieldsValue({
-        deadline: dayjs(value).utc().endOf('day'),
-      });
+      const parsedValue = dayjs(value);
+      if (parsedValue.isValid()) {
+        setFieldsValue({ deadline: parsedValue.utc().endOf('day') });
+      }
     },
     [setFieldsValue]
   );
@@ -41,6 +49,8 @@ export default function DeadlineField({ setFieldsValue }) {
           ]}
         >
           <DatePicker
+            inputReadOnly
+            allowClear={false}
             size="large"
             placeholder="Choose a date"
             disabledDate={isBeforeToday}

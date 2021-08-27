@@ -33,7 +33,7 @@ function TranslationRequestForm() {
       ? {
           icon: <LoadingOutlined />,
           disabled: true,
-          children: 'Submitting...',
+          children: 'Request the Translation',
         }
       : {
           children: 'Request the Translation',
@@ -75,7 +75,7 @@ function TranslationRequestForm() {
 
   return (
     <StyledForm
-      hideRequiredMark
+      requiredMark="optional"
       layout="vertical"
       form={form}
       initialValues={initialValues}
@@ -98,8 +98,6 @@ function TranslationRequestForm() {
       </Row>
       <Row gutter={rowGutter}>
         <DeadlineField setFieldsValue={form.setFieldsValue} />
-        {/* </Row> */}
-        {/* <Row gutter={rowGutter}> */}
         <PriceDefinitionFields />
       </Row>
 

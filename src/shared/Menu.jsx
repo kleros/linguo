@@ -1,41 +1,32 @@
 import React from 'react';
-import { findDOMNode } from 'react-dom';
 import styled, { css } from 'styled-components';
 import { NavLink } from 'react-router-dom';
 import { Menu, Layout } from 'antd';
 import * as r from '~/app/routes';
 
 export function DrawerMenu() {
-  const componentRef = React.useRef(null);
-  const nodeRef = React.useRef(null);
+  const siderRef = React.useRef(null);
 
-  React.useEffect(() => {
-    /**
-     * We want to collapse the menu if users click outside of its boundaries.
-     *
-     * Antd Sider does not expose refs, so it is not possible to get the
-     * actual elements without resorting to findDOMNode.
-     */
-    /* eslint-disable-next-line react/no-find-dom-node */
-    nodeRef.current = findDOMNode(componentRef.current);
-  }, []);
+  const closeOnClickOutsideMenu = React.useCallback(evt => {
+    const sider = siderRef.current;
+    const trigger = sider?.querySelector('.ant-layout-sider-zero-width-trigger');
 
-  const closeOnClickOutsideMenu = React.useCallback(() => {
-    if (nodeRef.current) {
-      const menu = nodeRef.current;
-      const trigger = nodeRef.current.querySelector('.ant-layout-sider-zero-width-trigger');
-      const isCollapsed = [...menu.classList].includes('ant-layout-sider-collapsed');
+    if (!sider || !trigger) {
+      return;
+    }
 
-      if (trigger && !isCollapsed) {
-        trigger.click();
-      }
+    const isCollapsed = [...sider.classList].includes('ant-layout-sider-collapsed');
+    const hasClickedTrigger = evt.target.contains(trigger);
+
+    if (trigger && !isCollapsed && !hasClickedTrigger) {
+      trigger.click();
     }
   }, []);
 
-  useOnClickOutside(nodeRef, closeOnClickOutsideMenu);
+  useOnClickOutside(siderRef, closeOnClickOutsideMenu);
 
   return (
-    <StyledLayoutSider breakpoint="md" collapsedWidth={0} ref={componentRef}>
+    <StyledLayoutSider breakpoint="md" collapsedWidth={0} ref={siderRef}>
       <StyledDrawerMenu>{menuItems}</StyledDrawerMenu>
     </StyledLayoutSider>
   );
@@ -71,8 +62,9 @@ const StyledLayoutSider = styled(Layout.Sider)`
   }
 
   &.ant-layout-sider {
-    background-color: ${props => props.theme.color.primary.default};
-    width: 80vw;
+    background-color: ${p => p.theme.hexToRgba(p.theme.color.primary.default, 0.85)};
+    box-shadow: 2px 0 2px 2px ${p => p.theme.color.shadow.ui}, 6px 0 6px ${p => p.theme.color.shadow.ui};
+    backdrop-filter: blur(3px);
 
     .ant-menu {
       background-color: transparent;
@@ -84,15 +76,16 @@ const StyledLayoutSider = styled(Layout.Sider)`
     }
 
     .ant-menu-item-selected {
-      background: ${props => props.theme.color.primary.default};
+      background: ${p => p.theme.color.primary.default};
     }
 
     .ant-layout-sider-zero-width-trigger {
       top: 12px;
       right: -36px;
-      background-color: ${props => props.theme.color.primary.default};
+      background-color: ${p => p.theme.color.primary.default};
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
+      box-shadow: 2px 0 2px 2px ${p => p.theme.color.shadow.ui}, 6px 0 6px ${p => p.theme.color.shadow.ui};
 
       :hover {
         svg {
@@ -107,11 +100,8 @@ const StyledLayoutSider = styled(Layout.Sider)`
       .ant-layout-sider-zero-width-trigger {
         border-radius: 2px;
         right: -50px;
-        background-color: ${props => props.theme.color.primary.default};
-
-        :hover {
-          background-color: ${props => props.theme.color.secondary.default};
-        }
+        background-color: ${p => p.theme.color.primary.default};
+        box-shadow: none;
       }
     }
   }

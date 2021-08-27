@@ -66,6 +66,9 @@ export default function Notifications() {
   return (
     <StyledPopover
       arrowPointAtCenter
+      placement="bottomRight"
+      title="Notifications"
+      trigger="click"
       content={
         <>
           {totalCount > 0 ? (
@@ -100,9 +103,6 @@ export default function Notifications() {
           ) : null}
         </>
       }
-      placement="bottomRight"
-      title="Notifications"
-      trigger="click"
     >
       <span>
         <SystemTrayBadge dot count={totalCount} title={totalCount >= 100 ? totalCount : ''}>

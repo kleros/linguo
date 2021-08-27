@@ -100,7 +100,7 @@ export default function OriginalSourceFields({ setFieldsValue }) {
         </Col>
         <Col xs={24} sm={24} md={24} lg={16}>
           <StyledFormItem
-            label="Original URL (optional)"
+            label="Original URL"
             name="originalTextUrl"
             rules={[
               {

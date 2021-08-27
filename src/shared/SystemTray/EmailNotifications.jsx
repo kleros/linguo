@@ -144,7 +144,7 @@ function EmailNotificationsForm({ onSubmit, settings }) {
 
   return (
     <StyledForm
-      hideRequiredMark
+      requiredMark="optional"
       form={form}
       initialValues={initialValues}
       onValuesChange={handleValuesChange}
@@ -170,7 +170,7 @@ function EmailNotificationsForm({ onSubmit, settings }) {
       </Form.Item>
       <Form.Item
         name="fullName"
-        label="Full Name (optional)"
+        label="Full Name"
         rules={[
           {
             message: 'Please enter you name or leave it empty.',

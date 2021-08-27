@@ -33,9 +33,13 @@ export default function SingleFileUpload({
 
       setFileList(newFileList);
 
+      if (newFileList?.[0]?.status !== 'done') {
+        send('RESET');
+      }
+
       onChange(info);
     },
-    [onChange]
+    [send, onChange]
   );
 
   const handleBeforeUpload = React.useCallback(
@@ -140,7 +144,7 @@ SingleFileUpload.propTypes = {
 
 const defaultButtonContent = {
   idle: {
-    text: 'Upload a File',
+    text: 'Upload a file',
     icon: <UploadOutlined />,
   },
   pending: {
@@ -148,7 +152,7 @@ const defaultButtonContent = {
     icon: <LoadingOutlined />,
   },
   succeeded: {
-    text: 'Done!',
+    text: 'Done! Click to replace',
     icon: <CheckCircleOutlined />,
   },
   errored: {
@@ -212,6 +216,7 @@ const uploadStateMachine = {
   states: {
     idle: {
       on: {
+        RESET: 'idle',
         START: 'pending',
         ERROR: 'errored',
       },

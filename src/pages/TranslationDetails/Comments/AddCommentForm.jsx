@@ -23,7 +23,7 @@ export default function AddCommentForm({ onFinish, disabled }) {
 
   return (
     <Form
-      hideRequiredMark
+      requiredMark={false}
       layout="vertical"
       form={form}
       onFinish={handleFinish}

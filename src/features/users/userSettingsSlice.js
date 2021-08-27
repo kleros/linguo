@@ -1,3 +1,4 @@
+// TODO: remove the comment below once the notifications settings are fixed.
 /* eslint-disable no-unused-vars */
 import { createSlice } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';

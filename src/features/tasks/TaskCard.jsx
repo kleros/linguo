@@ -232,6 +232,15 @@ const StyledTaskCard = styled(Card)`
       padding-top: calc(1rem - 2.5px);
     }
 
+    @media (max-width: 575.98px) {
+      border-radius: 0;
+
+      .card-header {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+    }
+
     .ant-badge-status-dot {
       background-color: ${p => p.theme.color.status[p.$colorKey]};
     }

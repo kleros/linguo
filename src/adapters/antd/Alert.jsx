@@ -3,19 +3,26 @@ import { Alert as BaseAlert } from 'antd';
 
 const StyledAlert = styled(BaseAlert)`
   &.ant-alert {
+    .ant-alert-message {
+      color: ${p => p.theme.hexToRgba(p.theme.color.text.default, 0.85)};
+    }
+
+    .ant-alert-description {
+      color: ${p => p.theme.hexToRgba(p.theme.color.text.default, 0.65)};
+
+      p + p {
+        margin-top: 0;
+      }
+    }
+
     :not(.ant-alert-banner) {
       background-color: ${p => p.theme.color.background.light};
       border-radius: 3px;
     }
 
-    > .anticon {
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    > .ant-alert-description {
-      p + p {
-        margin-top: 0;
+    &.ant-alert-with-description {
+      .anticon {
+        transform: translateY(1px);
       }
     }
 
