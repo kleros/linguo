@@ -5,6 +5,7 @@ import { Col, Form, Input, Row, Typography, message } from 'antd';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import { flatten } from '~/shared/fp';
+import Spacer from '~/shared/Spacer';
 import SingleFileUpload, { validator as singleFileUploadValidator } from '~/shared/SingleFileUpload';
 
 export default function OriginalSourceFields({ setFieldsValue }) {
@@ -26,12 +27,11 @@ export default function OriginalSourceFields({ setFieldsValue }) {
 
   return (
     <Col span={24}>
+      <Spacer />
       <Row gutter={[16, 16]}>
         <Col
           span={24}
           css={`
-            margin: -0.5rem 0 1rem;
-
             :empty {
               display: none;
             }

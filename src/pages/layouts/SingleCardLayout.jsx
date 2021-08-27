@@ -82,17 +82,6 @@ const StyledCard = styled(Card)`
       .card-body {
         padding: 2rem;
       }
-
-      /* Merge the card header with the top navbar to save up some space */
-      .card-header {
-        position: absolute;
-        background: none;
-        top: -56px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-        pointer-events: none;
-      }
     }
   }
 `;

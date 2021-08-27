@@ -45,7 +45,7 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
 
   return (
     <>
-      <Col span={24}>
+      <Col span={24} order={1}>
         <StyledDismissableAlert
           id="task.create.language-pairing"
           message="Currently it is only possible to request translations from or to English."
@@ -64,7 +64,7 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
           }
         />
       </Col>
-      <Col span={24}>
+      <Col span={24} order={0}>
         <StyledNestedRow>
           <Col xs={24} sm={24} md={11} lg={10}>
             <StyledLanguageSelectionFormItem

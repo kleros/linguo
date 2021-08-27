@@ -3,9 +3,9 @@ import t from 'prop-types';
 import styled, { css } from 'styled-components';
 import AntdButton from '~/adapters/antd/Button';
 
-function Button({ variant, size, color, fullWidth, children, ...props }) {
+function Button({ variant, size, color, fullWidth, children, className, ...props }) {
   return (
-    <StyledButton {...props} variant={variant} size={size} color={color} block={fullWidth}>
+    <StyledButton {...props} variant={variant} size={size} color={color} block={fullWidth} className={className}>
       <StyledButtonContent>{children}</StyledButtonContent>
     </StyledButton>
   );
@@ -17,6 +17,7 @@ Button.propTypes = {
   color: t.oneOf(['primary', 'secondary', 'primary-light', 'secondary-dark']),
   fullWidth: t.bool,
   children: t.node,
+  className: t.string,
 };
 
 Button.defaultProps = {
@@ -25,6 +26,7 @@ Button.defaultProps = {
   color: 'primary',
   fullWidth: false,
   children: null,
+  className: '',
 };
 
 export default Button;

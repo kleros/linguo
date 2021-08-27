@@ -134,6 +134,10 @@ const locale = { emptyText: 'Wow, such empty!' };
 
 const StyledPopover = styled(Popover)`
   width: 32rem;
+
+  @media (max-width: 31.98rem) {
+    width: 100%;
+  }
 `;
 
 const StyledList = styled(List)`

@@ -46,6 +46,10 @@ export default function WalletConnection() {
 
 const StyledPopover = styled(Popover)`
   width: 32rem;
+
+  @media (max-width: 31.98rem) {
+    width: 100%;
+  }
 `;
 
 function WalletConnectionContent() {

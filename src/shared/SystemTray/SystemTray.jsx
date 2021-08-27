@@ -14,7 +14,13 @@ export default function SystemTray() {
 
   return (
     <StyledRow>
-      {isConnected ? <NetworkStatus textColor={theme.color.text.inverted} /> : <WalletConnection />}
+      <div
+        css={`
+          padding: 0 8px;
+        `}
+      >
+        {isConnected ? <NetworkStatus textColor={theme.color.text.inverted} /> : <WalletConnection />}
+      </div>
       <Notifications />
       <Settings />
       <HelpNav />

@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
-import { Col, Form, Row } from 'antd';
+import { Form, Row, Steps } from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
@@ -27,17 +27,6 @@ function TranslationRequestForm() {
   const [form] = Form.useForm();
   const [state, send] = useStateMachine(formStateMachine);
   const account = useSelector(selectAccount);
-
-  const submitButtonProps =
-    state === 'submitting'
-      ? {
-          icon: <LoadingOutlined />,
-          disabled: true,
-          children: 'Request the Translation',
-        }
-      : {
-          children: 'Request the Translation',
-        };
 
   const handleFinish = React.useCallback(
     async values => {
@@ -73,6 +62,64 @@ function TranslationRequestForm() {
     [form]
   );
 
+  const steps = React.useMemo(
+    () => [
+      {
+        title: 'Choose Languages',
+        fields: ['sourceLanguage', 'targetLanguage', 'expectedQuality'],
+        content: [
+          <Row key="languages" gutter={rowGutter}>
+            <LanguagesSelectionFields setFieldsValue={form.setFieldsValue} />
+          </Row>,
+          <Spacer key="spacer" />,
+          <Row key="expectedQuality" gutter={rowGutter}>
+            <ExpectedQualityField initialValue={initialValues.expectedQuality} />
+          </Row>,
+        ],
+      },
+      {
+        title: 'Translation Details',
+        fields: [
+          'title',
+          'originalTextFile',
+          'wordCount',
+          'originalTextUrl',
+          'deadline',
+          'maxPriceNumeric',
+          'minPriceNumeric',
+        ],
+        content: [
+          <Row key="title" gutter={rowGutter}>
+            <TitleField />
+          </Row>,
+          <Row key="originalSources" gutter={rowGutter}>
+            <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
+          </Row>,
+          <Row key="deadline+price" gutter={rowGutter}>
+            <DeadlineField setFieldsValue={form.setFieldsValue} />
+            <PriceDefinitionFields />
+          </Row>,
+        ],
+      },
+    ],
+    [form]
+  );
+
+  const [currentStep, setCurrentStep] = React.useState(0);
+
+  const handleGoToPreviousStep = React.useCallback(() => {
+    setCurrentStep(current => Math.max(0, current - 1));
+  }, []);
+
+  const handleGoToNextStep = React.useCallback(async () => {
+    const { fields } = steps[currentStep];
+
+    try {
+      await form.validateFields(fields);
+      setCurrentStep(currentStep + 1);
+    } catch {}
+  }, [steps, currentStep, form]);
+
   return (
     <StyledForm
       requiredMark="optional"
@@ -83,32 +130,44 @@ function TranslationRequestForm() {
       onFinishFailed={handleFinishFailed}
       noValidate
     >
-      <Row gutter={rowGutter}>
-        <LanguagesSelectionFields setFieldsValue={form.setFieldsValue} />
-      </Row>
-      <Row gutter={rowGutter}>
-        <ExpectedQualityField initialValue={initialValues.expectedQuality} />
-      </Row>
-      <Spacer size={2} />
-      <Row gutter={rowGutter}>
-        <TitleField />
-      </Row>
-      <Row gutter={rowGutter}>
-        <OriginalSourceFields setFieldsValue={form.setFieldsValue} />
-      </Row>
-      <Row gutter={rowGutter}>
-        <DeadlineField setFieldsValue={form.setFieldsValue} />
-        <PriceDefinitionFields />
-      </Row>
-
-      <Spacer />
-
+      <StyledSteps responsive size="small" current={currentStep}>
+        {steps.map(({ title }, index) => (
+          <Steps.Step key={index} title={title} />
+        ))}
+      </StyledSteps>
+      {steps.map(({ content }, index) => (
+        <StyledStepWrapper key={index} hidden={currentStep !== index}>
+          {content}
+        </StyledStepWrapper>
+      ))}
       <AffixContainer>
-        <Row gutter={rowGutter[0]} justify="end">
-          <Col>
-            <Button {...submitButtonProps} htmlType="submit" />
-          </Col>
-        </Row>
+        <StyledButtonBar>
+          {currentStep !== 0 ? (
+            <Button variant="outlined" htmlType="button" onClick={handleGoToPreviousStep}>
+              Return
+            </Button>
+          ) : null}
+
+          {currentStep < steps.length - 1 ? (
+            <Button htmlType="button" onClick={handleGoToNextStep}>
+              Next
+            </Button>
+          ) : null}
+          {currentStep === steps.length - 1 ? (
+            <Button
+              {...(state === 'submitting'
+                ? {
+                    icon: <LoadingOutlined />,
+                    disabled: true,
+                    children: 'Request the Translation',
+                  }
+                : {
+                    children: 'Request the Translation',
+                  })}
+              htmlType="submit"
+            />
+          ) : null}
+        </StyledButtonBar>
       </AffixContainer>
     </StyledForm>
   );
@@ -156,6 +215,39 @@ const StyledForm = styled(Form)`
     .ant-input-number,
     .ant-picker {
       width: 100%;
+    }
+  }
+`;
+
+const StyledSteps = styled(Steps)`
+  && {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 36rem;
+  }
+`;
+
+const StyledStepWrapper = styled.div`
+  padding: 1rem 0 3.5rem;
+
+  @media (min-width: 576px) {
+    padding-top: 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    padding-top: 4rem;
+  }
+`;
+
+const StyledButtonBar = styled.div`
+  display: flex;
+  gap: 1rem;
+
+  .ant-btn {
+    min-width: 10rem;
+
+    :last-of-type {
+      margin-left: auto;
     }
   }
 `;

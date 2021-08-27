@@ -124,12 +124,18 @@ export default function TaskDetails() {
           `}
         />
         {showFootnote && (
-          <>
+          <div
+            css={`
+              margin: 0 auto;
+              max-width: 30rem;
+              text-align: center;
+            `}
+          >
             <Spacer baseSize="xs" />
             <StyledFootnote>
               <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
             </StyledFootnote>
-          </>
+          </div>
         )}
         <Spacer size={3} />
         <StyledLanguageInfoWrapper>

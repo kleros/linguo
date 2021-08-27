@@ -198,6 +198,8 @@ const StyledMainMenu = styled(Menu)`
   ${menuAnchorMixin}
 
   && {
+    justify-content: center;
+
     &.ant-menu {
       background: transparent;
       color: ${p => p.theme.color.text.inverted};

@@ -77,6 +77,10 @@ const StyledGeneralSettings = styled.div`
 
 const StyledPopover = styled(Popover)`
   width: 32rem;
+
+  @media (max-width: 31.98rem) {
+    width: 100%;
+  }
 `;
 
 const StyledTabs = styled(Tabs)`

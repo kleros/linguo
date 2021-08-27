@@ -35,7 +35,7 @@ Popover.defaultProps = {
 };
 
 function BasePopover({ className, ...props }) {
-  return <AntdPopover overlayClassName={className} {...props} />;
+  return <AntdPopover autoAdjustOverflow overlayClassName={className} {...props} />;
 }
 
 BasePopover.propTypes = {
@@ -49,8 +49,7 @@ Popover.defaultProps = {
 const StyledPopover = styled(BasePopover)`
   z-index: 300;
   .ant-popover-arrow {
-    background: ${props => props.theme.color.background.light};
-    transform: scale(1.5) rotate(45deg);
+    transform: scale(2.5) translateY(-1px);
   }
 
   .ant-popover-inner {
