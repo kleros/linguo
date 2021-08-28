@@ -4,7 +4,7 @@ import { multiply, power } from '~/adapters/big-number';
  * Normalize the value of a token according to the number of decimal places it has.
  *
  * @param {number | string} value The amount to convert (e.g.: 1 USDC)
- * @param {number | string} resolution The value of `decimals` property of the smart contract for that token
+ * @param {number} resolution The value of `decimals` property of the smart contract for that token
  * @return {string} The normalized value string representation
  */
 export default function normalizeBaseUnit(value = 0, resolution = 18) {

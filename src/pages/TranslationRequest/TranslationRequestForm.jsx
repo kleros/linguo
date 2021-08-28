@@ -8,7 +8,7 @@ import utc from 'dayjs/plugin/utc';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import { create as createTask } from '~/features/tasks/tasksSlice';
 import { selectAccount } from '~/features/web3/web3Slice';
-import { omit } from '~/shared/fp';
+import { normalizeBaseUnit } from '~/features/tokens';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import AffixContainer from '~/shared/AffixContainer';
@@ -30,11 +30,14 @@ function TranslationRequestForm() {
 
   const handleFinish = React.useCallback(
     async values => {
-      const { originalTextFile, deadline, ...rest } = omit(['minPriceNumeric', 'maxPriceNumeric'], values);
+      const { originalTextFile, deadline, minPriceNumeric, maxPriceNumeric, ...rest } = values;
+
       send('SUBMIT');
       const data = {
         ...rest,
         account,
+        minPrice: safeToWei(minPriceNumeric),
+        maxPrice: safeToWei(maxPriceNumeric),
         deadline: new Date(deadline).toISOString(),
         originalTextFile: extractOriginalTextFilePath(originalTextFile),
       };
@@ -117,11 +120,20 @@ function TranslationRequestForm() {
     try {
       await form.validateFields(fields);
       setCurrentStep(currentStep + 1);
-    } catch {}
+      window.requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+      });
+    } catch (err) {
+      const firstErrorFieldName = err?.errorFields?.[0].name;
+      if (firstErrorFieldName) {
+        form.scrollToField(firstErrorFieldName);
+      }
+    }
   }, [steps, currentStep, form]);
 
   return (
     <StyledForm
+      scrollToFirstError
       requiredMark="optional"
       layout="vertical"
       form={form}
@@ -174,6 +186,8 @@ function TranslationRequestForm() {
 }
 
 export default TranslationRequestForm;
+
+const safeToWei = value => (Number.isNaN(Number.parseFloat(value)) ? '0' : normalizeBaseUnit(value));
 
 const extractOriginalTextFilePath = originalTextFile => {
   if (originalTextFile?.length > 0) {

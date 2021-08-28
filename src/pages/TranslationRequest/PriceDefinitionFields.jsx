@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Col, Form, Input } from 'antd';
 import { InputNumberWithAddons } from '~/adapters/antd';
-import { normalizeBaseUnit } from '~/features/tokens';
 import { selectAccount } from '~/features/web3/web3Slice';
 import { InfoIcon } from '~/shared/icons';
 import PriceDefinitionInfographic from '~/shared/PriceDefinitionInfographic';
@@ -25,38 +24,29 @@ export default function PriceDefinitionFieldsWrapper() {
 
 const MIN_REPRESENTABLE_VALUE = 0.000000000000000001;
 
-function PriceDefinitionFields({ setFieldsValue }) {
+function PriceDefinitionFields({ setFieldsValue, getFieldValue }) {
   const account = useSelector(selectAccount);
 
   const [minMaxPriceNumeric, setMinMaxPriceNumeric] = React.useState(MIN_REPRESENTABLE_VALUE);
   const handleMinPriceNumericChange = React.useCallback(
     value => {
-      setMinMaxPriceNumeric(Math.max(MIN_REPRESENTABLE_VALUE, value));
-      setFieldsValue({
-        minPrice: Number.isNaN(parseInt(value, 10)) ? '0' : normalizeBaseUnit(value),
-      });
-    },
-    [setFieldsValue]
-  );
+      const parsedValue = Number.parseFloat(value);
 
-  const handleMaxPriceNumericChange = React.useCallback(
-    value => {
-      setFieldsValue({
-        maxPrice: Number.isNaN(parseInt(value, 10)) ? '0' : normalizeBaseUnit(value),
-      });
+      if (!Number.isNaN(parsedValue)) {
+        setMinMaxPriceNumeric(Math.max(MIN_REPRESENTABLE_VALUE, parsedValue));
+
+        const parsedMaxPriceNumeric = Number.parseFloat(getFieldValue('maxPriceNumeric') ?? 0);
+        if (!Number.isNaN(parsedMaxPriceNumeric) && parsedValue > parsedMaxPriceNumeric) {
+          setFieldsValue({ maxPriceNumeric: parsedValue });
+        }
+      }
     },
-    [setFieldsValue]
+    [setFieldsValue, getFieldValue]
   );
 
   return (
     <>
       <Form.Item name="account" initialValue={account}>
-        <Input type="hidden" />
-      </Form.Item>
-      <Form.Item name="minPrice" initialValue="0">
-        <Input type="hidden" />
-      </Form.Item>
-      <Form.Item name="maxPrice" initialValue="0">
         <Input type="hidden" />
       </Form.Item>
       <Col xs={24} sm={24} md={12} lg={8}>
@@ -82,7 +72,6 @@ function PriceDefinitionFields({ setFieldsValue }) {
             min={minMaxPriceNumeric}
             step={0.01}
             addonAfter="ETH"
-            onChange={handleMaxPriceNumericChange}
           />
         </Form.Item>
       </Col>
@@ -123,6 +112,7 @@ function PriceDefinitionFields({ setFieldsValue }) {
 
 PriceDefinitionFields.propTypes = {
   setFieldsValue: t.func.isRequired,
+  getFieldValue: t.func.isRequired,
 };
 
 const StyledDetails = styled.details`
