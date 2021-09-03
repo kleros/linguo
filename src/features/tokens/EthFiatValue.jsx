@@ -9,10 +9,17 @@ import FormattedNumber from '~/shared/FormattedNumber';
 import Button from '~/shared/Button';
 import { selectChainId } from '~/features/web3/web3Slice';
 import { selectEthPrice, selectEthPriceState, fetchEthPrice } from './tokensSlice';
+import supportedChainIds from './supportedChainIds';
 
 const { fromWei } = Web3.utils;
 
-export default function EthFiatValue({ amount, render, className }) {
+export default function EthFiatValueWrapper(props) {
+  const chainId = useSelector(selectChainId);
+
+  return supportedChainIds[chainId] ? <EthFiatValue {...props} /> : null;
+}
+
+function EthFiatValue({ amount, render, className }) {
   const dispatch = useDispatch();
 
   const chainId = useSelector(selectChainId);

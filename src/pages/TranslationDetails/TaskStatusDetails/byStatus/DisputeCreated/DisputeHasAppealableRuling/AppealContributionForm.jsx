@@ -1,16 +1,16 @@
 import React from 'react';
 import t from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 import { Col, Form, Row } from 'antd';
 import { CheckOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import Button from '~/shared/Button';
 import { InputNumberWithAddons } from '~/adapters/antd';
 import { subtract } from '~/adapters/big-number';
-import { EthUnit, getBestDisplayUnit, parse, valueOf } from '~/shared/EthValue';
+import { getBestDisplayUnit, parse, valueOf } from '~/shared/EthValue';
 import useStateMachine from '~/shared/useStateMachine';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectAccount } from '~/features/web3/web3Slice';
-import useTask from '../../../../useTask';
 import { fundAppeal } from '~/features/disputes/disputesSlice';
+import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
+import useTask from '../../../../useTask';
 
 export default function AppealContributionForm({ totalAppealCost, paidFees, party }) {
   const [form] = Form.useForm();
@@ -179,17 +179,8 @@ const submitButtonPropsByState = {
   },
 };
 
-const getRemainingCost = ({ totalAppealCost = '0', paidFees = '0' } = {}) => {
-  const { unit, suffix } =
-    totalAppealCost === '0'
-      ? {
-          unit: EthUnit.ether,
-          suffix: {
-            short: 'ETH',
-            long: 'Ether',
-          },
-        }
-      : getBestDisplayUnit({ amount: totalAppealCost });
+const getRemainingCost = ({ chainId, totalAppealCost = '0', paidFees = '0' } = {}) => {
+  const { unit, suffix } = getBestDisplayUnit({ chainId, amount: totalAppealCost });
   const remainingCost = subtract(totalAppealCost, paidFees);
   const remainingCostAsNumber = valueOf({ amount: remainingCost, unit });
 
@@ -202,7 +193,8 @@ const getRemainingCost = ({ totalAppealCost = '0', paidFees = '0' } = {}) => {
 };
 
 function useDepositField({ form, totalAppealCost = '0', paidFees = '0' } = {}) {
-  const { unit, suffix, ...remainingCost } = getRemainingCost({ totalAppealCost, paidFees });
+  const chainId = useSelector(selectChainId);
+  const { unit, suffix, ...remainingCost } = getRemainingCost({ chainId, totalAppealCost, paidFees });
 
   const disabled = totalAppealCost === '0';
 

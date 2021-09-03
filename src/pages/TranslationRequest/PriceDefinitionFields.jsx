@@ -4,10 +4,11 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Col, Form, Input } from 'antd';
 import { InputNumberWithAddons } from '~/adapters/antd';
-import { selectAccount } from '~/features/web3/web3Slice';
+import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import { InfoIcon } from '~/shared/icons';
 import PriceDefinitionInfographic from '~/shared/PriceDefinitionInfographic';
 import Spacer from '~/shared/Spacer';
+import { getBestDisplayUnit } from '~/shared/EthValue';
 
 export default function PriceDefinitionFieldsWrapper() {
   return (
@@ -26,6 +27,8 @@ const MIN_REPRESENTABLE_VALUE = 0.000000000000000001;
 
 function PriceDefinitionFields({ setFieldsValue, getFieldValue }) {
   const account = useSelector(selectAccount);
+  const chainId = useSelector(selectChainId);
+  const displayUnit = getBestDisplayUnit({ chainId, amount: '0' }).suffix.short;
 
   const [minMaxPriceNumeric, setMinMaxPriceNumeric] = React.useState(MIN_REPRESENTABLE_VALUE);
   const handleMinPriceNumericChange = React.useCallback(
@@ -62,7 +65,7 @@ function PriceDefinitionFields({ setFieldsValue, getFieldValue }) {
             {
               type: 'number',
               min: minMaxPriceNumeric,
-              message: `Maximum price must be at least ${minMaxPriceNumeric} ETH`,
+              message: `Maximum price must be at least ${minMaxPriceNumeric} ${displayUnit}`,
             },
           ]}
         >
@@ -71,7 +74,7 @@ function PriceDefinitionFields({ setFieldsValue, getFieldValue }) {
             placeholder="e.g.: 2.5"
             min={minMaxPriceNumeric}
             step={0.01}
-            addonAfter="ETH"
+            addonAfter={displayUnit}
           />
         </Form.Item>
       </Col>
@@ -92,7 +95,7 @@ function PriceDefinitionFields({ setFieldsValue, getFieldValue }) {
             placeholder="e.g.: 1.2"
             min={0.0}
             step={0.01}
-            addonAfter="ETH"
+            addonAfter={displayUnit}
             onChange={handleMinPriceNumericChange}
           />
         </Form.Item>

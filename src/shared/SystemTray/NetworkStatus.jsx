@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { Badge } from 'antd';
 import { selectAccount, selectChainId, selectIsConnected, selectIsConnecting } from '~/features/web3/web3Slice';
 
-export default function NetworkStatus({ textColor, accountRequired }) {
+export default function NetworkStatus({ textColor, accountRequired, className }) {
   const account = useSelector(selectAccount);
   const isConnecting = useSelector(selectIsConnecting);
   const isConnected = useSelector(selectIsConnected);
@@ -19,39 +19,48 @@ export default function NetworkStatus({ textColor, accountRequired }) {
       $textColor={textColor}
       status={isConnected ? 'success' : isConnecting ? 'warning' : 'default'}
       text={chainIdToNetworkName[chainId]}
+      className={className}
     />
   ) : (
-    <StyledBadge dot $textColor={textColor} status="error" text="Not Connected" />
+    <StyledBadge dot $textColor={textColor} status="error" text="Not Connected" className={className} />
   );
 }
 
 NetworkStatus.propTypes = {
   textColor: t.string,
   accountRequired: t.bool,
+  className: t.string,
 };
 
 NetworkStatus.defaultProps = {
   textColor: '',
   accountRequired: true,
+  className: '',
 };
 
 const chainIdToNetworkName = {
   42: 'Kovan',
   1: 'Mainnet',
+  77: 'Sokol',
+  100: 'xDAI Chain',
 };
 
 const StyledBadge = styled(Badge)`
   && {
+    display: flex;
+    align-items: center;
     width: auto;
     height: auto;
 
     .ant-badge-status-dot {
       width: 0.5rem;
       height: 0.5rem;
+      position: static;
     }
 
     .ant-badge-status-text {
       color: ${p => (p.$textColor ? `${p.$textColor} !important` : 'currentColor')};
+      font-size: inherit;
     }
 
     .ant-badge-status-success + .ant-badge-status-text {

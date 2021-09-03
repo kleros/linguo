@@ -14,13 +14,9 @@ export default function SystemTray() {
 
   return (
     <StyledRow>
-      <div
-        css={`
-          padding: 0 8px;
-        `}
-      >
-        {isConnected ? <NetworkStatus textColor={theme.color.text.inverted} /> : <WalletConnection />}
-      </div>
+      <StyledNetworkStatusWrapper>
+        {isConnected ? <StyledNetworkStatus textColor={theme.color.text.inverted} /> : <WalletConnection />}
+      </StyledNetworkStatusWrapper>
       <Notifications />
       <Settings />
       <HelpNav />
@@ -36,6 +32,18 @@ const StyledRow = styled.div`
 
   .ant-btn,
   .ant-badge {
-    display: block;
+    display: flex;
+  }
+`;
+
+const StyledNetworkStatus = styled(NetworkStatus)``;
+
+const StyledNetworkStatusWrapper = styled.div`
+  @media (max-width: 767.98px) {
+    padding: 0 8px;
+
+    ${StyledNetworkStatus} {
+      font-size: ${p => p.theme.fontSize.xl};
+    }
   }
 `;

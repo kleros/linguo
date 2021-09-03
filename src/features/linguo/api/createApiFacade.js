@@ -241,8 +241,6 @@ async function getLinguoContracts({ web3, chainId, address, deployment }) {
   // set the max listeners warning threshold
   web3.eth.maxListenersWarningThreshold = 1000;
 
-  // address = deployment.networks[chainId]?.address;
-
   if (!address) {
     throw new Error(`Could not find address for linguo contract on network ${chainId}`);
   }
@@ -289,25 +287,46 @@ export function getContractInstancesForTranslator({ skills, addressesByLanguageG
 }
 
 /**
- * Considers 4 blocks per minute on average.
+ * Considers 1 block each 13.25 seconds on average.
  */
-const BLOCKS_IN_60_DAYS = 30 * 24 * 60 * 60 * 4;
+const BLOCK_INTERVAL_SIZE = Math.round(60 * 24 * 60 * 60 * 4.53);
+
+const chainIdToMakeExplorerUrl = {
+  1: ({ account, startBlock, endBlock, apiKey }) =>
+    `https://api.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${apiKey}`,
+  42: ({ account, startBlock, endBlock, apiKey }) =>
+    `https://kovan-api.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${apiKey}`,
+  77: ({ account, startBlock, endBlock }) =>
+    `https://blockscout.com/poa/sokol/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc`,
+  100: ({ account, startBlock, endBlock }) =>
+    `https://blockscout.com/xdai/mainnet/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc`,
+};
 
 async function getContractAddressesForRequester({ chainId, account, web3, apiInstancesByAddress }) {
   if (!account) {
     return [];
   }
 
-  const subdomain = chainId === 42 ? 'api-kovan' : 'api';
   const endBlock = await web3.eth.getBlockNumber();
-  const startBlock = subtract(endBlock, BLOCKS_IN_60_DAYS);
+  const startBlock = subtract(endBlock, BLOCK_INTERVAL_SIZE);
 
-  const url = `//${subdomain}.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${process.env.ETHERSCAN_API_KEY}`;
+  const url = chainIdToMakeExplorerUrl[chainId]({
+    account,
+    startBlock,
+    endBlock,
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  });
 
-  const response = await fetch(url);
+  let response;
+  try {
+    response = await fetch(url, { mode: 'cors' });
 
-  if (![200, 304].includes(response.status)) {
-    console.warn(`Failed to fetch Linguo contracts account ${account} interacted with.`);
+    if (![200, 304].includes(response.status)) {
+      console.warn(`Failed to fetch Linguo contracts account ${account} interacted with.`);
+      return Object.values(apiInstancesByAddress);
+    }
+  } catch (err) {
+    console.warn(`Failed to fetch Linguo contracts account ${account} interacted with:`, err);
     return Object.values(apiInstancesByAddress);
   }
 

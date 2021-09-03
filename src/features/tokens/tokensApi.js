@@ -1,6 +1,11 @@
 import { ChainId, Token, WETH, Fetcher, Route } from '@uniswap/sdk';
+import supportedChainIds from './supportedChainIds';
 
 export async function getEthPrice({ chainId }) {
+  if (!supportedChainIds[chainId]) {
+    return '0';
+  }
+
   const USDC = getUSDC(chainId);
   const pair = await getPair(USDC);
   const route = new Route([pair], WETH[USDC.chainId]);
