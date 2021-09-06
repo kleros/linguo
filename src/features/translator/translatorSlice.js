@@ -19,7 +19,7 @@ function createPersistedReducer(reducer) {
   const persistConfig = {
     key: PERSISTANCE_KEY,
     storage,
-    version: 1,
+    version: 2,
     migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
     blacklist: [],
   };
@@ -52,8 +52,8 @@ export const {
   selectTaskIds,
 } = mapValues(selector => (state, ...rest) => selector(state.translator.tasks, ...rest), tasks.selectors);
 
-export const selectAllTasks = (state, { account }) => {
-  const taskIds = selectTaskIds(state, { account });
+export const selectAllTasks = (state, { account, chainId }) => {
+  const taskIds = selectTaskIds(state, { account, chainId });
   return selectAllFilterByIds(taskIds)(state);
 };
 
@@ -63,12 +63,13 @@ export const selectTasksForFilter = createSelector(
     (_, { status }) => status,
     (_, { allTasks }) => allTasks,
     (_, { account }) => account,
+    (_, { chainId }) => chainId,
     (_, { skills }) => skills,
   ],
-  (tasks, status, allTasks, account, skills) =>
+  (tasks, status, allTasks, account, chainId, skills) =>
     compose(
       sort(getComparator(status, { account, skills })),
-      arrayFilter(getAllTasksFilterPredicate(allTasks, { status, account })),
+      arrayFilter(getAllTasksFilterPredicate(allTasks, { status, account, chainId })),
       arrayFilter(getStatusFilterPredicate(status, { skills }))
     )(tasks)
 );
@@ -79,8 +80,16 @@ export const selectTaskCountForFilter = createSelector(
 );
 
 export const selectTasksForCurrentFilter = createSelector(
-  [state => state, (_, { account }) => account, (_, { skills }) => skills, selectStatusFilter, selectAllTasksFilter],
-  (state, account, skills, status, allTasks) => selectTasksForFilter(state, { account, skills, status, allTasks })
+  [
+    state => state,
+    (_, { account }) => account,
+    (_, { chainId }) => chainId,
+    (_, { skills }) => skills,
+    selectStatusFilter,
+    selectAllTasksFilter,
+  ],
+  (state, account, chainId, skills, status, allTasks) =>
+    selectTasksForFilter(state, { account, chainId, skills, status, allTasks })
 );
 
 export function* onFilterChangeSaga(action) {

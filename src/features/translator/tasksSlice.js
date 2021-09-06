@@ -33,26 +33,37 @@ const translatorTasksSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(fetchTasks, (state, action) => {
       const account = action.payload?.account ?? null;
+      const chainId = action.payload?.chainId ?? null;
 
-      state.byAccount[account] = state.byAccount[account] ?? {
+      state.byAccount[account] = state.byAccount[account] ?? {};
+      state.byAccount[account].byChainId = state.byAccount[account].byChainId ?? {
+        [chainId]: {
+          loadingState: 'idle',
+          ids: [],
+        },
+      };
+      state.byAccount[account].byChainId[chainId] = state.byAccount[account].byChainId[chainId] ?? {
         loadingState: 'idle',
         ids: [],
       };
-      state.byAccount[account].loadingState = 'loading';
+
+      state.byAccount[account].byChainId[chainId].loadingState = 'loading';
     });
 
     builder.addCase(fetchTasks.rejected, (state, action) => {
       const account = action.payload?.account ?? null;
+      const chainId = action.payload?.chainId ?? null;
 
-      state.byAccount[account].loadingState = 'failed';
+      state.byAccount[account].byChainId[chainId].loadingState = 'failed';
     });
 
     builder.addCase(fetchTasks.fulfilled, (state, action) => {
       const account = action.payload?.account ?? null;
-      const data = action.payload?.data ?? [];
+      const chainId = action.payload?.chainId ?? null;
+      const ids = action.payload?.ids ?? [];
 
-      state.byAccount[account].loadingState = 'fetched';
-      state.byAccount[account].ids = data;
+      state.byAccount[account].byChainId[chainId].loadingState = 'fetched';
+      state.byAccount[account].byChainId[chainId].ids = ids;
     });
   },
 });
@@ -68,13 +79,17 @@ export const selectStatusFilter = state => state.filters?.status ?? statusFilter
 
 export const selectAllTasksFilter = state => state.filters?.allTasks ?? false;
 
-export const selectLoadingState = (state, { account = null }) => state.byAccount[account]?.loadingState ?? 'idle';
-export const selectIsIdle = (state, { account }) => selectLoadingState(state, { account }) === 'idle';
-export const selectIsLoading = (state, { account }) => selectLoadingState(state, { account }) === 'loading';
-export const selectHasFetched = (state, { account }) => selectLoadingState(state, { account }) === 'fetched';
-export const selectHasFailed = (state, { account }) => selectLoadingState(state, { account }) === 'failed';
+export const selectLoadingState = (state, { account = null, chainId }) =>
+  state.byAccount[account]?.byChainId[chainId]?.loadingState ?? 'idle';
+export const selectIsIdle = (state, { account, chainId }) => selectLoadingState(state, { account, chainId }) === 'idle';
+export const selectIsLoading = (state, { account, chainId }) =>
+  selectLoadingState(state, { account, chainId }) === 'loading';
+export const selectHasFetched = (state, { account, chainId }) =>
+  selectLoadingState(state, { account, chainId }) === 'fetched';
+export const selectHasFailed = (state, { account, chainId }) =>
+  selectLoadingState(state, { account, chainId }) === 'failed';
 
-export const selectTaskIds = (state, { account }) => state.byAccount[account]?.ids ?? [];
+export const selectTaskIds = (state, { account, chainId }) => state.byAccount[account]?.byChainId[chainId]?.ids ?? [];
 
 export const selectors = {
   selectStatusFilter,
@@ -88,6 +103,7 @@ export const selectors = {
 
 export function* fetchTasksSaga(action) {
   const account = action.payload?.account ?? null;
+  const chainId = action.payload?.chainId ?? null;
   const thunk = action.meta?.thunk ?? { id: account };
   const meta = { ...action.meta, thunk };
 
@@ -107,6 +123,7 @@ export function* fetchTasksSaga(action) {
       fetchTasks.rejected(
         {
           account,
+          chainId,
           error: new Error('Cancelled because translator skills were not set'),
         },
         { meta }
@@ -121,9 +138,9 @@ export function* fetchTasksSaga(action) {
 
     const tasks = result?.data ?? [];
     const ids = tasks.map(({ id }) => id);
-    yield put(fetchTasks.fulfilled({ account, data: ids }, { meta }));
+    yield put(fetchTasks.fulfilled({ account, chainId, ids }, { meta }));
   } catch (err) {
-    yield put(fetchTasks.rejected({ account, error: err.error }, { meta }));
+    yield put(fetchTasks.rejected({ account, chainId, error: err.error }, { meta }));
   }
 }
 

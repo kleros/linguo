@@ -36,26 +36,38 @@ const requesterSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(fetchTasks, (state, action) => {
       const account = action.payload?.account ?? null;
+      const chainId = action.payload?.chainId ?? null;
 
-      state.tasks.byAccount[account] = state.tasks.byAccount[account] ?? {
-        loadingState: 'idle',
-        data: [],
+      state.tasks.byAccount[account] = state.tasks.byAccount[account] ?? {};
+      state.tasks.byAccount[account].byChainId = state.tasks.byAccount[account].byChainId ?? {
+        [chainId]: {
+          loadingState: 'idle',
+          ids: [],
+        },
       };
-      state.tasks.byAccount[account].loadingState = 'loading';
+
+      state.tasks.byAccount[account].byChainId[chainId] = state.tasks.byAccount[account].byChainId[chainId] ?? {
+        loadingState: 'idle',
+        ids: [],
+      };
+
+      state.tasks.byAccount[account].byChainId[chainId].loadingState = 'loading';
     });
 
     builder.addCase(fetchTasks.rejected, (state, action) => {
       const account = action.payload?.account ?? null;
+      const chainId = action.payload?.chainId ?? null;
 
-      state.tasks.byAccount[account].loadingState = 'failed';
+      state.tasks.byAccount[account].byChainId[chainId].loadingState = 'failed';
     });
 
     builder.addCase(fetchTasks.fulfilled, (state, action) => {
       const account = action.payload?.account ?? null;
-      const data = action.payload?.data ?? [];
+      const chainId = action.payload?.chainId ?? null;
+      const ids = action.payload?.ids ?? [];
 
-      state.tasks.byAccount[account].loadingState = 'succeeded';
-      state.tasks.byAccount[account].data = data;
+      state.tasks.byAccount[account].byChainId[chainId].loadingState = 'succeeded';
+      state.tasks.byAccount[account].byChainId[chainId].ids = ids;
     });
   },
 });
@@ -66,7 +78,7 @@ function createPersistedReducer(reducer) {
   const persistConfig = {
     key: PERSISTANCE_KEY,
     storage,
-    version: 0,
+    version: 1,
     migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
     blacklist: [],
   };
@@ -78,16 +90,16 @@ export default createPersistedReducer(requesterSlice.reducer);
 
 export const selectStatusFilter = state => state.requester.tasks?.filters?.status ?? statusFilters.all;
 
-const selectLoadingState = (state, { account = null }) =>
-  state.requester.tasks.byAccount[account]?.loadingState ?? 'idle';
+const selectLoadingState = (state, { account = null, chainId }) =>
+  state.requester.tasks.byAccount[account]?.byChainId[chainId]?.loadingState ?? 'idle';
 
 export const selectIsIdle = createSelector([selectLoadingState], loadingState => loadingState === 'idle');
 export const selectIsLoading = createSelector([selectLoadingState], loadingState => loadingState === 'loading');
 export const selectHasSucceeded = createSelector([selectLoadingState], loadingState => loadingState === 'succeeded');
 export const selectHasFailed = createSelector([selectLoadingState], loadingState => loadingState === 'failed');
 
-export const selectAllTasks = (state, { account }) => {
-  const taskIds = state.requester.tasks.byAccount[account]?.data ?? [];
+export const selectAllTasks = (state, { account, chainId }) => {
+  const taskIds = state.requester.tasks.byAccount[account]?.byChainId[chainId]?.ids ?? [];
   return selectAllFilterByIds(taskIds)(state);
 };
 
@@ -98,33 +110,34 @@ export const selectTasksForFilter = createSelector([selectAllTasks, (_, { status
 export const selectTaskCountForFilter = createSelector([selectTasksForFilter], tasks => tasks.length);
 
 export const selectTasksForCurrentFilter = createSelector(
-  [state => state, (_, { account }) => account, selectStatusFilter],
-  (state, account, status) => selectTasksForFilter(state, { account, status })
+  [state => state, (_, { account }) => account, (_, { chainId }) => chainId, selectStatusFilter],
+  (state, account, chainId, status) => selectTasksForFilter(state, { account, chainId, status })
 );
 
 export const { setFilter } = requesterSlice.actions;
 
 export function* fetchTasksSaga(action) {
   const account = action.payload?.account ?? null;
+  const chainId = action.payload?.chainId ?? null;
   const thunk = action.meta?.thunk ?? { id: account };
   const meta = { ...action.meta, thunk };
 
   try {
-    const result = yield putResolve(fetchByParty({ account, party: TaskParty.Requester }, { meta }));
+    const result = yield putResolve(fetchByParty({ account, chainId, party: TaskParty.Requester }, { meta }));
 
     const tasks = result?.data ?? [];
     const ids = tasks.map(({ id }) => id);
-    yield put(fetchTasks.fulfilled({ account, data: ids }, { meta }));
+    yield put(fetchTasks.fulfilled({ account, chainId, ids }, { meta }));
   } catch (err) {
-    yield put(fetchTasks.rejected({ account, error: err.error }, { meta }));
+    yield put(fetchTasks.rejected({ account, chainId, error: err.error }, { meta }));
   }
 }
 
 export function* handleTaskCreateTxnMined(action) {
-  const { account, sourceLanguage, targetLanguage } = action.payload ?? {};
+  const { account, chainId, sourceLanguage, targetLanguage } = action.payload ?? {};
   const languageGroupPair = String(LanguageGroupPair.of([sourceLanguage, targetLanguage].map(getLanguageGroup)));
 
-  yield put(fetchTasks({ account }, { meta: { hints: { languageGroupPairs: [languageGroupPair] } } }));
+  yield put(fetchTasks({ account, chainId }, { meta: { hints: { languageGroupPairs: [languageGroupPair] } } }));
 }
 
 export function* onFilterChangeSaga(action) {

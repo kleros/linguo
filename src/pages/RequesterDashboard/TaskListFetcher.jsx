@@ -7,23 +7,24 @@ import { statusFilters, useFilters } from '~/features/requester';
 import { fetchTasks, selectTasksForCurrentFilter, selectIsLoading } from '~/features/requester/requesterSlice';
 import TaskList from '~/features/tasks/TaskList';
 import DismissableAlert from '~/features/ui/DismissableAlert';
-import { selectAccount } from '~/features/web3/web3Slice';
+import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import TopLoadingBar from '~/shared/TopLoadingBar';
 
 export default function TaskListFetcher() {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
-  const isLoading = useSelector(state => selectIsLoading(state, { account }));
+  const chainId = useSelector(selectChainId);
+  const isLoading = useSelector(state => selectIsLoading(state, { account, chainId }));
 
   const doFetchTasks = React.useCallback(() => {
-    dispatch(fetchTasks({ account }));
-  }, [dispatch, account]);
+    dispatch(fetchTasks({ chainId, account }));
+  }, [dispatch, account, chainId]);
 
   React.useEffect(() => {
     doFetchTasks();
   }, [doFetchTasks]);
 
-  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account }));
+  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account, chainId }));
   const [filterName] = useFilters();
 
   const showFootnote = [statusFilters.open].includes(filterName) && data.length > 0;

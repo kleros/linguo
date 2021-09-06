@@ -295,7 +295,7 @@ const chainIdToMakeExplorerUrl = {
   1: ({ account, startBlock, endBlock, apiKey }) =>
     `https://api.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${apiKey}`,
   42: ({ account, startBlock, endBlock, apiKey }) =>
-    `https://kovan-api.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${apiKey}`,
+    `https://api-kovan.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${apiKey}`,
   77: ({ account, startBlock, endBlock }) =>
     `https://blockscout.com/poa/sokol/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc`,
   100: ({ account, startBlock, endBlock }) =>
@@ -323,11 +323,11 @@ async function getContractAddressesForRequester({ chainId, account, web3, apiIns
 
     if (![200, 304].includes(response.status)) {
       console.warn(`Failed to fetch Linguo contracts account ${account} interacted with.`);
-      return Object.values(apiInstancesByAddress);
+      return Object.keys(apiInstancesByAddress);
     }
   } catch (err) {
     console.warn(`Failed to fetch Linguo contracts account ${account} interacted with:`, err);
-    return Object.values(apiInstancesByAddress);
+    return Object.keys(apiInstancesByAddress);
   }
 
   const { result } = await response.json();

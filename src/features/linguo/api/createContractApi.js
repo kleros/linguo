@@ -833,6 +833,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   };
 }
 
+// TODO: Add Sokol and and xDAI params
 const firstRelevantBlockByChainId = {
   42: 0,
   1: 11237802,

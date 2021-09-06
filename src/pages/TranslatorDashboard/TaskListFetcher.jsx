@@ -14,18 +14,19 @@ import {
   selectIsLoading,
 } from '~/features/translator/translatorSlice';
 import DismissableAlert from '~/features/ui/DismissableAlert';
-import { selectAccount } from '~/features/web3/web3Slice';
+import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import TopLoadingBar from '~/shared/TopLoadingBar';
 
 export default function TaskListFetcher() {
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
-  const isLoading = useSelector(state => selectIsLoading(state, { account }));
+  const chainId = useSelector(selectChainId);
+  const isLoading = useSelector(state => selectIsLoading(state, { account, chainId }));
   const skills = useShallowEqualSelector(selectAllSkills);
 
   const doFetchTasks = React.useCallback(() => {
-    dispatch(fetchTasks({ account }));
-  }, [dispatch, account]);
+    dispatch(fetchTasks({ account, chainId }));
+  }, [dispatch, account, chainId]);
 
   React.useEffect(() => {
     doFetchTasks();
@@ -33,7 +34,7 @@ export default function TaskListFetcher() {
 
   const [{ status, allTasks }] = useFilters();
 
-  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account, skills }));
+  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account, chainId, skills }));
   const showFootnote = [statusFilters.open].includes(status) && data.length > 0;
 
   return (

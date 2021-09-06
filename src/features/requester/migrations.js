@@ -8,4 +8,7 @@ export default {
 
     delete state.tasks?.filter;
   }),
+  1: produce(state => {
+    state.tasks.byAccount = {};
+  }),
 };

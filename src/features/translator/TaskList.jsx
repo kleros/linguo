@@ -2,11 +2,12 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Col, Row, Tooltip, Typography } from 'antd';
+import Spacer from '~/shared/Spacer';
 import TaskCard from '~/features/tasks/TaskCard';
 import { TaskStatus } from '~/features/tasks';
-import { selectAllSkills } from './translatorSlice';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { TaskCardFooterInfoDisplay } from '../tasks/TaskCardFooter';
+import { selectAllSkills } from './translatorSlice';
 
 export default function TaskList({ data, showFootnote }) {
   return data.length === 0 ? (
@@ -36,9 +37,12 @@ export default function TaskList({ data, showFootnote }) {
         </StyledRow>
       </StyledListWrapper>
       {showFootnote && (
-        <StyledFootnote>
-          <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
-        </StyledFootnote>
+        <>
+          <Spacer />
+          <StyledFootnote>
+            <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
+          </StyledFootnote>
+        </>
       )}
     </>
   );

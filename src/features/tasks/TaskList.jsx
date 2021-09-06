@@ -2,6 +2,7 @@ import { Col, Row, Typography } from 'antd';
 import t from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
+import Spacer from '~/shared/Spacer';
 import TaskCard from './TaskCard';
 
 export default function TaskList({ data, showFootnote }) {
@@ -32,9 +33,12 @@ export default function TaskList({ data, showFootnote }) {
         </StyledRow>
       </StyledListWrapper>
       {showFootnote && (
-        <StyledFootnote>
-          <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
-        </StyledFootnote>
+        <>
+          <Spacer />
+          <StyledFootnote>
+            <sup>*</sup>Approximate value: the actual price is defined when a translator is assigned to the task.
+          </StyledFootnote>
+        </>
       )}
     </>
   );

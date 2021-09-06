@@ -12,4 +12,7 @@ export default {
 
     state.tasks.filters = {};
   }),
+  2: produce(state => {
+    state.tasks.byAccount = {};
+  }),
 };
