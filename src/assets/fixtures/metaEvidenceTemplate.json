@@ -18,7 +18,10 @@
   "evidenceDisplayInterfaceURI": "",
   "dynamicScriptURI": "",
   "dynamicScriptRequiredParams": [
+    "disputeID",
     "arbitrableContractAddress",
-    "disputeID"
+    "arbitratorContractAddress",
+    "chainID",
+    "jsonRpcUrl"
   ]
 }

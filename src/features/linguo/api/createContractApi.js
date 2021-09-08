@@ -496,20 +496,21 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
 
   async function _getPastEvents(contract, eventName, { filter, fromBlock = 0, toBlock = 'latest' } = {}) {
     return promiseRetry(
-      contract
-        .getPastEvents(eventName, {
-          fromBlock,
-          toBlock,
-          filter,
-        })
-        .then(events => {
-          if (events.some(({ event }) => event === undefined)) {
-            console.warn('Failed to get log values for event', { eventName, filter, events });
-            throw new Error('Failed to get log values for event');
-          }
+      () =>
+        contract
+          .getPastEvents(eventName, {
+            fromBlock,
+            toBlock,
+            filter,
+          })
+          .then(events => {
+            if (events.some(({ event }) => event === undefined)) {
+              console.warn('Failed to get log values for event', { eventName, filter, events });
+              throw new Error('Failed to get log values for event');
+            }
 
-          return events;
-        }),
+            return events;
+          }),
       {
         maxAttempts: 5,
         delay: count => 500 + count * 1000,
@@ -833,20 +834,23 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   };
 }
 
-// TODO: Add Sokol and and xDAI params
+// TODO: Add xDAI params
 const firstRelevantBlockByChainId = {
-  42: 0,
   1: 11237802,
+  42: 0,
+  77: 22580202,
 };
 
 const evidenceDisplayURIByChainId = {
   1: '/ipfs/QmXGDMfcxjfQi5SFwpBSb73pPjoZq2N8c6eWCgxx8pVqj7/index.html',
   42: '/ipfs/QmYbtF7K6qCfSYfu2k6nYnVRY8HY97rEAF6mgBWtDgfovw/index.html',
+  77: '/ipfs/Qmf7zuZAkc3Dms4QXXuQkuJDamB4Hm2ASG24Yy4A6EY2gs/linguo-evidence-display/index.html',
 };
 
 const dynamicScriptURIByChainId = {
   1: '/ipfs/QmchWC6L3dT23wwQiJJLWCeS1EDnDYrLcYat93C4Lm4P4E/linguo-dynamic-script.js',
   42: '/ipfs/QmZFcqdsR76jyHyLsBefc4SBuegj2boBDr2skxGauM5DNf/linguo-dynamic-script.js',
+  77: '/ipfs/QmXERKZXNmvX3nvHg8SGceG5bpkbjGyxYEcKP6W5m4NrHk/linguo-script.js',
 };
 
 const getFileTypeFromPath = path => (path ?? '').split('.').slice(-1)?.[0];

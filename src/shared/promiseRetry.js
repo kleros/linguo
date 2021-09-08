@@ -1,4 +1,4 @@
-export default async function promiseRetry(promise, { maxAttempts = 5, delay = 1000, shouldRetry = () => true } = {}) {
+export default async function promiseRetry(asyncFn, { maxAttempts = 5, delay = 1000, shouldRetry = () => true } = {}) {
   let count = 0;
   let result;
   let succeeded = false;
@@ -6,9 +6,9 @@ export default async function promiseRetry(promise, { maxAttempts = 5, delay = 1
 
   const collectedErrors = [];
 
-  while (count < maxAttempts && anotherTry === true) {
+  do {
     try {
-      result = await promise;
+      result = await asyncFn();
       succeeded = true;
       break;
     } catch (err) {
@@ -17,7 +17,7 @@ export default async function promiseRetry(promise, { maxAttempts = 5, delay = 1
       count += 1;
       await new Promise(resolve => setTimeout(resolve, getDelay(delay, count)));
     }
-  }
+  } while (count < maxAttempts && anotherTry === true);
 
   if (!succeeded) {
     throw Object.create(new Error('Failed after many retries'), {

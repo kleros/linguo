@@ -5,6 +5,7 @@ import storage from 'redux-persist/lib/storage';
 import { push, replace } from 'connected-react-router';
 import { TaskParty } from '~/features/tasks';
 import { fetchByParty, create, selectAllFilterByIds } from '~/features/tasks/tasksSlice';
+import { selectChainId } from '~/features/web3/web3Slice';
 import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { compose, filter, sort } from '~/shared/fp';
@@ -36,7 +37,7 @@ const requesterSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(fetchTasks, (state, action) => {
       const account = action.payload?.account ?? null;
-      const chainId = action.payload?.chainId ?? null;
+      const chainId = action.payload?.chainId;
 
       state.tasks.byAccount[account] = state.tasks.byAccount[account] ?? {};
       state.tasks.byAccount[account].byChainId = state.tasks.byAccount[account].byChainId ?? {
@@ -56,14 +57,14 @@ const requesterSlice = createSlice({
 
     builder.addCase(fetchTasks.rejected, (state, action) => {
       const account = action.payload?.account ?? null;
-      const chainId = action.payload?.chainId ?? null;
+      const chainId = action.payload?.chainId;
 
       state.tasks.byAccount[account].byChainId[chainId].loadingState = 'failed';
     });
 
     builder.addCase(fetchTasks.fulfilled, (state, action) => {
       const account = action.payload?.account ?? null;
-      const chainId = action.payload?.chainId ?? null;
+      const chainId = action.payload?.chainId;
       const ids = action.payload?.ids ?? [];
 
       state.tasks.byAccount[account].byChainId[chainId].loadingState = 'succeeded';
@@ -134,8 +135,9 @@ export function* fetchTasksSaga(action) {
 }
 
 export function* handleTaskCreateTxnMined(action) {
-  const { account, chainId, sourceLanguage, targetLanguage } = action.payload ?? {};
+  const { account, sourceLanguage, targetLanguage } = action.payload ?? {};
   const languageGroupPair = String(LanguageGroupPair.of([sourceLanguage, targetLanguage].map(getLanguageGroup)));
+  const chainId = yield select(selectChainId);
 
   yield put(fetchTasks({ account, chainId }, { meta: { hints: { languageGroupPairs: [languageGroupPair] } } }));
 }
