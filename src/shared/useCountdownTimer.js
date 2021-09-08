@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useInterval from './useInterval';
 
 export default function useCountdownTimer({ seconds = 0, refreshInterval = 1000 } = {}) {
@@ -8,17 +8,20 @@ export default function useCountdownTimer({ seconds = 0, refreshInterval = 1000 
     setRemainingTime(seconds);
   }, [seconds]);
 
-  const updateState = () => {
-    if (remainingTime <= 0) {
-      setRemainingTime(0);
-    } else {
-      setRemainingTime(remainingTime => Math.floor(remainingTime - refreshInterval / 1000));
-    }
-  };
+  refreshInterval = Number(typeof refreshInterval === 'function' ? refreshInterval(remainingTime) : refreshInterval);
 
   const shouldStop = remainingTime <= 0;
-  refreshInterval = typeof refreshInterval === 'function' ? refreshInterval(remainingTime) : Number(refreshInterval);
   const delay = shouldStop ? null : refreshInterval;
+
+  const updateState = useCallback(() => {
+    setRemainingTime(remainingTime => {
+      if (remainingTime <= 0) {
+        return 0;
+      }
+
+      return Math.max(0, Math.floor(remainingTime - refreshInterval / 1000));
+    });
+  }, [refreshInterval]);
 
   useInterval(updateState, delay);
 

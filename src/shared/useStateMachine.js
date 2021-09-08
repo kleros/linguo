@@ -1,4 +1,5 @@
 import { useReducer } from 'react';
+import useCallbackIfMounted from './useCallbackIfMounted';
 
 const createReducer = (machine, { warnOnError, throwOnError }) => (state, event) => {
   if (!machine.states[state]) {
@@ -33,5 +34,7 @@ export default function useStateMachine(
   machine,
   { warnOnError = process.env.NODE_ENV !== 'production', throwOnError = false } = {}
 ) {
-  return useReducer(createReducer(machine, { warnOnError, throwOnError }), machine.initial);
+  const [state, dispatch] = useReducer(createReducer(machine, { warnOnError, throwOnError }), machine.initial);
+
+  return [state, useCallbackIfMounted(dispatch)];
 }
