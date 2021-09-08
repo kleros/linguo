@@ -19,32 +19,23 @@ function TranslationChallengeRewardFetcher() {
   const [reward, setReward] = React.useState(null);
   const dispatch = useDispatch();
 
-  const doGetReward = React.useCallback(async () => {
+  const getReward = React.useCallback(async () => {
     if (status !== TaskStatus.AwaitingReview) {
       return '0';
     }
 
-    const { data: arbitrationCost } = await dispatch(
-      getArbitrationCost(
-        { id },
-        {
-          meta: {
-            thunk: { id },
-          },
-        }
-      )
-    );
+    const { data: arbitrationCost } = await dispatch(getArbitrationCost({ id }, { meta: { thunk: { id } } }));
 
     return String(subtract(sumDeposit, arbitrationCost));
   }, [dispatch, id, sumDeposit, status]);
 
   React.useEffect(() => {
     async function updateReward() {
-      setReward(await doGetReward());
+      setReward(await getReward());
     }
 
     updateReward();
-  }, [doGetReward]);
+  }, [getReward]);
 
   return reward ? (
     <TranslationChallengeReward amount={reward} />
@@ -82,26 +73,21 @@ export default compose(errorBoundaryEnhancer)(TranslationChallengeRewardFetcher)
 function TranslationChallengeReward({ amount }) {
   return (
     <StyledAlert
+      showIcon
       type="info"
-      description={
+      message={
         <>
-          <p>You can win up to:</p>
-          <p
+          You can win up to:{' '}
+          <strong>
+            <EthValue amount={amount} suffixType="short" />
+          </strong>{' '}
+          <EthFiatValue
+            amount={amount}
+            render={({ formattedValue }) => `(${formattedValue})`}
             css={`
-              margin: 0;
+              font-size: ${p => p.theme.fontSize.xs};
             `}
-          >
-            <strong>
-              <EthValue amount={amount} suffixType="short" />
-            </strong>{' '}
-            <EthFiatValue
-              amount={amount}
-              render={({ formattedValue }) => `(${formattedValue})`}
-              css={`
-                font-size: ${p => p.theme.fontSize.xs};
-              `}
-            />
-          </p>
+          />
         </>
       }
     />
@@ -120,4 +106,5 @@ const StyledWrapper = styled.div`
 
 const StyledAlert = styled(Alert)`
   width: 100%;
+  text-align: left;
 `;

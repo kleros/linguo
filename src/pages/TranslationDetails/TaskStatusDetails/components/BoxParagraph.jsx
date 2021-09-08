@@ -8,6 +8,10 @@ const StyledBoxParagraph = styled(Typography.Paragraph)`
     color: ${props => props.theme.color.text.default};
     margin: 0;
   }
+
+  & + & {
+    margin-top: 0.5rem;
+  }
 `;
 
 export default StyledBoxParagraph;
