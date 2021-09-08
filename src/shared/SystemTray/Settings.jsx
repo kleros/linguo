@@ -62,8 +62,12 @@ function GeneralSettings() {
   return (
     <StyledGeneralSettings>
       <Spacer />
-      <NetworkStatus />
-      <Spacer size={2} />
+      <NetworkStatus
+        css={`
+          justify-content: center;
+        `}
+      />
+      <Spacer size={0.5} />
       <WalletInformation />
       <Spacer size={2} />
       <WalletBalance />

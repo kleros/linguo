@@ -88,4 +88,8 @@ const StyledPopoverFooter = styled.footer`
   color: ${p => p.theme.color.secondary.default};
   font-size: ${p => p.theme.fontSize.sm};
   text-align: center;
+
+  && {
+    margin-bottom: -16px;
+  }
 `;
