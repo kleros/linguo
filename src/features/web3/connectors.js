@@ -27,6 +27,7 @@ export const network = new NetworkConnector({
     1: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
     42: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
     77: 'https://sokol.poa.network',
+    // 100: 'https://rpc.xdaichain.com',
   },
   pollingInterval: 20000,
   defaultChainId,

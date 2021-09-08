@@ -19,11 +19,11 @@ function IncompleteForRequester() {
         title,
         description: isAssigned
           ? [
-              'We will send you the your Requester Deposit back + the Translator Deposit in a few moments.',
+              'We will send you the the bounty back + the Translator Deposit in a few moments.',
               'If you prefer not to wait, you can claim the deposits now.',
             ]
           : [
-              'You will have your Requester Deposit reimbursed in a few moments.',
+              'You will have the bounty reimbursed in a few moments.',
               'If you prefer not to wait, you can claim it back now.',
             ],
         interaction: (

@@ -122,26 +122,26 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
   const descriptionMap = {
     [TaskParty.Requester]: {
       false: {
-        [DisputeRuling.RefuseToRule]: ['You received the Requester Deposit back.'],
-        [DisputeRuling.TranslationApproved]: ['The Requester Deposit goes to the translator.'],
-        [DisputeRuling.TranslationRejected]: ['You received the Requester Deposit back.'],
+        [DisputeRuling.RefuseToRule]: ['You received the bounty back.'],
+        [DisputeRuling.TranslationApproved]: ['The bounty goes to the translator.'],
+        [DisputeRuling.TranslationRejected]: ['You received the bounty back.'],
       },
       true: {
-        [DisputeRuling.RefuseToRule]: ['You received the Requester Deposit back.'],
-        [DisputeRuling.TranslationApproved]: ['The Requester Deposit goes to the translator.'],
-        [DisputeRuling.TranslationRejected]: ['You received the Requester Deposit back.'],
+        [DisputeRuling.RefuseToRule]: ['You received the bounty back.'],
+        [DisputeRuling.TranslationApproved]: ['The bounty goes to the translator.'],
+        [DisputeRuling.TranslationRejected]: ['You received the bounty back.'],
       },
     },
     [TaskParty.Translator]: {
       false: {
         [DisputeRuling.RefuseToRule]: ['You received your Translator Deposit back.'],
-        [DisputeRuling.TranslationApproved]: ['You received your Translator Deposit back + the Requester Deposit.'],
+        [DisputeRuling.TranslationApproved]: ['You received your Translator Deposit back + the bounty.'],
         [DisputeRuling.TranslationRejected]: ['Your Translator Deposit was sent to the requester.'],
       },
       true: {
-        [DisputeRuling.RefuseToRule]: ['You received the Requester Deposit back - Arbitration Fees.'],
+        [DisputeRuling.RefuseToRule]: ['You received the bounty back - Arbitration Fees.'],
         [DisputeRuling.TranslationApproved]: [
-          'You received your Translator Deposit back + the Requester Deposit - Arbitration Fees.',
+          'You received your Translator Deposit back + the bounty - Arbitration Fees.',
         ],
         [DisputeRuling.TranslationRejected]: ['Your Translator Deposit was sent to the challenger.'],
       },
@@ -149,14 +149,14 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
     [TaskParty.Challenger]: {
       true: {
         [DisputeRuling.RefuseToRule]: challengerIsRequester
-          ? ['You received the Requester Deposit + your Challenger Deposit back - Arbitration Fees.']
+          ? ['You received the bounty + your Challenger Deposit back - Arbitration Fees.']
           : ['You received your Challenger Deposit back - Arbitration Fees.'],
         [DisputeRuling.TranslationApproved]: challengerIsRequester
-          ? ['Your Requester Deposit + your Challenger Deposit were sent to the translator.']
+          ? ['The bounty + your Challenger Deposit were sent to the translator.']
           : ['Your Challenger Deposit was sent to the translator.'],
         [DisputeRuling.TranslationRejected]: [
           challengerIsRequester
-            ? 'You received your Requester Deposit + your Challenger Deposit back + the Translator Deposit - Arbitration Fees.'
+            ? 'You received the bounty + your Challenger Deposit back + the Translator Deposit - Arbitration Fees.'
             : 'You received your Challenger Deposit back + the Translator Deposit - Arbitration Fees.',
         ],
       },
@@ -164,22 +164,22 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
     [TaskParty.Other]: {
       false: {
         [DisputeRuling.RefuseToRule]: [
-          'The requester received the Requester Deposit back.',
+          'The requester received the bounty back.',
           'The translator received the Translator Deposit back.',
         ],
-        [DisputeRuling.TranslationApproved]: ['The Requester Deposit goes to the translator.'],
+        [DisputeRuling.TranslationApproved]: ['The bounty goes to the translator.'],
         [DisputeRuling.TranslationRejected]: ['The Translator Deposit goes to the challenger.'],
       },
       true: {
         [DisputeRuling.RefuseToRule]: [
-          'The requester received the Requester Deposit back.',
+          'The requester received the bounty back.',
           'The translator received the Translator Deposit back.',
         ],
         [DisputeRuling.TranslationApproved]: [
-          'The value of the Requester Deposit + the Challenger Deposit - Arbitration Fees goes to the translator.',
+          'The value of the bounty + the Challenger Deposit - Arbitration Fees goes to the translator.',
         ],
         [DisputeRuling.TranslationRejected]: [
-          'The requester received the Requester Deposit back.',
+          'The requester received the bounty back.',
           'The value of the Translator Deposit - Arbitration Fees goes to the challenger.',
         ],
       },

@@ -19,7 +19,7 @@ function IncompleteForRequester() {
         title,
         description: isAssigned
           ? [
-              'We will send the Translator Deposit + the Requester Deposit back to the requester in a few moments.',
+              'We will send the Translator Deposit + the bounty back to the requester in a few moments.',
               'You can help speed up this proccess if you like.',
             ]
           : [
@@ -43,8 +43,8 @@ function IncompleteForRequester() {
     : {
         title,
         description: isAssigned
-          ? ['The requester received the Requester Deposit back + the Translator Deposit.']
-          : ['The requester was reimbursed of the Requester Deposit.'],
+          ? ['The requester received the bounty back + the Translator Deposit.']
+          : ['The requester was reimbursed of the bounty.'],
         illustration: <TaskIgnoredAvatar />,
       };
 

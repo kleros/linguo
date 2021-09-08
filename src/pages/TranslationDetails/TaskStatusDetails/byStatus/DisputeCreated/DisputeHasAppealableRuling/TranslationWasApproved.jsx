@@ -37,7 +37,7 @@ const descriptionNodeByParty = {
 
 function ForTranslator({ totalAppealCost }) {
   const description = [
-    'You will receive the Requester Deposit + your Translator Deposit back + the Challenger Deposit - Arbitration Fees.',
+    'You will receive the bounty + your Translator Deposit back + the Challenger Deposit - Arbitration Fees.',
     'Note that the challenger can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
     <Spacer key="spacer" />,
     <Alert
@@ -63,7 +63,7 @@ function ForTranslator({ totalAppealCost }) {
 function ForChallenger({ challengerIsRequester, totalAppealCost }) {
   const description = [
     challengerIsRequester
-      ? 'The Requester Deposit + your Challenger Deposit goes to the translator.'
+      ? 'The bounty + your Challenger Deposit goes to the translator.'
       : 'Your Challenger Deposit goes to the translator.',
     'Note that you can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
     <Spacer key="spacer" />,
@@ -90,7 +90,7 @@ function ForChallenger({ challengerIsRequester, totalAppealCost }) {
 
 function ForRequester({ totalAppealCost }) {
   const description = [
-    'Your Requester Deposit goes to the translator.',
+    'The bounty goes to the translator.',
     'Note that anyone (including yourself) can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
     <Spacer key="spacer" />,
     <Alert
@@ -116,7 +116,7 @@ function ForRequester({ totalAppealCost }) {
 
 function ForOther() {
   const description = [
-    'The translator will receive the Requester Deposit + the Translator Deposit back + the Challenger Deposit - Arbitration Fees.',
+    'The translator will receive the bounty + the Translator Deposit back + the Challenger Deposit - Arbitration Fees.',
     'Note that anyone can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
   ];
 

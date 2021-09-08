@@ -64,7 +64,7 @@ function forTranslator({ totalAppealCost }) {
 function forChallenger({ challengerIsRequester, totalAppealCost }) {
   const description = [
     challengerIsRequester
-      ? 'You will receive the Requester Deposit + your Challenger Deposit - Arbitration Fees back.'
+      ? 'You will receive the bounty + your Challenger Deposit - Arbitration Fees back.'
       : 'You will receive your Challenger Deposit - Arbitration Fees back.',
     'Note anyone appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
     <Spacer key="spacer" />,
@@ -90,7 +90,7 @@ function forChallenger({ challengerIsRequester, totalAppealCost }) {
 
 function forRequester() {
   const description = [
-    'You will receive the Requester Deposit back.',
+    'You will receive the bounty back.',
     'Note that you can still appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
   ];
 
@@ -99,7 +99,7 @@ function forRequester() {
 
 function forOther() {
   const description = [
-    'The requester will receive the Requester Deposit back. The translator will get the Translator Deposit back - Arbitration Fees. The challenger will get the Challenger Deposit - Arbitration Fees back.',
+    'The requester will receive the bounty back. The translator will get the Translator Deposit back - Arbitration Fees. The challenger will get the Challenger Deposit - Arbitration Fees back.',
     'Note that anyone can still appeal the decision, what will lead to another jurors round that may or may not revert this decision.',
   ];
 

@@ -594,10 +594,10 @@ function makeFinalResolvedNotification({ task, role, chainId, account, id, block
     const appendedMessageByRuling = {
       [DisputeRuling.RefuseToRule]: () => {
         const messagesByRole = {
-          [Role.Requester]: 'You received your requester deposit back.',
+          [Role.Requester]: 'You received the bounty back.',
           [Role.Translator]: 'You received your translator deposit back.',
           [Role.Challenger]: challengerIsRequester
-            ? 'You received your requester deposit + part of your challenger deposit back.'
+            ? 'You received the bounty + part of your challenger deposit back.'
             : 'You received part of your challenger deposit back.',
           [Role.Contributor]: '',
         };
@@ -606,11 +606,10 @@ function makeFinalResolvedNotification({ task, role, chainId, account, id, block
       },
       [DisputeRuling.TranslationApproved]: () => {
         const messagesByRole = {
-          [Role.Requester]: 'Your requester deposit was sent to the translator.',
-          [Role.Translator]:
-            'You received your translator deposit back + the challenger deposit + the requester deposit.',
+          [Role.Requester]: 'The bounty was sent to the translator.',
+          [Role.Translator]: 'You received your translator deposit back + the challenger deposit + the bounty.',
           [Role.Challenger]: challengerIsRequester
-            ? 'Your requester deposit + your challenger deposit were sent to the translator.'
+            ? 'The bounty + your challenger deposit were sent to the translator.'
             : 'Your challenger deposit was sent to the translator.',
           [Role.Contributor]: '',
         };
@@ -619,10 +618,10 @@ function makeFinalResolvedNotification({ task, role, chainId, account, id, block
       },
       [DisputeRuling.TranslationRejected]: () => {
         const messagesByRole = {
-          [Role.Requester]: 'You received your requester deposit back.',
+          [Role.Requester]: 'You received the bounty back.',
           [Role.Translator]: 'Your translator deposit was sent to the challenger.',
           [Role.Challenger]: challengerIsRequester
-            ? 'You received your requester deposit back + the challenger deposit back + the translator deposit.'
+            ? 'You received the bounty back + the challenger deposit back + the translator deposit.'
             : 'You received your challenger deposit back + the translator deposit.',
           [Role.Contributor]: '',
         };
@@ -649,7 +648,7 @@ function makeFinalResolvedNotification({ task, role, chainId, account, id, block
     icon = iconsByRuling[DisputeRuling.of(ruling)];
   } else {
     const appendedMessagesByRole = {
-      [Role.Requester]: 'Your requester deposit was sent to the translator.',
+      [Role.Requester]: 'The bounty was sent to the translator.',
       [Role.Translator]: 'You have received your translator deposit back + the payment from the requester.',
       [Role.Other]: 'The translator received the escrow payment.',
     };

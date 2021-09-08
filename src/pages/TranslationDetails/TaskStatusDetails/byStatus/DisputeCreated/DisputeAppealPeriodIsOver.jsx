@@ -38,37 +38,37 @@ const titleMap = {
 const getDescription = ({ party, ruling, challengerIsRequester }) => {
   const descriptionMap = {
     [TaskParty.Requester]: {
-      [DisputeRuling.RefuseToRule]: ['You will receive the Requester Deposit back.'],
-      [DisputeRuling.TranslationApproved]: ['The Requester Deposit will go to the translator.'],
+      [DisputeRuling.RefuseToRule]: ['You will receive the bounty back.'],
+      [DisputeRuling.TranslationApproved]: ['The bounty will go to the translator.'],
       [DisputeRuling.TranslationRejected]: [
-        'You will receive the Requester Deposit back + the Translator Deposit - Arbitration Fees.',
+        'You will receive the bounty back + the Translator Deposit - Arbitration Fees.',
       ],
     },
     [TaskParty.Translator]: {
-      [DisputeRuling.RefuseToRule]: ['You will receive the Requester Deposit back - Arbitration Fees.'],
+      [DisputeRuling.RefuseToRule]: ['You will receive the bounty back - Arbitration Fees.'],
       [DisputeRuling.TranslationApproved]: [
-        'You will receive your Translator Deposit back + the Requester Deposit - Arbitration Fees.',
+        'You will receive your Translator Deposit back + the bounty - Arbitration Fees.',
       ],
       [DisputeRuling.TranslationRejected]: ['Your Translator Deposit will be sent to the requester.'],
     },
     [TaskParty.Challenger]: {
       [DisputeRuling.RefuseToRule]: challengerIsRequester
-        ? ['You will receive the Requester Deposit + your Challenger Deposit back - Arbitration Fees.']
+        ? ['You will receive the bounty + your Challenger Deposit back - Arbitration Fees.']
         : ['You will receive your Challenger Deposit back - Arbitration Fees.'],
       [DisputeRuling.TranslationApproved]: challengerIsRequester
-        ? ['Your Requester Deposit + your Challenger Deposit will be sent to the translator.']
+        ? ['The bounty + your Challenger Deposit will be sent to the translator.']
         : ['Your Challenger Deposit will be sent to the translator.'],
       [DisputeRuling.TranslationRejected]: [
         challengerIsRequester
-          ? 'You will receive your Requester Deposit + your Challenger Deposit back + the Translator Deposit - Arbitration Fees.'
+          ? 'You will receive the bounty + your Challenger Deposit back + the Translator Deposit - Arbitration Fees.'
           : 'Your will receive your Challenger Deposit back + the Translator Deposit - Arbitration Fees.',
       ],
     },
     [TaskParty.Other]: {
-      [DisputeRuling.RefuseToRule]: ['The requester will receive the Requester Deposit back.'],
-      [DisputeRuling.TranslationApproved]: ['The Requester Deposit will go to the translator.'],
+      [DisputeRuling.RefuseToRule]: ['The requester will receive the bounty back.'],
+      [DisputeRuling.TranslationApproved]: ['The bounty will go to the translator.'],
       [DisputeRuling.TranslationRejected]: [
-        'The requester will receive the Requester Deposit back.',
+        'The requester will receive the bounty back.',
         'The challenger will receive the Translator Deposit - Arbitration Fees.',
       ],
     },

@@ -36,8 +36,8 @@ function AwaitingReviewForRequester() {
         ? [
             'During the review period, anyone (including yourself) can challenge the submission if they think it does not fulfill the quality requirements.',
             'For this, the challenger needs to send a Challenger Deposit and an evidence file describing what is wrong with the translated text.',
-            'If jurors decide to reject the translation you will receive the Requester Deposit back. Also if you are the one who raised the challenge, you will also receive the Challenger Deposit + the Translator Deposit - Arbitration Fees.',
-            'Otherwise, the translator will receive your Requester Deposit + the Challenger Deposit',
+            'If jurors decide to reject the translation you will receive the bounty back. Also if you are the one who raised the challenge, you will also receive the Challenger Deposit + the Translator Deposit - Arbitration Fees.',
+            'Otherwise, the translator will receive the bounty + the Challenger Deposit',
           ]
         : [
             'Since no one challenged the translation during the review period, the translator will be automatically paid in a few moments.',

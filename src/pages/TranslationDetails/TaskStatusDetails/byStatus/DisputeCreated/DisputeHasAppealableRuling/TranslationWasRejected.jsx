@@ -37,7 +37,7 @@ const getDescriptionByParty = {
 
 function ForTranslator({ totalAppealCost }) {
   const description = [
-    'The Requester Deposit goes back to the task requester and your Translator Deposit goes to the challenger.',
+    'The bounty goes back to the task requester and your Translator Deposit goes to the challenger.',
     'Note that you can still appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
     <Spacer key="spacer" />,
     <Alert
@@ -64,7 +64,7 @@ function ForTranslator({ totalAppealCost }) {
 function ForChallenger({ challengerIsRequester, totalAppealCost }) {
   const description = [
     challengerIsRequester
-      ? 'Your Requester Deposit + your Challenger Deposit will be sent back to you.'
+      ? 'The bounty + your Challenger Deposit will be sent back to you.'
       : 'Your Challenger Deposit will be sent back to you.',
     'Note that the translator can still appeal the decision, which will lead to another jurors round that may or may not revert this decision. To do so you need to deposit the appeal fee.',
     <Spacer key="spacer" />,
@@ -91,7 +91,7 @@ function ForChallenger({ challengerIsRequester, totalAppealCost }) {
 
 function ForRequester() {
   const description = [
-    'Your Requester Deposit wil be sent back to you.',
+    'The bounty will be sent back to you.',
     'Note that anyone can appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
   ];
 
@@ -100,7 +100,7 @@ function ForRequester() {
 
 function ForOther() {
   const description = [
-    'The challenger will receive the Translator Deposit. The requester will be refunded of the Requester Deposit.',
+    'The challenger will receive the Translator Deposit. The requester will be refunded of the bounty.',
     'Note that anyone can appeal the decision, which will lead to another jurors round that may or may not revert this decision.',
   ];
 

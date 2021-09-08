@@ -34,8 +34,8 @@ const contentByParty = {
           illustration,
           description: [
             'Specialized jurors are evaluating the case. You will be informed about their decision soon.',
-            'If the translation is not approved by the jurors, you receive the Requester Deposit back + your Challenger Deposit + Translator Deposit - Arbitration Fees.',
-            'Otherwise, if the jurors decide to approve the translation, the value of your Requester Deposit + Challenger Deposit goes to the translator.',
+            'If the translation is not approved by the jurors, you receive the bounty back + your Challenger Deposit + Translator Deposit - Arbitration Fees.',
+            'Otherwise, if the jurors decide to approve the translation, the value of the bounty + Challenger Deposit goes to the translator.',
           ],
         }
       : {
@@ -43,8 +43,8 @@ const contentByParty = {
           illustration,
           description: [
             'Specialized jurors are evaluating the case.  You will be informed about their decision soon.',
-            'If the translation is not approved by the jurors, the requester will receive his Requester Deposit back. You will receive your Challenger Deposit back + Translator Deposit - Arbitration Fees.',
-            'Otherwise, if the jurors decide to approve the translation, the value of the Requester Deposit + your Challenger Deposit goes to the translator.',
+            'If the translation is not approved by the jurors, the requester will receive his bounty back. You will receive your Challenger Deposit back + Translator Deposit - Arbitration Fees.',
+            'Otherwise, if the jurors decide to approve the translation, the value of the bounty + your Challenger Deposit goes to the translator.',
           ],
         },
   [TaskParty.Requester]: () => ({
@@ -52,8 +52,8 @@ const contentByParty = {
     illustration,
     description: [
       'Specialized jurors are evaluating the case. You will be informed about their decision soon.',
-      'If the translation is not approved by the jurors, you receive the Requester Deposit back.',
-      'Otherwise, if the jurors decide to not approve the translation the Requester Deposit goes to the translator.',
+      'If the translation is not approved by the jurors, you receive the bounty back.',
+      'Otherwise, if the jurors decide to not approve the translation the bounty goes to the translator.',
     ],
   }),
   [TaskParty.Translator]: () => ({
@@ -61,8 +61,8 @@ const contentByParty = {
     illustration,
     description: [
       'Specialized jurors are evaluating the case. You will be informed about their decision soon.',
-      'If the translation is approved by the jurors, you receive the Requester Deposit + your Translator Deposit back + the Chalenger Deposit - Arbitration Fees.',
-      'Otherwise, if the jurors decide to not approve the translation, the Requester Deposit goes back to the task requester and your Translator Deposit goes to the challenger.',
+      'If the translation is approved by the jurors, you receive the bounty + your Translator Deposit back + the Chalenger Deposit - Arbitration Fees.',
+      'Otherwise, if the jurors decide to not approve the translation, the bounty goes back to the task requester and your Translator Deposit goes to the challenger.',
     ],
   }),
   [TaskParty.Requester]: () => ({
@@ -70,8 +70,8 @@ const contentByParty = {
     illustration,
     description: [
       'Specialized jurors are evaluating the case. You will be informed about their decision soon.',
-      'If the translation is not approved by the jurors, you receive the Requester Deposit back.',
-      'Otherwise, if the jurors decide to not approve the translation the Requester Deposit goes to the translator.',
+      'If the translation is not approved by the jurors, you receive the bounty back.',
+      'Otherwise, if the jurors decide to not approve the translation the bounty goes to the translator.',
     ],
   }),
   [TaskParty.Other]: () => ({
@@ -79,8 +79,8 @@ const contentByParty = {
     illustration,
     description: [
       'Specialized jurors are evaluating the case.',
-      'If the translation is not approved by the jurors, the requester will receive his Requester Deposit back and the challenger will receive the Challenger Deposit back + the Translator Deposit - Arbitration Fees.',
-      'Otherwise, if the jurors decide to not approve the translation, the translator will receive the Translator Deposit back + the Requester Deposit + the Challenger Deposit - Arbitration Fees.',
+      'If the translation is not approved by the jurors, the requester will receive his bounty back and the challenger will receive the Challenger Deposit back + the Translator Deposit - Arbitration Fees.',
+      'Otherwise, if the jurors decide to not approve the translation, the translator will receive the Translator Deposit back + the bounty + the Challenger Deposit - Arbitration Fees.',
     ],
   }),
 };
