@@ -26,7 +26,7 @@ export function getComparator(filterName, { account, skills = [] }) {
           (Task.remainingTimeForSubmission(b, { currentDate }) - Task.remainingTimeForSubmission(a, { currentDate }))
         );
       },
-      ID: -1,
+      id: -1,
     },
     open: {
       withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
@@ -37,7 +37,7 @@ export function getComparator(filterName, { account, skills = [] }) {
           toBN(Task.currentPricePerWord({ ...b, currentPrice: Task.currentPrice(b, { currentDate }) }))
         );
       },
-      ID: -1,
+      id: -1,
     },
     inProgress: {
       withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
@@ -48,7 +48,7 @@ export function getComparator(filterName, { account, skills = [] }) {
           (Task.remainingTimeForSubmission(b, { currentDate }) - Task.remainingTimeForSubmission(a, { currentDate }))
         );
       },
-      ID: -1,
+      id: -1,
     },
     inReview: {
       withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
@@ -62,7 +62,7 @@ export function getComparator(filterName, { account, skills = [] }) {
         const currentDate = new Date();
         return -1 * (Task.remainingTimeForReview(b, { currentDate }) - Task.remainingTimeForReview(a, { currentDate }));
       },
-      ID: -1,
+      id: -1,
     },
     inDispute: {
       withMatchingSkillsFirst: (a, b) => skillsMatch(b) - skillsMatch(a),
@@ -76,10 +76,10 @@ export function getComparator(filterName, { account, skills = [] }) {
 
         return isTranslatorOrChallengerOfA === isTranslatorOrChallengerOfB ? 0 : isTranslatorOrChallengerOfB ? 1 : -1;
       },
-      disputeID: -1,
+      disputeId: -1,
     },
     finished: {
-      ID: -1,
+      id: -1,
     },
     incomplete: {
       showFirstIfIsTranslator: (a, b) => {
@@ -90,7 +90,7 @@ export function getComparator(filterName, { account, skills = [] }) {
       },
       status: -1,
       lastInteraction: -1,
-      ID: -1,
+      id: -1,
     },
   };
 
@@ -98,16 +98,24 @@ export function getComparator(filterName, { account, skills = [] }) {
 
   const customSorting = (a, b) =>
     Object.entries(descriptor).reduce((order, [prop, signOrComparator]) => {
-      const hasDefinedSortOrder = order !== 0;
-      return hasDefinedSortOrder
+      const hasDefinedOrder = order !== 0;
+      const primitiveComparator = primitiveTypeToComparator[typeof a[prop]] ?? primitiveTypeToComparator.number;
+
+      return hasDefinedOrder
         ? order
         : typeof signOrComparator === 'number'
-        ? signOrComparator * (b[prop] - a[prop])
+        ? signOrComparator * primitiveComparator(a[prop], b[prop])
         : signOrComparator(a, b);
     }, 0);
 
   return customSorting;
 }
+
+const primitiveTypeToComparator = {
+  number: (a, b) => b - a,
+  string: (a, b) => a.localeCompare(b),
+  boolean: (a, b) => b - a,
+};
 
 const sortBNAscending = (a, b) => (a.gt(b) ? 1 : b.gt(a) ? -1 : 0);
 
