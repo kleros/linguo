@@ -1,5 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { original } from 'immer';
+import { current } from 'immer';
 import { actionChannel, call, getContext, put } from 'redux-saga/effects';
 import createAsyncAction, { matchAnyAsyncType } from '~/shared/createAsyncAction';
 import createSagaWithRejectionOnCancelation from '~/shared/createSagaWithRejectionOnCancelation';
@@ -50,19 +50,19 @@ export default createReducer(initialState, builder => {
 
   builder.addCase(assignTranslator.fulfilled, (state, action) => {
     const { id, account } = action.payload ?? {};
-    const task = state.data;
+    const task = current(state).data;
 
     if (task.id === id) {
-      state.data = Task.registerAssignment(original(task), { account });
+      state.data = Task.registerAssignment(task, { account });
     }
   });
 
   builder.addCase(submitTranslation.fulfilled, (state, action) => {
     const { id, uploadedFile } = action.payload ?? {};
-    const task = state.data;
+    const task = current(state).data;
 
     if (task.id === id) {
-      state.data = Task.registerSubmission(original(task), {
+      state.data = Task.registerSubmission(task, {
         translatedTextUrl: uploadedFile?.path,
       });
     }
@@ -70,10 +70,10 @@ export default createReducer(initialState, builder => {
 
   builder.addCase(challengeTranslation.fulfilled, (state, action) => {
     const { id, account, uploadedFile } = action.payload ?? {};
-    const task = state.data;
+    const task = current(state).data;
 
     if (task.id === id) {
-      state.data = Task.registerChallenge(original(task), {
+      state.data = Task.registerChallenge(task, {
         account,
         evidence: uploadedFile?.path,
       });
@@ -82,19 +82,19 @@ export default createReducer(initialState, builder => {
 
   builder.addCase(approveTranslation.fulfilled, (state, action) => {
     const { id } = action.payload ?? {};
-    const task = state.data;
+    const task = current(state).data;
 
     if (task.id === id) {
-      state.data = Task.registerApproval(original(task));
+      state.data = Task.registerApproval(task);
     }
   });
 
   builder.addCase(reimburseRequester.fulfilled, (state, action) => {
     const { id } = action.payload ?? {};
-    const task = state.data;
+    const task = current(state).data;
 
     if (task.id === id) {
-      state.data = Task.registerReimbursement(original(task));
+      state.data = Task.registerReimbursement(task);
     }
   });
 

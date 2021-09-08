@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { original } from 'immer';
+import { current } from 'immer';
 import { actionChannel, call, getContext, put } from 'redux-saga/effects';
 import createLinguoApiContext from '~/features/linguo/createSagaApiContext';
 import createAsyncAction, { matchAnyAsyncType } from '~/shared/createAsyncAction';
@@ -45,10 +45,10 @@ const disputesSlice = createSlice({
 
     builder.addCase(fundAppeal.fulfilled, (state, action) => {
       const { taskId, deposit, party } = action.payload ?? {};
-      const dispute = state.byTaskId[taskId]?.data;
+      const dispute = current(state).byTaskId[taskId]?.data;
 
       if (dispute) {
-        state.byTaskId[taskId].data = Dispute.registerAppealFunding(original(dispute), { deposit, party });
+        state.byTaskId[taskId].data = Dispute.registerAppealFunding(dispute, { deposit, party });
         state.byTaskId[taskId].error = null;
       }
     });

@@ -230,8 +230,16 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
         metadata,
       ] = await Promise.all([
         linguo.methods.reviewTimeout().call(),
-        linguo.methods.tasks(ID).call(),
-        linguo.methods.getTaskParties(ID).call(),
+        promiseRetry(() => linguo.methods.tasks(ID).call(), {
+          maxAttempts: 5,
+          delay: count => 500 + count * 1000,
+          shouldRetry: err => err.code === -32015,
+        }),
+        promiseRetry(() => linguo.methods.getTaskParties(ID).call(), {
+          maxAttempts: 5,
+          delay: count => 500 + count * 1000,
+          shouldRetry: err => err.code === -32015,
+        }),
         _getPastEvents(linguo, 'TaskCreated', {
           filter: { _taskID: ID },
           fromBlock: 0,
