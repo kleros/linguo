@@ -231,14 +231,14 @@ const createWatchGenerateTokenSaga = createWatcherSaga(
 );
 
 export const sagas = {
-  // mainTasksSaga: watchAllWithBuffer(
-  //   [
-  //     [createWatchUpdateSaga, actionChannel(update.type)],
-  //     [createWatchFetchByAccountSaga, actionChannel(fetchByAccount.type)],
-  //     [createWatchGenerateTokenSaga, actionChannel(generateToken.type)],
-  //   ],
-  //   {
-  //     createContext: createSagaApiContext,
-  //   }
-  // ),
+  mainTasksSaga: watchAllWithBuffer(
+    [
+      [createWatchUpdateSaga, actionChannel(update.type)],
+      [createWatchFetchByAccountSaga, actionChannel(fetchByAccount.type)],
+      [createWatchGenerateTokenSaga, actionChannel(generateToken.type)],
+    ],
+    {
+      createContext: createSagaApiContext,
+    }
+  ),
 };

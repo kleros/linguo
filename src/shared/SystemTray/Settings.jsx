@@ -102,8 +102,6 @@ const StyledTabs = styled(Tabs)`
 `;
 
 const StyledHelperText = styled(Typography.Text)`
-  color: inherit;
-
   && {
     > .ant-btn-link {
       font-weight: ${p => p.theme.fontWeight.semibold};

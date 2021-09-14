@@ -4,7 +4,7 @@ const SIGNED_MESSAGE =
   'To keep your data safe, we ask that you sign this message to create a secret key for your account. This key is unrelated to your Ethereum account and will not be able to send any transactions on your behalf.';
 
 export default function createInstance({ web3, apiBaseUrl }) {
-  async function updateSettings({ account, token = null, data }) {
+  async function updateSettings({ account, token = null, data = null }) {
     let privateKey;
     if (token) {
       privateKey = await _tokenToPrivateKey(token);

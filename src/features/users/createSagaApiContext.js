@@ -1,7 +1,7 @@
 import { call } from 'redux-saga/effects';
 import { createApiInstance, createApiPlaceholder } from './api';
 
-const apiBaseUrl = process.env.USER_SETTINGS_API_BASE_URL;
+const apiBaseUrls = JSON.parse(process.env.USER_SETTINGS_API_BASE_URLS);
 
 export default function* createSagaApiContext({ library: web3 }) {
   if (!web3) {
@@ -9,6 +9,14 @@ export default function* createSagaApiContext({ library: web3 }) {
   }
 
   try {
+    const chainId = yield call([web3.eth, 'getChainId']);
+    const apiBaseUrl = apiBaseUrls[chainId];
+
+    if (!apiBaseUrl) {
+      console.warn(`User settings API not supported for chain ID ${chainId}`);
+      return { usersApi: yield call(createApiPlaceholder) };
+    }
+
     return {
       usersApi: yield call(createApiInstance, {
         web3,

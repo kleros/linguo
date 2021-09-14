@@ -3,6 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { Badge } from 'antd';
+import { getNetworkShortName } from '~/features/web3';
 import { selectAccount, selectChainId, selectIsConnected, selectIsConnecting } from '~/features/web3/web3Slice';
 
 export default function NetworkStatus({ textColor, accountRequired, className }) {
@@ -18,7 +19,7 @@ export default function NetworkStatus({ textColor, accountRequired, className })
       dot
       $textColor={textColor}
       status={isConnected ? 'success' : isConnecting ? 'warning' : 'default'}
-      text={chainIdToNetworkName[chainId]}
+      text={getNetworkShortName(chainId)}
       className={className}
     />
   ) : (
@@ -36,13 +37,6 @@ NetworkStatus.defaultProps = {
   textColor: '',
   accountRequired: true,
   className: '',
-};
-
-const chainIdToNetworkName = {
-  42: 'Kovan',
-  1: 'Mainnet',
-  77: 'Sokol',
-  100: 'xDAI Chain',
 };
 
 const StyledBadge = styled(Badge)`

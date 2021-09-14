@@ -1,19 +1,22 @@
 import React from 'react';
 import t from 'prop-types';
-import clsx from 'clsx';
 import styled from 'styled-components';
+import clsx from 'clsx';
 import { useDispatch, useSelector } from 'react-redux';
-import { Checkbox, Form, Input, Row, Switch } from 'antd';
-import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
+import { MinusOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { Checkbox, Col, Form, Input, Popconfirm, Row, Switch } from 'antd';
 import { Spin } from '~/adapters/antd';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { PopupNotificationLevel } from '~/features/ui/popupNotificationsSlice';
 import { notify } from '~/features/ui/uiSlice';
+import { isUserSettingsSupported } from '~/features/users';
 import { fetchByAccount, selectIsLoadingSettings, selectSettings, update } from '~/features/users/userSettingsSlice';
-import { selectAccount } from '~/features/web3/web3Slice';
+import { getNetworkName } from '~/features/web3';
+import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
 import ContentBlocker from '~/shared/ContentBlocker';
 import { mapValues } from '~/shared/fp';
+import Spacer from '~/shared/Spacer';
 
 const CheckAllState = {
   Unchecked: 0,
@@ -22,9 +25,11 @@ const CheckAllState = {
 };
 
 export default function EmailNotificationsWrapper() {
+  const chainId = useSelector(selectChainId);
+
   return (
     <ContentBlocker
-      blocked
+      blocked={!isUserSettingsSupported({ chainId })}
       overlayText={
         <span
           css={`
@@ -39,7 +44,7 @@ export default function EmailNotificationsWrapper() {
             transform: rotateZ(-15deg);
           `}
         >
-          Temporarily Unavailable
+          Unavailable on {getNetworkName(chainId)}
         </span>
       }
     >
@@ -85,9 +90,34 @@ function EmailNotifications() {
     [dispatch, account]
   );
 
+  const handleFormReset = React.useCallback(async () => {
+    try {
+      await dispatch(update({ account }, { meta: { thunk: { id: account } } }));
+
+      dispatch(
+        notify({
+          message: "You've removed all your e-mail subscription data!",
+          level: PopupNotificationLevel.success,
+          key: 'remove-email-subscription-data',
+        })
+      );
+    } catch (err) {
+      console.warn('Error:', err.error);
+
+      dispatch(
+        notify({
+          message: 'Failed to remove your e-mail subscription data!',
+          description: 'Please try again.',
+          level: PopupNotificationLevel.error,
+          key: 'remove-email-subscription-data',
+        })
+      );
+    }
+  }, [dispatch, account]);
+
   return (
     <Spin $centered spinning={isLoadingSettings}>
-      <EmailNotificationsForm settings={settings} onSubmit={handleFormSubmit} />
+      <EmailNotificationsForm settings={settings} onSubmit={handleFormSubmit} onReset={handleFormReset} />
     </Spin>
   );
 }
@@ -119,7 +149,7 @@ const settingsToFormValues = settings => {
   return transformedValues;
 };
 
-function EmailNotificationsForm({ onSubmit, settings }) {
+function EmailNotificationsForm({ onSubmit, onReset, settings }) {
   const [form] = Form.useForm();
 
   const initialValues = React.useMemo(() => settingsToFormValues(settings), [settings]);
@@ -144,7 +174,7 @@ function EmailNotificationsForm({ onSubmit, settings }) {
 
   return (
     <StyledForm
-      requiredMark="optional"
+      requiredMark={false}
       form={form}
       initialValues={initialValues}
       onValuesChange={handleValuesChange}
@@ -170,7 +200,7 @@ function EmailNotificationsForm({ onSubmit, settings }) {
       </Form.Item>
       <Form.Item
         name="fullName"
-        label="Full Name"
+        label="Full Name (optional)"
         rules={[
           {
             message: 'Please enter you name or leave it empty.',
@@ -198,11 +228,34 @@ function EmailNotificationsForm({ onSubmit, settings }) {
           onChange={groupCheckboxes[role].handleChange}
         />
       ))}
-
-      <Row>
-        <Button fullWidth htmlType="submit">
-          Save
-        </Button>
+      <Spacer />
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={12}>
+          <Popconfirm
+            placement="top"
+            title="Are you sure?"
+            onConfirm={onReset}
+            cancelText="No"
+            okText="Yes"
+            okButtonProps={{ danger: true }}
+            icon={
+              <QuestionCircleOutlined
+                css={`
+                  color: ${p => p.theme.color.danger.default} !important;
+                `}
+              />
+            }
+          >
+            <Button fullWidth htmlType="reset" variant="outlined">
+              Clear my Data
+            </Button>
+          </Popconfirm>
+        </Col>
+        <Col xs={24} md={12}>
+          <Button fullWidth htmlType="submit">
+            Save
+          </Button>
+        </Col>
       </Row>
     </StyledForm>
   );
@@ -210,6 +263,7 @@ function EmailNotificationsForm({ onSubmit, settings }) {
 
 EmailNotificationsForm.propTypes = {
   onSubmit: t.func,
+  onReset: t.func,
   settings: t.shape({
     email: '',
     fullName: '',
@@ -234,6 +288,7 @@ EmailNotificationsForm.propTypes = {
 
 EmailNotificationsForm.defaultProps = {
   onSubmit: () => {},
+  onReset: () => {},
 };
 
 function EmailPreferencesGroup({ role, label, items, state, onChange }) {
