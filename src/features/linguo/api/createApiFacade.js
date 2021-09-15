@@ -241,12 +241,16 @@ async function getLinguoContracts({ web3, chainId, address, deployment }) {
   // set the max listeners warning threshold
   web3.eth.maxListenersWarningThreshold = 1000;
 
+  const account = web3.eth.currentProvider.isMetaMask
+    ? (await web3.eth.getAccounts())?.[0] ?? '0x0000000000000000000000000000000000000000'
+    : '0x0000000000000000000000000000000000000000';
+
   if (!address) {
     throw new Error(`Could not find address for linguo contract on network ${chainId}`);
   }
 
-  const linguo = new web3.eth.Contract(deployment.abi, address);
-  const arbitrator = new web3.eth.Contract(IArbitrator.abi, await linguo.methods.arbitrator().call());
+  const linguo = new web3.eth.Contract(deployment.abi, address, { from: account });
+  const arbitrator = new web3.eth.Contract(IArbitrator.abi, await linguo.methods.arbitrator().call({ from: account }));
 
   return { linguo, arbitrator };
 }

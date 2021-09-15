@@ -1,7 +1,8 @@
 import Web3 from 'web3';
+import { jsonRpcUrls } from '~/features/web3/supportedChains';
 import abi from './assets/MedianEthUsd.json';
 
-const providerUrl = `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`;
+const providerUrl = jsonRpcUrls[1];
 const provider = new Web3.providers.HttpProvider(providerUrl);
 const web3 = new Web3(provider);
 const contract = new web3.eth.Contract(abi, '0x64de91f5a373cd4c28de3600cb34c7c6ce410c85');

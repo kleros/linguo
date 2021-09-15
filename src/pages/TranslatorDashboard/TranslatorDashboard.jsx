@@ -2,7 +2,6 @@ import React from 'react';
 import { Titled } from 'react-titled';
 import styled, { css } from 'styled-components';
 import { Divider } from 'antd';
-import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
 import AffixContainer from '~/shared/AffixContainer';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListHeader from './TaskListHeader';
@@ -35,9 +34,7 @@ export default function TranslatorDashboard() {
         </AffixContainer>
         <StyledDivider />
         <StyledContentWrapper>
-          <RequiredWalletGateway message="To view the available translation tasks you need an Ethereum Wallet.">
-            <TaskListFetcher />
-          </RequiredWalletGateway>
+          <TaskListFetcher />
         </StyledContentWrapper>
       </MultiCardLayout>
     </Titled>

@@ -8,7 +8,6 @@ import TopLoadingBar from '~/shared/TopLoadingBar';
 import { Task, TaskStatus } from '~/features/tasks';
 import { selectIsLoadingById } from '~/features/tasks/tasksSlice';
 import { selectIsLoadingByTaskId } from '~/features/disputes/disputesSlice';
-import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
 import KlerosLogoOutlined from '~/assets/images/logo-kleros-outlined.svg';
 import SingleCardLayout from '../layouts/SingleCardLayout';
 import TaskFetcher from './TaskFetcher';
@@ -32,9 +31,7 @@ export default function TranslationDetails() {
               title={cardProps.title}
               beforeContent={<TopLoadingBar show={isLoading} />}
             >
-              <RequiredWalletGateway message="To view the details of this translation task you need an Ethereum Wallet.">
-                <TaskDetails />
-              </RequiredWalletGateway>
+              <TaskDetails />
             </StyledSingleCardLayout>
           </Titled>
         );

@@ -14,7 +14,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <Initializer>
           <GlobalStyle />
-          <MainRouter />{' '}
+          <MainRouter />
         </Initializer>
       </ThemeProvider>
     </Web3ReactProvider>

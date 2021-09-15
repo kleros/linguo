@@ -1,5 +1,4 @@
 import React from 'react';
-import t from 'prop-types';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { Button as AntdButton, Spin, Typography } from 'antd';
@@ -13,6 +12,7 @@ import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import { HelpIcon } from '~/shared/icons';
 import SystemTrayButton from './SystemTrayButton';
+import { defaultChainId } from '~/features/web3/supportedChains';
 
 export default function WalletConnection() {
   const [visible, setVisible] = React.useState(false);
@@ -75,26 +75,18 @@ function WalletConnectionContent() {
             <span className="description">Metamask</span>
           </StyledWalletButton>
         </StyledButtonListItem>
-        <StyledButtonListItem>
-          <StyledWalletButton fullWidth variant="link" onClick={handleFortmaticActivation}>
-            <FortmaticLogo className="logo" />
-            <span className="description">Fortmatic</span>
-          </StyledWalletButton>
-        </StyledButtonListItem>
+        {[1, 42].includes(defaultChainId) ? (
+          <StyledButtonListItem>
+            <StyledWalletButton fullWidth variant="link" onClick={handleFortmaticActivation}>
+              <FortmaticLogo className="logo" />
+              <span className="description">Fortmatic</span>
+            </StyledWalletButton>
+          </StyledButtonListItem>
+        ) : null}
       </StyledButtonList>
     </Spin>
   );
 }
-
-WalletConnectionContent.propTypes = {
-  visible: t.bool.isRequired,
-  setVisible: t.func.isRequired,
-  onCancel: t.func,
-};
-
-WalletConnectionContent.defaultProps = {
-  onCancel: () => {},
-};
 
 const StyledButtonList = styled.ul`
   display: flex;

@@ -1,10 +1,19 @@
 import { AbstractConnector } from '@web3-react/abstract-connector';
+import { jsonRpcUrls } from '~/features/web3/supportedChains';
 
-const chainIdToNetwork = {
-  1: 'mainnet',
+const chainIdToParams = {
+  1: undefined,
   3: 'ropsten',
-  4: 'rinkeby',
+  4: undefined,
   42: 'kovan',
+  77: {
+    chainId: 77,
+    rpcUrl: jsonRpcUrls[77],
+  },
+  100: {
+    chainId: 100,
+    rpcUrl: jsonRpcUrls[100],
+  },
 };
 
 export default class FortmaticConnector extends AbstractConnector {
@@ -31,10 +40,7 @@ export default class FortmaticConnector extends AbstractConnector {
       let Fortmatic = await import('fortmatic');
       Fortmatic = Fortmatic.default || Fortmatic;
 
-      this.fortmatic = new Fortmatic(
-        this.apiKey,
-        this.chainId === 1 || this.chainId === 4 ? undefined : chainIdToNetwork[this.chainId]
-      );
+      this.fortmatic = new Fortmatic(this.apiKey, chainIdToParams[this.chainId]);
     }
 
     const account = await this.fortmatic

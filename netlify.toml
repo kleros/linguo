@@ -2,10 +2,7 @@
   YARN_FLAGS='--pure-lockfile'
   NODE_VERSION='16.7.0'
 
-  DEFAULT_CHAIN_ID='42'
-  INFURA_API_KEY='f1c9535b961648f7bd18209b00e11163'
-  FORTMATIC_API_KEY='pk_test_11610B956E1411D8'
-  ETHERSCAN_API_KEY='1N7T6P46WEQ6AENHAGCIGY3PS5NZD8KCDJ'
+  DEFAULT_CHAIN_ID='77'
   IPFS_HOST_ADDRESS='https://ipfs.kleros.io'
   IPFS_GATEWAY_ADDRESS='https://ipfs.kleros.io'
   USER_SETTINGS_API_BASE_URLS='{"1":"https://iioeu1ljqf.execute-api.us-east-2.amazonaws.com/mainnet","77":"https://xa1qxy0wp6.execute-api.us-east-2.amazonaws.com/sokol"}'
@@ -13,7 +10,6 @@
 
 [context.production.environment]
   DEFAULT_CHAIN_ID='1'
-  FORTMATIC_API_KEY='pk_live_E4C12880C70B02F9'
   AVAILABLE_LANGUAGE_GROUP_PAIRS='["en|fr","en|es","en|pt","de|en","en|ru","en|tr","en|zh"]'
 
 [[redirects]]
