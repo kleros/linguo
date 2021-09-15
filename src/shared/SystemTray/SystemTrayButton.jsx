@@ -40,7 +40,6 @@ const StyledButton = styled(Button)`
     }
 
     &:not(.ant-btn-icon-only) {
-      padding: 0 0.75rem;
       border-radius: 3px;
       height: 2rem;
 
@@ -50,7 +49,7 @@ const StyledButton = styled(Button)`
       }
 
       @media (max-width: 767.98px) {
-        padding: 0 1.25rem;
+        line-height: 2.125;
         height: 2.5rem;
       }
     }
