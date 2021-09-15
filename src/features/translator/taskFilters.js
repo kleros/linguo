@@ -55,8 +55,8 @@ export function getAllTasksFilterPredicate(allTasks, { status, account }) {
   return allTasks
     ? () => true
     : ({ parties }) =>
-        status === statusFilters.open
-          ? true // Always show open tasks, since there's no concept of "My Tasks" for tasks in Created state.
+        !account || status === statusFilters.open
+          ? true // There's no concept of "My Tasks" for tasks in Created state or when there is no wallet connected.
           : parties[TaskParty.Translator] === account || parties[TaskParty.Challenger] === account;
 }
 

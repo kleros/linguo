@@ -7,6 +7,8 @@ import TaskStatusFilter from '~/features/tasks/TaskStatusFilter';
 import TaskOwnershipFilter from '~/features/translator/TaskOwnershipFilter';
 import { statusFilters, useFilters } from '~/features/translator';
 import Button from '~/shared/Button';
+import { useSelector } from 'react-redux';
+import { selectAccount } from '~/features/web3/web3Slice';
 
 export default function TaskListHeader() {
   return (
@@ -33,6 +35,7 @@ export default function TaskListHeader() {
 }
 
 function TaskOwnershipFilterContainer() {
+  const account = useSelector(selectAccount);
   const [{ status, allTasks }, setFilters] = useFilters();
 
   const handleFilterChange = React.useCallback(
@@ -42,9 +45,9 @@ function TaskOwnershipFilterContainer() {
     [setFilters, status]
   );
 
-  return status !== statusFilters.open ? (
-    <TaskOwnershipFilter fullWidth value={allTasks} onChange={handleFilterChange} />
-  ) : null;
+  const shouldDisplay = account && status !== statusFilters.open;
+
+  return shouldDisplay ? <TaskOwnershipFilter fullWidth value={allTasks} onChange={handleFilterChange} /> : null;
 }
 
 function TaskStatusFilterContainer() {

@@ -18,7 +18,9 @@ export default function WalletBalance() {
   const fetchBalance = React.useCallback(async () => {
     setState('pending');
     try {
-      await dispatch(getBalance({ account }, { meta: { thunk: { id: account } } }));
+      if (account) {
+        await dispatch(getBalance({ account }, { meta: { thunk: { id: account } } }));
+      }
       setState('succeeded');
     } catch (err) {
       console.warn('Failed to get the account balance:', err);

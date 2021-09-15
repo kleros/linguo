@@ -32,16 +32,16 @@ export default function TaskListFetcher() {
     doFetchTasks();
   }, [doFetchTasks]);
 
-  const [{ status, allTasks }] = useFilters();
+  const [filters] = useFilters();
 
   const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account, chainId, skills }));
-  const showFootnote = [statusFilters.open].includes(status) && data.length > 0;
+  const showFootnote = [statusFilters.open].includes(filters.status) && data.length > 0;
 
   return (
     <>
       <TopLoadingBar show={isLoading} />
       <Spin $fixed tip="Loading translation tasks..." spinning={isLoading && data.length === 0}>
-        {filterDescriptionMap[getFilterTreeName({ status, allTasks })]}
+        {filterDescriptionMap[getFilterTreeName({ status, allTasks: filters.allTasks })]}
         <TaskList data={data} showFootnote={showFootnote} />
       </Spin>
     </>
