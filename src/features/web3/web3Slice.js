@@ -9,6 +9,8 @@ import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
 import { watchAllWithBuffer } from './runWithContext';
+import { getTransactionUrl } from './blockExplorer';
+import requestSwitchChain from './requestSwitchChain';
 
 /* -------------------- Action Creators -------------------- */
 export const activate = Object.assign(createAction(`web3/activate`), {
@@ -30,6 +32,8 @@ export const changeLibrary = createAction('web3/changeLibrary');
 export const getBalance = createAsyncAction('web3/getBalance');
 
 export const getBlockInfo = createAsyncAction('web3/getBlockInfo');
+
+export const switchChain = createAsyncAction('web3/switchChain');
 
 /* ------------------------ Reducer ------------------------ */
 const reducer = createFinalReducer();
@@ -83,20 +87,13 @@ export function* notifyErrorSaga(action) {
 }
 
 export function* getBlockExplorerTxUrl(txHash) {
-  const baseUrlMap = {
-    1: 'https://etherscan.io/tx',
-    42: 'https://kovan.etherscan.io/tx',
-  };
-
   const chainId = yield select(selectChainId);
-  const baseUrl = baseUrlMap[chainId] ?? baseUrlMap[1];
 
-  return `${baseUrl}/${txHash}`;
+  return getTransactionUrl(chainId, txHash);
 }
 
 export function* getBalanceSaga(action) {
   const web3 = yield getContext('library');
-
   const account = action.payload?.account;
   const meta = action.meta ?? {};
 
@@ -121,6 +118,19 @@ export function* getBlockInfoSaga(action) {
   }
 }
 
+export function* switchChainSaga(action) {
+  const web3 = yield getContext('library');
+  const chainId = action.payload?.chainId;
+  const meta = action.meta ?? {};
+
+  try {
+    yield call(requestSwitchChain, web3.currentProvider, chainId);
+    yield put(switchChain.fulfilled({ chainId }, { meta }));
+  } catch (err) {
+    yield put(switchChain.rejected({ chainId, error: err }, { meta }));
+  }
+}
+
 export const sagas = {
   watchNotifyError: createWatcherSaga({ takeType: TakeType.every }, notifyErrorSaga, setError.type),
   watchNotifyActivateError: createWatcherSaga({ takeType: TakeType.every }, notifyErrorSaga, activate.error.type),
@@ -129,6 +139,9 @@ export const sagas = {
   ]),
   watchGetBlockInfo: watchAllWithBuffer([
     [createWatcherSaga({ takeType: TakeType.every }, getBlockInfoSaga), actionChannel(getBlockInfo.type)],
+  ]),
+  watchSwitchChain: watchAllWithBuffer([
+    [createWatcherSaga({ takeType: TakeType.latest }, switchChainSaga), actionChannel(switchChain.type)],
   ]),
 };
 

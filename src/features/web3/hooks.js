@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useWeb3React } from '@web3-react/core';
+import { useQuery, useUnsetQueryParam } from '~/adapters/react-router-dom';
 import { createHooks } from '~/adapters/web3-react';
-import { changeLibrary } from './web3Slice';
 import { injected, network } from './connectors';
+import { changeLibrary, selectChainId, switchChain } from './web3Slice';
+import { isSupportedChain } from './supportedChains';
 
 export const useWatchLibrary = () => {
   const dispatch = useDispatch();
@@ -20,3 +22,25 @@ export const { useConnectToProvider, useDisconnectFromProvider, useWeb3ReactBoot
     network,
   },
 });
+
+export function useSwitchToChainFromUrl() {
+  const dispatch = useDispatch();
+
+  const currentChainId = useSelector(selectChainId);
+  const queryParams = useQuery();
+  const chainIdFromUrl =
+    queryParams.chainId && !isNaN(queryParams.chainId) ? Number.parseInt(queryParams.chainId) : undefined;
+  const unsetQueryParam = useUnsetQueryParam();
+
+  useEffect(() => {
+    if (chainIdFromUrl === undefined || currentChainId === undefined) {
+      return;
+    }
+
+    if (chainIdFromUrl === currentChainId || !isSupportedChain(chainIdFromUrl)) {
+      unsetQueryParam('chainId');
+    } else {
+      dispatch(switchChain({ chainId: chainIdFromUrl }));
+    }
+  }, [unsetQueryParam, dispatch, chainIdFromUrl, currentChainId]);
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import t from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import loadable from '@loadable/component';
@@ -14,6 +15,7 @@ import Navbar from '~/shared/Navbar';
 import { history } from '~/store';
 import Content from './Content';
 import * as r from './routes';
+import { useSwitchToChainFromUrl } from '~/features/web3';
 
 const fallback = <Spin $centered tip="Loading page content..." />;
 
@@ -30,87 +32,101 @@ export default function MainRouter() {
 
   return (
     <ConnectedRouter history={history}>
-      <Layout>
-        <DrawerMenu />
-        <Layout
-          css={`
-            background-color: ${p => p.theme.color.background.default};
-          `}
-        >
-          <Navbar />
-          <div
-            id="top-loading-bar"
+      <RouterInitializer>
+        <Layout>
+          <DrawerMenu />
+          <Layout
             css={`
-              position: relative;
-            `}
-          ></div>
-          <div
-            css={`
-              position: relative;
-
-              :empty {
-                display: none;
-              }
-
-              @media (max-width: 991.98px) {
-                margin-bottom: 0.5rem;
-              }
-
-              @media (max-width: 767.98px) {
-                margin-bottom: 1rem;
-              }
-
-              @media (max-width: 575.98px) {
-                margin-bottom: 4.5rem;
-              }
+              background-color: ${p => p.theme.color.background.default};
             `}
           >
-            <DismissableAlert
-              banner
-              type="warning"
-              id="global.betaWarning"
-              message="This is a beta version, use at your own risk. Linguo is currently very sensitive to gas prices. An optimized version will be available soon."
+            <Navbar />
+            <div
+              id="top-loading-bar"
               css={`
-                position: absolute;
-                z-index: 1;
-                top: 0;
-                left: 0;
-                right: 0;
+                position: relative;
               `}
-            />
-          </div>
-          <Web3ErrorAlert />
-          <Content>
-            <Switch>
-              <Route exact path={r.ROOT}>
-                <Redirect to={defaultPage ?? r.HOME} />
-              </Route>
-              <Route exact path={r.HOME}>
-                <Home />
-              </Route>
-              <Route exact path={r.FAQ}>
-                <Faq />
-              </Route>
-              <Route exact path={r.TRANSLATOR_DASHBOARD}>
-                <TranslatorDashboard />
-              </Route>
-              <Route exact path={r.TRANSLATOR_SETTINGS}>
-                <TranslatorSettings />
-              </Route>
-              <Route exact path={r.TRANSLATION_REQUEST}>
-                <TranslationRequest />
-              </Route>
-              <Route exact path={r.REQUESTER_DASHBOARD}>
-                <RequesterDashboard />
-              </Route>
-              <Route exact path={r.TRANSLATION_TASK_DETAILS}>
-                <TranslationDetails />
-              </Route>
-            </Switch>
-          </Content>
-          <Footer />
+            ></div>
+            <div
+              css={`
+                position: relative;
+
+                :empty {
+                  display: none;
+                }
+
+                @media (max-width: 991.98px) {
+                  margin-bottom: 0.5rem;
+                }
+
+                @media (max-width: 767.98px) {
+                  margin-bottom: 1rem;
+                }
+
+                @media (max-width: 575.98px) {
+                  margin-bottom: 4.5rem;
+                }
+              `}
+            >
+              <DismissableAlert
+                banner
+                type="warning"
+                id="global.betaWarning"
+                message="This is a beta version, use at your own risk. Linguo is currently very sensitive to gas prices. An optimized version will be available soon."
+                css={`
+                  position: absolute;
+                  z-index: 1;
+                  top: 0;
+                  left: 0;
+                  right: 0;
+                `}
+              />
+            </div>
+            <Web3ErrorAlert />
+            <Content>
+              <Switch>
+                <Route exact path={r.ROOT}>
+                  <Redirect to={defaultPage ?? r.HOME} />
+                </Route>
+                <Route exact path={r.HOME}>
+                  <Home />
+                </Route>
+                <Route exact path={r.FAQ}>
+                  <Faq />
+                </Route>
+                <Route exact path={r.TRANSLATOR_DASHBOARD}>
+                  <TranslatorDashboard />
+                </Route>
+                <Route exact path={r.TRANSLATOR_SETTINGS}>
+                  <TranslatorSettings />
+                </Route>
+                <Route exact path={r.TRANSLATION_REQUEST}>
+                  <TranslationRequest />
+                </Route>
+                <Route exact path={r.REQUESTER_DASHBOARD}>
+                  <RequesterDashboard />
+                </Route>
+                <Route exact path={r.TRANSLATION_TASK_DETAILS}>
+                  <TranslationDetails />
+                </Route>
+              </Switch>
+            </Content>
+            <Footer />
+          </Layout>
         </Layout>
-      </Layout>
+      </RouterInitializer>
     </ConnectedRouter>
   );
 }
+
+function _RouterInitializer({ children }) {
+  useSwitchToChainFromUrl();
+
+  return children;
+}
+
+_RouterInitializer.propTypes = {
+  children: t.node,
+};
+
+const RouterInitializer = React.memo(_RouterInitializer);
