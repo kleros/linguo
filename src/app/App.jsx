@@ -50,10 +50,6 @@ const GlobalStyle = createGlobalStyle`
     color: ${props => props.theme.color.text.default};
   }
 
-  body > img[src*="fortmatic"] {
-    display: none;
-  }
-
   body > iframe[src*="3box"] {
     display: none !important;
   }

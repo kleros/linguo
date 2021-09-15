@@ -3,16 +3,14 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { Button as AntdButton, Spin, Typography } from 'antd';
 import { Popover } from '~/adapters/antd';
-import FortmaticLogo from '~/assets/images/logo-fortmatic.svg';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
 import { useConnectToProvider } from '~/features/web3';
 import { selectIsConnecting } from '~/features/web3/web3Slice';
-import { fortmatic, injected } from '~/features/web3/connectors';
+import { injected } from '~/features/web3/connectors';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import { HelpIcon } from '~/shared/icons';
 import SystemTrayButton from './SystemTrayButton';
-import { defaultChainId } from '~/features/web3/supportedChains';
 
 export default function WalletConnection() {
   const [visible, setVisible] = React.useState(false);
@@ -61,10 +59,6 @@ function WalletConnectionContent() {
     connect(injected.name);
   }, [connect]);
 
-  const handleFortmaticActivation = React.useCallback(() => {
-    connect(fortmatic.name);
-  }, [connect]);
-
   return (
     <Spin spinning={isConnecting} tip="Connecting...">
       <Spacer />
@@ -75,14 +69,6 @@ function WalletConnectionContent() {
             <span className="description">Metamask</span>
           </StyledWalletButton>
         </StyledButtonListItem>
-        {[1, 42].includes(defaultChainId) ? (
-          <StyledButtonListItem>
-            <StyledWalletButton fullWidth variant="link" onClick={handleFortmaticActivation}>
-              <FortmaticLogo className="logo" />
-              <span className="description">Fortmatic</span>
-            </StyledWalletButton>
-          </StyledButtonListItem>
-        ) : null}
       </StyledButtonList>
     </Spin>
   );

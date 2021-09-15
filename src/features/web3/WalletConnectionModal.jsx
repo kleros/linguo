@@ -6,10 +6,9 @@ import { Row, Col, Divider, Typography, Spin } from 'antd';
 import Button from '~/shared/Button';
 import Modal from '~/shared/Modal';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
-import FortmaticLogo from '~/assets/images/logo-fortmatic.svg';
 import { selectIsConnecting, selectIsConnected } from './web3Slice';
 import { useConnectToProvider } from './hooks';
-import { injected, fortmatic } from './connectors';
+import { injected } from './connectors';
 
 function WalletConnectionModal({ visible, setVisible, onCancel }) {
   const isConnecting = useSelector(selectIsConnecting);
@@ -32,10 +31,6 @@ function WalletConnectionModal({ visible, setVisible, onCancel }) {
     connect(injected.name);
   }, [connect]);
 
-  const handleFortmaticActivation = React.useCallback(() => {
-    connect(fortmatic.name);
-  }, [connect]);
-
   return (
     <Modal centered visible={visible} title="Connect to a Wallet" footer={null} onCancel={handleCancel}>
       <Spin spinning={isConnecting} tip="Connecting...">
@@ -44,12 +39,6 @@ function WalletConnectionModal({ visible, setVisible, onCancel }) {
             <StyledWalletButton fullWidth variant="outlined" onClick={handleMetamaskActivation}>
               <MetamaskLogo className="logo" />
               <span className="description">Metamask</span>
-            </StyledWalletButton>
-          </Col>
-          <Col sm={8} xs={12}>
-            <StyledWalletButton fullWidth variant="outlined" onClick={handleFortmaticActivation}>
-              <FortmaticLogo className="logo" />
-              <span className="description">Fortmatic</span>
             </StyledWalletButton>
           </Col>
         </Row>

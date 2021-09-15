@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useWeb3React } from '@web3-react/core';
 import { createHooks } from '~/adapters/web3-react';
 import { changeLibrary } from './web3Slice';
-import { injected, network, fortmatic } from './connectors';
+import { injected, network } from './connectors';
 
 export const useWatchLibrary = () => {
   const dispatch = useDispatch();
@@ -18,6 +18,5 @@ export const { useConnectToProvider, useDisconnectFromProvider, useWeb3ReactBoot
   connectors: {
     injected,
     network,
-    fortmatic,
   },
 });
