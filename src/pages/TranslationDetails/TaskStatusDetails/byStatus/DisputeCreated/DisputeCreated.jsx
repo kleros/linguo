@@ -10,8 +10,7 @@ const fallback = <Spinner />;
 const componentsByDisputeStatus = {
   waiting: loadable(() => import('./DisputeIsWaiting.jsx'), { fallback }),
   appealable: loadable(() => import('./DisputeHasAppealableRuling/index.js'), { fallback }),
-  appealPeriodIsOver: loadable(() => import('./DisputeAppealPeriodIsOver.jsx'), { fallback }),
-  solved: loadable(() => Promise.resolve({ default: () => null }), { fallback }),
+  solvedButNotExecuted: loadable(() => import('./DisputeSolvedButNotExecuted.jsx'), { fallback }),
 };
 
 function DisputeCreated() {
@@ -21,13 +20,9 @@ function DisputeCreated() {
   if (Dispute.isWaiting(dispute)) {
     Component = componentsByDisputeStatus.waiting;
   } else if (Dispute.isAppealable(dispute)) {
-    // Component = Dispute.isWithinAppealPeriod(dispute)
-    //   ? componentsByDisputeStatus.appealable
-    //   : componentsByDisputeStatus.appealPeriodIsOver;
     Component = componentsByDisputeStatus.appealable;
   } else {
-    console.warn('This should not happen!!!!');
-    Component = componentsByDisputeStatus.solved;
+    Component = componentsByDisputeStatus.solvedButNotExecuted;
   }
 
   return <Component />;

@@ -10,7 +10,7 @@ import useCurrentParty from '../../hooks/useCurrentParty';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import DisputeContext from './DisputeContext';
 
-function DisputeAppealPeriodIsOver() {
+function DisputeSolvedButNotExecuted() {
   const { ruling } = React.useContext(DisputeContext);
   const { requester, parties, disputeID } = useTask();
   const party = useCurrentParty();
@@ -27,7 +27,7 @@ function DisputeAppealPeriodIsOver() {
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;
 }
 
-export default DisputeAppealPeriodIsOver;
+export default DisputeSolvedButNotExecuted;
 
 const titleMap = {
   [DisputeRuling.RefuseToRule]: 'Appeal period is over: the jurors refused to arbitrate',
