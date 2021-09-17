@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useWeb3React } from '@web3-react/core';
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import {
   selectCurrentConnector,
   selectActivatingConnector,
@@ -44,9 +45,18 @@ export default function createHooks({ connectors = {} } = {}) {
 
     return useCallback(
       async connectorName => {
+        const connector = connectors[connectorName];
+        /**
+         * WalletConnect provider doesn't work after user rejects the request the first time:
+         * @see { @link https://github.com/NoahZinsmeister/web3-react/issues/217 }
+         */
+        if (connector instanceof WalletConnectConnector && connector.walletConnectProvider?.wc?.uri) {
+          connector.walletConnectProvider = undefined;
+        }
+
         try {
           dispatch(actions.activate.start({ name: connectorName }));
-          await activate(connectors[connectorName], undefined, true);
+          await activate(connector, undefined, true);
           dispatch(actions.activate.success({ name: connectorName }));
         } catch (err) {
           setError(err);
@@ -58,13 +68,20 @@ export default function createHooks({ connectors = {} } = {}) {
   }
 
   function useDisconnectFromProvider() {
-    const { deactivate } = useWeb3React();
+    const { connector, deactivate } = useWeb3React();
     const dispatch = useDispatch();
 
     return useCallback(() => {
+      if (connector instanceof WalletConnectConnector) {
+        /**
+         * Cleans up wallet connect, otherwise it won't show the QR code when connecting again.
+         */
+        window.localStorage.removeItem('walletconnect');
+      }
+
       deactivate();
       dispatch(actions.deactivate());
-    }, [dispatch, deactivate]);
+    }, [dispatch, connector, deactivate]);
   }
 
   function useSyncToStore() {

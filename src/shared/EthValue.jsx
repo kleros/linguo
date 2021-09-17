@@ -4,6 +4,9 @@ import { useSelector } from 'react-redux';
 import Web3 from 'web3';
 import { selectChainId } from '~/features/web3/web3Slice';
 import FormattedNumber from './FormattedNumber';
+import { defaultChainId } from '~/features/web3/supportedChains';
+
+const DEFAULT_CHAIN_ID = process.env.DEFAULT_CHAIN_ID;
 
 const { fromWei, toWei, toBN } = Web3.utils;
 
@@ -147,10 +150,12 @@ const canDisplay = ({ amount, unit, maxIntDigits, decimals }) => {
   return isIntPartOk && isFrPartOk;
 };
 
-export const getBestDisplayUnit = ({ chainId, amount, maxIntDigits = 3, decimals = 2 }) => {
+export const getBestDisplayUnit = ({ chainId = DEFAULT_CHAIN_ID, amount, maxIntDigits = 3, decimals = 2 }) => {
   const defaultUnit = {
     unit: indexedAvailableUnits.ether.unit,
-    suffix: indexedAvailableUnits.ether.chainIdToSuffixes[chainId],
+    suffix:
+      indexedAvailableUnits.ether.chainIdToSuffixes[chainId] ??
+      indexedAvailableUnits.ether.chainIdToSuffixes[defaultChainId],
   };
 
   if (canDisplay({ amount, maxIntDigits, decimals, unit: indexedAvailableUnits.ether.unit })) {
