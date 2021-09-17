@@ -72,10 +72,10 @@ function useEthPricePolling({ interval = _1_MINUTE } = {}) {
     [dispatch, chainId, interval]
   );
 
-  const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromEthPrice({ chainId }, { meta: { groupId } })), [
-    dispatch,
-    chainId,
-  ]);
+  const unsubscribe = React.useCallback(
+    () => dispatch(unsubscribeFromEthPrice({ chainId }, { meta: { groupId } })),
+    [dispatch, chainId]
+  );
 
   React.useEffect(() => {
     subscribe();

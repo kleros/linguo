@@ -135,8 +135,7 @@ export default function TranslatorSettingsForm() {
               <Link
                 to={{
                   pathname: r.FAQ,
-                  hash:
-                    '#how-does-my-skill-levels-affect-the-amount-of-tasks-i-will-be-able-to-work-on-as-a-translator',
+                  hash: '#how-does-my-skill-levels-affect-the-amount-of-tasks-i-will-be-able-to-work-on-as-a-translator',
                 }}
               >
                 FAQ

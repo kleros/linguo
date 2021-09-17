@@ -1,5 +1,6 @@
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { defaultChainId, supportedChainIds, jsonRpcUrls } from './supportedChains';
 
 export const injected = new InjectedConnector({ supportedChainIds });
@@ -11,6 +12,11 @@ export const network = new NetworkConnector({
   defaultChainId,
 });
 network.name = 'network';
+
+export const walletConnect = new WalletConnectConnector({
+  rpc: jsonRpcUrls,
+});
+walletConnect.name = 'walletConnect';
 
 export const connectorsByName = [injected, network].reduce(
   (acc, current) =>

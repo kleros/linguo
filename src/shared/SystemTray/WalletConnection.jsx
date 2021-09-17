@@ -4,9 +4,10 @@ import { useSelector } from 'react-redux';
 import { Button as AntdButton, Spin, Typography } from 'antd';
 import { Popover } from '~/adapters/antd';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
+import WalletConnectLogo from '~/assets/images/logo-walletconnect.svg';
 import { useConnectToProvider } from '~/features/web3';
 import { selectIsConnecting } from '~/features/web3/web3Slice';
-import { injected } from '~/features/web3/connectors';
+import { injected, walletConnect } from '~/features/web3/connectors';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import { HelpIcon } from '~/shared/icons';
@@ -59,6 +60,10 @@ function WalletConnectionContent() {
     connect(injected.name);
   }, [connect]);
 
+  const handleWalletConnectActivation = React.useCallback(() => {
+    connect(walletConnect.name);
+  }, [connect]);
+
   return (
     <Spin spinning={isConnecting} tip="Connecting...">
       <Spacer />
@@ -67,6 +72,12 @@ function WalletConnectionContent() {
           <StyledWalletButton fullWidth variant="link" onClick={handleMetamaskActivation}>
             <MetamaskLogo className="logo" />
             <span className="description">Metamask</span>
+          </StyledWalletButton>
+        </StyledButtonListItem>
+        <StyledButtonListItem>
+          <StyledWalletButton fullWidth variant="link" onClick={handleWalletConnectActivation}>
+            <WalletConnectLogo className="logo" />
+            <span className="description">WalletConnect</span>
           </StyledWalletButton>
         </StyledButtonListItem>
       </StyledButtonList>
@@ -88,6 +99,18 @@ const StyledButtonListItem = styled.li`
 
 const StyledWalletButton = styled(Button)`
   border-radius: 0.75rem;
+  height: 100%;
+  transition: ${p => p.theme.transition.default};
+
+  :hover,
+  :focus {
+    transform: translateY(-3px) scale(1.1);
+  }
+
+  :active {
+    transform: translateY(0) scale(0.9);
+  }
+
   > span {
     display: flex;
     flex-flow: column nowrap;
@@ -95,9 +118,8 @@ const StyledWalletButton = styled(Button)`
     padding: 1rem;
 
     .logo {
-      max-width: 2.5rem;
-      max-height: 2.5rem;
-      height: auto;
+      width: 2.5rem;
+      height: 2.5rem;
     }
 
     .description {

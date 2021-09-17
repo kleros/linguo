@@ -25,8 +25,14 @@ const createStatusFilterPredicates = {
   all: () => () => true,
   open: () => task => !Task.isIncomplete(task) && task.status === TaskStatus.Created,
   inProgress: () => task => !Task.isIncomplete(task) && task.status === TaskStatus.Assigned,
-  inReview: () => ({ status }) => status === TaskStatus.AwaitingReview,
-  inDispute: () => ({ status }) => status === TaskStatus.DisputeCreated,
+  inReview:
+    () =>
+    ({ status }) =>
+      status === TaskStatus.AwaitingReview,
+  inDispute:
+    () =>
+    ({ status }) =>
+      status === TaskStatus.DisputeCreated,
   finished: () => task => !Task.isIncomplete(task) && task.status === TaskStatus.Resolved,
   incomplete: ({ skills }) => {
     const skillsMatch = createSkillsTaskMatcher(skills);

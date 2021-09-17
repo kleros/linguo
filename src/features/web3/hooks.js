@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useWeb3React } from '@web3-react/core';
 import { useQuery, useUnsetQueryParam } from '~/adapters/react-router-dom';
 import { createHooks } from '~/adapters/web3-react';
-import { injected, network } from './connectors';
+import { injected, walletConnect, network } from './connectors';
 import { changeLibrary, selectChainId, switchChain } from './web3Slice';
 import { isSupportedChain } from './supportedChains';
 
@@ -19,6 +19,7 @@ export const useWatchLibrary = () => {
 export const { useConnectToProvider, useDisconnectFromProvider, useWeb3ReactBootstrap } = createHooks({
   connectors: {
     injected,
+    walletConnect,
     network,
   },
 });

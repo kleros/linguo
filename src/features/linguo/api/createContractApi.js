@@ -863,16 +863,18 @@ const dynamicScriptURIByChainId = {
 
 const getFileTypeFromPath = path => (path ?? '').split('.').slice(-1)?.[0];
 
-const onlyIfMatchingSkills = skills => ({ sourceLanguage, targetLanguage, expectedQuality }) => {
-  /**
-   * Z1 level does not exist for any language, so we are just using this as
-   * a fallback in case we find an unexpected value for `expectedQuality`.
-   * In this case, since the task is non-standard, it should not be shown
-   * to a translator.
-   */
-  const requiredLevel = translationQualityTiers[expectedQuality]?.requiredLevel ?? 'Z1';
-  const satisfiesSource = skills.some(skill => skill.language === sourceLanguage && skill.level >= requiredLevel);
-  const satisfiesTarget = skills.some(skill => skill.language === targetLanguage && skill.level >= requiredLevel);
+const onlyIfMatchingSkills =
+  skills =>
+  ({ sourceLanguage, targetLanguage, expectedQuality }) => {
+    /**
+     * Z1 level does not exist for any language, so we are just using this as
+     * a fallback in case we find an unexpected value for `expectedQuality`.
+     * In this case, since the task is non-standard, it should not be shown
+     * to a translator.
+     */
+    const requiredLevel = translationQualityTiers[expectedQuality]?.requiredLevel ?? 'Z1';
+    const satisfiesSource = skills.some(skill => skill.language === sourceLanguage && skill.level >= requiredLevel);
+    const satisfiesTarget = skills.some(skill => skill.language === targetLanguage && skill.level >= requiredLevel);
 
-  return satisfiesSource && satisfiesTarget;
-};
+    return satisfiesSource && satisfiesTarget;
+  };

@@ -121,9 +121,10 @@ const StyledFlagContainer = styled.span`
   }
 `;
 
-const makeDropdownRender = dropdownRender => menu => (
-  <StyledLanguageDropdown>{dropdownRender(menu)}</StyledLanguageDropdown>
-);
+const makeDropdownRender = dropdownRender =>
+  function CustomDropdownRender(menu) {
+    return <StyledLanguageDropdown>{dropdownRender(menu)}</StyledLanguageDropdown>;
+  };
 
 function LanguageSelect({ dropdownRender, options, ...props }) {
   const wrappedDropdownRender = React.useMemo(() => makeDropdownRender(dropdownRender), [dropdownRender]);

@@ -42,7 +42,7 @@ let sagaTask = sagaMiddleware.run(rootSaga);
 if (process.env.NODE_ENV === 'development' && module.hot) {
   module.hot.accept('./rootReducer', () => {
     console.debug('HMR reducer');
-    const createRootReducer = require('./rootReducer.js').createRootReducer;
+    const createRootReducer = require('./rootReducer').createRootReducer;
     const newRootReducer = createRootReducer();
 
     store.replaceReducer(newRootReducer);

@@ -36,17 +36,19 @@ class ErrorBoundary extends React.Component {
 
 export default ErrorBoundary;
 
-export const withErrorBoundary = ({ fallback, renderFallback } = {}) => Component => {
-  function WithErrorBoundary(props) {
-    return (
-      <ErrorBoundary fallback={fallback} renderFallback={renderFallback}>
-        <Component {...props} />
-      </ErrorBoundary>
-    );
-  }
+export const withErrorBoundary =
+  ({ fallback, renderFallback } = {}) =>
+  Component => {
+    function WithErrorBoundary(props) {
+      return (
+        <ErrorBoundary fallback={fallback} renderFallback={renderFallback}>
+          <Component {...props} />
+        </ErrorBoundary>
+      );
+    }
 
-  const componentName = Component.displayName ?? Component.name ?? '<anonymous>';
-  WithErrorBoundary.displayName = `WithErrorBoundary(${componentName})`;
+    const componentName = Component.displayName ?? Component.name ?? '<anonymous>';
+    WithErrorBoundary.displayName = `WithErrorBoundary(${componentName})`;
 
-  return hoistNonReactStatics(WithErrorBoundary, Component);
-};
+    return hoistNonReactStatics(WithErrorBoundary, Component);
+  };

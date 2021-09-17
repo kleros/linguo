@@ -170,8 +170,10 @@ export const selectHasFailedById = id => state => singleTaskSlice.selectors.sele
 
 export const selectErrorById = id => state => singleTaskSlice.selectors.selectError(state.tasks.entities[id]);
 
-export const selectLatestBlock = ({ account, chainId }) => state =>
-  taskUpdatesSlice.selectors.selectLatestBlock(state.tasks.updates, { account, chainId });
+export const selectLatestBlock =
+  ({ account, chainId }) =>
+  state =>
+    taskUpdatesSlice.selectors.selectLatestBlock(state.tasks.updates, { account, chainId });
 
 export function* fetchByPartySaga(action) {
   const linguoApi = yield getContext('linguoApi');

@@ -6,8 +6,11 @@ import DisputeContext from '../DisputeContext';
 import AppealStatus from './AppealStatus';
 
 const componentsByRuling = {
+  // eslint-disable-next-line import/extensions
   [DisputeRuling.TranslationApproved]: loadable(() => import('./TranslationWasApproved.jsx')),
+  // eslint-disable-next-line import/extensions
   [DisputeRuling.TranslationRejected]: loadable(() => import('./TranslationWasRejected.jsx')),
+  // eslint-disable-next-line import/extensions
   [DisputeRuling.RefuseToRule]: loadable(() => import('./JurorsRefusedToRule.jsx')),
   [DisputeRuling.None]: () => `Ooops, this shouldn't happen!`,
 };

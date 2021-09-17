@@ -7,7 +7,10 @@ import withResolveComponentByParty from '../withResolveComponentByParty';
 const fallback = <Spinner />;
 
 export default withResolveComponentByParty({
+  // eslint-disable-next-line import/extensions
   [TaskParty.Requester]: loadable(() => import('./AssignedForRequester.jsx'), { fallback }),
+  // eslint-disable-next-line import/extensions
   [TaskParty.Translator]: loadable(() => import('./AssignedForTranslator.jsx'), { fallback }),
+  // eslint-disable-next-line import/extensions
   [TaskParty.Other]: loadable(() => import('./AssignedForOther.jsx'), { fallback }),
 });

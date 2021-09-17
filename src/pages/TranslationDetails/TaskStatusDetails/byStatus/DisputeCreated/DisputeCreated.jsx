@@ -8,8 +8,11 @@ import { withDisputeFetcher } from './DisputeFetcher';
 const fallback = <Spinner />;
 
 const componentsByDisputeStatus = {
+  // eslint-disable-next-line import/extensions
   waiting: loadable(() => import('./DisputeIsWaiting.jsx'), { fallback }),
+  // eslint-disable-next-line import/extensions
   appealable: loadable(() => import('./DisputeHasAppealableRuling/index.js'), { fallback }),
+  // eslint-disable-next-line import/extensions
   solvedButNotExecuted: loadable(() => import('./DisputeSolvedButNotExecuted.jsx'), { fallback }),
 };
 

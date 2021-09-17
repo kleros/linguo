@@ -50,7 +50,12 @@ export const {
   selectHasSucceeded,
   selectHasFailed,
   selectTaskIds,
-} = mapValues(selector => (state, ...rest) => selector(state.translator.tasks, ...rest), tasks.selectors);
+} = mapValues(
+  selector =>
+    (state, ...rest) =>
+      selector(state.translator.tasks, ...rest),
+  tasks.selectors
+);
 
 export const selectAllTasks = (state, { account, chainId }) => {
   const taskIds = selectTaskIds(state, { account, chainId });

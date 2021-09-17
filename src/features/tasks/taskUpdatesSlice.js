@@ -304,8 +304,7 @@ const notificationMakersByType = {
         data: {
           type: 'info',
           icon: 'confirmation',
-          text:
-            'The translator delivered the translated text. It will be in the Review List before the escrow payment is released.',
+          text: 'The translator delivered the translated text. It will be in the Review List before the escrow payment is released.',
           url: `/translation/${id}`,
         },
       })
@@ -329,8 +328,7 @@ const notificationMakersByType = {
         data: {
           type: 'warning',
           icon: 'dispute',
-          text:
-            'The translation was challenged. Now it goes to Kleros arbitration. When Jurors decide the case you will be informed.',
+          text: 'The translation was challenged. Now it goes to Kleros arbitration. When Jurors decide the case you will be informed.',
           url: `/translation/${id}`,
         },
       })

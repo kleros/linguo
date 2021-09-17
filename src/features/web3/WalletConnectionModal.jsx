@@ -6,9 +6,10 @@ import { Row, Col, Divider, Typography, Spin } from 'antd';
 import Button from '~/shared/Button';
 import Modal from '~/shared/Modal';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
+import WalletConnectLogo from '~/assets/images/logo-walletconnect.svg';
 import { selectIsConnecting, selectIsConnected } from './web3Slice';
 import { useConnectToProvider } from './hooks';
-import { injected } from './connectors';
+import { injected, walletConnect } from './connectors';
 
 function WalletConnectionModal({ visible, setVisible, onCancel }) {
   const isConnecting = useSelector(selectIsConnecting);
@@ -31,6 +32,10 @@ function WalletConnectionModal({ visible, setVisible, onCancel }) {
     connect(injected.name);
   }, [connect]);
 
+  const handleWalletConnectActivation = React.useCallback(() => {
+    connect(walletConnect.name);
+  }, [connect]);
+
   return (
     <Modal centered visible={visible} title="Connect to a Wallet" footer={null} onCancel={handleCancel}>
       <Spin spinning={isConnecting} tip="Connecting...">
@@ -39,6 +44,12 @@ function WalletConnectionModal({ visible, setVisible, onCancel }) {
             <StyledWalletButton fullWidth variant="outlined" onClick={handleMetamaskActivation}>
               <MetamaskLogo className="logo" />
               <span className="description">Metamask</span>
+            </StyledWalletButton>
+          </Col>
+          <Col sm={8} xs={12}>
+            <StyledWalletButton fullWidth variant="outlined" onClick={handleWalletConnectActivation}>
+              <WalletConnectLogo className="logo" />
+              <span className="description">WalletConnect</span>
             </StyledWalletButton>
           </Col>
         </Row>
