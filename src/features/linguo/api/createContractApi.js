@@ -19,9 +19,10 @@ const { toBN } = Web3.utils;
 
 export default async function createContractApi({ web3, archon, linguo, arbitrator }) {
   const chainId = await web3.eth.getChainId();
-  const firstRelevantBlock = firstRelevantBlockByChainId[chainId] ?? 0;
-  const evidenceDisplayInterfaceURI = evidenceDisplayURIByChainId[chainId] ?? evidenceDisplayURIByChainId[1];
-  const dynamicScriptURI = dynamicScriptURIByChainId[chainId] ?? dynamicScriptURIByChainId[1];
+  const firstRelevantBlock = chainIdToFirstRelevantBlock[chainId] ?? 0;
+  const evidenceDisplayInterfaceURI =
+    chainIdToCurrentEvidenceDisplayInterfaceURI[chainId] ?? chainIdToCurrentEvidenceDisplayInterfaceURI[1];
+  const dynamicScriptURI = chainIdToCurrentDynamicScriptURI[chainId] ?? chainIdToCurrentDynamicScriptURI[1];
 
   const metadataStore = localforage.createInstance({
     name: `task-metadata@eip155:${chainId}`,
@@ -41,7 +42,6 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
     const tx = linguo.methods.createTask(deadline, minPrice, metaEvidence).send({
       from,
       gas,
-
       value: maxPrice,
     });
 
@@ -501,7 +501,6 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
       };
     }
   }
-
   async function _getPastEvents(contract, eventName, { filter, fromBlock = 0, toBlock = 'latest' } = {}) {
     return promiseRetry(
       () =>
@@ -725,15 +724,23 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
         [account]: 'Requester',
       },
       metadata: {
+        ...metadata,
         /**
          * v1:
          *  - Removed `text` field
          *  - Added `wordCount` field
          *  - `originalTextFile` is mandatory
          */
-        __v: 1,
-        ...metadata,
+        __v: '1',
       },
+      arbitrableChainID: chainId,
+      /**
+       * v1.0.0:
+       *  - Removed `text` field
+       *  - Added `wordCount` field
+       *  - `originalTextFile` is mandatory
+       */
+      _v: '1.0.0',
     });
 
     const { path } = await ipfs.publish('linguo-meta-evidence.json', JSON.stringify(metaEvidence));
@@ -755,28 +762,15 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   }
 
   function _validateMetaEvidence(metaEvidence) {
-    const onlyRelevantFields = pick([
-      'title',
-      'description',
-      'rulingOptions',
-      'category',
-      'question',
-      'fileURI',
-      'evidenceDisplayInterfaceURI',
-      'dynamicScriptURI',
-    ]);
+    const onlyStaticFields = pick(['title', 'description', 'rulingOptions', 'category', 'question', 'fileURI']);
 
-    const currentTemplate = {
-      ...onlyRelevantFields(metaEvidenceTemplate),
-      evidenceDisplayInterfaceURI,
-      dynamicScriptURI,
-    };
+    const areStaticFieldsValid = deepEqual(onlyStaticFields(metaEvidence), onlyStaticFields(metaEvidenceTemplate));
+    const isDynamicScriptValid =
+      chainIdToValidDynamicScriptURIs[chainId]?.includes(metaEvidence.dynamicScriptURI) ?? false;
+    const isEvidenceDisplayInterfaceValid =
+      chainIdToValidEvidenceDisplayInterfaceURIs[chainId]?.includes(metaEvidence.evidenceDisplayInterfaceURI) ?? false;
 
-    const templatesToCompare = [currentTemplate];
-
-    const metaEvidenceToCompare = onlyRelevantFields(metaEvidence);
-
-    const isValid = !!templatesToCompare.some(template => deepEqual(metaEvidenceToCompare, template));
+    const isValid = areStaticFieldsValid && isDynamicScriptValid && isEvidenceDisplayInterfaceValid;
 
     if (!isValid) {
       throw new Error('This translation task is not valid.');
@@ -843,22 +837,40 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
 }
 
 // TODO: Add xDAI params
-const firstRelevantBlockByChainId = {
+const chainIdToFirstRelevantBlock = {
   1: 11237802,
   42: 0,
   77: 22580202,
 };
 
-const evidenceDisplayURIByChainId = {
+const chainIdToCurrentEvidenceDisplayInterfaceURI = {
   1: '/ipfs/QmXGDMfcxjfQi5SFwpBSb73pPjoZq2N8c6eWCgxx8pVqj7/index.html',
   42: '/ipfs/QmYbtF7K6qCfSYfu2k6nYnVRY8HY97rEAF6mgBWtDgfovw/index.html',
-  77: '/ipfs/Qmf7zuZAkc3Dms4QXXuQkuJDamB4Hm2ASG24Yy4A6EY2gs/linguo-evidence-display/index.html',
+  77: '/ipfs/Qmb5n6PgbshktJqGpwMAxP1moXEPaqq7ZvRufeXXhSPXxW/linguo-evidence-display/index.html',
 };
 
-const dynamicScriptURIByChainId = {
+/**
+ * Keeps track of historical values for evidenceDisplayInterfaceURI
+ */
+const chainIdToValidEvidenceDisplayInterfaceURIs = {
+  1: [chainIdToCurrentEvidenceDisplayInterfaceURI[1]],
+  42: [chainIdToCurrentEvidenceDisplayInterfaceURI[42]],
+  77: [chainIdToCurrentEvidenceDisplayInterfaceURI[77]],
+};
+
+const chainIdToCurrentDynamicScriptURI = {
   1: '/ipfs/QmchWC6L3dT23wwQiJJLWCeS1EDnDYrLcYat93C4Lm4P4E/linguo-dynamic-script.js',
   42: '/ipfs/QmZFcqdsR76jyHyLsBefc4SBuegj2boBDr2skxGauM5DNf/linguo-dynamic-script.js',
-  77: '/ipfs/QmXERKZXNmvX3nvHg8SGceG5bpkbjGyxYEcKP6W5m4NrHk/linguo-script.js',
+  77: '/ipfs/QmPAHCRtSU844fdjNoEws8AgTpzzwsYwMF2wydtpvXAcoZ/linguo-script.js',
+};
+
+/**
+ * Keeps track of historical values for evidenceDisplayInterfaceURI
+ */
+const chainIdToValidDynamicScriptURIs = {
+  1: [chainIdToCurrentDynamicScriptURI[1]],
+  42: [chainIdToCurrentDynamicScriptURI[42]],
+  77: [chainIdToCurrentDynamicScriptURI[77]],
 };
 
 const getFileTypeFromPath = path => (path ?? '').split('.').slice(-1)?.[0];

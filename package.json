@@ -55,7 +55,7 @@
     "connected-react-router": "^6.8.0",
     "core-js": "^3.0.0",
     "dayjs": "^1.8.22",
-    "deep-equal": "^2.0.4",
+    "deep-equal": "^2.0.5",
     "deepmerge": "^4.2.2",
     "did-resolver": "^2.1.2",
     "history": "^4.10.1",
