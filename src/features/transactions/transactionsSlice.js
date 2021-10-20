@@ -403,7 +403,7 @@ function* createTxNotification(
         template: {
           id: 'link',
           params: {
-            text: 'View on Etherscan',
+            text: 'View on Block Explorer',
             url,
           },
         },
