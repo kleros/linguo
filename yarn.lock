@@ -3379,10 +3379,10 @@
   resolved "https://registry.yarnpkg.com/@kleros/ethereum-libraries/-/ethereum-libraries-7.0.0.tgz#5cc115e984612bd8bd338e1c73d70640fae143ea"
   integrity sha512-wpKv70rQJi7uwF+yMYBlFVOvcvp/EY6SwIQXsE3ppAsnhIzAuKgr89UjuJU59ZtKZgrhOD1rBkKBu33jDwQ8kw==
 
-"@kleros/linguo-contracts@~0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@kleros/linguo-contracts/-/linguo-contracts-0.4.0.tgz#54d2c0c2e804f739b6975c6c2a6b65f08927a732"
-  integrity sha512-HczBrbdOE/Nj0oIXPde/RZJObqW6sY8ukw19W5iRHdKlGlZ/w8xNFkeSktR7sbzVE3TRK7mmouaZEBjzqKOc/g==
+"@kleros/linguo-contracts@~0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@kleros/linguo-contracts/-/linguo-contracts-0.5.0.tgz#df73060f62aab86f24472c27119642204b8b9a76"
+  integrity sha512-aYOi2/skxJ2aQ8BGs8NEDZYr/I1ZF8nIYM8gdzCAgjsx8QJgMqSMKsDJ5nkiJ+MuSokO649I3Z6SU594E6YzDQ==
   dependencies:
     "@kleros/erc-792" "^7.0.0"
     "@kleros/ethereum-libraries" "^7.0.0"

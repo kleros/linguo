@@ -38,7 +38,7 @@
     "@hot-loader/react-dom": "^17.0.1",
     "@kleros/archon": "^2.2.0",
     "@kleros/erc-792": "^7.0.0",
-    "@kleros/linguo-contracts": "~0.4.0",
+    "@kleros/linguo-contracts": "~0.5.0",
     "@kleros/react-components": "^6.0.0",
     "@loadable/component": "^5.12.0",
     "@reduxjs/toolkit": "^1.6.1",
