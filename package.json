@@ -36,7 +36,7 @@
     "@ethersproject/providers": "^5.0.14",
     "@ethersproject/solidity": "^5.0.5",
     "@hot-loader/react-dom": "^17.0.1",
-    "@kleros/archon": "^1.2.0",
+    "@kleros/archon": "^2.2.0",
     "@kleros/erc-792": "^7.0.0",
     "@kleros/linguo-contracts": "~0.4.0",
     "@kleros/react-components": "^6.0.0",

@@ -847,6 +847,7 @@ const chainIdToCurrentEvidenceDisplayInterfaceURI = {
   1: '/ipfs/QmXGDMfcxjfQi5SFwpBSb73pPjoZq2N8c6eWCgxx8pVqj7/index.html',
   42: '/ipfs/QmYbtF7K6qCfSYfu2k6nYnVRY8HY97rEAF6mgBWtDgfovw/index.html',
   77: '/ipfs/Qmb5n6PgbshktJqGpwMAxP1moXEPaqq7ZvRufeXXhSPXxW/linguo-evidence-display/index.html',
+  100: '/ipfs/Qmb5n6PgbshktJqGpwMAxP1moXEPaqq7ZvRufeXXhSPXxW/linguo-evidence-display/index.html',
 };
 
 /**
@@ -856,12 +857,14 @@ const chainIdToValidEvidenceDisplayInterfaceURIs = {
   1: [chainIdToCurrentEvidenceDisplayInterfaceURI[1]],
   42: [chainIdToCurrentEvidenceDisplayInterfaceURI[42]],
   77: [chainIdToCurrentEvidenceDisplayInterfaceURI[77]],
+  100: [chainIdToCurrentEvidenceDisplayInterfaceURI[100]],
 };
 
 const chainIdToCurrentDynamicScriptURI = {
   1: '/ipfs/QmchWC6L3dT23wwQiJJLWCeS1EDnDYrLcYat93C4Lm4P4E/linguo-dynamic-script.js',
   42: '/ipfs/QmZFcqdsR76jyHyLsBefc4SBuegj2boBDr2skxGauM5DNf/linguo-dynamic-script.js',
   77: '/ipfs/QmPAHCRtSU844fdjNoEws8AgTpzzwsYwMF2wydtpvXAcoZ/linguo-script.js',
+  100: '/ipfs/QmPAHCRtSU844fdjNoEws8AgTpzzwsYwMF2wydtpvXAcoZ/linguo-script.js',
 };
 
 /**
@@ -871,6 +874,7 @@ const chainIdToValidDynamicScriptURIs = {
   1: [chainIdToCurrentDynamicScriptURI[1]],
   42: [chainIdToCurrentDynamicScriptURI[42]],
   77: [chainIdToCurrentDynamicScriptURI[77]],
+  100: [chainIdToCurrentDynamicScriptURI[100]],
 };
 
 const getFileTypeFromPath = path => (path ?? '').split('.').slice(-1)?.[0];

@@ -45,7 +45,7 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
 
   return (
     <>
-      <Col span={24} order={1}>
+      <Col span={24} order={0}>
         <StyledDismissableAlert
           id="task.create.language-pairing"
           message="Currently it is only possible to request translations from or to English."
@@ -55,7 +55,7 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
               <Link
                 to={{
                   pathname: r.FAQ,
-                  hash: '#why-does-linguo-only-support-translations-from-and-to-english',
+                  hash: '#why-does-linguo-support-only-translations-from-and-to-english',
                 }}
               >
                 FAQ page.
@@ -64,7 +64,7 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
           }
         />
       </Col>
-      <Col span={24} order={0}>
+      <Col span={24} order={1}>
         <StyledNestedRow>
           <Col xs={24} sm={24} md={11} lg={10}>
             <StyledLanguageSelectionFormItem

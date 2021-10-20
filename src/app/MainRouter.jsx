@@ -1,21 +1,25 @@
 import React from 'react';
 import t from 'prop-types';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import loadable from '@loadable/component';
 import { Layout } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
-import { Spin } from '~/adapters/antd';
-import { selectPreference } from '~/features/ui/uiSlice';
+import { Alert, Spin } from '~/adapters/antd';
 import DismissableAlert from '~/features/ui/DismissableAlert';
+import { selectPreference } from '~/features/ui/uiSlice';
+import { getNetworkName, useSwitchToChainFromUrl } from '~/features/web3';
+import { getCounterPartyChainId, isSupportedSideChain } from '~/features/web3/supportedChains';
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
+import { selectChainId, switchChain } from '~/features/web3/web3Slice';
+import { WarningIcon } from '~/shared/icons';
+import Button from '~/shared/Button';
 import Footer from '~/shared/Footer';
 import { DrawerMenu } from '~/shared/Menu';
 import Navbar from '~/shared/Navbar';
 import { history } from '~/store';
 import Content from './Content';
 import * as r from './routes';
-import { useSwitchToChainFromUrl } from '~/features/web3';
 
 const fallback = <Spin $centered tip="Loading page content..." />;
 
@@ -47,41 +51,7 @@ export default function MainRouter() {
                 position: relative;
               `}
             ></div>
-            <div
-              css={`
-                position: relative;
-
-                :empty {
-                  display: none;
-                }
-
-                @media (max-width: 991.98px) {
-                  margin-bottom: 0.5rem;
-                }
-
-                @media (max-width: 767.98px) {
-                  margin-bottom: 1rem;
-                }
-
-                @media (max-width: 575.98px) {
-                  margin-bottom: 4.5rem;
-                }
-              `}
-            >
-              <DismissableAlert
-                banner
-                type="warning"
-                id="global.betaWarning"
-                message="This is a beta version, use at your own risk. Linguo is currently very sensitive to gas prices. An optimized version will be available soon."
-                css={`
-                  position: absolute;
-                  z-index: 1;
-                  top: 0;
-                  left: 0;
-                  right: 0;
-                `}
-              />
-            </div>
+            <GlobalWarnings />
             <Web3ErrorAlert />
             <Content>
               <Switch>
@@ -130,3 +100,71 @@ _RouterInitializer.propTypes = {
 };
 
 const RouterInitializer = React.memo(_RouterInitializer);
+
+function GlobalWarnings() {
+  const dispatch = useDispatch();
+  const chainId = useSelector(selectChainId);
+  const counterPartyChainId = getCounterPartyChainId(chainId);
+
+  return (
+    <div
+      css={`
+        position: relative;
+
+        :empty {
+          display: none;
+        }
+
+        @media (max-width: 991.98px) {
+          margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 767.98px) {
+          margin-bottom: 1rem;
+        }
+
+        @media (max-width: 575.98px) {
+          margin-bottom: 2.5rem;
+        }
+      `}
+    >
+      {isSupportedSideChain(chainId) && (
+        <DismissableAlert
+          banner
+          type="warning"
+          id="global.betaWarning"
+          message="Linguo is still in beta. Use it at your own risk."
+          css={`
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            right: 0;
+          `}
+        />
+      )}
+      {!isSupportedSideChain(chainId) && (
+        <Alert
+          banner
+          type="warning"
+          icon={<WarningIcon />}
+          message={
+            <>
+              Linguo is moving to a side-chain for more affordable gas prices:{' '}
+              <Button variant="link" onClick={() => dispatch(switchChain({ chainId: counterPartyChainId }))}>
+                Switch to {getNetworkName(counterPartyChainId)}.
+              </Button>
+            </>
+          }
+          css={`
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            right: 0;
+          `}
+        />
+      )}
+    </div>
+  );
+}

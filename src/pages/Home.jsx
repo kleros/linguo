@@ -110,7 +110,7 @@ const StyledLayout = styled(Layout)`
   max-width: 68rem;
   background-color: ${props => props.theme.color.background.light};
   box-shadow: 0 2px 3px ${props => props.theme.color.shadow.default};
-  border-radius: 12px;
+  border-radius: 3px;
   align-self: stretch;
 
   @media (max-width: 575.98px) {

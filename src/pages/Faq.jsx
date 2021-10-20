@@ -174,15 +174,15 @@ const StyledQA = styled.div`
 const StyledQuestionAnchor = styled.a`
   z-index: 2;
   position: absolute;
-  left: 0.5rem;
-  top: 0.625rem;
+  left: 8px;
+  top: 12px;
   text-align: center;
-  color: ${p => p.theme.color.text.inverted};
+  color: ${p => p.theme.color.text.light};
   transition: all 0.25s cubic-bezier(0.77, 0, 0.175, 1);
 
   :hover,
   :focus {
-    color: ${p => p.theme.color.text.inverted};
+    color: ${p => p.theme.color.text.light};
     filter: drop-shadow(0 0 2px ${p => p.theme.color.glow.default});
   }
 `;
