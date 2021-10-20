@@ -4,7 +4,9 @@ import styled from 'styled-components';
 import { Badge, Select } from 'antd';
 import theme from '~/features/ui/theme';
 
-export default function TaskStatusFilter({ fullWidth, onChange, defaultValue }) {
+export default function TaskStatusFilter({ fullWidth, onChange, value, defaultValue }) {
+  const controlledProps = value !== undefined ? { value } : {};
+
   return (
     <StyledSelect
       filterOption={false}
@@ -12,15 +14,17 @@ export default function TaskStatusFilter({ fullWidth, onChange, defaultValue }) 
       listHeight={368}
       dropdownRender={menu => <StyledItemWrapper>{menu}</StyledItemWrapper>}
       $fullWidth={fullWidth}
-      onChange={onChange}
       defaultValue={defaultValue}
+      onChange={onChange}
       options={filterOptions}
+      {...controlledProps}
     />
   );
 }
 
 TaskStatusFilter.propTypes = {
   onChange: t.func,
+  value: t.string,
   defaultValue: t.string,
   fullWidth: t.bool,
 };
