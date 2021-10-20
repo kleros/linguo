@@ -207,7 +207,7 @@ function EthValue({ amount, maxIntDigits, decimals, unit, suffixType, render }) 
       value={value}
       decimals={decimals}
       render={({ formattedValue }) =>
-        render({ amount, value, formattedValue, suffix: unitInfo.suffix[suffixType] ?? '' })
+        render({ amount, value, formattedValue, suffix: unitInfo?.suffix?.[suffixType] ?? '' })
       }
     />
   );
