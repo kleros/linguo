@@ -1,9 +1,13 @@
 import React from 'react';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import { Tooltip } from 'antd';
 import Spacer from '~/shared/Spacer';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
+import * as r from '~/app/routes';
 import { selectAllSkills } from '~/features/translator/translatorSlice';
 import ContentBlocker from '~/shared/ContentBlocker';
+import Button from '~/shared/Button';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
@@ -50,7 +54,21 @@ export default function CreatedForOther() {
   };
 
   return (
-    <Tooltip title={!hasSkill ? "You don't have the required skills for this task" : ''}>
+    <Tooltip
+      title={
+        !hasSkill ? (
+          <>
+            You don&rsquo;t have the required skills for this task.{' '}
+            <Link to={r.TRANSLATOR_SETTINGS} component={StyledTooltipButtonLink} variant="link">
+              Update your skills
+            </Link>
+            .
+          </>
+        ) : (
+          ''
+        )
+      }
+    >
       <div>
         <ContentBlocker blocked={!hasSkill} contentBlur={0}>
           <TaskStatusDetailsLayout {...props} />
@@ -65,3 +83,7 @@ const minimumLevelByQuality = {
   standard: 'C1',
   professional: 'C2',
 };
+
+const StyledTooltipButtonLink = styled(Button)`
+  color: ${p => p.theme.color.text.inverted};
+`;
