@@ -1,5 +1,5 @@
 import IArbitrator from '@kleros/erc-792/build/contracts/IArbitrator.json';
-import Linguo from '@kleros/linguo-contracts/artifacts/Linguo.json';
+import Linguo from '@kleros/linguo-contracts/artifacts/contracts/0.7.x/Linguo.sol/Linguo.json';
 import { subtract } from '~/adapters/big-number';
 import { combination } from '~/adapters/js-combinatorics';
 import { withProvider } from '~/app/archon';

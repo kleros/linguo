@@ -247,7 +247,7 @@ function EmailNotificationsForm({ onSubmit, onReset, settings }) {
             }
           >
             <Button fullWidth htmlType="reset" variant="outlined">
-              Clear my Data
+              Clear My Data
             </Button>
           </Popconfirm>
         </Col>

@@ -60,7 +60,7 @@ export default function Home() {
               </StyledSwitchWrapper>
             </Col>
             <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 0 }} sm={{ span: 18, offset: 3 }} xs={24}>
-              <Link to={r.TRANSLATOR_DASHBOARD}>
+              <Link to={`${r.TRANSLATOR_DASHBOARD}?status=open`}>
                 <StyledButton fullWidth>
                   <WorkAsATranslatorAvatar />
                   <span className="text">Work as a Translator</span>
@@ -72,14 +72,14 @@ export default function Home() {
                   size="small"
                   checkedChildren={<CheckOutlined />}
                   unCheckedChildren={<CloseOutlined />}
-                  checked={defaultPage === r.TRANSLATOR_DASHBOARD}
-                  onClick={createClickHandler(r.TRANSLATOR_DASHBOARD)}
+                  checked={defaultPage === `${r.TRANSLATOR_DASHBOARD}?status=open`}
+                  onClick={createClickHandler(`${r.TRANSLATOR_DASHBOARD}?status=open`)}
                 />
                 Set as default page for Linguo
               </StyledSwitchWrapper>
             </Col>
             <Col xl={8} lg={{ span: 8, offset: 0 }} md={{ span: 12, offset: 6 }} sm={{ span: 18, offset: 3 }} xs={24}>
-              <Link to={`${r.TRANSLATOR_DASHBOARD}?filter=inReview`}>
+              <Link to={`${r.TRANSLATOR_DASHBOARD}?status=inReview&allTasks=true`}>
                 <StyledButton fullWidth>
                   <ReviewTranslationsAvatar />
                   <span className="text">Review Translations</span>
@@ -91,8 +91,8 @@ export default function Home() {
                   size="small"
                   checkedChildren={<CheckOutlined />}
                   unCheckedChildren={<CloseOutlined />}
-                  checked={defaultPage === `${r.TRANSLATOR_DASHBOARD}?filter=inReview`}
-                  onClick={createClickHandler(`${r.TRANSLATOR_DASHBOARD}?filter=inReview`)}
+                  checked={defaultPage === `${r.TRANSLATOR_DASHBOARD}?status=inReview&allTasks=true`}
+                  onClick={createClickHandler(`${r.TRANSLATOR_DASHBOARD}?status=inReview&allTasks=true`)}
                 />
                 Set as default page for Linguo
               </StyledSwitchWrapper>
@@ -110,7 +110,7 @@ const StyledLayout = styled(Layout)`
   max-width: 68rem;
   background-color: ${props => props.theme.color.background.light};
   box-shadow: 0 2px 3px ${props => props.theme.color.shadow.default};
-  border-radius: 12px;
+  border-radius: 3px;
   align-self: stretch;
 
   @media (max-width: 575.98px) {

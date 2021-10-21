@@ -60,7 +60,7 @@ function TaskStatusFilterContainer() {
     [setFilters, allTasks]
   );
 
-  return <TaskStatusFilter fullWidth defaultValue={status} onChange={handleFilterChange} />;
+  return <TaskStatusFilter fullWidth value={status} onChange={handleFilterChange} />;
 }
 
 const StyledHeader = styled.header`

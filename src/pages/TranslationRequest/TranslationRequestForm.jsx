@@ -156,7 +156,7 @@ function TranslationRequestForm() {
         <StyledButtonBar>
           {currentStep !== 0 ? (
             <Button variant="outlined" htmlType="button" onClick={handleGoToPreviousStep}>
-              Return
+              Previous
             </Button>
           ) : null}
 

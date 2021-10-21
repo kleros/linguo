@@ -80,7 +80,7 @@ export const selectStatusFilter = state => state.filters?.status ?? statusFilter
 export const selectAllTasksFilter = state => state.filters?.allTasks ?? false;
 
 export const selectLoadingState = (state, { account = null, chainId }) =>
-  state.byAccount[account]?.byChainId[chainId]?.loadingState ?? 'idle';
+  state.byAccount[account]?.byChainId?.[chainId]?.loadingState ?? 'idle';
 export const selectIsIdle = (state, { account, chainId }) => selectLoadingState(state, { account, chainId }) === 'idle';
 export const selectIsLoading = (state, { account, chainId }) =>
   selectLoadingState(state, { account, chainId }) === 'loading';
@@ -89,7 +89,7 @@ export const selectHasFetched = (state, { account, chainId }) =>
 export const selectHasFailed = (state, { account, chainId }) =>
   selectLoadingState(state, { account, chainId }) === 'failed';
 
-export const selectTaskIds = (state, { account, chainId }) => state.byAccount[account]?.byChainId[chainId]?.ids ?? [];
+export const selectTaskIds = (state, { account, chainId }) => state.byAccount[account]?.byChainId?.[chainId]?.ids ?? [];
 
 export const selectors = {
   selectStatusFilter,

@@ -92,7 +92,7 @@ export default createPersistedReducer(requesterSlice.reducer);
 export const selectStatusFilter = state => state.requester.tasks?.filters?.status ?? statusFilters.all;
 
 const selectLoadingState = (state, { account = null, chainId }) =>
-  state.requester.tasks.byAccount[account]?.byChainId[chainId]?.loadingState ?? 'idle';
+  state.requester.tasks.byAccount[account]?.byChainId?.[chainId]?.loadingState ?? 'idle';
 
 export const selectIsIdle = createSelector([selectLoadingState], loadingState => loadingState === 'idle');
 export const selectIsLoading = createSelector([selectLoadingState], loadingState => loadingState === 'loading');
@@ -100,7 +100,7 @@ export const selectHasSucceeded = createSelector([selectLoadingState], loadingSt
 export const selectHasFailed = createSelector([selectLoadingState], loadingState => loadingState === 'failed');
 
 export const selectAllTasks = (state, { account, chainId }) => {
-  const taskIds = state.requester.tasks.byAccount[account]?.byChainId[chainId]?.ids ?? [];
+  const taskIds = state.requester.tasks.byAccount[account]?.byChainId?.[chainId]?.ids ?? [];
   return selectAllFilterByIds(taskIds)(state);
 };
 

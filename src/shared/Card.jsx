@@ -35,7 +35,7 @@ const StyledWrapper = styled.section`
   display: flex;
   flex-flow: column nowrap;
   border: none;
-  border-radius: 12px;
+  border-radius: 3px;
   box-shadow: 0 2px 3px ${props => props.theme.color.shadow.default};
   font-size: 1rem;
   color: ${props => props.theme.color.text.default};

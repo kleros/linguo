@@ -80,6 +80,8 @@ export default WalletConnectionModal;
 
 const StyledWalletButton = styled(Button)`
   border-radius: 0.75rem;
+  height: 100%;
+
   > span {
     display: flex;
     flex-flow: column nowrap;
@@ -87,8 +89,8 @@ const StyledWalletButton = styled(Button)`
     padding: 1rem;
 
     .logo {
-      width: 60%;
-      height: auto;
+      width: 64px;
+      height: 64px;
     }
 
     .description {

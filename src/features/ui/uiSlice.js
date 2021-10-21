@@ -31,8 +31,8 @@ const { set } = preferences.actions;
 
 export { dismiss as dismissAlert, notify, close as closeNotification, set as setPreference };
 
-export const selectAlertIsVisible = id => state => alerts.selectors.selectIsVisible(id)(state.ui.alerts);
-export const selectPreference = key => state => preferences.selectors.selectByKey(key)(state.ui.preferences);
+export const selectAlertIsVisible = id => state => alerts.selectors.selectIsVisible(id)(state.ui.alerts ?? {});
+export const selectPreference = key => state => preferences.selectors.selectByKey(key)(state.ui.preferences ?? {});
 
 export const sagas = {
   ...popupNotifications.sagas,
