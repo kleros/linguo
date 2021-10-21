@@ -3,6 +3,7 @@ import { Tooltip } from 'antd';
 import Spacer from '~/shared/Spacer';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { selectAllSkills } from '~/features/translator/translatorSlice';
+import ContentBlocker from '~/shared/ContentBlocker';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
@@ -50,12 +51,10 @@ export default function CreatedForOther() {
 
   return (
     <Tooltip title={!hasSkill ? "You don't have the required skills for this task" : ''}>
-      <div
-        css={`
-          opacity: ${!hasSkill ? '0.4' : '1'};
-        `}
-      >
-        <TaskStatusDetailsLayout {...props} />
+      <div>
+        <ContentBlocker blocked={!hasSkill} contentBlur={0}>
+          <TaskStatusDetailsLayout {...props} />
+        </ContentBlocker>
       </div>
     </Tooltip>
   );
