@@ -32,7 +32,7 @@ export default async function createApiFacade({ web3, chainId }) {
       createApiInstance({
         web3,
         archon,
-        contracts: await getLinguoContracts({ web3, chainId, address, deployment: Linguo }),
+        contracts: await getContracts({ web3, chainId, address, deployment: Linguo }),
       })
     ),
     addressesByLanguageGroupPair
@@ -168,11 +168,17 @@ export default async function createApiFacade({ web3, chainId }) {
         ...rest,
       ];
 
-      const actualApi = apiInstancesByAddress[address];
-      if (actualApi) {
-        return actualApi[target.name].apply(actualApi, actualArgs);
+      const instance = apiInstancesByAddress[address];
+      if (instance) {
+        return instance[target.name].apply(instance, actualArgs);
       }
 
+      /**
+       * If a given task is from a contract that is no longer supported and therefore is
+       * not wired up when the façade is created, users are still allowed to read from it.
+       * To be able to do that, we need to create a new API instnace on the fly for the
+       * unsupported contract, but only for the read-only methods.
+       */
       if (!Object.keys(readOnlyApiSkeleton).includes(target.name)) {
         throw new Error(`Task with ID ${ID} is read-only.`);
       }
@@ -180,10 +186,10 @@ export default async function createApiFacade({ web3, chainId }) {
       const transientInstance = await createApiInstance({
         web3,
         archon,
-        contracts: await getLinguoContracts({ web3, chainId, address, deployment: Linguo }),
+        contracts: await getContracts({ web3, chainId, address, deployment: Linguo }),
       });
 
-      return transientInstance.api[target.name].apply(actualApi, actualArgs);
+      return transientInstance.api[target.name].apply(instance, actualArgs);
     },
   };
 
@@ -237,7 +243,7 @@ const readOnlyApiSkeleton = {
   getArbitrationCost() {},
 };
 
-async function getLinguoContracts({ web3, chainId, address, deployment }) {
+async function getContracts({ web3, chainId, address, deployment }) {
   // set the max listeners warning threshold
   web3.eth.maxListenersWarningThreshold = 1000;
 
