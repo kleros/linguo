@@ -1,6 +1,5 @@
 import IArbitrator from '@kleros/erc-792/build/contracts/IArbitrator.json';
 import Linguo from '@kleros/linguo-contracts/artifacts/contracts/0.7.x/Linguo.sol/Linguo.json';
-import { subtract } from '~/adapters/big-number';
 import { combination } from '~/adapters/js-combinatorics';
 import { withProvider } from '~/app/archon';
 import {
@@ -9,7 +8,6 @@ import {
   compose,
   filter,
   flatten,
-  indexBy,
   map,
   mapValues,
   omit,
@@ -32,7 +30,7 @@ export default async function createApiFacade({ web3, chainId }) {
       createApiInstance({
         web3,
         archon,
-        contracts: await getLinguoContracts({ web3, chainId, address, deployment: Linguo }),
+        contracts: await getContracts({ web3, chainId, address, deployment: Linguo }),
       })
     ),
     addressesByLanguageGroupPair
@@ -134,7 +132,7 @@ export default async function createApiFacade({ web3, chainId }) {
 
       const addresses = uniq([
         ...hintedAddresses,
-        ...(await getContractAddressesForRequester({ web3, chainId, account, apiInstancesByAddress })),
+        ...(await getContractAddressesForRequester({ account, apiInstancesByAddress })),
       ]);
 
       const instances = Object.values(pick(addresses, apiInstancesByAddress));
@@ -168,11 +166,17 @@ export default async function createApiFacade({ web3, chainId }) {
         ...rest,
       ];
 
-      const actualApi = apiInstancesByAddress[address];
-      if (actualApi) {
-        return actualApi[target.name].apply(actualApi, actualArgs);
+      const instance = apiInstancesByAddress[address];
+      if (instance) {
+        return instance[target.name].apply(instance, actualArgs);
       }
 
+      /**
+       * If a given task is from a contract that is no longer supported and therefore is
+       * not wired up when the façade is created, users are still allowed to read from it.
+       * To be able to do that, we need to create a new API instnace on the fly for the
+       * unsupported contract, but only for the read-only methods.
+       */
       if (!Object.keys(readOnlyApiSkeleton).includes(target.name)) {
         throw new Error(`Task with ID ${ID} is read-only.`);
       }
@@ -180,10 +184,10 @@ export default async function createApiFacade({ web3, chainId }) {
       const transientInstance = await createApiInstance({
         web3,
         archon,
-        contracts: await getLinguoContracts({ web3, chainId, address, deployment: Linguo }),
+        contracts: await getContracts({ web3, chainId, address, deployment: Linguo }),
       });
 
-      return transientInstance.api[target.name].apply(actualApi, actualArgs);
+      return transientInstance.api[target.name].apply(instance, actualArgs);
     },
   };
 
@@ -237,7 +241,7 @@ const readOnlyApiSkeleton = {
   getArbitrationCost() {},
 };
 
-async function getLinguoContracts({ web3, chainId, address, deployment }) {
+async function getContracts({ web3, chainId, address, deployment }) {
   // set the max listeners warning threshold
   web3.eth.maxListenersWarningThreshold = 1000;
 
@@ -290,63 +294,10 @@ export function getContractInstancesForTranslator({ skills, addressesByLanguageG
   return compose(Object.values, pick(addresses))(apiInstancesByAddress);
 }
 
-/**
- * Considers 1 block each 13.25 seconds on average.
- */
-const BLOCK_INTERVAL_SIZE = Math.round(60 * 24 * 60 * 60 * 4.53);
-
-const chainIdToMakeExplorerUrl = {
-  1: ({ account, startBlock, endBlock, apiKey }) =>
-    `https://api.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${apiKey}`,
-  42: ({ account, startBlock, endBlock, apiKey }) =>
-    `https://api-kovan.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc&apikey=${apiKey}`,
-  77: ({ account, startBlock, endBlock }) =>
-    `https://blockscout.com/poa/sokol/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc`,
-  100: ({ account, startBlock, endBlock }) =>
-    `https://blockscout.com/xdai/mainnet/api?module=account&action=txlist&address=${account}&startblock=${startBlock}&endblock=${endBlock}&sort=desc`,
-};
-
-async function getContractAddressesForRequester({ chainId, account, web3, apiInstancesByAddress }) {
+async function getContractAddressesForRequester({ account, apiInstancesByAddress }) {
   if (!account) {
     return [];
   }
 
-  const endBlock = await web3.eth.getBlockNumber();
-  const startBlock = subtract(endBlock, BLOCK_INTERVAL_SIZE);
-
-  const url = chainIdToMakeExplorerUrl[chainId]({
-    account,
-    startBlock,
-    endBlock,
-    apiKey: process.env.ETHERSCAN_API_KEY,
-  });
-
-  let response;
-  try {
-    response = await fetch(url, { mode: 'cors' });
-
-    if (![200, 304].includes(response.status)) {
-      console.warn(`Failed to fetch Linguo contracts account ${account} interacted with.`);
-      return Object.keys(apiInstancesByAddress);
-    }
-  } catch (err) {
-    console.warn(`Failed to fetch Linguo contracts account ${account} interacted with:`, err);
-    return Object.keys(apiInstancesByAddress);
-  }
-
-  const { result } = await response.json();
-
-  /**
-   * Etherscan API returns addresses converted all to lowercase.
-   * To actually be able to compare them, we need to convert everything to lowercase
-   * and then back when returning.
-   */
-  const addressesLowercaseKey = indexBy(addr => String(addr).toLowerCase(), Object.keys(apiInstancesByAddress));
-
-  return compose(
-    map(lowercaseAddr => addressesLowercaseKey[lowercaseAddr]),
-    uniq,
-    map(prop('to')),
-    filter(compose(to => prop(to, addressesLowercaseKey), prop('to')))
-  )(result);
+  return Object.keys(apiInstancesByAddress);
 }
