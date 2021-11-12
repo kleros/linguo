@@ -59,8 +59,6 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
       }
 
       if (number >= confirmations) {
-        emit(END);
-
         /**
          * For some reason, on Kovan sometimes the confirmation #0 is not emitted,
          * the first one to happen is confirmation #1.
@@ -80,6 +78,8 @@ export default function createTransactionChannel(tx, { wait = false } = {}) {
             },
           });
         }
+
+        emit(END);
 
         resultChannel.put({ type: 'FULFILLED', payload: { txHash } });
         resultChannel.put(END);

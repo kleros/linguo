@@ -108,16 +108,23 @@ export const selectByTxHash = txHash => state => state.transactions.entities[txH
  * @param {PromiEvent} tx the transaction PromiEvent from web3.js
  * @param {object} options the options object
  * @param {false|number} [options.wait=false] if the saga must wait for the transaction to be mined.
- * If `false`, it will return right after the transaction hash is calculated.
- * If `0`, it will wait until the transaction is mined.
- * If `n`, it will wait until `n` confirmations.
- * @param {number} [options.ttl=10] time in milliseconds which the transaction data should be kept
- * in the store.
+ *   If `false`, it will return right after the transaction hash is calculated.
+ *   If `0`, it will wait until the transaction is mined.
+ *   If `n`, it will wait until `n` confirmations.
+ * @param {number} [options.ttl=10] time in milliseconds which the transaction data should be kept in the store.
  * @param {boolean|ShouldNotifyOption} [options.shouldNotify=true] time in milliseconds which the transaction data should be kept
+ * @param {function} [options.onSuccess=] a function/generator to be executed if the transaction is sucessfully mined.
+ * @param {function} [options.onFailure=] a function/generator to be executed if the transaction fails.
  */
 export function* registerTxSaga(
   tx,
-  { wait = false, shouldNotify = true, onSuccess = () => {}, onFailure = () => {}, ttl = DEFAULT_TTL } = {}
+  {
+    wait = false,
+    shouldNotify = true,
+    ttl = DEFAULT_TTL,
+    onSuccess = function* () {},
+    onFailure = function* () {},
+  } = {}
 ) {
   const txChannel = yield call(createTransactionChannel, tx, { wait });
 
@@ -169,7 +176,7 @@ export function* registerTxSaga(
   }
 }
 
-function* afterTxResultSaga(txHash, { onSuccess = () => {}, onFailure = () => {} }) {
+function* afterTxResultSaga(txHash, { onSuccess = function* () {}, onFailure = function* () {} }) {
   const matchesActionType = action => [confirm, fail].some(({ match }) => match(action));
   const matchesTxHash = action => action.payload?.txHash === txHash;
 
