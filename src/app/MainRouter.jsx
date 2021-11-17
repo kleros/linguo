@@ -6,7 +6,6 @@ import loadable from '@loadable/component';
 import { Layout } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
 import { Alert, Spin } from '~/adapters/antd';
-import DismissableAlert from '~/features/ui/DismissableAlert';
 import { selectPreference } from '~/features/ui/uiSlice';
 import { getNetworkName, useSwitchToChainFromUrl } from '~/features/web3';
 import { getCounterPartyChainId, isSupportedSideChain } from '~/features/web3/supportedChains';
@@ -128,21 +127,7 @@ function GlobalWarnings() {
         }
       `}
     >
-      {isSupportedSideChain(chainId) && (
-        <DismissableAlert
-          banner
-          type="warning"
-          id="global.betaWarning"
-          message="Linguo is still in beta. Use it at your own risk."
-          css={`
-            position: absolute;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            right: 0;
-          `}
-        />
-      )}
+      {isSupportedSideChain(chainId)}
       {!isSupportedSideChain(chainId) && (
         <Alert
           banner
