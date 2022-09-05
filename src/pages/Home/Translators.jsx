@@ -122,7 +122,7 @@ const BottomSection = styled.div`
   bottom: 6rem;
   z-index: 2;
   ${smallScreenStyle(css`
-    bottom: 1.25rem;
+    bottom: 1.75rem;
   `)}
 `;
 
