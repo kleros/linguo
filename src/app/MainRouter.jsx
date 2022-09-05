@@ -6,7 +6,7 @@ import loadable from '@loadable/component';
 import { Layout } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
 import { Alert, Spin } from '~/adapters/antd';
-import { selectPreference } from '~/features/ui/uiSlice';
+// import { selectPreference } from '~/features/ui/uiSlice';
 import { getNetworkName, useSwitchToChainFromUrl } from '~/features/web3';
 import { getCounterPartyChainId, isSupportedSideChain } from '~/features/web3/supportedChains';
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
@@ -31,7 +31,7 @@ const TranslationRequest = loadable(() => import('~/pages/TranslationRequest'), 
 const TranslationDetails = loadable(() => import('~/pages/TranslationDetails'), { fallback });
 
 export default function MainRouter() {
-  const defaultPage = useSelector(selectPreference('page.default'));
+  // const defaultPage = useSelector(selectPreference('page.default'));
 
   return (
     <ConnectedRouter history={history}>
@@ -55,7 +55,7 @@ export default function MainRouter() {
             <Content>
               <Switch>
                 <Route exact path={r.ROOT}>
-                  <Redirect to={defaultPage ?? r.HOME} />
+                  <Redirect to={r.HOME} />
                 </Route>
                 <Route exact path={r.HOME}>
                   <Home />
