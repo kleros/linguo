@@ -31,8 +31,8 @@ const Requesters = () => (
         <ImageContainer />
       </TextAndImageLayout>
       <StartNowCard
-        title="Start translating with Linguo now"
-        buttonText="Start now"
+        title="Request a translation now"
+        buttonText="Request a translation"
         buttonURL={`${r.REQUESTER_DASHBOARD}`}
       />
     </Layout>
