@@ -9,6 +9,21 @@ import SymbolsBackground from '~/assets/images/background-symbols.png';
 import Button from '~/shared/Button';
 import { smallScreenStyle } from './smallScreenStyle';
 
+const BUTTONS = [
+  {
+    link: r.REQUESTER_DASHBOARD,
+    text: 'Request translation',
+  },
+  {
+    link: `${r.TRANSLATOR_DASHBOARD}?status=open`,
+    text: 'Work as a translator',
+  },
+  {
+    link: `${r.TRANSLATOR_DASHBOARD}?status=inReview&allTasks=true`,
+    text: 'Review translations',
+  },
+];
+
 const Hero = () => (
   <Container>
     <Layout>
@@ -16,15 +31,11 @@ const Hero = () => (
         <StyledTitle>The freelance translation platform for Web3</StyledTitle>
         <StyledSubtitle>Hire and make affordable and quality translations.</StyledSubtitle>
         <ButtonContainer>
-          <Link to={r.REQUESTER_DASHBOARD}>
-            <Button>Request translation</Button>
-          </Link>
-          <Link to={`${r.TRANSLATOR_DASHBOARD}?status=open`}>
-            <Button>Work as a translator</Button>
-          </Link>
-          <Link to={`${r.TRANSLATOR_DASHBOARD}?status=inReview&allTasks=true`}>
-            <Button>Review translations</Button>
-          </Link>
+          {BUTTONS.map(({ text, link }, i) => (
+            <Link key={i} to={link}>
+              <Button>{text}</Button>
+            </Link>
+          ))}
         </ButtonContainer>
         <StyledSecuredByKleros />
       </TextContainer>
