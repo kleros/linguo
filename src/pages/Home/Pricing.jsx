@@ -91,6 +91,7 @@ const Label = styled(Typography.Text)`
   border-radius: 300px;
   padding: 0.5rem 1rem;
   color: ${props => props.theme.color.primary.default};
+  text-align: center;
 `;
 
 const LabelNoStyle = styled(Typography.Text)`
