@@ -45,12 +45,14 @@ const Card = styled.div`
     display: flex;
     gap: 1.5rem;
     align-items: center;
+    flex-wrap: wrap;
     .learn-more-and-arrow {
       display: flex;
       gap: 0.25rem;
       align-items: center;
       > svg {
         flex-shrink: 0;
+        width: 0.8rem;
       }
     }
   }
