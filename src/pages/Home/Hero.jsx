@@ -97,6 +97,7 @@ const StyledLinguoLogo = styled(LogoLinguo)`
   z-index: 1;
   ${smallScreenStyle(css`
     max-width: 480px;
+    margin-bottom: 2rem;
   `)};
 `;
 
