@@ -84,7 +84,11 @@ const ImageContainer = styled.div`
   flex: 50%;
   min-height: 734px;
   background-image: url(${RequesterBackground});
-  background-position: 55% 100%;
+  background-position: 55% 30%;
+  background-size: cover;
+  ${smallScreenStyle(css`
+    min-height: 400px;
+  `)}
 `;
 
 export default Requesters;
