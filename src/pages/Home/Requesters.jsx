@@ -13,7 +13,7 @@ const SENTENCES = [
   'Upload your files and be notified when it is completed.',
   'Perfect quality translation, at a fair price each time.',
   'No need to know the languages you are translating to. Other translators check the quality of the translation for you.',
-  'No need to know how much to pay for a translation. A reverse auction mechanism allows you to get the cheapest price.',
+  'No need to know how much to pay for a translation. A reverse auction mechanism allows you to get the best price.',
 ];
 
 const Requesters = () => (

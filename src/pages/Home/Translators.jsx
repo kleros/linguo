@@ -23,7 +23,7 @@ const CARDS = [
   },
   {
     title: 'No fees or hidden costs',
-    body: "You keep 100% of your work.Linguo doesn't take a cut.",
+    body: "You keep 100% of your work. Linguo doesn't take a cut.",
   },
   {
     title: 'Multiple ways to earn',
