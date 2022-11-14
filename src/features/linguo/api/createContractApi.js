@@ -836,11 +836,11 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   };
 }
 
-// TODO: Add xDAI params
 const chainIdToFirstRelevantBlock = {
   1: 11237802,
   42: 0,
   77: 22580202,
+  100: 18668091,
 };
 
 const chainIdToCurrentEvidenceDisplayInterfaceURI = {

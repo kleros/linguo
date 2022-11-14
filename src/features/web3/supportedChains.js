@@ -16,7 +16,7 @@ const supportedSideChains = {
   // xDai
   100: {
     chainId: 100,
-    chainName: 'xDAI Chain',
+    chainName: 'Gnosis Chain',
     nativeCurrency: { name: 'xDAI', symbol: 'xDAI', decimals: 18 },
     rpcUrls: [jsonRpcUrls[100]],
     blockExplorerUrls: [getBaseUrl(100)],
