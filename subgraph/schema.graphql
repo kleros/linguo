@@ -1,0 +1,112 @@
+type Task @entity(immutable: true) {
+  id: ID!
+  _taskID: BigInt! # uint256
+  _requester: Bytes # address
+  _lang: String! # language
+  _timestamp: BigInt! # uint256
+  _evidence: String! # string
+}
+
+type AppealContribution @entity(immutable: true) {
+  id: Bytes!
+  _taskID: BigInt! # uint256
+  _party: Int! # uint8
+  _contributor: Bytes! # address
+  _amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Dispute @entity(immutable: true) {
+  id: Bytes!
+  _arbitrator: Bytes! # address
+  _disputeID: BigInt! # uint256
+  _metaEvidenceID: BigInt! # uint256
+  _evidenceGroupID: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Evidence @entity(immutable: true) {
+  id: Bytes!
+  _arbitrator: Bytes! # address
+  _evidenceGroupID: BigInt! # uint256
+  _party: Bytes! # address
+  _evidence: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type HasPaidAppealFee @entity(immutable: true) {
+  id: Bytes!
+  _taskID: BigInt! # uint256
+  _party: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Ruling @entity(immutable: true) {
+  id: Bytes!
+  _arbitrator: Bytes! # address
+  _disputeID: BigInt! # uint256
+  _ruling: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TaskAssigned @entity(immutable: true) {
+  id: Bytes!
+  _taskID: BigInt! # uint256
+  _translator: Bytes! # address
+  _price: BigInt! # uint256
+  _timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TaskCreated @entity(immutable: true) {
+  id: Bytes!
+  _taskID: BigInt! # uint256
+  _requester: Bytes! # address
+  _timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TaskResolved @entity(immutable: true) {
+  id: Bytes!
+  _taskID: BigInt! # uint256
+  _reason: String! # string
+  _timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TranslationChallenged @entity(immutable: true) {
+  id: Bytes!
+  _taskID: BigInt! # uint256
+  _challenger: Bytes! # address
+  _timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TranslationSubmitted @entity(immutable: true) {
+  id: Bytes!
+  _taskID: BigInt! # uint256
+  _translator: Bytes! # address
+  _translatedText: String! # string
+  _timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

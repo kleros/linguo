@@ -1,0 +1,31 @@
+{
+  "gnosis": {
+    "Linguo_de_en": {
+      "address": "0xc3162705Af0e10108FF837E450A14669b2711129"
+    },
+    "Linguo_en_es": {
+      "address": "0xA2BfFF0553DE7405781FE0C39C04A383F04b9C80"
+    },
+    "Linfuo_en_fr": {
+      "address": "0x464c84c41f3C25Ba5a75B006D8B20600A8777306"
+    },
+    "Linguo_en_ja": {
+      "address": "0x852550982e0984F9CCeF18a7276D35AFDc30242c"
+    },
+    "Linguo_en_ko": {
+      "address": "0xD67C12734dC12240a6324Db63ccd426964B71Fe7"
+    },
+    "Linguo_en_pt": {
+      "address": "0xFE721DD8Ac8e47A4228A6147A25C65136f213EaA"
+    },
+    "Linguo_en_ru": {
+      "address": "0x44863f5b7AAb7ceE181C0d84E244540125eF7AF7"
+    },
+    "Linguo_en_tr": {
+      "address": "0x1D48a279966f37385b4AB963530C6dC813b3A8Df"
+    },
+    "Linguo_en_zh": {
+      "address": "0x0B928165A67df8254412483ae8C3b8cc7F2b4D36"
+    }
+  }
+}

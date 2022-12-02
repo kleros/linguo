@@ -1,0 +1,454 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Linguo_de_en
+    network: gnosis
+    source:
+      address: "0xc3162705Af0e10108FF837E450A14669b2711129"
+      abi: Linguo
+      startBlock: 25237532 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AppealContribution
+        - Dispute
+        - Evidence
+        - HasPaidAppealFee
+        - MetaEvidence
+        - Ruling
+        - TaskAssigned
+        - TaskCreated
+        - TaskResolved
+        - TranslationChallenged
+        - TranslationSubmitted
+      abis:
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
+          handler: handleAppealContribution
+        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDispute
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidence
+        - event: HasPaidAppealFee(indexed uint256,uint8)
+          handler: handleHasPaidAppealFee
+        - event: MetaEvidence(indexed uint256,string)
+          handler: handleMetaEvidence
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: TaskAssigned(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTaskAssigned
+        - event: TaskCreated(indexed uint256,indexed address,uint256)
+          handler: handleTaskCreated
+        - event: TaskResolved(indexed uint256,string,uint256)
+          handler: handleTaskResolved
+        - event: TranslationChallenged(indexed uint256,indexed address,uint256)
+          handler: handleTranslationChallenged
+        - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
+          handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
+  - kind: ethereum
+    name: Linguo_en_es
+    network: gnosis
+    source:
+      address: "0xA2BfFF0553DE7405781FE0C39C04A383F04b9C80"
+      abi: Linguo
+      startBlock: 24857856  # 18668091 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AppealContribution
+        - Dispute
+        - Evidence
+        - HasPaidAppealFee
+        - MetaEvidence
+        - Ruling
+        - TaskAssigned
+        - TaskCreated
+        - TaskResolved
+        - TranslationChallenged
+        - TranslationSubmitted
+      abis:
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
+          handler: handleAppealContribution
+        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDispute
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidence
+        - event: HasPaidAppealFee(indexed uint256,uint8)
+          handler: handleHasPaidAppealFee
+        - event: MetaEvidence(indexed uint256,string)
+          handler: handleMetaEvidence
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: TaskAssigned(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTaskAssigned
+        - event: TaskCreated(indexed uint256,indexed address,uint256)
+          handler: handleTaskCreated
+        - event: TaskResolved(indexed uint256,string,uint256)
+          handler: handleTaskResolved
+        - event: TranslationChallenged(indexed uint256,indexed address,uint256)
+          handler: handleTranslationChallenged
+        - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
+          handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
+  - kind: ethereum
+    name: Linguo_en_fr
+    network: gnosis
+    source:
+      address: "0x464c84c41f3C25Ba5a75B006D8B20600A8777306"
+      abi: Linguo
+      startBlock: 24858109 #18668091 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AppealContribution
+        - Dispute
+        - Evidence
+        - HasPaidAppealFee
+        - MetaEvidence
+        - Ruling
+        - TaskAssigned
+        - TaskCreated
+        - TaskResolved
+        - TranslationChallenged
+        - TranslationSubmitted
+      abis:
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
+          handler: handleAppealContribution
+        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDispute
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidence
+        - event: HasPaidAppealFee(indexed uint256,uint8)
+          handler: handleHasPaidAppealFee
+        - event: MetaEvidence(indexed uint256,string)
+          handler: handleMetaEvidence
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: TaskAssigned(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTaskAssigned
+        - event: TaskCreated(indexed uint256,indexed address,uint256)
+          handler: handleTaskCreated
+        - event: TaskResolved(indexed uint256,string,uint256)
+          handler: handleTaskResolved
+        - event: TranslationChallenged(indexed uint256,indexed address,uint256)
+          handler: handleTranslationChallenged
+        - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
+          handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
+  - kind: ethereum
+    name: Linguo_en_ja
+    network: gnosis
+    source:
+      address: "0x852550982e0984F9CCeF18a7276D35AFDc30242c"
+      abi: Linguo
+      startBlock: 25237532 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AppealContribution
+        - Dispute
+        - Evidence
+        - HasPaidAppealFee
+        - MetaEvidence
+        - Ruling
+        - TaskAssigned
+        - TaskCreated
+        - TaskResolved
+        - TranslationChallenged
+        - TranslationSubmitted
+      abis:
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
+          handler: handleAppealContribution
+        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDispute
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidence
+        - event: HasPaidAppealFee(indexed uint256,uint8)
+          handler: handleHasPaidAppealFee
+        - event: MetaEvidence(indexed uint256,string)
+          handler: handleMetaEvidence
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: TaskAssigned(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTaskAssigned
+        - event: TaskCreated(indexed uint256,indexed address,uint256)
+          handler: handleTaskCreated
+        - event: TaskResolved(indexed uint256,string,uint256)
+          handler: handleTaskResolved
+        - event: TranslationChallenged(indexed uint256,indexed address,uint256)
+          handler: handleTranslationChallenged
+        - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
+          handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
+  - kind: ethereum
+    name: Linguo_en_ko
+    network: gnosis
+    source:
+      address: "0xD67C12734dC12240a6324Db63ccd426964B71Fe7"
+      abi: Linguo
+      startBlock: 25237532 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AppealContribution
+        - Dispute
+        - Evidence
+        - HasPaidAppealFee
+        - MetaEvidence
+        - Ruling
+        - TaskAssigned
+        - TaskCreated
+        - TaskResolved
+        - TranslationChallenged
+        - TranslationSubmitted
+      abis:
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
+          handler: handleAppealContribution
+        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDispute
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidence
+        - event: HasPaidAppealFee(indexed uint256,uint8)
+          handler: handleHasPaidAppealFee
+        - event: MetaEvidence(indexed uint256,string)
+          handler: handleMetaEvidence
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: TaskAssigned(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTaskAssigned
+        - event: TaskCreated(indexed uint256,indexed address,uint256)
+          handler: handleTaskCreated
+        - event: TaskResolved(indexed uint256,string,uint256)
+          handler: handleTaskResolved
+        - event: TranslationChallenged(indexed uint256,indexed address,uint256)
+          handler: handleTranslationChallenged
+        - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
+          handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
+  - kind: ethereum
+    name: Linguo_en_pt
+    network: gnosis
+    source:
+      address: "0xFE721DD8Ac8e47A4228A6147A25C65136f213EaA"
+      abi: Linguo
+      startBlock: 25237532 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AppealContribution
+        - Dispute
+        - Evidence
+        - HasPaidAppealFee
+        - MetaEvidence
+        - Ruling
+        - TaskAssigned
+        - TaskCreated
+        - TaskResolved
+        - TranslationChallenged
+        - TranslationSubmitted
+      abis:
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
+          handler: handleAppealContribution
+        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDispute
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidence
+        - event: HasPaidAppealFee(indexed uint256,uint8)
+          handler: handleHasPaidAppealFee
+        - event: MetaEvidence(indexed uint256,string)
+          handler: handleMetaEvidence
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: TaskAssigned(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTaskAssigned
+        - event: TaskCreated(indexed uint256,indexed address,uint256)
+          handler: handleTaskCreated
+        - event: TaskResolved(indexed uint256,string,uint256)
+          handler: handleTaskResolved
+        - event: TranslationChallenged(indexed uint256,indexed address,uint256)
+          handler: handleTranslationChallenged
+        - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
+          handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
+  - kind: ethereum
+    name: Linguo_en_ru
+    network: gnosis
+    source:
+      address: "0x44863f5b7AAb7ceE181C0d84E244540125eF7AF7"
+      abi: Linguo
+      startBlock: 25237532 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AppealContribution
+        - Dispute
+        - Evidence
+        - HasPaidAppealFee
+        - MetaEvidence
+        - Ruling
+        - TaskAssigned
+        - TaskCreated
+        - TaskResolved
+        - TranslationChallenged
+        - TranslationSubmitted
+      abis:
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
+          handler: handleAppealContribution
+        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDispute
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidence
+        - event: HasPaidAppealFee(indexed uint256,uint8)
+          handler: handleHasPaidAppealFee
+        - event: MetaEvidence(indexed uint256,string)
+          handler: handleMetaEvidence
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: TaskAssigned(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTaskAssigned
+        - event: TaskCreated(indexed uint256,indexed address,uint256)
+          handler: handleTaskCreated
+        - event: TaskResolved(indexed uint256,string,uint256)
+          handler: handleTaskResolved
+        - event: TranslationChallenged(indexed uint256,indexed address,uint256)
+          handler: handleTranslationChallenged
+        - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
+          handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
+  - kind: ethereum
+    name: Linguo_en_tr
+    network: gnosis
+    source:
+      address: "0x1D48a279966f37385b4AB963530C6dC813b3A8Df"
+      abi: Linguo
+      startBlock: 25237532 #18668091 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AppealContribution
+        - Dispute
+        - Evidence
+        - HasPaidAppealFee
+        - MetaEvidence
+        - Ruling
+        - TaskAssigned
+        - TaskCreated
+        - TaskResolved
+        - TranslationChallenged
+        - TranslationSubmitted
+      abis:
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
+          handler: handleAppealContribution
+        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDispute
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidence
+        - event: HasPaidAppealFee(indexed uint256,uint8)
+          handler: handleHasPaidAppealFee
+        - event: MetaEvidence(indexed uint256,string)
+          handler: handleMetaEvidence
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: TaskAssigned(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTaskAssigned
+        - event: TaskCreated(indexed uint256,indexed address,uint256)
+          handler: handleTaskCreated
+        - event: TaskResolved(indexed uint256,string,uint256)
+          handler: handleTaskResolved
+        - event: TranslationChallenged(indexed uint256,indexed address,uint256)
+          handler: handleTranslationChallenged
+        - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
+          handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
+  - kind: ethereum
+    name: Linguo_en_zh
+    network: gnosis
+    source:
+      address: "0x0B928165A67df8254412483ae8C3b8cc7F2b4D36"
+      abi: Linguo
+      startBlock: 25237532 #18668091 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AppealContribution
+        - Dispute
+        - Evidence
+        - HasPaidAppealFee
+        - MetaEvidence
+        - Ruling
+        - TaskAssigned
+        - TaskCreated
+        - TaskResolved
+        - TranslationChallenged
+        - TranslationSubmitted
+      abis:
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
+          handler: handleAppealContribution
+        - event: Dispute(indexed address,indexed uint256,uint256,uint256)
+          handler: handleDispute
+        - event: Evidence(indexed address,indexed uint256,indexed address,string)
+          handler: handleEvidence
+        - event: HasPaidAppealFee(indexed uint256,uint8)
+          handler: handleHasPaidAppealFee
+        - event: MetaEvidence(indexed uint256,string)
+          handler: handleMetaEvidence
+        - event: Ruling(indexed address,indexed uint256,uint256)
+          handler: handleRuling
+        - event: TaskAssigned(indexed uint256,indexed address,uint256,uint256)
+          handler: handleTaskAssigned
+        - event: TaskCreated(indexed uint256,indexed address,uint256)
+          handler: handleTaskCreated
+        - event: TaskResolved(indexed uint256,string,uint256)
+          handler: handleTaskResolved
+        - event: TranslationChallenged(indexed uint256,indexed address,uint256)
+          handler: handleTranslationChallenged
+        - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
+          handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
