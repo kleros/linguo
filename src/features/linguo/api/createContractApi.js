@@ -199,10 +199,9 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
     });
   }
 
-  async function _getTaskIdsFromEvent(eventName, { fromBlock, toBlock, filter }) {
+  async function _getTaskIdsFromEvent(eventName, { fromBlock, filter }) {
     const events = await _getPastEvents(linguo, eventName, {
       fromBlock,
-      toBlock,
       filter,
     });
 
@@ -501,13 +500,12 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
       };
     }
   }
-  async function _getPastEvents(contract, eventName, { filter, fromBlock = 0, toBlock = 'latest' } = {}) {
+  async function _getPastEvents(contract, eventName, { filter, fromBlock = 0 } = {}) {
     return promiseRetry(
       () =>
         contract
           .getPastEvents(eventName, {
             fromBlock,
-            toBlock,
             filter,
           })
           .then(events => {
