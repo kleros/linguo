@@ -154,14 +154,15 @@ export const selectors = {
     state.byAccount[account]?.meta?.byChainId?.[chainId]?.latestBlock ?? 0,
 };
 
-const MAX_BLOCKS_TO_SUBSCRIBE = 4 * 60 * 24 * 60; // ~60 days worth of blocks
-
 export function* subscribeSaga(action) {
   const [linguoApi, web3] = yield all([getContext('linguoApi'), getContext('web3')]);
 
   const currentBlock = yield call([web3.eth, 'getBlockNumber']);
-
   const { fromBlock, filter, chainId, account } = action.payload ?? {};
+  const blockTimeAvg = chainId === 100 ? 5 : 12;
+
+  const MAX_BLOCKS_TO_SUBSCRIBE = (60 / blockTimeAvg) * 60 * 24 * 60; // ~60 days worth of blocks
+
   const actualFromBlock = Math.max(fromBlock, currentBlock - MAX_BLOCKS_TO_SUBSCRIBE);
 
   const [subscriptions, arbitratorSubscriptions] = yield all([
