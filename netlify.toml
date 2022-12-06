@@ -1,6 +1,6 @@
 [build.environment]
   YARN_FLAGS='--pure-lockfile'
-  NODE_VERSION='16.7.0'
+  NODE_VERSION='16.18.1'
   IPFS_HOST_ADDRESS='https://ipfs.kleros.io'
   IPFS_GATEWAY_ADDRESS='https://ipfs.kleros.io'
   AVAILABLE_LANGUAGE_GROUP_PAIRS='["en|fr","en|es","en|pt","de|en","en|ru","en|tr","en|zh"]'
