@@ -33,8 +33,6 @@ const supportedSideChains = {
 
 const counterPartyChainIdMap = {
   1: 100,
-  42: 77,
-  77: 42,
   100: 1,
 };
 
@@ -42,7 +40,7 @@ export function getCounterPartyChainId(chainId) {
   return counterPartyChainIdMap[chainId];
 }
 
-export const supportedChainIds = [1, 42, ...map(prop('chainId'), Object.values(supportedSideChains))];
+export const supportedChainIds = [1, ...map(prop('chainId'), Object.values(supportedSideChains))];
 
 export function getSideChainParams(sideChainId) {
   const params = supportedSideChains[sideChainId];
