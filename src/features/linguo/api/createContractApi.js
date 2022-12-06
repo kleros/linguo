@@ -124,8 +124,9 @@ export default async function createContractApi({ web3, archon, linguo, linguoFe
   }
 
   async function _getUnassignedTaskIds({ currentBlockNumber, skills }) {
-    // We are going back ~180 days (considering ~4 blocks / minute)
-    const unassingedRelevantBlocks = 4 * 60 * 24 * 180;
+    // We are going back ~180 days
+    const blockTimeAvg = chainId === 100 ? 5 : 12;
+    const unassingedRelevantBlocks = (60 / blockTimeAvg) * 60 * 24 * 180;
     const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
     const created = await _getTaskIdsFromEvent('TaskCreated', { fromBlock });
@@ -146,15 +147,16 @@ export default async function createContractApi({ web3, archon, linguo, linguoFe
   }
 
   async function _getAssignedTaskIds({ currentBlockNumber }) {
-    // We are going back ~180 days (considering ~4 blocks / minute)
-    const inDisputeRelevantBlocks = 4 * 60 * 24 * 180;
-    const fromBlock = Math.max(0, currentBlockNumber - inDisputeRelevantBlocks);
+    // We are going back ~180 days
+    const blockTimeAvg = chainId === 100 ? 5 : 12;
+    const unassingedRelevantBlocks = (60 / blockTimeAvg) * 60 * 24 * 180;
+    const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
     return _getTaskIdsFromEvent('TaskAssigned', { fromBlock });
   }
 
   async function _getInReviewTaskIds({ currentBlockNumber, skills }) {
-    const reviewTimeout = await linguo.methods.reviewTimeout().call();
+    const reviewTimeout = await linguoFetchEvents.methods.reviewTimeout().call();
 
     /**
      * We are adding 30% to the `reviewTimeout` to cope with fluctuations
@@ -177,17 +179,19 @@ export default async function createContractApi({ web3, archon, linguo, linguoFe
   }
 
   async function _getInDisputeTaskIds({ currentBlockNumber }) {
-    // We are going back ~180 days (considering ~4 blocks / minute)
-    const inDisputeRelevantBlocks = 4 * 60 * 24 * 180;
-    const fromBlock = Math.max(0, currentBlockNumber - inDisputeRelevantBlocks);
+    // We are going back ~180 days
+    const blockTimeAvg = chainId === 100 ? 5 : 12;
+    const unassingedRelevantBlocks = (60 / blockTimeAvg) * 60 * 24 * 180;
+    const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
     return _getTaskIdsFromEvent('TranslationChallenged', { fromBlock });
   }
 
   async function _getResolvedTaskIds({ currentBlockNumber }) {
-    // We are going back ~180 days (considering ~4 blocks / minute)
-    const resolvedRelevantBlocks = 4 * 60 * 24 * 180;
-    const fromBlock = Math.max(0, currentBlockNumber - resolvedRelevantBlocks);
+    // We are going back ~180 days
+    const blockTimeAvg = chainId === 100 ? 5 : 12;
+    const unassingedRelevantBlocks = (60 / blockTimeAvg) * 60 * 24 * 180;
+    const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
     return _getTaskIdsFromEvent('TaskResolved', { fromBlock });
   }
@@ -302,7 +306,7 @@ export default async function createContractApi({ web3, archon, linguo, linguoFe
     }
 
     try {
-      const metaEvidenceEvents = await _getPastEvents(linguo, 'MetaEvidence', {
+      const metaEvidenceEvents = await _getPastEvents(linguoFetchEvents, 'MetaEvidence', {
         filter: { _metaEvidenceID: ID },
         fromBlock: 0,
       });
@@ -395,8 +399,8 @@ export default async function createContractApi({ web3, archon, linguo, linguoFe
    */
   async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
     let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
-      linguo.methods.getDepositValue(ID).call(),
-      linguo.methods.tasks(ID).call(),
+      linguoFetchEvents.methods.getDepositValue(ID).call(),
+      linguoFetchEvents.methods.tasks(ID).call(),
     ]);
 
     deposit = toBN(deposit);
@@ -468,7 +472,7 @@ export default async function createContractApi({ web3, archon, linguo, linguoFe
   }
 
   async function _getDisputeRulingAndStatus({ disputeID }) {
-    const disputeEvents = await _getPastEvents(linguo, 'Dispute', {
+    const disputeEvents = await _getPastEvents(linguoFetchEvents, 'Dispute', {
       filter: { _disputeID: disputeID },
       fromBlock: 0,
     });
@@ -570,7 +574,7 @@ export default async function createContractApi({ web3, archon, linguo, linguoFe
       return undefined;
     }
 
-    return linguo.methods.getRoundInfo(ID, totalRounds - 1).call();
+    return linguoFetchEvents.methods.getRoundInfo(ID, totalRounds - 1).call();
   }
 
   async function getTaskDisputeEvidences({ ID }) {

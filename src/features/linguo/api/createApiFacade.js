@@ -20,6 +20,7 @@ import Web3 from 'web3';
 import getRelevantSkills from '../getRelevantSkills';
 import { getLanguageGroup, isSupportedLanguageGroupPair, LanguageGroupPair } from '../languagePairing';
 import createContractApi from './createContractApi';
+import { jsonRpcUrls } from '~/features/web3/supportedChains';
 
 export default async function createApiFacade({ web3, chainId }) {
   const archon = withProvider(web3.currentProvider);
@@ -254,12 +255,15 @@ async function getContracts({ web3, chainId, address, deployment }) {
     throw new Error(`Could not find address for linguo contract on network ${chainId}`);
   }
   // web3 instance hardcoded to ankr rpc as short term fix to fetch events
-  const web3ankrRPC = new Web3(new Web3.providers.HttpProvider('https://rpc.ankr.com/gnosis'));
+  const web3FixedRPC = new Web3(new Web3.providers.HttpProvider(jsonRpcUrls[chainId]));
   const linguo = new web3.eth.Contract(deployment.abi, address, { from: account });
-  const linguoFetchEvents = new web3ankrRPC.eth.Contract(deployment.abi, address, {
+  const linguoFetchEvents = new web3FixedRPC.eth.Contract(deployment.abi, address, {
     from: '0x0000000000000000000000000000000000000000',
   });
-  const arbitrator = new web3.eth.Contract(IArbitrator.abi, await linguo.methods.arbitrator().call({ from: account }));
+  const arbitrator = new web3FixedRPC.eth.Contract(
+    IArbitrator.abi,
+    await linguoFetchEvents.methods.arbitrator().call({ from: account })
+  );
 
   return { linguo, linguoFetchEvents, arbitrator };
 }
