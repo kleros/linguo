@@ -9,7 +9,7 @@ function createPersistedReducer(reducer) {
   const persistConfig = {
     key: PERSISTANCE_KEY,
     storage,
-    migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
+    migrate: createMigrate(migrations, { debug: process.env.PRODUCTION !== 'true' }),
     version: 1,
   };
 

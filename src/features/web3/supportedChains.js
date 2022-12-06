@@ -1,10 +1,10 @@
 import { map, prop } from '~/shared/fp';
 import { getBaseUrl } from './blockExplorer';
 
-const env = process.env.NODE_ENV ?? 'development';
+const env = process.env.PRODUCTION ?? 'development';
 
 const defaultChainIdsPerEnv = {
-  production: Number(process.env.DEFAULT_CHAIN_ID) ?? 100,
+  true: Number(process.env.DEFAULT_CHAIN_ID) ?? 100,
   development: Number(process.env.DEFAULT_CHAIN_ID) ?? 77,
 };
 

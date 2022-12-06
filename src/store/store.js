@@ -39,7 +39,7 @@ export const persistor = persistStore(store);
 let sagaTask = sagaMiddleware.run(rootSaga);
 
 // HMR setup
-if (process.env.NODE_ENV === 'development' && module.hot) {
+if (process.env.PRODUCTION === 'development' && module.hot) {
   module.hot.accept('./rootReducer', () => {
     console.debug('HMR reducer');
     const createRootReducer = require('./rootReducer').createRootReducer;
