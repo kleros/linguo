@@ -8,7 +8,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { Alert, Spin } from '~/adapters/antd';
 import { selectPreference } from '~/features/ui/uiSlice';
 import { getNetworkName, useSwitchToChainFromUrl } from '~/features/web3';
-import { getCounterPartyChainId, isSupportedSideChain } from '~/features/web3/supportedChains';
+import { getCounterPartyChainId, isSupportedChain, isSupportedSideChain } from '~/features/web3/supportedChains';
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
 import { selectChainId, switchChain } from '~/features/web3/web3Slice';
 import { WarningIcon } from '~/shared/icons';
@@ -127,17 +127,18 @@ function GlobalWarnings() {
         }
       `}
     >
-      {isSupportedSideChain(chainId)}
-      {!isSupportedSideChain(chainId) && (
+      {chainId !== -1 && !isSupportedSideChain(chainId) && (
         <Alert
           banner
           type="warning"
           icon={<WarningIcon />}
           message={
             <>
-              Linguo is moving to a side-chain for more affordable gas prices:{' '}
-              <Button variant="link" onClick={() => dispatch(switchChain({ chainId: counterPartyChainId }))}>
-                Switch to {getNetworkName(counterPartyChainId)}.
+              {isSupportedChain(chainId)
+                ? 'Linguo is moving to a side-chain for more affordable gas prices:'
+                : 'Network Not Supported.'}{' '}
+              <Button variant="link" onClick={() => dispatch(switchChain({ chainId: counterPartyChainId ?? 100 }))}>
+                Switch to {getNetworkName(counterPartyChainId ?? 100)}.
               </Button>
             </>
           }

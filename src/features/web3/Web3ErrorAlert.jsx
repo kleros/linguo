@@ -6,11 +6,12 @@ import { Alert } from '~/adapters/antd';
 import getErrorMessage from '~/adapters/web3-react/getErrorMessage';
 import WalletConnectionButton from './WalletConnectionButton';
 // import { selectError, deactivate } from './web3Slice';
-import { selectError } from './web3Slice';
+import { selectError, selectChainId } from './web3Slice';
 
 function Web3ErrorAlert() {
   // const dispatch = useDispatch();
   const web3Error = useSelector(selectError);
+  const chainId = useSelector(selectChainId);
 
   // const handleDisconnectClick = React.useCallback(
   //   evt => {
@@ -25,7 +26,7 @@ function Web3ErrorAlert() {
       banner
       showIcon={false}
       type="warning"
-      message={<>{getErrorMessage(web3Error)}</>}
+      message={<>{chainId === -1 ? '' : getErrorMessage(web3Error)}</>}
       description={<WalletConnectionButton variant="link">Connect to a wallet.</WalletConnectionButton>}
     />
   ) : null;
