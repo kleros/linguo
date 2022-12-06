@@ -16,6 +16,7 @@ import {
   reduce,
   uniq,
 } from '~/shared/fp';
+import Web3 from 'web3';
 import getRelevantSkills from '../getRelevantSkills';
 import { getLanguageGroup, isSupportedLanguageGroupPair, LanguageGroupPair } from '../languagePairing';
 import createContractApi from './createContractApi';
@@ -252,11 +253,15 @@ async function getContracts({ web3, chainId, address, deployment }) {
   if (!address) {
     throw new Error(`Could not find address for linguo contract on network ${chainId}`);
   }
-
+  // web3 instance hardcoded to ankr rpc as short term fix to fetch events
+  const web3ankrRPC = new Web3(new Web3.providers.HttpProvider('https://rpc.ankr.com/gnosis'));
   const linguo = new web3.eth.Contract(deployment.abi, address, { from: account });
+  const linguoFetchEvents = new web3ankrRPC.eth.Contract(deployment.abi, address, {
+    from: '0x0000000000000000000000000000000000000000',
+  });
   const arbitrator = new web3.eth.Contract(IArbitrator.abi, await linguo.methods.arbitrator().call({ from: account }));
 
-  return { linguo, arbitrator };
+  return { linguo, linguoFetchEvents, arbitrator };
 }
 
 function getAddressesByLanguageGroupPairs({ chainId }) {
