@@ -1,112 +1,165 @@
-type Task @entity(immutable: true) {
+enum Status {
+  Created
+  Assigned
+  AwaitingReview
+  DisputeCreated
+  Resolved
+}
+
+enum Ruling {
+  None
+  Accept
+  Reject
+}
+
+enum Party {
+  None
+  Translator
+  Challenger
+}
+
+type Task @entity {
+  "<lang>-<taskID>"
   id: ID!
-  _taskID: BigInt! # uint256
-  _requester: Bytes # address
-  _lang: String! # language
-  _timestamp: BigInt! # uint256
-  _evidence: String! # string
+  "ID of this task"
+  taskID: BigInt!
+  "The language pair for this task"
+  lang: String!
+  "The address of the party that requested transation"
+  requester: Bytes!
+  "The address of the party that assigned to this task"
+  translator: Bytes!
+  "The address of the party that challenged this task"
+  challenger: Bytes!
+  "The arbitrator trusted to solve disputes for this task."
+  arbitrator: Bytes!
+  "URI to the translated text."
+  translation: String!
+  "The deadline for the translation to be completed."
+  deadline: BigInt!
+  "Minimum price for the translation."
+  minPrice: BigInt!
+  " Maximum price for the translation and also the value that must be deposited by the requester."
+  maxPrice: BigInt!
+  "Time in seconds allotted for submitting a translation. The end of this period is considered a deadline."
+  submissionTimeout: BigInt!
+  "The deposit requester made when creating the task"
+  requesterDeposit: BigInt!
+  "The sum of the deposits of the translator and the challenger, if any."
+  sumDeposit: BigInt!
+  "Status of the task."
+  status: Status!
+  "ID of the dispute, if any."
+  disputeID: BigInt!
+  "True if a dispute was raised."
+  disputed: Boolean!
+  "Only set if the request was settled by a dispute. Used by the twitter bot"
+  finalRuling: Ruling!
+  "Tracks each round of a dispute in the form rounds[roundID]."
+  rounds: [Round!]! @derivedFrom(field: "task")
+  "The total number of dispute rounds on this task."
+  numberOfRounds: BigInt!
+  "The URI to the meta evidence used for this task."
+  metaEvidence: MetaEvidence!
+  "Evidence provided regarding this request (matching evidenceGroupID)."
+  evidences: [Evidence!]! @derivedFrom(field: "task")
+  "Number of evidences."
+  numberOfEvidences: BigInt!
+  "The ID of the evidence group for this task."
+  evidenceGroupID: BigInt!
+  "The time of the last action performed on the task."
+  lastInteraction: BigInt!
+  "The time the task was created."
+  creationTime: BigInt!
+  "The time the task was assigned."
+  assignmentTime: BigInt!
+  "The time the task was challenged."
+  challengeTime: BigInt!
+  "The time the task was resolved."
+  resolutionTime: BigInt!
+  "Short description of what caused the task to be solved"
+  reason: String
 }
 
-type AppealContribution @entity(immutable: true) {
-  id: Bytes!
-  _taskID: BigInt! # uint256
-  _party: Int! # uint8
-  _contributor: Bytes! # address
-  _amount: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type EvidenceGroup @entity {
+  "<EvidenceGroupId>-<Contract address>"
+  id: ID!
+  "Task ID"
+  task: Task!
 }
 
-type Dispute @entity(immutable: true) {
-  id: Bytes!
-  _arbitrator: Bytes! # address
-  _disputeID: BigInt! # uint256
-  _metaEvidenceID: BigInt! # uint256
-  _evidenceGroupID: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Round @entity {
+  "<taskID>-<nbRounds.minus(1)>"
+  id: ID!
+  "The task to which this round belongs."
+  task: Task!
+  "Sum of reimbursable fees and stake rewards available to the parties that made contributions to the side that ultimately wins a dispute."
+  feeRewards: BigInt!
+  "The total amount of appeal fees contributed to the Translator in this round."
+  amountPaidTranslator: BigInt!
+  "The total amount of appeal fees contributed to the Challenger in this round."
+  amountPaidChallenger: BigInt!
+  "Whether the Translator is fully funded."
+  hasPaidTranslator: Boolean!
+  "Whether the Challenger is fully funded."
+  hasPaidChallenger: Boolean!
+  "The ruling given by the arbitrator."
+  ruling: Ruling!
+  "The time the round received the ruling."
+  rulingTime: BigInt!
+  "The contributions made to this round."
+  contributions: [Contribution!]! @derivedFrom(field: "round")
+  "The number of contributions made to this round"
+  numberOfContributions: BigInt!
+  "The moment the round was created."
+  creationTime: BigInt!
+  "Whether this round was appealed"
+  appealed: Boolean!
+  "When this round was appealed, if it was appealed"
+  appealedAt: BigInt!
+  "The time the appeal period starts, if in the appeal period."
+  appealPeriodStart: BigInt!
+  "The time the appeal period ends, if in the appeal period."
+  appealPeriodEnd: BigInt!
 }
 
-type Evidence @entity(immutable: true) {
-  id: Bytes!
-  _arbitrator: Bytes! # address
-  _evidenceGroupID: BigInt! # uint256
-  _party: Bytes! # address
-  _evidence: String! # string
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Contribution @entity {
+  "<roundID>-<n-th contribution>"
+  id: ID!
+  "The round the contribution was made to."
+  round: Round!
+  "The address that made the contribution."
+  contributor: Bytes!
+  "The amount of the contribution"
+  amount: BigInt!
+  "The party the contribution was made to."
+  party: Party!
 }
 
-type HasPaidAppealFee @entity(immutable: true) {
-  id: Bytes!
-  _taskID: BigInt! # uint256
-  _party: Int! # uint8
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Evidence @entity {
+  "<taskID>-<n-th evidence>"
+  id: ID!
+  "The arbitrator's address."
+  arbitrator: Bytes!
+  "The ID of the evidence group (see Task.evidenceGroupID)."
+  evidenceGroupID: BigInt!
+  "The address of the party submiting the evidence."
+  party: Bytes!
+  "The URI of the evidence file."
+  URI: String!
+  "The task this evidence was submitted to."
+  task: Task!
+  "This is the <number>th evidence submitted (starting at 0) for <task>."
+  number: BigInt!
+  "The submission time of the evidence"
+  timestamp: BigInt!
 }
 
-type Ruling @entity(immutable: true) {
-  id: Bytes!
-  _arbitrator: Bytes! # address
-  _disputeID: BigInt! # uint256
-  _ruling: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TaskAssigned @entity(immutable: true) {
-  id: Bytes!
-  _taskID: BigInt! # uint256
-  _translator: Bytes! # address
-  _price: BigInt! # uint256
-  _timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TaskCreated @entity(immutable: true) {
-  id: Bytes!
-  _taskID: BigInt! # uint256
-  _requester: Bytes! # address
-  _timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TaskResolved @entity(immutable: true) {
-  id: Bytes!
-  _taskID: BigInt! # uint256
-  _reason: String! # string
-  _timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TranslationChallenged @entity(immutable: true) {
-  id: Bytes!
-  _taskID: BigInt! # uint256
-  _challenger: Bytes! # address
-  _timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TranslationSubmitted @entity(immutable: true) {
-  id: Bytes!
-  _taskID: BigInt! # uint256
-  _translator: Bytes! # address
-  _translatedText: String! # string
-  _timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type MetaEvidence @entity {
+  "<lang>-<taskID>"
+  id: ID!
+  "The meta evidence ID of the task."
+  metaEvidenceID: BigInt!
+  "The URI of the meta evidence file."
+  URI: String!
 }
