@@ -4,10 +4,10 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ shotaronowhere/linguo",
-    "create-local": "graph create --node http://localhost:8020/ shotaronowhere/linguo",
-    "remove-local": "graph remove --node http://localhost:8020/ shotaronowhere/linguo",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 shotaronowhere/linguo",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ kleros/linguo-gnosis",
+    "create-local": "graph create --node http://localhost:8020/ kleros/linguo-gnosis",
+    "remove-local": "graph remove --node http://localhost:8020/ kleros/linguo-gnosis",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 kleros/linguo-gnosis",
     "test": "graph test"
   },
   "dependencies": {
