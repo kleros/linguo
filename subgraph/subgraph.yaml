@@ -3,31 +3,27 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: Linguo_de_en
+    name: Linguo_en_es
     network: gnosis
     source:
-      address: "0xc3162705Af0e10108FF837E450A14669b2711129"
+      address: '0xA2BfFF0553DE7405781FE0C39C04A383F04b9C80'
       abi: Linguo
-      startBlock: 25237532 
+      startBlock: 19216099 # created at 18668091
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AppealContribution
-        - Dispute
+        - Task
+        - Round
+        - Contribution
         - Evidence
-        - HasPaidAppealFee
         - MetaEvidence
-        - Ruling
-        - TaskAssigned
-        - TaskCreated
-        - TaskResolved
-        - TranslationChallenged
-        - TranslationSubmitted
       abis:
         - name: Linguo
           file: ./abis/Linguo.json
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
       eventHandlers:
         - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
           handler: handleAppealContribution
@@ -53,31 +49,27 @@ dataSources:
           handler: handleTranslationSubmitted
       file: ./src/linguo.ts
   - kind: ethereum
-    name: Linguo_en_es
+    name: Linguo_de_en
     network: gnosis
     source:
-      address: "0xA2BfFF0553DE7405781FE0C39C04A383F04b9C80"
+      address: '0xc3162705Af0e10108FF837E450A14669b2711129'
       abi: Linguo
-      startBlock: 24857856  # 18668091 
+      startBlock: 25237532 # created at 18668111
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AppealContribution
-        - Dispute
+        - Task
+        - Round
+        - Contribution
         - Evidence
-        - HasPaidAppealFee
         - MetaEvidence
-        - Ruling
-        - TaskAssigned
-        - TaskCreated
-        - TaskResolved
-        - TranslationChallenged
-        - TranslationSubmitted
       abis:
         - name: Linguo
           file: ./abis/Linguo.json
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
       eventHandlers:
         - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
           handler: handleAppealContribution
@@ -106,28 +98,24 @@ dataSources:
     name: Linguo_en_fr
     network: gnosis
     source:
-      address: "0x464c84c41f3C25Ba5a75B006D8B20600A8777306"
+      address: '0x464c84c41f3C25Ba5a75B006D8B20600A8777306'
       abi: Linguo
-      startBlock: 24858109 #18668091 
+      startBlock: 20170391 # created at 18668092
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AppealContribution
-        - Dispute
+        - Task
+        - Round
+        - Contribution
         - Evidence
-        - HasPaidAppealFee
         - MetaEvidence
-        - Ruling
-        - TaskAssigned
-        - TaskCreated
-        - TaskResolved
-        - TranslationChallenged
-        - TranslationSubmitted
       abis:
         - name: Linguo
           file: ./abis/Linguo.json
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
       eventHandlers:
         - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
           handler: handleAppealContribution
@@ -156,28 +144,24 @@ dataSources:
     name: Linguo_en_ja
     network: gnosis
     source:
-      address: "0x852550982e0984F9CCeF18a7276D35AFDc30242c"
+      address: '0x852550982e0984F9CCeF18a7276D35AFDc30242c'
       abi: Linguo
-      startBlock: 25237532 
+      startBlock: 25237532 # created at 18668128
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AppealContribution
-        - Dispute
+        - Task
+        - Round
+        - Contribution
         - Evidence
-        - HasPaidAppealFee
         - MetaEvidence
-        - Ruling
-        - TaskAssigned
-        - TaskCreated
-        - TaskResolved
-        - TranslationChallenged
-        - TranslationSubmitted
       abis:
         - name: Linguo
           file: ./abis/Linguo.json
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
       eventHandlers:
         - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
           handler: handleAppealContribution
@@ -206,28 +190,24 @@ dataSources:
     name: Linguo_en_ko
     network: gnosis
     source:
-      address: "0xD67C12734dC12240a6324Db63ccd426964B71Fe7"
+      address: '0xD67C12734dC12240a6324Db63ccd426964B71Fe7'
       abi: Linguo
-      startBlock: 25237532 
+      startBlock: 25237532 # created at 18668126
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AppealContribution
-        - Dispute
+        - Task
+        - Round
+        - Contribution
         - Evidence
-        - HasPaidAppealFee
         - MetaEvidence
-        - Ruling
-        - TaskAssigned
-        - TaskCreated
-        - TaskResolved
-        - TranslationChallenged
-        - TranslationSubmitted
       abis:
         - name: Linguo
           file: ./abis/Linguo.json
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
       eventHandlers:
         - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
           handler: handleAppealContribution
@@ -256,28 +236,24 @@ dataSources:
     name: Linguo_en_pt
     network: gnosis
     source:
-      address: "0xFE721DD8Ac8e47A4228A6147A25C65136f213EaA"
+      address: '0xFE721DD8Ac8e47A4228A6147A25C65136f213EaA'
       abi: Linguo
-      startBlock: 25237532 
+      startBlock: 25237532 # created at 18668099
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AppealContribution
-        - Dispute
+        - Task
+        - Round
+        - Contribution
         - Evidence
-        - HasPaidAppealFee
         - MetaEvidence
-        - Ruling
-        - TaskAssigned
-        - TaskCreated
-        - TaskResolved
-        - TranslationChallenged
-        - TranslationSubmitted
       abis:
         - name: Linguo
           file: ./abis/Linguo.json
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
       eventHandlers:
         - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
           handler: handleAppealContribution
@@ -306,28 +282,24 @@ dataSources:
     name: Linguo_en_ru
     network: gnosis
     source:
-      address: "0x44863f5b7AAb7ceE181C0d84E244540125eF7AF7"
+      address: '0x44863f5b7AAb7ceE181C0d84E244540125eF7AF7'
       abi: Linguo
-      startBlock: 25237532 
+      startBlock: 25237532 # created at 18668123
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AppealContribution
-        - Dispute
+        - Task
+        - Round
+        - Contribution
         - Evidence
-        - HasPaidAppealFee
         - MetaEvidence
-        - Ruling
-        - TaskAssigned
-        - TaskCreated
-        - TaskResolved
-        - TranslationChallenged
-        - TranslationSubmitted
       abis:
         - name: Linguo
           file: ./abis/Linguo.json
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
       eventHandlers:
         - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
           handler: handleAppealContribution
@@ -356,28 +328,24 @@ dataSources:
     name: Linguo_en_tr
     network: gnosis
     source:
-      address: "0x1D48a279966f37385b4AB963530C6dC813b3A8Df"
+      address: '0x1D48a279966f37385b4AB963530C6dC813b3A8Df'
       abi: Linguo
-      startBlock: 25237532 #18668091 
+      startBlock: 18683059 # created at 18668130
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AppealContribution
-        - Dispute
+        - Task
+        - Round
+        - Contribution
         - Evidence
-        - HasPaidAppealFee
         - MetaEvidence
-        - Ruling
-        - TaskAssigned
-        - TaskCreated
-        - TaskResolved
-        - TranslationChallenged
-        - TranslationSubmitted
       abis:
         - name: Linguo
           file: ./abis/Linguo.json
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
       eventHandlers:
         - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
           handler: handleAppealContribution
@@ -406,28 +374,24 @@ dataSources:
     name: Linguo_en_zh
     network: gnosis
     source:
-      address: "0x0B928165A67df8254412483ae8C3b8cc7F2b4D36"
+      address: '0x0B928165A67df8254412483ae8C3b8cc7F2b4D36'
       abi: Linguo
-      startBlock: 25237532 #18668091 
+      startBlock: 19369820 # created at 18668136
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AppealContribution
-        - Dispute
+        - Task
+        - Round
+        - Contribution
         - Evidence
-        - HasPaidAppealFee
         - MetaEvidence
-        - Ruling
-        - TaskAssigned
-        - TaskCreated
-        - TaskResolved
-        - TranslationChallenged
-        - TranslationSubmitted
       abis:
         - name: Linguo
           file: ./abis/Linguo.json
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
       eventHandlers:
         - event: AppealContribution(indexed uint256,uint8,indexed address,uint256)
           handler: handleAppealContribution
@@ -451,4 +415,30 @@ dataSources:
           handler: handleTranslationChallenged
         - event: TranslationSubmitted(indexed uint256,indexed address,string,uint256)
           handler: handleTranslationSubmitted
+      file: ./src/linguo.ts
+  - kind: ethereum/contract
+    name: IArbitrator
+    network: gnosis
+    source:
+      address: '0x9C1dA9A04925bDfDedf0f6421bC7EEa8305F9002'
+      abi: IArbitrator
+      startBlock: 18683059
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Evidence
+        - MetaEvidence
+        - Arbitrator
+      abis:
+        - name: IArbitrator
+          file: ./abis/IArbitrator.json
+        - name: Linguo
+          file: ./abis/Linguo.json
+      eventHandlers:
+        - event: AppealPossible(indexed uint256,indexed address)
+          handler: handleAppealPossible
+        - event: AppealDecision(indexed uint256,indexed address)
+          handler: handleAppealDecision
       file: ./src/linguo.ts
