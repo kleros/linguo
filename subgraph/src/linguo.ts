@@ -21,19 +21,8 @@ import {
 
 import { Task, Round, Contribution, Evidence, EvidenceGroup, MetaEvidence } from '../generated/schema';
 
-import { createNewRound, getRuling } from './utils';
-import {
-  ONE,
-  Party,
-  partyMap,
-  Ruling,
-  Status,
-  statusMap,
-  STATUS_ERROR,
-  ZERO,
-  ZERO_ADDRESS,
-  getLangFromAddress,
-} from './constants';
+import { getLangFromAddress, createNewRound, getRuling } from './utils';
+import { ONE, Party, partyMap, Ruling, Status, statusMap, STATUS_ERROR, ZERO, ZERO_ADDRESS } from './constants';
 
 export function handleMetaEvidence(event: MetaEvidenceEvent): void {
   const lang = getLangFromAddress(event.address);
