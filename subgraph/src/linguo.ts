@@ -1,230 +1,463 @@
+import { BigInt, log } from '@graphprotocol/graph-ts';
 import {
+  Linguo,
   AppealContribution as AppealContributionEvent,
   Dispute as DisputeEvent,
   Evidence as EvidenceEvent,
-  HasPaidAppealFee as HasPaidAppealFeeEvent,
   MetaEvidence as MetaEvidenceEvent,
   Ruling as RulingEvent,
   TaskAssigned as TaskAssignedEvent,
   TaskCreated as TaskCreatedEvent,
   TaskResolved as TaskResolvedEvent,
   TranslationChallenged as TranslationChallengedEvent,
-  TranslationSubmitted as TranslationSubmittedEvent
-} from "../generated/Linguo_de_en/Linguo"
+  TranslationSubmitted as TranslationSubmittedEvent,
+} from '../generated/Linguo_en_es/Linguo';
+
 import {
-  AppealContribution,
-  Dispute,
-  Evidence,
-  HasPaidAppealFee,
+  AppealPossible as AppealPossibleEvent,
+  AppealDecision as AppealDecisionEvent,
+  IArbitrator,
+} from '../generated/IArbitrator/IArbitrator';
+
+import { Task, Round, Contribution, Evidence, EvidenceGroup, MetaEvidence } from '../generated/schema';
+
+import { createNewRound, getRuling } from './utils';
+import {
+  ONE,
+  Party,
+  partyMap,
   Ruling,
-  TaskAssigned,
-  Task,
-  TaskResolved,
-  TranslationChallenged,
-  TranslationSubmitted
-} from "../generated/schema"
-
-import { log, Address } from "@graphprotocol/graph-ts"
-
-export function handleAppealContribution(event: AppealContributionEvent): void {
-  let entity = new AppealContribution(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._taskID = event.params._taskID
-  entity._party = event.params._party
-  entity._contributor = event.params._contributor
-  entity._amount = event.params._amount
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleDispute(event: DisputeEvent): void {
-  let entity = new Dispute(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._arbitrator = event.params._arbitrator
-  entity._disputeID = event.params._disputeID
-  entity._metaEvidenceID = event.params._metaEvidenceID
-  entity._evidenceGroupID = event.params._evidenceGroupID
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleEvidence(event: EvidenceEvent): void {
-  let entity = new Evidence(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._arbitrator = event.params._arbitrator
-  entity._evidenceGroupID = event.params._evidenceGroupID
-  entity._party = event.params._party
-  entity._evidence = event.params._evidence
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleHasPaidAppealFee(event: HasPaidAppealFeeEvent): void {
-  let entity = new HasPaidAppealFee(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._taskID = event.params._taskID
-  entity._party = event.params._party
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
+  Status,
+  statusMap,
+  STATUS_ERROR,
+  ZERO,
+  ZERO_ADDRESS,
+  getLangFromAddress,
+} from './constants';
 
 export function handleMetaEvidence(event: MetaEvidenceEvent): void {
-  const lang = getLangFromAddress(event.address)
-  // Assemblyscript compiler yells if lang is null, so I set it to a special string instead
-  if (lang === 'null'){
-    log.error('Language for linguo deployment not found. {}',[event.address.toHexString()]);
+  const lang = getLangFromAddress(event.address);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [lang, event.address.toHexString()]);
     return;
   }
-  let task = new Task(
-    lang.concat(event.params._metaEvidenceID.toHexString())
-  )
-  task._evidence = event.params._evidence
-  task._lang = lang
-  task._taskID = event.params._metaEvidenceID
-  task._timestamp = event.block.timestamp
 
-  task.save()
-}
+  const taskId = `${lang}-${event.params._metaEvidenceID}`;
+  const newTask = new Task(taskId);
+  newTask.taskID = event.params._metaEvidenceID;
+  newTask.lang = lang;
 
-export function handleRuling(event: RulingEvent): void {
-  let entity = new Ruling(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._arbitrator = event.params._arbitrator
-  entity._disputeID = event.params._disputeID
-  entity._ruling = event.params._ruling
+  const linguo = Linguo.bind(event.address);
+  const _task = linguo.tasks(newTask.taskID);
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  newTask.submissionTimeout = _task.getSubmissionTimeout();
+  newTask.deadline = _task.getSubmissionTimeout().plus(event.block.timestamp);
+  newTask.lastInteraction = _task.getLastInteraction();
+  newTask.maxPrice = _task.getMaxPrice();
+  newTask.minPrice = _task.getMinPrice();
+  newTask.requesterDeposit = _task.getRequesterDeposit();
+  newTask.sumDeposit = _task.getSumDeposit();
+  newTask.status = statusMap.get(_task.getStatus());
+  newTask.numberOfRounds = ZERO;
+  newTask.numberOfEvidences = ZERO;
+  newTask.disputed = false;
+  newTask.disputeID = ZERO;
+  newTask.finalRuling = getRuling(BigInt.fromI32(Ruling.None));
+  newTask.challenger = ZERO_ADDRESS;
+  newTask.arbitrator = ZERO_ADDRESS;
+  newTask.requester = ZERO_ADDRESS;
+  newTask.translator = ZERO_ADDRESS;
+  newTask.translation = '';
+  newTask.creationTime = ZERO;
+  newTask.assignmentTime = ZERO;
+  newTask.challengeTime = ZERO;
+  newTask.resolutionTime = ZERO;
+  newTask.evidenceGroupID = ZERO;
 
-  entity.save()
-}
+  const metaEvidence = new MetaEvidence(newTask.id);
+  metaEvidence.metaEvidenceID = event.params._metaEvidenceID;
+  metaEvidence.URI = event.params._evidence;
 
-export function handleTaskAssigned(event: TaskAssignedEvent): void {
-  let entity = new TaskAssigned(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._taskID = event.params._taskID
-  entity._translator = event.params._translator
-  entity._price = event.params._price
-  entity._timestamp = event.params._timestamp
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-function getLangFromAddress(address: Address): string{
-  if (address.equals(Address.fromHexString("0xc3162705af0e10108ff837e450a14669b2711129")))
-    return 'de|en'
-  else if (address.equals(Address.fromHexString("0xa2bfff0553de7405781fe0c39c04a383f04b9c80")))
-    return "en|es"
-  else if (address.equals(Address.fromHexString("0x464c84c41f3C25Ba5a75B006D8B20600A8777306")))
-    return "en|fr"
-  else if (address.equals(Address.fromHexString("0x852550982e0984F9CCeF18a7276D35AFDc30242c")))
-    return "en|ja"
-  else if (address.equals(Address.fromHexString("0xd67c12734dc12240a6324db63ccd426964b71fe7")))
-    return "en|ko"
-  else if (address.equals(Address.fromHexString("0xfe721dd8ac8e47a4228a6147a25c65136f213eaa")))
-    return "en|pt"
-  else if (address.equals(Address.fromHexString("0x44863f5b7aab7cee181c0d84e244540125ef7af7")))
-    return "en|ru"
-  else if (address.equals(Address.fromHexString("0x1d48a279966f37385b4ab963530c6dc813b3a8df")))
-    return "en|tr"
-  else if (address.equals(Address.fromHexString("0x0b928165a67df8254412483ae8c3b8cc7f2b4d36")))
-    return "en|zh"
-  else //Assemblyscript compiler yells if lang is null, so I set it to a special string instead
-    return 'null'
+  newTask.metaEvidence = metaEvidence.id;
+  metaEvidence.save();
+  newTask.save();
 }
 
 export function handleTaskCreated(event: TaskCreatedEvent): void {
-  const lang = getLangFromAddress(event.address)
-  // Assemblyscript compiler yells if lang is null, so I set it to a special string instead
-  if (lang === 'null'){
-    log.error('Language for linguo deployment not found. {}',[event.address.toHexString()]);
+  const lang = getLangFromAddress(event.address);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [lang, event.address.toHexString()]);
     return;
   }
-  let task = Task.load(
-    lang.concat(event.params._taskID.toHexString())
-  )
-  if (!task){
-    log.error('Task not found. {}',[event.address.toHexString()]);
+
+  const taskId = `${lang}-${event.params._taskID}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleTaskCreated: Task not found. taskID {}; contract {}', [taskId, event.address.toHexString()]);
     return;
   }
-  task._requester = event.params._requester
-  task.save()
+
+  task.requester = event.params._requester;
+  task.creationTime = event.params._timestamp;
+
+  const evidenceGroup = new EvidenceGroup(`${event.params._taskID}-${event.address.toHexString()}`);
+  evidenceGroup.task = task.id;
+
+  evidenceGroup.save();
+  task.save();
+}
+
+export function handleTaskAssigned(event: TaskAssignedEvent): void {
+  const lang = getLangFromAddress(event.address);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang{}; contract {}', [lang, event.address.toHexString()]);
+    return;
+  }
+
+  const taskId = `${lang}-${event.params._taskID}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleTaskAssigned: Task not found.taskID {}; contract {}', [taskId, event.address.toHexString()]);
+    return;
+  }
+
+  task.translator = event.params._translator;
+  task.requesterDeposit = event.params._price;
+  task.assignmentTime = event.params._timestamp;
+
+  const linguo = Linguo.bind(event.address);
+  const _task = linguo.tasks(task.taskID);
+  task.sumDeposit = _task.getSumDeposit();
+  task.status = statusMap.get(_task.getStatus());
+
+  task.save();
 }
 
 export function handleTaskResolved(event: TaskResolvedEvent): void {
-  let entity = new TaskResolved(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._taskID = event.params._taskID
-  entity._reason = event.params._reason
-  entity._timestamp = event.params._timestamp
+  const lang = getLangFromAddress(event.address);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [lang, event.address.toHexString()]);
+    return;
+  }
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  const taskId = `${lang}-${event.params._taskID}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleTaskResolved: Task not found. taskID {}; contract {}', [taskId, event.address.toHexString()]);
+    return;
+  }
 
-  entity.save()
+  task.reason = event.params._reason;
+  task.resolutionTime = event.params._timestamp;
+  task.status = statusMap.get(Status.Resolved) || STATUS_ERROR;
+  task.requesterDeposit = ZERO;
+  task.sumDeposit = ZERO;
+
+  task.save();
 }
 
-export function handleTranslationChallenged(
-  event: TranslationChallengedEvent
-): void {
-  let entity = new TranslationChallenged(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._taskID = event.params._taskID
-  entity._challenger = event.params._challenger
-  entity._timestamp = event.params._timestamp
+export function handleTranslationSubmitted(event: TranslationSubmittedEvent): void {
+  const lang = getLangFromAddress(event.address);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [lang, event.address.toHexString()]);
+    return;
+  }
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  const taskId = `${lang}-${event.params._taskID}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleTranslationSubmitted: Task not found.taskID {}; contract {}', [
+      taskId,
+      event.address.toHexString(),
+    ]);
+    return;
+  }
 
-  entity.save()
+  task.translation = event.params._translatedText;
+  task.lastInteraction = event.params._timestamp;
+  task.status = statusMap.get(Status.AwaitingReview) || STATUS_ERROR;
+
+  task.save();
 }
 
-export function handleTranslationSubmitted(
-  event: TranslationSubmittedEvent
-): void {
-  let entity = new TranslationSubmitted(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._taskID = event.params._taskID
-  entity._translator = event.params._translator
-  entity._translatedText = event.params._translatedText
-  entity._timestamp = event.params._timestamp
+export function handleTranslationChallenged(event: TranslationChallengedEvent): void {
+  const lang = getLangFromAddress(event.address);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [lang, event.address.toHexString()]);
+    return;
+  }
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  const taskId = `${lang}-${event.params._taskID}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleTranslationChallenged: Task not found. taskID {}; contract {}', [
+      taskId,
+      event.address.toHexString(),
+    ]);
+    return;
+  }
 
-  entity.save()
+  task.challenger = event.params._challenger;
+  task.challengeTime = event.params._timestamp;
+
+  const linguo = Linguo.bind(event.address);
+  const _task = linguo.tasks(task.taskID);
+  task.status = statusMap.get(_task.getStatus());
+  task.sumDeposit = _task.getSumDeposit();
+
+  const roundId = task.id + '-0';
+  const newRound = createNewRound(roundId, task.id, event.params._timestamp);
+
+  task.numberOfRounds = task.numberOfRounds.plus(ONE);
+
+  newRound.save();
+  task.save();
+}
+
+export function handleDispute(event: DisputeEvent): void {
+  const lang = getLangFromAddress(event.address);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [lang, event.address.toHexString()]);
+    return;
+  }
+
+  const taskId = `${lang}-${event.params._metaEvidenceID}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleDispute: Task not found. taskID {}; contract {}', [taskId, event.address.toHexString()]);
+    return;
+  }
+
+  task.disputed = true;
+  task.disputeID = event.params._disputeID;
+  task.arbitrator = event.params._arbitrator;
+  task.evidenceGroupID = event.params._evidenceGroupID;
+
+  task.save();
+}
+
+export function handleAppealContribution(event: AppealContributionEvent): void {
+  const lang = getLangFromAddress(event.address);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [lang, event.address.toHexString()]);
+    return;
+  }
+  const taskId = `${lang}-${event.params._taskID}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleAppealContribution: Task not found. taskID {}; contract {}', [
+      taskId,
+      event.address.toHexString(),
+    ]);
+    return;
+  }
+
+  const roundId = `${task.id}-${task.numberOfRounds.minus(ONE)}`;
+  const round = Round.load(roundId);
+  if (!round) {
+    log.error('HandleAppealContribution: Round not found. roundID {}; taskID {}; contract{}', [
+      roundId,
+      taskId,
+      event.address.toHexString(),
+    ]);
+    return;
+  }
+
+  const linguo = Linguo.bind(event.address);
+  const roundInfo = linguo.getRoundInfo(event.params._taskID, task.numberOfRounds.minus(ONE));
+
+  round.amountPaidTranslator = roundInfo.getPaidFees()[Party.Translator];
+  round.amountPaidChallenger = roundInfo.getPaidFees()[Party.Challenger];
+  round.hasPaidTranslator = roundInfo.getHasPaid()[Party.Translator];
+  round.hasPaidChallenger = roundInfo.getHasPaid()[Party.Challenger];
+  round.feeRewards = roundInfo.getFeeRewards();
+
+  if (round.appealed) {
+    const newRroundId = `${task.id}-${task.numberOfRounds}`;
+    const newRound = createNewRound(newRroundId, task.id, event.block.timestamp);
+    newRound.save();
+    task.numberOfRounds = task.numberOfRounds.plus(ONE);
+  }
+
+  const contributionId = `${roundId}-${round.numberOfContributions}`;
+  const contribution = new Contribution(contributionId);
+
+  contribution.round = round.id;
+  contribution.contributor = event.params._contributor;
+  contribution.amount = event.params._amount;
+  contribution.party = partyMap.get(event.params._party) || STATUS_ERROR;
+
+  round.numberOfContributions = round.numberOfContributions.plus(ONE);
+
+  contribution.save();
+  round.save();
+  task.save();
+}
+
+export function handleEvidence(event: EvidenceEvent): void {
+  const evidenceGroup = EvidenceGroup.load(`${event.params._evidenceGroupID}-${event.address.toHexString()}`);
+  if (!evidenceGroup) {
+    log.error('HandleEvidence: EvidenceGroupID not registered. id {}; contract {}.', [
+      event.params._evidenceGroupID.toString(),
+      event.address.toHexString(),
+    ]);
+    return;
+  }
+
+  const task = Task.load(evidenceGroup.task);
+  if (!task) {
+    log.error('HandleEvidence: Task not found. taskID {}; contract {}', [
+      evidenceGroup.task.toString(),
+      event.address.toHexString(),
+    ]);
+    return;
+  }
+
+  const evidenceId = `${task.id}-${task.numberOfEvidences}`;
+  let evidence = new Evidence(evidenceId);
+
+  evidence.arbitrator = event.params._arbitrator;
+  evidence.evidenceGroupID = event.params._evidenceGroupID;
+  evidence.party = event.params._party;
+  evidence.URI = event.params._evidence;
+  evidence.task = task.id;
+  evidence.number = task.numberOfEvidences;
+  evidence.timestamp = event.block.timestamp;
+
+  task.numberOfEvidences = task.numberOfEvidences.plus(ONE);
+
+  evidence.save();
+  task.save();
+}
+
+export function handleRuling(event: RulingEvent): void {
+  const lang = getLangFromAddress(event.address);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [lang, event.address.toHexString()]);
+    return;
+  }
+  const linguo = Linguo.bind(event.address);
+
+  const taskId = `${lang}-${linguo.disputeIDtoTaskID(event.params._disputeID)}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleRuling: Task not found. taskID {}; disputeID {}; contract {}', [
+      taskId.toString(),
+      event.params._disputeID.toString(),
+      event.address.toHexString(),
+    ]);
+    return;
+  }
+
+  task.status = statusMap.get(Status.Resolved) || STATUS_ERROR;
+  task.finalRuling = getRuling(event.params._ruling);
+  task.resolutionTime = event.block.timestamp;
+  task.requesterDeposit = ZERO;
+  task.sumDeposit = ZERO;
+
+  task.save();
+}
+
+export function handleAppealPossible(event: AppealPossibleEvent): void {
+  const linguo = Linguo.bind(event.params._arbitrable);
+  if (linguo == null) return; // Filter out calls from non-IArbitrable
+
+  const lang = getLangFromAddress(event.params._arbitrable);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [
+      lang,
+      event.params._arbitrable.toHexString(),
+    ]);
+    return;
+  }
+  const call = linguo.try_disputeIDtoTaskID(event.params._disputeID);
+  if (call.reverted) {
+    log.warning('call to arbitrator {} with dusputeID {} failed.', [
+      event.address.toHexString(),
+      event.params._disputeID.toString(),
+    ]);
+    return;
+  }
+  const taskId = `${lang}-${linguo.disputeIDtoTaskID(event.params._disputeID)}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleAppealPossible: Task not found. taksID {}; disputeID {}; contract{}', [
+      taskId.toString(),
+      event.params._disputeID.toString(),
+      event.params._arbitrable.toHexString(),
+    ]);
+    return;
+  }
+
+  const roundId = `${task.id}-${task.numberOfRounds.minus(ONE)}`;
+  const round = Round.load(roundId);
+  if (!round) {
+    log.error(`HandleAppealPossible: Round not found. roundID {}; taskID {}; contract {}`, [
+      roundId,
+      task.id,
+      event.params._arbitrable.toHexString(),
+    ]);
+    return;
+  }
+
+  let arbitrator = IArbitrator.bind(event.address);
+  let appealPeriod = arbitrator.appealPeriod(event.params._disputeID);
+  const currentRuling = arbitrator.currentRuling(event.params._disputeID);
+
+  round.appealPeriodStart = appealPeriod.getStart();
+  round.appealPeriodEnd = appealPeriod.getEnd();
+  round.rulingTime = event.block.timestamp;
+  round.ruling = getRuling(currentRuling);
+
+  round.save();
+}
+
+export function handleAppealDecision(event: AppealDecisionEvent): void {
+  const linguo = Linguo.bind(event.params._arbitrable);
+  if (linguo == null) return; // Filter out calls from non-IArbitrable
+
+  const lang = getLangFromAddress(event.params._arbitrable);
+  if (lang === null) {
+    log.error('Language for Linguo deployment is not found. lang {}; contract {}', [
+      lang,
+      event.params._arbitrable.toHexString(),
+    ]);
+    return;
+  }
+
+  const call = linguo.try_disputeIDtoTaskID(event.params._disputeID);
+  if (call.reverted) {
+    log.warning('call to arbitrator {} with dusputeID {} failed.', [
+      event.address.toHexString(),
+      event.params._disputeID.toString(),
+    ]);
+    return;
+  }
+
+  const taskId = `${lang}-${linguo.disputeIDtoTaskID(event.params._disputeID)}`;
+  const task = Task.load(taskId);
+  if (!task) {
+    log.error('HandleAppealDecision: Task not found. taskID {}; disputeID {}; contract {}', [
+      lang.concat(taskId.toString()),
+      event.params._disputeID.toString(),
+      event.params._arbitrable.toHexString(),
+    ]);
+    return;
+  }
+
+  const roundId = `${task.id}-${task.numberOfRounds.minus(ONE)}`;
+  const round = Round.load(roundId);
+  if (!round) {
+    log.error('HandleAppealDecision: Round not found. roundID {}; taskID {} contract {}', [
+      roundId,
+      task.id,
+      event.params._arbitrable.toHexString(),
+    ]);
+    return;
+  }
+
+  round.appealed = true;
+  round.appealedAt = event.block.timestamp;
+
+  round.save();
 }
