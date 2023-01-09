@@ -1,13 +1,10 @@
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Form, Row, Steps } from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
-import { create as createTask } from '~/features/tasks/tasksSlice';
-import { selectAccount } from '~/features/web3/web3Slice';
 import { normalizeBaseUnit } from '~/features/tokens';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
@@ -19,23 +16,38 @@ import LanguagesSelectionFields from './LanguagesSelectionFields';
 import OriginalSourceFields from './OriginalSourceFields';
 import PriceDefinitionFields from './PriceDefinitionFields';
 import TitleField from './TitleField';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useLinguoApi } from '~/hooks/useLinguo';
+import { getAddressByLanguageAndChain } from '~/utils/getAddressByLanguage';
+import { publishMetaEvidence } from '~/utils/task/publishMetaEvidence';
+import moment from 'moment';
 
 dayjs.extend(utc);
 
 function TranslationRequestForm() {
-  const dispatch = useDispatch();
+  const { chainId } = useWeb3();
+  const { createTask, setAddress } = useLinguoApi();
   const [form] = Form.useForm();
   const [state, send] = useStateMachine(formStateMachine);
-  const account = useSelector(selectAccount);
+
+  const sourceLanguage = form.getFieldValue('sourceLanguage');
+  const targetLanguage = form.getFieldValue('targetLanguage');
+  const getLang = langCode => langCode.split('-')[0];
+
+  useEffect(() => {
+    if (!sourceLanguage && !targetLanguage) return;
+
+    const lang = `${getLang(sourceLanguage)}|${getLang(targetLanguage)}`;
+    const address = getAddressByLanguageAndChain(lang, chainId);
+    setAddress(address);
+  }, [chainId, setAddress, sourceLanguage, targetLanguage]);
 
   const handleFinish = React.useCallback(
     async values => {
       const { originalTextFile, deadline, minPriceNumeric, maxPriceNumeric, ...rest } = values;
-
       send('SUBMIT');
-      const data = {
+      const metadata = {
         ...rest,
-        account,
         minPrice: safeToWei(minPriceNumeric),
         maxPrice: safeToWei(maxPriceNumeric),
         deadline: new Date(deadline).toISOString(),
@@ -43,19 +55,13 @@ function TranslationRequestForm() {
       };
 
       try {
-        await dispatch(
-          createTask(data, {
-            meta: {
-              thunk: true,
-              redirect: true,
-            },
-          })
-        );
+        const metaEvidence = await publishMetaEvidence(chainId, metadata);
+        await createTask(moment(metadata.deadline).unix(), metadata.minPrice, metaEvidence, metadata.maxPrice);
       } finally {
         send('RESET');
       }
     },
-    [dispatch, account, send]
+    [send, chainId, createTask]
   );
 
   const handleFinishFailed = React.useCallback(

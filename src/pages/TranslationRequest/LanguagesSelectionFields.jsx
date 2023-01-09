@@ -15,7 +15,6 @@ export default function LanguagesSelectionFields({ setFieldsValue }) {
     source: undefined,
     target: undefined,
   });
-
   const handleSourceLanguageChange = value => {
     setSelectedLanguages(current => ({ ...current, source: value }));
   };
