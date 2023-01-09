@@ -1,50 +1,73 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { Badge, Tooltip, Typography } from 'antd';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
+import { Tooltip, Typography } from 'antd';
+
 import * as r from '~/app/routes';
-import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import Card from '~/shared/Card';
 import FormattedNumber from '~/shared/FormattedNumber';
 import useInterval from '~/shared/useInterval';
 import Spacer from '~/shared/Spacer';
-import { Task, TaskStatus } from '~/features/tasks';
 import EthFiatValue from '~/features/tokens/EthFiatValue';
-import KlerosLogoOutlined from '~/assets/images/logo-kleros-outlined.svg';
+
 import TaskCardFooter from './TaskCardFooter';
 import TaskInfoGrid from './TaskInfoGrid';
 import TaskLanguages from './TaskLanguages';
 import TaskPrice from './TaskPrice';
-import { selectById } from './tasksSlice';
+
+import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
+
+import Task from '~/utils/task';
+import taskStatus from '~/consts/taskStatus';
+import { _1_MINUTE_MS } from '~/consts/time';
+import { taskStatusToProps } from '~/utils/task/taskStatusToProps';
+import { getAddressByLanguageAndChain } from '~/utils/getAddressByLanguage';
+import { useWeb3 } from '~/hooks/useWeb3';
 
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
-const _1_MINUTE_MS = 60 * 1000;
+export default function TaskCard({ data, metadata, footerProps }) {
+  const { chainId } = useWeb3();
+  const { title, sourceLanguage, targetLanguage, wordCount, expectedQuality } = metadata;
+  const {
+    minPrice,
+    maxPrice,
+    lang,
+    lastInteraction,
+    requesterDeposit,
+    submissionTimeout,
+    status,
+    taskID,
+    translation,
+  } = data;
 
-export default function TaskCard({ id, footerProps }) {
-  const task = useShallowEqualSelector(selectById(id));
-  const { status, title, assignedPrice, sourceLanguage, targetLanguage, wordCount, expectedQuality } = task;
-
-  const getCurrentPrice = React.useCallback(() => Task.currentPrice(task), [task]);
-  const [currentPrice, setCurrentPrice] = React.useState(getCurrentPrice);
+  const [currentPrice, setCurrentPrice] = React.useState(
+    Task.getCurrentPrice(requesterDeposit, minPrice, maxPrice, lastInteraction, submissionTimeout, status)
+  );
 
   const updateCurrentPrice = React.useCallback(() => {
-    setCurrentPrice(getCurrentPrice());
-  }, [getCurrentPrice, setCurrentPrice]);
+    if (requesterDeposit) {
+      setCurrentPrice(requesterDeposit);
+    } else {
+      const value = Task.getCurrentPrice(
+        requesterDeposit,
+        minPrice,
+        maxPrice,
+        lastInteraction,
+        submissionTimeout,
+        status
+      );
+      setCurrentPrice(value);
+    }
+  }, [lastInteraction, maxPrice, minPrice, status, requesterDeposit, submissionTimeout]);
 
-  const interval = assignedPrice === undefined ? _1_MINUTE_MS : null;
+  const interval = requesterDeposit === undefined ? _1_MINUTE_MS : null;
   useInterval(updateCurrentPrice, interval);
 
-  const actualPrice = assignedPrice ?? currentPrice;
-
-  const pricePerWord = Task.currentPricePerWord({
-    currentPrice: actualPrice,
-    wordCount,
-  });
-
+  const actualPrice = status === taskStatus.Assigned ? requesterDeposit : currentPrice;
+  const pricePerWord = Task.getCurrentPricePerWord(actualPrice, wordCount);
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
-
+  const isIncomplete = Task.isIncomplete(status, translation, lastInteraction, submissionTimeout);
   const taskInfo = [
     {
       title: 'Price per Word',
@@ -58,11 +81,7 @@ export default function TaskCard({ id, footerProps }) {
     {
       title: 'Total Price',
       content: (
-        <TaskPrice
-          showTooltip
-          showFootnoteMark={status === TaskStatus.Created && !Task.isIncomplete(task)}
-          value={currentPrice}
-        />
+        <TaskPrice showTooltip showFootnoteMark={status === taskStatus.Created && !isIncomplete} value={currentPrice} />
       ),
       footer: <EthFiatValue amount={currentPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
@@ -73,22 +92,22 @@ export default function TaskCard({ id, footerProps }) {
     },
   ];
 
-  const cardProps = Task.isIncomplete(task) ? taskStatusToProps.incomplete : taskStatusToProps[status];
+  const cardProps = isIncomplete ? taskStatusToProps.incomplete : taskStatusToProps[status];
 
-  const url = getTaskDetailsRoute({ id });
+  const address = getAddressByLanguageAndChain(lang, chainId);
+  const url = getTaskDetailsRoute({ id: `${address}/${taskID}` });
+
   return (
     <StyledTaskCard
       $colorKey={cardProps.colorKey}
       title={cardProps.title}
       titleLevel={2}
-      footer={<TaskCardFooter id={id} {...footerProps} />}
+      footer={<TaskCardFooter data={data} contractAddress={address} {...footerProps} />}
     >
       <MainLink href={url}>See More</MainLink>
       <TaskLanguages fullWidth source={sourceLanguage} target={targetLanguage} />
       <Spacer />
       <Tooltip title={title} placement="top" mouseEnterDelay={0.5} arrowPointAtCenter>
-        {/* The wrapping div fixes an issue with styled compnents not
-            properly performing ref forwarding for function components. */}
         <div
           css={`
             cursor: help;
@@ -105,48 +124,31 @@ export default function TaskCard({ id, footerProps }) {
 }
 
 TaskCard.propTypes = {
-  id: t.string.isRequired,
+  data: t.shape({
+    deadline: t.string.isRequired,
+    lang: t.string.isRequired,
+    lastInteraction: t.string.isRequired,
+    minPrice: t.string.isRequired,
+    maxPrice: t.string.isRequired,
+    requester: t.string.isRequired,
+    requesterDeposit: t.string.isRequired,
+    submissionTimeout: t.string.isRequired,
+    status: t.oneOf(Object.values(taskStatus)).isRequired,
+    taskID: t.string.isRequired,
+    translation: t.string.isRequired,
+  }),
+  metadata: t.shape({
+    title: t.string.isRequired,
+    sourceLanguage: t.string.isRequired,
+    targetLanguage: t.string.isRequired,
+    wordCount: t.number.isRequired,
+    expectedQuality: t.string.isRequired,
+  }),
   footerProps: t.object,
 };
 
 TaskCard.defaultProps = {
   footerProps: {},
-};
-
-const taskStatusToProps = {
-  [TaskStatus.Created]: {
-    title: <Badge status="default" text="Open Task" />,
-    colorKey: 'open',
-  },
-  [TaskStatus.Assigned]: {
-    title: <Badge status="default" text="In Progress" />,
-    colorKey: 'inProgress',
-  },
-  [TaskStatus.AwaitingReview]: {
-    title: <Badge status="default" text="In Review" />,
-    colorKey: 'inReview',
-  },
-  [TaskStatus.DisputeCreated]: {
-    title: (
-      <>
-        <Badge status="default" text="In Dispute" />
-        <KlerosLogoOutlined
-          css={`
-            width: 1.5rem;
-          `}
-        />
-      </>
-    ),
-    colorKey: 'inDispute',
-  },
-  [TaskStatus.Resolved]: {
-    title: <Badge status="default" text="Finished" />,
-    colorKey: 'finished',
-  },
-  incomplete: {
-    title: <Badge status="default" text="Incomplete" />,
-    colorKey: 'incomplete',
-  },
 };
 
 const MainLink = styled.a`

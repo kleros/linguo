@@ -1,23 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import t from 'prop-types';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Col, Row } from 'antd';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
-import RemainingTime from '~/shared/RemainingTime';
-import { Task, TaskStatus } from '~/features/tasks';
-import { selectAccount } from '~/features/web3/web3Slice';
-import TaskParty from './entities/TaskParty';
-import { selectById } from './tasksSlice';
+
 import TaskInteractionButton from './TaskInteractionButton';
+import RemainingTime from '~/shared/RemainingTime';
 
-export default function TaskCardFooter({ id, rightSideContent }) {
-  const task = useShallowEqualSelector(selectById(id));
+import { useWeb3 } from '~/hooks/useWeb3';
+import { getReviewTimeout } from '~/hooks/useLinguo';
+import Task from '~/utils/task';
+import taskStatus from '~/consts/taskStatus';
 
+export default function TaskCardFooter({ data, contractAddress, rightSideContent }) {
   return (
     <Row gutter={16} align="middle">
       <Col span={12}>
-        <LeftSideContent {...task} />
+        <LeftSideContent data={data} contractAddress={contractAddress} />
       </Col>
       <Col span={12}>{rightSideContent}</Col>
     </Row>
@@ -25,7 +23,17 @@ export default function TaskCardFooter({ id, rightSideContent }) {
 }
 
 TaskCardFooter.propTypes = {
-  id: t.oneOfType([t.number, t.string]).isRequired,
+  contractAddress: t.string.isRequired,
+  data: t.shape({
+    lastInteraction: t.string.isRequired,
+    minPrice: t.string.isRequired,
+    maxPrice: t.string.isRequired,
+    requesterDeposit: t.string.isRequired,
+    submissionTimeout: t.string.isRequired,
+    status: t.oneOf(Object.values(taskStatus)).isRequired,
+    taskID: t.string.isRequired,
+    translation: t.string.isRequired,
+  }),
   rightSideContent: t.node,
 };
 
@@ -33,17 +41,42 @@ TaskCardFooter.defaultProps = {
   rightSideContent: null,
 };
 
-function LeftSideContent(task) {
-  const { id, status } = task;
-  const account = useSelector(selectAccount);
+LeftSideContent.propTypes = {
+  contractAddress: t.string.isRequired,
+  data: t.shape({
+    deadline: t.string.isRequired,
+    lastInteraction: t.string.isRequired,
+    requester: t.string.isRequired,
+    submissionTimeout: t.string.isRequired,
+    status: t.oneOf(Object.values(taskStatus)).isRequired,
+    taskID: t.string.isRequired,
+    translation: t.string.isRequired,
+  }),
+  rightSideContent: t.node,
+};
+
+function LeftSideContent({ data, contractAddress }) {
+  const [reviewTimeout, setReviewTimeout] = useState(0);
+
+  const { deadline, lastInteraction, requester, taskID, translation, status, submissionTimeout } = data;
+  const { account, library } = useWeb3();
+  const _isIncomplete = Task.isIncomplete(status, translation, lastInteraction, submissionTimeout);
+
+  useEffect(() => {
+    const fetchReviewTimeout = async () => {
+      const timeout = await getReviewTimeout(contractAddress, library);
+      setReviewTimeout(timeout);
+    };
+    fetchReviewTimeout();
+  }, [contractAddress, library]);
 
   const TaskFooterInfoPending = () => {
-    if (Task.isIncomplete(task)) {
-      const isRequester = task.parties[TaskParty.Requester] === account;
+    if (_isIncomplete) {
+      const isRequester = requester === account;
 
       return isRequester ? (
         <TaskInteractionButton
-          id={id}
+          id={taskID}
           interaction={TaskInteractionButton.Interaction.Reimburse}
           content={{
             idle: { text: 'Reimburse Me' },
@@ -52,9 +85,7 @@ function LeftSideContent(task) {
         />
       ) : null;
     }
-
-    const currentDate = new Date();
-    const timeout = Task.remainingTimeForSubmission(task, { currentDate });
+    const timeout = Task.getRemainedSubmissionTime(status, deadline);
 
     return (
       <RemainingTime
@@ -71,8 +102,7 @@ function LeftSideContent(task) {
   };
 
   const TaskFooterInfoAwaitingReview = () => {
-    const currentDate = new Date();
-    const timeout = Task.remainingTimeForReview(task, { currentDate });
+    const timeout = Task.getRemainedReviewTime(status, lastInteraction, reviewTimeout.toString());
 
     return timeout > 0 ? (
       <RemainingTime
@@ -91,11 +121,11 @@ function LeftSideContent(task) {
   };
 
   const taskFooterInfoByStatusMap = {
-    [TaskStatus.Created]: TaskFooterInfoPending,
-    [TaskStatus.Assigned]: TaskFooterInfoPending,
-    [TaskStatus.AwaitingReview]: TaskFooterInfoAwaitingReview,
-    [TaskStatus.DisputeCreated]: () => null,
-    [TaskStatus.Resolved]: () => null,
+    [taskStatus.Created]: TaskFooterInfoPending,
+    [taskStatus.Assigned]: TaskFooterInfoPending,
+    [taskStatus.AwaitingReview]: TaskFooterInfoAwaitingReview,
+    [taskStatus.DisputeCreated]: () => null,
+    [taskStatus.Resolved]: () => null,
   };
 
   const Component = taskFooterInfoByStatusMap[status];
