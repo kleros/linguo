@@ -7,8 +7,7 @@ import TaskStatusFilter from '~/features/tasks/TaskStatusFilter';
 import TaskOwnershipFilter from '~/features/translator/TaskOwnershipFilter';
 import { statusFilters, useFilters } from '~/features/translator';
 import Button from '~/shared/Button';
-import { useSelector } from 'react-redux';
-import { selectAccount } from '~/features/web3/web3Slice';
+import { useWeb3 } from '~/hooks/useWeb3';
 
 export default function TaskListHeader() {
   return (
@@ -35,7 +34,7 @@ export default function TaskListHeader() {
 }
 
 function TaskOwnershipFilterContainer() {
-  const account = useSelector(selectAccount);
+  const { account } = useWeb3();
   const [{ status, allTasks }, setFilters] = useFilters();
 
   const handleFilterChange = React.useCallback(

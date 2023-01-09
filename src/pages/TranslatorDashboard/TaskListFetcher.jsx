@@ -1,48 +1,26 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { Spin } from '~/adapters/antd';
 import * as r from '~/app/routes';
 import TaskList from '~/features/translator/TaskList';
 import { statusFilters, useFilters } from '~/features/translator';
-import {
-  fetchTasks,
-  selectTasksForCurrentFilter,
-  selectAllSkills,
-  selectIsLoading,
-} from '~/features/translator/translatorSlice';
 import DismissableAlert from '~/features/ui/DismissableAlert';
-import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import TopLoadingBar from '~/shared/TopLoadingBar';
+import { useTasksQuery } from '~/hooks/queries/useTasksQuery';
 
 export default function TaskListFetcher() {
-  const dispatch = useDispatch();
-  const account = useSelector(selectAccount);
-  const chainId = useSelector(selectChainId);
-  const isLoading = useSelector(state => selectIsLoading(state, { account, chainId }));
-  const skills = useShallowEqualSelector(selectAllSkills);
-
-  const doFetchTasks = React.useCallback(() => {
-    dispatch(fetchTasks({ account, chainId }));
-  }, [dispatch, account, chainId]);
-
-  React.useEffect(() => {
-    doFetchTasks();
-  }, [doFetchTasks]);
-
   const [filters] = useFilters();
 
-  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account, chainId, skills }));
-  const showFootnote = [statusFilters.open].includes(filters.status) && data.length > 0;
+  const { tasks, isLoading } = useTasksQuery(0);
 
+  const showFootnote = [statusFilters.open].includes(filters.status) && tasks !== undefined;
   return (
     <>
       <TopLoadingBar show={isLoading} />
-      <Spin $fixed tip="Loading translation tasks..." spinning={isLoading && data.length === 0}>
+      <Spin $fixed tip="Loading translation tasks..." spinning={isLoading || tasks === undefined}>
         {filterDescriptionMap[getFilterTreeName({ status, allTasks: filters.allTasks })]}
-        <TaskList data={data} showFootnote={showFootnote} />
+        {tasks && <TaskList data={tasks} showFootnote={showFootnote} />}
       </Spin>
     </>
   );
