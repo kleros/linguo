@@ -1,38 +1,25 @@
 import React from 'react';
 import t from 'prop-types';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
+
 import { withErrorBoundary } from '~/shared/ErrorBoundary';
 import EthValue from '~/shared/EthValue';
 import { compose } from '~/shared/fp';
-import { getChallengerDeposit } from '~/features/tasks/tasksSlice';
 import EthFiatValue from '~/features/tokens/EthFiatValue';
-import useTask from '../../useTask';
+
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import { useLinguo } from '~/hooks/useLinguo';
 
 function TranslationChallengeDepositFetcher() {
-  const { id } = useTask();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const linguo = useLinguo();
 
-  const [deposit, setDeposit] = React.useState(null);
-  const dispatch = useDispatch();
-
-  React.useEffect(() => {
-    dispatch(
-      getChallengerDeposit(
-        { id },
-        {
-          meta: {
-            thunk: { id },
-          },
-        }
-      )
-    )
-      .then(({ data }) => setDeposit(data))
-      .catch(err => {
-        console.warn('Failed to get the deposit value:', err);
-        throw new Error('Failed to get the deposit value.');
-      });
-  }, [dispatch, id]);
+  const deposit = linguo.call('getChallengeValue', task.taskID);
 
   return deposit ? (
     <TranslationChallengeDeposit amount={deposit} />

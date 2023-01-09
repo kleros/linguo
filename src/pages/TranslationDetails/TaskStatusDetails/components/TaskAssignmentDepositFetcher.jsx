@@ -1,41 +1,36 @@
 import React from 'react';
-import t from 'prop-types';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
+
 import { LoadingOutlined } from '@ant-design/icons';
+
 import { withErrorBoundary } from '~/shared/ErrorBoundary';
 import EthValue from '~/shared/EthValue';
 import { compose } from '~/shared/fp';
-import { getTranslatorDeposit } from '~/features/tasks/tasksSlice';
 import EthFiatValue from '~/features/tokens/EthFiatValue';
-import useTask from '../../useTask';
+
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import { useLinguo } from '~/hooks/useLinguo';
 
 function TaskAssignmentDepositFetcher() {
-  const { id } = useTask();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const { getTranslatorDeposit } = useLinguo();
 
-  const [deposit, setDeposit] = React.useState(null);
-  const dispatch = useDispatch();
+  const data = getTranslatorDeposit(task.taskID);
+  const deposit = String(data);
 
-  React.useEffect(() => {
-    dispatch(
-      getTranslatorDeposit(
-        { id },
-        {
-          meta: {
-            thunk: { id },
-          },
-        }
-      )
-    )
-      .then(({ data }) => setDeposit(data))
-      .catch(err => {
-        console.warn('Failed to get the deposit value:', err);
-        throw new Error('Failed to get the deposit value.');
-      });
-  }, [dispatch, id]);
-
-  return deposit ? (
-    <TaskAssignmentDeposit amount={deposit} />
+  return data ? (
+    <StyledWrapper>
+      <div>
+        <EthValue amount={deposit} suffixType="short" /> Deposit
+      </div>
+      <div>
+        <EthFiatValue amount={deposit} render={({ formattedValue }) => `(${formattedValue})`} />
+      </div>
+    </StyledWrapper>
   ) : (
     <StyledWrapper>
       <span
@@ -54,23 +49,6 @@ const StyledWrapper = styled.div`
   font-weight: ${p => p.theme.fontWeight.regular};
   color: ${p => p.theme.color.text.light};
 `;
-
-function TaskAssignmentDeposit({ amount }) {
-  return (
-    <StyledWrapper>
-      <div>
-        <EthValue amount={amount} suffixType="short" /> Deposit
-      </div>
-      <div>
-        <EthFiatValue amount={amount} render={({ formattedValue }) => `(${formattedValue})`} />
-      </div>
-    </StyledWrapper>
-  );
-}
-
-TaskAssignmentDeposit.propTypes = {
-  amount: t.string.isRequired,
-};
 
 const errorBoundaryEnhancer = withErrorBoundary({
   renderFallback: function ErrorBoundaryFallback(error) {

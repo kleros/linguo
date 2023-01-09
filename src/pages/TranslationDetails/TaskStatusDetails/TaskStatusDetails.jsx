@@ -1,20 +1,24 @@
 import React from 'react';
 import ContentBlocker from '~/shared/ContentBlocker';
-import { Task } from '~/features/tasks';
-import { useWeb3React } from '~/features/web3';
 import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
-import useTask from '../useTask';
 import byStatus from './byStatus';
 
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import Task from '~/utils/task';
+import EvidenceUploadProvider from '~/context/EvidenceUpload';
+
 export default function TaskStatusDetails() {
-  const task = useTask();
-  const isIncomplete = Task.isIncomplete(task);
+  const { account, chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
 
-  const Component = isIncomplete ? byStatus.Incomplete : byStatus[task.status];
+  const { lastInteraction, status, submissionTimeout, translation } = task;
+  const isIncomplete = Task.isIncomplete(status, translation, lastInteraction, submissionTimeout);
 
-  const { account } = useWeb3React();
+  const Component = isIncomplete ? byStatus.Incomplete : byStatus[status];
   const contentBlocked = !account;
-
   const content = <ContentBlocker blocked={contentBlocked}>{Component && <Component />}</ContentBlocker>;
 
   return (
@@ -23,7 +27,7 @@ export default function TaskStatusDetails() {
       error={content}
       missing={content}
     >
-      {content}
+      <EvidenceUploadProvider>{content}</EvidenceUploadProvider>
     </RequiredWalletGateway>
   );
 }

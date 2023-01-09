@@ -2,57 +2,29 @@ import React from 'react';
 import t from 'prop-types';
 import clsx from 'clsx';
 import styled from 'styled-components';
-import { TaskStatus, Task } from '~/features/tasks';
+
 import RemainingTime from '~/shared/RemainingTime';
 import { HourGlassIcon } from '~/shared/icons';
-import useTask from '../../useTask';
 
-const StyledHourGlassIcon = styled(HourGlassIcon)``;
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
 
-const StyledTaskDeadline = styled.div`
-  display: flex;
-  align-items: center;
-  color: ${p => p.theme.color.text.default};
-  font-size: ${p => p.theme.fontSize.lg};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  &.ending-soon {
-    color: ${p => p.theme.color.danger.default};
-  }
-
-  ${StyledHourGlassIcon} {
-    margin-right: 0.5rem;
-  }
-`;
-
-function DefaultTaskDeadlineRender({ endingSoon, formattedValue }) {
-  return (
-    <StyledTaskDeadline
-      className={clsx({
-        'ending-soon': endingSoon,
-      })}
-    >
-      <StyledHourGlassIcon />
-      <span>{formattedValue}</span>
-    </StyledTaskDeadline>
-  );
-}
-
-DefaultTaskDeadlineRender.propTypes = {
-  endingSoon: t.bool.isRequired,
-  formattedValue: t.string.isRequired,
-};
+import Task from '~/utils/task';
+import taskStatus from '~/consts/taskStatus';
+import { useLinguo } from '~/hooks/useLinguo';
 
 function TaskDeadline({ showPrefix, render }) {
-  const task = useTask();
-  const currentDate = new Date();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const linguo = useLinguo();
+  const reviewTimeout = linguo.call('reviewTimeout');
 
-  const timeout = Task.isPending(task)
-    ? Task.remainingTimeForSubmission(task, { currentDate })
-    : task.status === TaskStatus.AwaitingReview
-    ? Task.remainingTimeForReview(task, { currentDate })
+  const timeout = Task.isPending(task.status)
+    ? Task.getRemainedSubmissionTime(task.status, task.deadline) // TODO: refactor args
+    : task.status === taskStatus.AwaitingReview
+    ? Task.getRemainedReviewTime(task.status, task.lastInteraction, reviewTimeout)
     : undefined;
 
   if (timeout === undefined) {
@@ -75,3 +47,41 @@ TaskDeadline.defaultProps = {
 };
 
 export default TaskDeadline;
+
+function DefaultTaskDeadlineRender({ endingSoon, formattedValue }) {
+  return (
+    <StyledTaskDeadline
+      className={clsx({
+        'ending-soon': endingSoon,
+      })}
+    >
+      <StyledHourGlassIcon />
+      <span>{formattedValue}</span>
+    </StyledTaskDeadline>
+  );
+}
+
+DefaultTaskDeadlineRender.propTypes = {
+  endingSoon: t.bool.isRequired,
+  formattedValue: t.string.isRequired,
+};
+
+const StyledHourGlassIcon = styled(HourGlassIcon)``;
+
+const StyledTaskDeadline = styled.div`
+  display: flex;
+  align-items: center;
+  color: ${p => p.theme.color.text.default};
+  font-size: ${p => p.theme.fontSize.lg};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.ending-soon {
+    color: ${p => p.theme.color.danger.default};
+  }
+
+  ${StyledHourGlassIcon} {
+    margin-right: 0.5rem;
+  }
+`;
