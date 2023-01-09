@@ -34,7 +34,7 @@ const createReducer =
 
 export default function useStateMachine(
   machine,
-  { warnOnError = process.env.NODE_ENV !== 'production', throwOnError = false } = {}
+  { warnOnError = process.env.PRODUCTION !== 'true', throwOnError = false } = {}
 ) {
   const [state, dispatch] = useReducer(createReducer(machine, { warnOnError, throwOnError }), machine.initial);
 

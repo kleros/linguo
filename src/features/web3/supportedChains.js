@@ -1,10 +1,10 @@
 import { map, prop } from '~/shared/fp';
 import { getBaseUrl } from './blockExplorer';
 
-const env = process.env.NODE_ENV ?? 'development';
+const env = process.env.PRODUCTION ?? 'development';
 
 const defaultChainIdsPerEnv = {
-  production: Number(process.env.DEFAULT_CHAIN_ID) ?? 100,
+  true: Number(process.env.DEFAULT_CHAIN_ID) ?? 100,
   development: Number(process.env.DEFAULT_CHAIN_ID) ?? 77,
 };
 
@@ -16,7 +16,7 @@ const supportedSideChains = {
   // xDai
   100: {
     chainId: 100,
-    chainName: 'xDAI Chain',
+    chainName: 'Gnosis Chain',
     nativeCurrency: { name: 'xDAI', symbol: 'xDAI', decimals: 18 },
     rpcUrls: [jsonRpcUrls[100]],
     blockExplorerUrls: [getBaseUrl(100)],
@@ -33,8 +33,6 @@ const supportedSideChains = {
 
 const counterPartyChainIdMap = {
   1: 100,
-  42: 77,
-  77: 42,
   100: 1,
 };
 
@@ -42,7 +40,7 @@ export function getCounterPartyChainId(chainId) {
   return counterPartyChainIdMap[chainId];
 }
 
-export const supportedChainIds = [1, 42, ...map(prop('chainId'), Object.values(supportedSideChains))];
+export const supportedChainIds = [1, ...map(prop('chainId'), Object.values(supportedSideChains))];
 
 export function getSideChainParams(sideChainId) {
   const params = supportedSideChains[sideChainId];

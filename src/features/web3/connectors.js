@@ -1,9 +1,9 @@
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
-import { defaultChainId, supportedChainIds, jsonRpcUrls } from './supportedChains';
+import { defaultChainId, jsonRpcUrls } from './supportedChains';
 
-export const injected = new InjectedConnector({ supportedChainIds });
+export const injected = new InjectedConnector();
 injected.name = 'injected';
 
 export const network = new NetworkConnector({

@@ -74,10 +74,10 @@ const cefrLanguages = [
     code: 'ru',
     name: 'Russian',
   },
-  // {
-  //   code: 'ja',
-  //   name: 'Japanese',
-  // },
+  {
+    code: 'ja',
+    name: 'Japanese',
+  },
   {
     code: 'zh-cn',
     name: 'Chinese (Simplified)',
@@ -86,10 +86,10 @@ const cefrLanguages = [
   //   code: 'zh-hant',
   //   name: 'Chinese (Traditional)',
   // },
-  // {
-  //   code: 'ko',
-  //   name: 'Korean',
-  // },
+  {
+    code: 'ko',
+    name: 'Korean',
+  },
 ];
 
 export default cefrLanguages.map(language => ({

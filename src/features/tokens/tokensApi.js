@@ -14,7 +14,6 @@ export async function getEthPrice({ chainId }) {
 }
 
 const UsdcAddressesByChainId = {
-  [ChainId.KOVAN]: '0xb7a4f3e9097c08da09517b5ab877f7a917224ede',
   [ChainId.MAINNET]: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
 };
 

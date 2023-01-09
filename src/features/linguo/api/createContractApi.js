@@ -17,7 +17,7 @@ import getFileUrl from './getFileUrl';
 
 const { toBN } = Web3.utils;
 
-export default async function createContractApi({ web3, archon, linguo, arbitrator }) {
+export default async function createContractApi({ web3, archon, linguo, linguoFetchEvents, arbitrator }) {
   const chainId = await web3.eth.getChainId();
   const firstRelevantBlock = chainIdToFirstRelevantBlock[chainId] ?? 0;
   const evidenceDisplayInterfaceURI =
@@ -49,7 +49,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   }
 
   async function getRequesterTasks({ account }) {
-    const events = await _getPastEvents(linguo, 'TaskCreated', {
+    const events = await _getPastEvents(linguoFetchEvents, 'TaskCreated', {
       filter: { _requester: account },
       fromBlock: 0,
     });
@@ -124,8 +124,9 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   }
 
   async function _getUnassignedTaskIds({ currentBlockNumber, skills }) {
-    // We are going back ~180 days (considering ~4 blocks / minute)
-    const unassingedRelevantBlocks = 4 * 60 * 24 * 180;
+    // We are going back ~180 days
+    const blockTimeAvg = chainId === 100 ? 5 : 12;
+    const unassingedRelevantBlocks = (60 / blockTimeAvg) * 60 * 24 * 180;
     const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
     const created = await _getTaskIdsFromEvent('TaskCreated', { fromBlock });
@@ -146,15 +147,16 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   }
 
   async function _getAssignedTaskIds({ currentBlockNumber }) {
-    // We are going back ~180 days (considering ~4 blocks / minute)
-    const inDisputeRelevantBlocks = 4 * 60 * 24 * 180;
-    const fromBlock = Math.max(0, currentBlockNumber - inDisputeRelevantBlocks);
+    // We are going back ~180 days
+    const blockTimeAvg = chainId === 100 ? 5 : 12;
+    const unassingedRelevantBlocks = (60 / blockTimeAvg) * 60 * 24 * 180;
+    const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
     return _getTaskIdsFromEvent('TaskAssigned', { fromBlock });
   }
 
   async function _getInReviewTaskIds({ currentBlockNumber, skills }) {
-    const reviewTimeout = await linguo.methods.reviewTimeout().call();
+    const reviewTimeout = await linguoFetchEvents.methods.reviewTimeout().call();
 
     /**
      * We are adding 30% to the `reviewTimeout` to cope with fluctuations
@@ -177,17 +179,19 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   }
 
   async function _getInDisputeTaskIds({ currentBlockNumber }) {
-    // We are going back ~180 days (considering ~4 blocks / minute)
-    const inDisputeRelevantBlocks = 4 * 60 * 24 * 180;
-    const fromBlock = Math.max(0, currentBlockNumber - inDisputeRelevantBlocks);
+    // We are going back ~180 days
+    const blockTimeAvg = chainId === 100 ? 5 : 12;
+    const unassingedRelevantBlocks = (60 / blockTimeAvg) * 60 * 24 * 180;
+    const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
     return _getTaskIdsFromEvent('TranslationChallenged', { fromBlock });
   }
 
   async function _getResolvedTaskIds({ currentBlockNumber }) {
-    // We are going back ~180 days (considering ~4 blocks / minute)
-    const resolvedRelevantBlocks = 4 * 60 * 24 * 180;
-    const fromBlock = Math.max(0, currentBlockNumber - resolvedRelevantBlocks);
+    // We are going back ~180 days
+    const blockTimeAvg = chainId === 100 ? 5 : 12;
+    const unassingedRelevantBlocks = (60 / blockTimeAvg) * 60 * 24 * 180;
+    const fromBlock = Math.max(0, currentBlockNumber - unassingedRelevantBlocks);
 
     return _getTaskIdsFromEvent('TaskResolved', { fromBlock });
   }
@@ -199,10 +203,9 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
     });
   }
 
-  async function _getTaskIdsFromEvent(eventName, { fromBlock, toBlock, filter }) {
-    const events = await _getPastEvents(linguo, eventName, {
+  async function _getTaskIdsFromEvent(eventName, { fromBlock, filter }) {
+    const events = await _getPastEvents(linguoFetchEvents, eventName, {
       fromBlock,
-      toBlock,
       filter,
     });
 
@@ -229,34 +232,34 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
         taskResolvedEvents,
         metadata,
       ] = await Promise.all([
-        linguo.methods.reviewTimeout().call(),
-        promiseRetry(() => linguo.methods.tasks(ID).call(), {
+        linguoFetchEvents.methods.reviewTimeout().call(),
+        promiseRetry(() => linguoFetchEvents.methods.tasks(ID).call(), {
           maxAttempts: 5,
           delay: count => 500 + count * 1000,
           shouldRetry: err => err.code === -32015,
         }),
-        promiseRetry(() => linguo.methods.getTaskParties(ID).call(), {
+        promiseRetry(() => linguoFetchEvents.methods.getTaskParties(ID).call(), {
           maxAttempts: 5,
           delay: count => 500 + count * 1000,
           shouldRetry: err => err.code === -32015,
         }),
-        _getPastEvents(linguo, 'TaskCreated', {
+        _getPastEvents(linguoFetchEvents, 'TaskCreated', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        _getPastEvents(linguo, 'TaskAssigned', {
+        _getPastEvents(linguoFetchEvents, 'TaskAssigned', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        _getPastEvents(linguo, 'TranslationSubmitted', {
+        _getPastEvents(linguoFetchEvents, 'TranslationSubmitted', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        _getPastEvents(linguo, 'TranslationChallenged', {
+        _getPastEvents(linguoFetchEvents, 'TranslationChallenged', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
-        _getPastEvents(linguo, 'TaskResolved', {
+        _getPastEvents(linguoFetchEvents, 'TaskResolved', {
           filter: { _taskID: ID },
           fromBlock: 0,
         }),
@@ -265,7 +268,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
 
       const disputeEvents =
         translationChallengedEvents.length > 0
-          ? await _getPastEvents(linguo, 'Dispute', {
+          ? await _getPastEvents(linguoFetchEvents, 'Dispute', {
               filter: { _disputeID: task.disputeID },
               fromBlock: 0,
             })
@@ -273,7 +276,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
 
       return Task.normalize({
         ID,
-        contract: linguo.options.address,
+        contract: linguoFetchEvents.options.address,
         reviewTimeout,
         task: { ...task, parties: taskParties },
         metadata,
@@ -303,7 +306,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
     }
 
     try {
-      const metaEvidenceEvents = await _getPastEvents(linguo, 'MetaEvidence', {
+      const metaEvidenceEvents = await _getPastEvents(linguoFetchEvents, 'MetaEvidence', {
         filter: { _metaEvidenceID: ID },
         fromBlock: 0,
       });
@@ -327,7 +330,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
 
   async function getTaskPrice({ ID }) {
     try {
-      return await linguo.methods.getTaskPrice(ID).call();
+      return await linguoFetchEvents.methods.getTaskPrice(ID).call();
     } catch (err) {
       console.warn(`Failed to get price for task with ID ${ID}`, err);
       throw new Error(`Failed to get price for task with ID ${ID}`);
@@ -396,8 +399,8 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
    */
   async function getTranslatorDeposit({ ID }, { timeDeltaInSeconds = 3600 } = {}) {
     let [deposit, { minPrice, maxPrice, submissionTimeout }] = await Promise.all([
-      linguo.methods.getDepositValue(ID).call(),
-      linguo.methods.tasks(ID).call(),
+      linguoFetchEvents.methods.getDepositValue(ID).call(),
+      linguoFetchEvents.methods.tasks(ID).call(),
     ]);
 
     deposit = toBN(deposit);
@@ -412,7 +415,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   }
 
   async function getChallengerDeposit({ ID }) {
-    const deposit = await linguo.methods.getChallengeValue(ID).call();
+    const deposit = await linguoFetchEvents.methods.getChallengeValue(ID).call();
     return deposit;
   }
 
@@ -434,7 +437,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   }
 
   async function _getTaskAndDisputeDetails({ ID }) {
-    const task = await linguo.methods.tasks(ID).call();
+    const task = await linguoFetchEvents.methods.tasks(ID).call();
     const { disputeID } = task;
 
     const disputeInfo = await _getDisputeRulingAndStatus({ disputeID });
@@ -469,7 +472,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   }
 
   async function _getDisputeRulingAndStatus({ disputeID }) {
-    const disputeEvents = await _getPastEvents(linguo, 'Dispute', {
+    const disputeEvents = await _getPastEvents(linguoFetchEvents, 'Dispute', {
       filter: { _disputeID: disputeID },
       fromBlock: 0,
     });
@@ -501,13 +504,12 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
       };
     }
   }
-  async function _getPastEvents(contract, eventName, { filter, fromBlock = 0, toBlock = 'latest' } = {}) {
+  async function _getPastEvents(contract, eventName, { filter, fromBlock = 0 } = {}) {
     return promiseRetry(
       () =>
         contract
           .getPastEvents(eventName, {
             fromBlock,
-            toBlock,
             filter,
           })
           .then(events => {
@@ -551,10 +553,10 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
 
   async function _getRewardPoolParams() {
     const [winnerStakeMultiplier, loserStakeMultiplier, sharedStakeMultiplier, multiplierDivisor] = await Promise.all([
-      linguo.methods.winnerStakeMultiplier().call(),
-      linguo.methods.loserStakeMultiplier().call(),
-      linguo.methods.sharedStakeMultiplier().call(),
-      linguo.methods.MULTIPLIER_DIVISOR().call(),
+      linguoFetchEvents.methods.winnerStakeMultiplier().call(),
+      linguoFetchEvents.methods.loserStakeMultiplier().call(),
+      linguoFetchEvents.methods.sharedStakeMultiplier().call(),
+      linguoFetchEvents.methods.MULTIPLIER_DIVISOR().call(),
     ]);
 
     return {
@@ -566,13 +568,13 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   }
 
   async function _getLatestTaskRound({ ID }) {
-    const totalRounds = Number(await linguo.methods.getNumberOfRounds(ID).call());
+    const totalRounds = Number(await linguoFetchEvents.methods.getNumberOfRounds(ID).call());
 
     if (totalRounds === 0) {
       return undefined;
     }
 
-    return linguo.methods.getRoundInfo(ID, totalRounds - 1).call();
+    return linguoFetchEvents.methods.getRoundInfo(ID, totalRounds - 1).call();
   }
 
   async function getTaskDisputeEvidences({ ID }) {
@@ -587,13 +589,13 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
       return '0';
     }
 
-    const amount = await linguo.methods.amountWithdrawable(ID, account).call();
+    const amount = await linguoFetchEvents.methods.amountWithdrawable(ID, account).call();
 
     return amount;
   }
 
   async function getArbitrationCost() {
-    const arbitratorExtraData = (await linguo.methods.arbitratorExtraData().call()) ?? `0x0`;
+    const arbitratorExtraData = (await linguoFetchEvents.methods.arbitratorExtraData().call()) ?? `0x0`;
     const arbitrationCost = await archon.arbitrator.getArbitrationCost(arbitrator.options.address, arbitratorExtraData);
 
     return arbitrationCost;
@@ -701,7 +703,7 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   async function subscribe({ fromBlock = 0, filter = {} } = {}) {
     fromBlock = fromBlock < firstRelevantBlock ? firstRelevantBlock : fromBlock;
 
-    return linguo.events.allEvents({ fromBlock, filter });
+    return linguoFetchEvents.events.allEvents({ fromBlock, filter });
   }
 
   async function subscribeToArbitrator({ fromBlock = 0, filter = {} } = {}) {
@@ -836,11 +838,11 @@ export default async function createContractApi({ web3, archon, linguo, arbitrat
   };
 }
 
-// TODO: Add xDAI params
 const chainIdToFirstRelevantBlock = {
   1: 11237802,
   42: 0,
   77: 22580202,
+  100: 18668091,
 };
 
 const chainIdToCurrentEvidenceDisplayInterfaceURI = {

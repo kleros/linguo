@@ -80,7 +80,7 @@ function createPersistedReducer(reducer) {
     key: PERSISTANCE_KEY,
     storage,
     version: 1,
-    migrate: createMigrate(migrations, { debug: process.env.NODE_ENV !== 'production' }),
+    migrate: createMigrate(migrations, { debug: process.env.PRODUCTION !== 'true' }),
     blacklist: [],
   };
 
