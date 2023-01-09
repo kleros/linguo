@@ -3,6 +3,7 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Badge, Select } from 'antd';
 import theme from '~/features/ui/theme';
+import { statusFilters } from '~/consts/statusFilters';
 
 export default function TaskStatusFilter({ fullWidth, onChange, value, defaultValue }) {
   const controlledProps = value !== undefined ? { value } : {};
@@ -31,37 +32,37 @@ TaskStatusFilter.propTypes = {
 
 TaskStatusFilter.defaultProps = {
   onChange: () => {},
-  defaultValue: 'all',
+  defaultValue: statusFilters.all,
   fullWidth: false,
 };
 
 const filterOptions = [
   {
-    value: 'all',
+    value: statusFilters.all,
     label: <Badge color={theme.color.text.default} text="All Status" />,
   },
   {
-    value: 'open',
+    value: statusFilters.open,
     label: <Badge color={theme.color.status.open} text="Open Task" />,
   },
   {
-    value: 'inProgress',
+    value: statusFilters.inProgress,
     label: <Badge color={theme.color.status.inProgress} text="In Progress" />,
   },
   {
-    value: 'inReview',
+    value: statusFilters.inReview,
     label: <Badge color={theme.color.status.inReview} text="In Review" />,
   },
   {
-    value: 'inDispute',
+    value: statusFilters.inDispute,
     label: <Badge color={theme.color.status.inDispute} text="In Dispute" />,
   },
   {
-    value: 'finished',
+    value: statusFilters.finished,
     label: <Badge color={theme.color.status.finished} text="Finished" />,
   },
   {
-    value: 'incomplete',
+    value: statusFilters.incomplete,
     label: <Badge color={theme.color.status.incomplete} text="Incomplete" />,
   },
 ];
