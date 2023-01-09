@@ -1,5 +1,4 @@
 import React from 'react';
-import t from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import loadable from '@loadable/component';
@@ -7,7 +6,7 @@ import { Layout } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
 import { Alert, Spin } from '~/adapters/antd';
 import { selectPreference } from '~/features/ui/uiSlice';
-import { getNetworkName, useSwitchToChainFromUrl } from '~/features/web3';
+import { getNetworkName } from '~/features/web3';
 import { getCounterPartyChainId, isSupportedChain, isSupportedSideChain } from '~/features/web3/supportedChains';
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
 import { selectChainId, switchChain } from '~/features/web3/web3Slice';
@@ -19,6 +18,8 @@ import Navbar from '~/shared/Navbar';
 import { history } from '~/store';
 import Content from './Content';
 import * as r from './routes';
+import Web3ConnectionManager from '~/components/Web3ConnectionManager';
+import { TasksFilterProvider } from '~/context/TasksFilterProvider';
 
 const fallback = <Spin $centered tip="Loading page content..." />;
 
@@ -35,7 +36,7 @@ export default function MainRouter() {
 
   return (
     <ConnectedRouter history={history}>
-      <RouterInitializer>
+      <Web3ConnectionManager>
         <Layout>
           <DrawerMenu />
           <Layout
@@ -53,52 +54,42 @@ export default function MainRouter() {
             <GlobalWarnings />
             <Web3ErrorAlert />
             <Content>
-              <Switch>
-                <Route exact path={r.ROOT}>
-                  <Redirect to={defaultPage ?? r.HOME} />
-                </Route>
-                <Route exact path={r.HOME}>
-                  <Home />
-                </Route>
-                <Route exact path={r.FAQ}>
-                  <Faq />
-                </Route>
-                <Route exact path={r.TRANSLATOR_DASHBOARD}>
-                  <TranslatorDashboard />
-                </Route>
-                <Route exact path={r.TRANSLATOR_SETTINGS}>
-                  <TranslatorSettings />
-                </Route>
-                <Route exact path={r.TRANSLATION_REQUEST}>
-                  <TranslationRequest />
-                </Route>
-                <Route exact path={r.REQUESTER_DASHBOARD}>
-                  <RequesterDashboard />
-                </Route>
-                <Route exact path={r.TRANSLATION_TASK_DETAILS}>
-                  <TranslationDetails />
-                </Route>
-              </Switch>
+              <TasksFilterProvider>
+                <Switch>
+                  <Route exact path={r.ROOT}>
+                    <Redirect to={defaultPage ?? r.HOME} />
+                  </Route>
+                  <Route exact path={r.HOME}>
+                    <Home />
+                  </Route>
+                  <Route exact path={r.FAQ}>
+                    <Faq />
+                  </Route>
+                  <Route exact path={r.TRANSLATOR_DASHBOARD}>
+                    <TranslatorDashboard />
+                  </Route>
+                  <Route exact path={r.TRANSLATOR_SETTINGS}>
+                    <TranslatorSettings />
+                  </Route>
+                  <Route exact path={r.TRANSLATION_REQUEST}>
+                    <TranslationRequest />
+                  </Route>
+                  <Route exact path={r.REQUESTER_DASHBOARD}>
+                    <RequesterDashboard />
+                  </Route>
+                  <Route exact path={r.TRANSLATION_TASK_DETAILS}>
+                    <TranslationDetails />
+                  </Route>
+                </Switch>
+              </TasksFilterProvider>
             </Content>
             <Footer />
           </Layout>
         </Layout>
-      </RouterInitializer>
+      </Web3ConnectionManager>
     </ConnectedRouter>
   );
 }
-
-function _RouterInitializer({ children }) {
-  useSwitchToChainFromUrl();
-
-  return children;
-}
-
-_RouterInitializer.propTypes = {
-  children: t.node,
-};
-
-const RouterInitializer = React.memo(_RouterInitializer);
 
 function GlobalWarnings() {
   const dispatch = useDispatch();
