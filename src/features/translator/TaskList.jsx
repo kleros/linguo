@@ -4,10 +4,11 @@ import styled from 'styled-components';
 import { Col, Row, Tooltip, Typography } from 'antd';
 import Spacer from '~/shared/Spacer';
 import TaskCard from '~/features/tasks/TaskCard';
-import { TaskStatus } from '~/features/tasks';
 import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { TaskCardFooterInfoDisplay } from '../tasks/TaskCardFooter';
 import { selectAllSkills } from './translatorSlice';
+import { useIPFSQuery } from '~/hooks/queries/useIPFSQuery';
+import taskStatus from '~/consts/taskStatus';
 
 export default function TaskList({ data, showFootnote }) {
   return data.length === 0 ? (
@@ -64,44 +65,45 @@ const minimumLevelByQuality = {
 };
 
 function TranslatorTaskCard(props) {
-  const { sourceLanguage, targetLanguage, expectedQuality } = props;
-  const minimumLevel = minimumLevelByQuality[expectedQuality];
+  const { data } = useIPFSQuery(props.metaEvidence.URI);
+  const metadata = data?.metadata;
+  const minimumLevel = minimumLevelByQuality[metadata?.expectedQuality];
   const skills = useShallowEqualSelector(selectAllSkills);
 
   const hasSkill = React.useMemo(() => {
     const hasSourceLanguageSkill = skills.some(
-      ({ language, level }) => sourceLanguage === language && level >= minimumLevel
+      ({ language, level }) => metadata?.sourceLanguage === language && level >= minimumLevel
     );
     const hasTargetLanguageSkill = skills.some(
-      ({ language, level }) => targetLanguage === language && level >= minimumLevel
+      ({ language, level }) => metadata?.targetLanguage === language && level >= minimumLevel
     );
 
     return hasSourceLanguageSkill && hasTargetLanguageSkill;
-  }, [targetLanguage, sourceLanguage, minimumLevel, skills]);
-
+  }, [metadata?.targetLanguage, metadata?.sourceLanguage, minimumLevel, skills]);
   return (
     <Tooltip title={!hasSkill ? "You don't have the required skills for this task" : ''}>
-      <TaskCard
-        {...props}
-        footerProps={{
-          rightSideContent: (
-            <TaskCardFooterInfoDisplay
-              title="Skills Match"
-              content={hasSkill ? 'Yes' : 'No'}
-              color={hasSkill ? 'success' : 'danger'}
-            />
-          ),
-        }}
-      />
+      {metadata && (
+        <TaskCard
+          data={props}
+          metadata={metadata}
+          footerProps={{
+            rightSideContent: (
+              <TaskCardFooterInfoDisplay
+                title="Skills Match"
+                content={hasSkill ? 'Yes' : 'No'}
+                color={hasSkill ? 'success' : 'danger'}
+              />
+            ),
+          }}
+        />
+      )}
     </Tooltip>
   );
 }
 
 TranslatorTaskCard.propTypes = {
-  status: t.oneOf(Object.values(TaskStatus)).isRequired,
-  sourceLanguage: t.string.isRequired,
-  targetLanguage: t.string.isRequired,
-  expectedQuality: t.string.isRequired,
+  metaEvidence: t.shape({ URI: t.string.isRequired }),
+  status: t.oneOf(Object.values(taskStatus)).isRequired,
 };
 
 const pluralize = (quantity, { single, many }) => (quantity === 1 ? single : many);
