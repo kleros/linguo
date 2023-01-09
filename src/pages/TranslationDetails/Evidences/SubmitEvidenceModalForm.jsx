@@ -1,20 +1,20 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
 import { message, Form, Radio, Input, Divider } from 'antd';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
 import Modal from '~/shared/Modal';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import SingleFileUpload, { validator as singleFileUploadValidator } from '~/shared/SingleFileUpload';
 import { InfoIcon } from '~/shared/icons';
 import { submit as submitEvidence } from '~/features/evidences/evidencesSlice';
-import { useCurrentParty, TaskParty } from '~/features/tasks';
-import { selectById as selectTask } from '~/features/tasks/tasksSlice';
-import { selectAccount } from '~/features/web3/web3Slice';
+import { TaskParty } from '~/features/tasks';
 import { useDispatch } from 'react-redux';
 import { LoadingOutlined } from '@ant-design/icons';
+
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import useCurrentParty from '~/hooks/useCurrentParty';
 
 export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
   const [visible, setVisible] = React.useState(false);
@@ -36,14 +36,13 @@ export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const account = useShallowEqualSelector(selectAccount);
+  const { account, chainId } = useWeb3();
+  const { id: taskId } = useParamsCustom(chainId);
 
   const handleReset = React.useCallback(() => {
     form.resetFields();
     setVisible(false);
   }, [form]);
-
-  const { id: taskId } = useParams();
 
   const dispatch = useDispatch();
 
@@ -57,6 +56,7 @@ export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
       };
 
       setIsSubmitting(true);
+      // TODO: create submitEvidence()
       try {
         await dispatch(
           submitEvidence(data, {
@@ -73,8 +73,7 @@ export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
     [dispatch, account, taskId, handleReset]
   );
 
-  const task = useShallowEqualSelector(selectTask(taskId));
-  const currentParty = useCurrentParty(task);
+  const currentParty = useCurrentParty();
 
   const initialValues = {
     supportingSide: [TaskParty.Translator, TaskParty.Challenger].includes(currentParty) ? currentParty : undefined,
