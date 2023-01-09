@@ -5,9 +5,11 @@ import * as r from '~/app/routes';
 import TranslatorAvatar from '~/assets/images/avatar-work-as-a-translator.svg';
 import TaskStatusFilter from '~/features/tasks/TaskStatusFilter';
 import TaskOwnershipFilter from '~/features/translator/TaskOwnershipFilter';
-import { statusFilters, useFilters } from '~/features/translator';
 import Button from '~/shared/Button';
+
 import { useWeb3 } from '~/hooks/useWeb3';
+import { useTasksFilter } from '~/context/TasksFilterProvider';
+import { statusFilters } from '~/consts/statusFilters';
 
 export default function TaskListHeader() {
   return (
@@ -35,13 +37,17 @@ export default function TaskListHeader() {
 
 function TaskOwnershipFilterContainer() {
   const { account } = useWeb3();
-  const [{ status, allTasks }, setFilters] = useFilters();
+  const {
+    filters: { status, allTasks },
+    updateFilters,
+  } = useTasksFilter();
 
+  console.log({ updateFilters });
   const handleFilterChange = React.useCallback(
     value => {
-      setFilters({ status, allTasks: value });
+      updateFilters({ status, allTasks: value });
     },
-    [setFilters, status]
+    [status, updateFilters]
   );
 
   const shouldDisplay = account && status !== statusFilters.open;
@@ -50,13 +56,16 @@ function TaskOwnershipFilterContainer() {
 }
 
 function TaskStatusFilterContainer() {
-  const [{ status, allTasks }, setFilters] = useFilters();
+  const {
+    filters: { status, allTasks },
+    updateFilters,
+  } = useTasksFilter();
 
   const handleFilterChange = React.useCallback(
     value => {
-      setFilters({ status: value, allTasks });
+      updateFilters({ status: value, allTasks });
     },
-    [setFilters, allTasks]
+    [updateFilters, allTasks]
   );
 
   return <TaskStatusFilter fullWidth value={status} onChange={handleFilterChange} />;
