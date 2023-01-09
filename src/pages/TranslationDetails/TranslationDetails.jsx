@@ -1,80 +1,53 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Titled } from 'react-titled';
-import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { Badge } from 'antd';
+import { Spin } from 'antd';
+
 import TopLoadingBar from '~/shared/TopLoadingBar';
-import { Task, TaskStatus } from '~/features/tasks';
-import { selectIsLoadingById } from '~/features/tasks/tasksSlice';
-import { selectIsLoadingByTaskId } from '~/features/disputes/disputesSlice';
-import KlerosLogoOutlined from '~/assets/images/logo-kleros-outlined.svg';
 import SingleCardLayout from '../layouts/SingleCardLayout';
-import TaskFetcher from './TaskFetcher';
 import TaskDetails from './TaskDetails';
 
+import { useTaskQuery } from '~/hooks/queries/useTaskQuery';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useIPFSQuery } from '~/hooks/queries/useIPFSQuery';
+
+import Task from '~/utils/task';
+import { taskStatusToProps } from '~/utils/task/taskStatusToProps';
+
 export default function TranslationDetails() {
-  const { id } = useParams();
-  const isTaskLoading = useSelector(selectIsLoadingById(id));
-  const isDisputeLoading = useSelector(selectIsLoadingByTaskId(id));
-  const isLoading = isTaskLoading || isDisputeLoading;
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task, isLoading } = useTaskQuery(id);
+  const { data } = useIPFSQuery(task?.metaEvidence?.URI);
+  const metadata = data?.metadata;
+  if (!task || !metadata) return <></>;
+  const { status, translation, lasttInteraction, submissionTimeout } = task;
+  const cardProps = Task.isIncomplete(status, translation, lasttInteraction, submissionTimeout)
+    ? taskStatusToProps.incomplete
+    : taskStatusToProps[status];
 
   return (
-    <TaskFetcher>
-      {task => {
-        const cardProps = Task.isIncomplete(task) ? taskStatusToProps.incomplete : taskStatusToProps[task.status];
-
-        return (
-          <Titled title={title => `Translation Details | ${title}`}>
-            <StyledSingleCardLayout
-              $colorKey={cardProps.colorKey}
-              title={cardProps.title}
-              beforeContent={<TopLoadingBar show={isLoading} />}
-            >
-              <TaskDetails />
-            </StyledSingleCardLayout>
-          </Titled>
-        );
-      }}
-    </TaskFetcher>
+    <>
+      <Spin
+        tip="Getting task details..."
+        spinning={isLoading && !metadata}
+        css={`
+          width: 100%;
+        `}
+      />
+      <Titled title={title => `Translation Details | ${title}`}>
+        <StyledSingleCardLayout
+          $colorKey={cardProps.colorKey}
+          title={cardProps.title}
+          beforeContent={<TopLoadingBar show={isLoading} />}
+        >
+          <TaskDetails />
+        </StyledSingleCardLayout>
+      </Titled>
+    </>
   );
 }
-
-const taskStatusToProps = {
-  [TaskStatus.Created]: {
-    title: <Badge status="default" text="Open Task" />,
-    colorKey: 'open',
-  },
-  [TaskStatus.Assigned]: {
-    title: <Badge status="default" text="In Progress" />,
-    colorKey: 'inProgress',
-  },
-  [TaskStatus.AwaitingReview]: {
-    title: <Badge status="default" text="In Review" />,
-    colorKey: 'inReview',
-  },
-  [TaskStatus.DisputeCreated]: {
-    title: (
-      <>
-        <Badge status="default" text="In Dispute" />
-        <KlerosLogoOutlined
-          css={`
-            width: 1.5rem;
-          `}
-        />
-      </>
-    ),
-    colorKey: 'inDispute',
-  },
-  [TaskStatus.Resolved]: {
-    title: <Badge status="default" text="Finished" />,
-    colorKey: 'finished',
-  },
-  incomplete: {
-    title: <Badge status="default" text="Incomplete" />,
-    colorKey: 'incomplete',
-  },
-};
 
 const StyledSingleCardLayout = styled(SingleCardLayout)`
   .card-header {
