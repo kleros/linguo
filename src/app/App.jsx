@@ -1,44 +1,32 @@
 import React from 'react';
+import { SWRConfig } from 'swr';
+import { request } from 'graphql-request';
 import { hot } from 'react-hot-loader';
-import t from 'prop-types';
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
-import { Web3ReactProvider } from '@web3-react/core';
-import Web3 from 'web3';
 import theme from '~/features/ui/theme';
-import { useWatchLibrary, useWeb3ReactBootstrap } from '~/features/web3';
 import MainRouter from './MainRouter';
+import Web3Provider from '../context/Web3Provider';
+
+const fetcherBuilder =
+  url =>
+  ({ query, variables }) => {
+    return request(url, query, variables);
+  };
 
 function App() {
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <ThemeProvider theme={theme}>
-        <Initializer>
+    <SWRConfig value={{ fetcher: fetcherBuilder('https://api.thegraph.com/subgraphs/name/kleros/linguo-gnosis') }}>
+      <Web3Provider>
+        <ThemeProvider theme={theme}>
           <GlobalStyle />
           <MainRouter />
-        </Initializer>
-      </ThemeProvider>
-    </Web3ReactProvider>
+        </ThemeProvider>
+      </Web3Provider>
+    </SWRConfig>
   );
 }
 
 export default hot(module)(App);
-
-function _Initializer({ children }) {
-  useWeb3ReactBootstrap();
-  useWatchLibrary();
-
-  return children;
-}
-
-_Initializer.propTypes = {
-  children: t.node,
-};
-
-const Initializer = React.memo(_Initializer);
-
-function getLibrary(provider) {
-  return new Web3(provider);
-}
 
 const GlobalStyle = createGlobalStyle`
   body {
