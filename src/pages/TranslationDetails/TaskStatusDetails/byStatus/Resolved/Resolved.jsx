@@ -1,36 +1,38 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
 import TaskResolvedAvatar from '~/assets/images/avatar-task-resolved.svg';
-import { DisputeRuling } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
-import { getWithdrawableAmount } from '~/features/tasks/tasksSlice';
-import { selectAccount } from '~/features/web3/web3Slice';
 import DisputeLink from '~/shared/DisputeLink';
 import EthValue from '~/shared/EthValue';
 import Spacer from '~/shared/Spacer';
-import useTask from '../../../useTask';
 import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import useCurrentParty from '../../hooks/useCurrentParty';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import { useLinguo } from '~/hooks/useLinguo';
+import disputeRuling from '~/consts/disputeRuling';
+import resolutionReason from '~/consts/resolutionReason';
 
 export default function Resolved() {
-  const { hasDispute, ruling, requester, parties, disputeID } = useTask();
-
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const { challenger, disputed, disputeID, finalRuling, reason, requester } = task;
   const party = useCurrentParty();
+  const challengerIsRequester = requester === challenger;
 
-  const challengerIsRequester = requester === parties[TaskParty.Challenger];
-
-  const title = titleMap[hasDispute][ruling];
-  const description = hasDispute
+  const title = titleMap[disputed][disputed ? finalRuling : reason];
+  const description = disputed
     ? [
-        <DisputeLink key="kleros-dispute-link" disputeID={disputeID} />,
-        ...getDescription({ party, hasDispute, ruling, challengerIsRequester }),
+        <DisputeLink key="kleros-dispute-link" disputeID={Number(disputeID)} />,
+        ...getDescription(party, disputed, disputed ? finalRuling : reason, challengerIsRequester),
       ]
-    : getDescription({ party, hasDispute, ruling, challengerIsRequester });
+    : getDescription(party, disputed, disputed ? finalRuling : reason, challengerIsRequester);
 
   const pendingWithdrawal = usePendingWithdrawal();
 
@@ -39,46 +41,30 @@ export default function Resolved() {
         interaction: pendingWithdrawal,
       }
     : {
-        illustration: getIllustration({ hasDispute, ruling }),
+        illustration: getIllustration({ disputed, finalRuling }),
       };
 
   return <TaskStatusDetailsLayout title={title} description={description} {...props} />;
 }
 
 function usePendingWithdrawal() {
-  const dispatch = useDispatch();
-  const { id } = useTask();
-  const account = useSelector(selectAccount);
+  const { account, chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const linguo = useLinguo();
 
-  const [withdrawableAmount, setWithdrawableAmount] = React.useState('0');
+  // const withdrawableAmountt = linguo.call('amountWithdrawable', task.taskID, account);
+  const [withdrawableAmount, setWithdrawableAmount] = React.useState(
+    linguo.call('amountWithdrawable', task.taskID, account)
+  );
   const registerWithdrawal = React.useCallback(() => {
     setWithdrawableAmount('0');
   }, []);
 
-  const doGetWithdrawableAmount = React.useCallback(async () => {
-    try {
-      const result = await dispatch(
-        getWithdrawableAmount(
-          { id, account },
-          {
-            meta: {
-              thunk: { id },
-            },
-          }
-        )
-      );
-
-      setWithdrawableAmount(result?.data ?? '0');
-    } catch (err) {
-      console.warn('Failed to get withdrawable amount', err);
-    }
-  }, [dispatch, id, account]);
-
-  React.useEffect(() => {
-    doGetWithdrawableAmount();
-  }, [doGetWithdrawableAmount]);
-
-  return withdrawableAmount === '0' ? null : (
+  /* React.useEffect(() => {
+    setWithdrawableAmount(linguo.call('amountWithdrawable', task.taskID, account));
+  }, [account, linguo, task.taskID]); */
+  return withdrawableAmount === 0 ? null : (
     <>
       <ContextAwareTaskInteractionButton
         onSuccess={registerWithdrawal}
@@ -107,54 +93,55 @@ function usePendingWithdrawal() {
 
 const titleMap = {
   false: {
-    [DisputeRuling.RefuseToRule]: 'The translation was not accepted neither rejected',
-    [DisputeRuling.TranslationApproved]: 'The translation was approved',
-    [DisputeRuling.TranslationRejected]: 'The translation was rejected',
+    [resolutionReason.Accepted]: 'The translation was approved',
+    [resolutionReason.Reimbursed]: 'The requester was reibmursed',
   },
   true: {
-    [DisputeRuling.RefuseToRule]: 'Final decision: the jurors refused to arbitrate the case',
-    [DisputeRuling.TranslationApproved]: 'Final decision: translation approved',
-    [DisputeRuling.TranslationRejected]: 'Final decision: translation rejected',
+    [disputeRuling.RefuseToRule]: 'Final decision: the jurors refused to arbitrate the case',
+    [disputeRuling.TranslationApproved]: 'Final decision: translation approved',
+    [disputeRuling.TranslationRejected]: 'Final decision: translation rejected',
   },
 };
 
-const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) => {
+const getDescription = (party, disputed, ruling, challengerIsRequester) => {
   const descriptionMap = {
     [TaskParty.Requester]: {
       false: {
-        [DisputeRuling.RefuseToRule]: ['You received the bounty back.'],
-        [DisputeRuling.TranslationApproved]: ['The bounty goes to the translator.'],
-        [DisputeRuling.TranslationRejected]: ['You received the bounty back.'],
+        [resolutionReason.Accepted]: ['The bounty goes to the translator.'],
+        [resolutionReason.Reimbursed]: [
+          'You received the bounty back and also the deposit of the translator, if there was one.',
+        ],
       },
       true: {
-        [DisputeRuling.RefuseToRule]: ['You received the bounty back.'],
-        [DisputeRuling.TranslationApproved]: ['The bounty goes to the translator.'],
-        [DisputeRuling.TranslationRejected]: ['You received the bounty back.'],
+        [disputeRuling.RefuseToRule]: ['You received the bounty back.'],
+        [disputeRuling.TranslationApproved]: ['The bounty goes to the translator.'],
+        [disputeRuling.TranslationRejected]: ['You received the bounty back.'],
       },
     },
     [TaskParty.Translator]: {
       false: {
-        [DisputeRuling.RefuseToRule]: ['You received your Translator Deposit back.'],
-        [DisputeRuling.TranslationApproved]: ['You received your Translator Deposit back + the bounty.'],
-        [DisputeRuling.TranslationRejected]: ['Your Translator Deposit was sent to the requester.'],
+        [resolutionReason.Accepted]: ['You received your Translator Deposit back + the bounty.'],
+        [resolutionReason.Reimbursed]: [
+          'The requester received your Translator Deposit because you failed to submit the translation before the deadline.',
+        ],
       },
       true: {
-        [DisputeRuling.RefuseToRule]: ['You received the bounty back - Arbitration Fees.'],
-        [DisputeRuling.TranslationApproved]: [
+        [disputeRuling.RefuseToRule]: ['You received the bounty back - Arbitration Fees.'],
+        [disputeRuling.TranslationApproved]: [
           'You received your Translator Deposit back + the bounty - Arbitration Fees.',
         ],
-        [DisputeRuling.TranslationRejected]: ['Your Translator Deposit was sent to the challenger.'],
+        [disputeRuling.TranslationRejected]: ['Your Translator Deposit was sent to the challenger.'],
       },
     },
     [TaskParty.Challenger]: {
       true: {
-        [DisputeRuling.RefuseToRule]: challengerIsRequester
+        [disputeRuling.RefuseToRule]: challengerIsRequester
           ? ['You received the bounty + your Challenger Deposit back - Arbitration Fees.']
           : ['You received your Challenger Deposit back - Arbitration Fees.'],
-        [DisputeRuling.TranslationApproved]: challengerIsRequester
+        [disputeRuling.TranslationApproved]: challengerIsRequester
           ? ['The bounty + your Challenger Deposit were sent to the translator.']
           : ['Your Challenger Deposit was sent to the translator.'],
-        [DisputeRuling.TranslationRejected]: [
+        [disputeRuling.TranslationRejected]: [
           challengerIsRequester
             ? 'You received the bounty + your Challenger Deposit back + the Translator Deposit - Arbitration Fees.'
             : 'You received your Challenger Deposit back + the Translator Deposit - Arbitration Fees.',
@@ -163,22 +150,21 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
     },
     [TaskParty.Other]: {
       false: {
-        [DisputeRuling.RefuseToRule]: [
-          'The requester received the bounty back.',
-          'The translator received the Translator Deposit back.',
+        [resolutionReason.Accepted]: ['The bounty goes to the translator.'],
+        [resolutionReason.Reimbursed]: [
+          'The requester recieves the Requester Deposit back.',
+          'The Translator Deposit goes to the requester, if there was one',
         ],
-        [DisputeRuling.TranslationApproved]: ['The bounty goes to the translator.'],
-        [DisputeRuling.TranslationRejected]: ['The Translator Deposit goes to the challenger.'],
       },
       true: {
-        [DisputeRuling.RefuseToRule]: [
+        [disputeRuling.RefuseToRule]: [
           'The requester received the bounty back.',
           'The translator received the Translator Deposit back.',
         ],
-        [DisputeRuling.TranslationApproved]: [
+        [disputeRuling.TranslationApproved]: [
           'The value of the bounty + the Challenger Deposit - Arbitration Fees goes to the translator.',
         ],
-        [DisputeRuling.TranslationRejected]: [
+        [disputeRuling.TranslationRejected]: [
           'The requester received the bounty back.',
           'The value of the Translator Deposit - Arbitration Fees goes to the challenger.',
         ],
@@ -186,17 +172,18 @@ const getDescription = ({ party, hasDispute, ruling, challengerIsRequester }) =>
     },
   };
 
-  return descriptionMap[party]?.[hasDispute]?.[ruling] ?? [];
+  return descriptionMap[party]?.[disputed]?.[ruling] ?? [];
 };
 
 const illustrationMap = {
-  [DisputeRuling.RefuseToRule]: <RefusedToRuleAvatar />,
-  [DisputeRuling.TranslationApproved]: <TranslationApprovedAvatar />,
-  [DisputeRuling.TranslationRejected]: <TranslationRejectedAvatar />,
+  [disputeRuling.RefuseToRule]: <RefusedToRuleAvatar />,
+  [disputeRuling.TranslationApproved]: <TranslationApprovedAvatar />,
+  [disputeRuling.TranslationRejected]: <TranslationRejectedAvatar />,
   noDispute: <TaskResolvedAvatar />,
 };
 
-const getIllustration = ({ hasDispute, ruling }) => (hasDispute ? illustrationMap[ruling] : illustrationMap.noDispute);
+const getIllustration = ({ disputed, finalRuling }) =>
+  disputed ? illustrationMap[finalRuling] : illustrationMap.noDispute;
 
 const StyledExplainer = styled.small`
   color: ${p => p.theme.color.text.light};

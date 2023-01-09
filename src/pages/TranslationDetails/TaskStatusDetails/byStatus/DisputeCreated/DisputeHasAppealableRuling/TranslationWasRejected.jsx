@@ -1,26 +1,31 @@
 import React from 'react';
 import { Alert } from '~/adapters/antd';
 import { TaskParty } from '~/features/tasks';
-import { Dispute } from '~/features/disputes';
 import EthValue from '~/shared/EthValue';
 import Spacer from '~/shared/Spacer';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
-import useTask from '../../../../useTask';
 import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';
-import useCurrentParty from '../../../hooks/useCurrentParty';
-import DisputeContext from '../DisputeContext';
+
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useDispute } from '~/hooks/useDispute';
+import { useTask } from '~/hooks/useTask';
 
 function TranslationWasRejected() {
-  const party = useCurrentParty();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
 
-  const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party });
+  const { disputeID, latestRoundId, challenger, requester, currentParty } = task;
+  const { dispute } = useDispute(disputeID, latestRoundId);
 
-  const { requester, parties } = useTask();
-  const challengerIsRequester = requester === parties[TaskParty.Challenger];
+  const challengerIsRequester = requester === challenger;
 
   const title = 'The jurors did not approve the translation';
-  const description = getDescriptionByParty[party]({ totalAppealCost, challengerIsRequester });
+  const description = getDescriptionByParty[currentParty]({
+    totalAppealCost: dispute.totalAppealCost(currentParty),
+    challengerIsRequester,
+  });
   const illustration = <TranslationRejectedAvatar />;
 
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;

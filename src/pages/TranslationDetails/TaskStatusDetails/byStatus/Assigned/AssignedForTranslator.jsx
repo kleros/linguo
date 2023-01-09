@@ -1,13 +1,15 @@
 import React from 'react';
 import Spacer from '~/shared/Spacer';
 import FormattedRelativeDate from '~/shared/FormattedRelativeDate';
-import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import TranslationUploadButton from '../../components/TranslationUploadButton';
+import { useLinguo } from '~/hooks/useLinguo';
 
 function AssignedForTranslator() {
-  const { reviewTimeout } = useTask();
+  const linguo = useLinguo();
+  const reviewTimeout = linguo.call('reviewTimeout');
+
   const props = {
     title: 'Deliver the translation file',
     description: [

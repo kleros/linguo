@@ -2,12 +2,18 @@ import React from 'react';
 import { Task } from '~/features/tasks';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
 import EthValue from '~/shared/EthValue';
-import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+
 function IncompleteForTranslator() {
-  const task = useTask();
-  const isPending = Task.isPending(task);
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+
+  const isPending = Task.isPending(task.status);
 
   /*
    * A task which is Incomplete was not challenged, so the value of sumDeposit

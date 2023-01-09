@@ -1,11 +1,12 @@
 import React from 'react';
 import TaskAssignedAvatar from '~/assets/images/avatar-task-assigned.svg';
+import { useLinguo } from '~/hooks/useLinguo';
 import FormattedRelativeDate from '~/shared/FormattedRelativeDate';
-import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 
 function AssignedForRequester() {
-  const { reviewTimeout } = useTask();
+  const linguo = useLinguo();
+  const reviewTimeout = linguo.call('reviewTimeout');
 
   const props = {
     title: 'This translation task was assigned to a translator',
