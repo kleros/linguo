@@ -1,21 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import theme from '~/features/ui/theme';
-import { selectAccount } from '~/features/web3/web3Slice';
-import WalletConnection from './WalletConnection';
+import WalletConnection from '~/components/modals/WalletConnection';
 import Notifications from './Notifications';
 import Settings from './Settings';
 import NetworkStatus from './NetworkStatus';
 import HelpNav from './HelpNav';
+import { useWeb3 } from '~/hooks/useWeb3';
 
 export default function SystemTray() {
-  const isConnected = !!useSelector(selectAccount);
-
+  const { active, connector } = useWeb3();
+  const isNetwork = connector.name === 'network';
   return (
     <StyledRow>
       <StyledNetworkStatusWrapper>
-        {isConnected ? <StyledNetworkStatus textColor={theme.color.text.inverted} /> : <WalletConnection />}
+        {active && !isNetwork ? <StyledNetworkStatus textColor={theme.color.text.inverted} /> : <WalletConnection />}
       </StyledNetworkStatusWrapper>
       <Notifications />
       <Settings />

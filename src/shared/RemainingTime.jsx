@@ -1,13 +1,7 @@
+import moment from 'moment';
 import t from 'prop-types';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import useCountdownTimer from '~/shared/useCountdownTimer';
-
-dayjs.extend(relativeTime);
-
-const _1_SECOND_IN_MILISECONDS = 1000;
-const _5_MINUTES_IN_MILISECONDS = 5 * 60 * 1000;
-const _1_DAY_IN_SECONDS = 24 * 60 * 60;
+import { _1_DAY_IN_SECONDS, _1_SECOND_IN_MILISECONDS, _5_MINUTES_IN_MILISECONDS } from '~/consts/time';
 
 export function useRemainingTime(initialValueSeconds) {
   const remainingTime = useCountdownTimer({
@@ -27,8 +21,8 @@ function RemainingTime({ initialValueSeconds, render, showPrefix }) {
     remainingTime === 0
       ? '00:00:00'
       : remainingTime < _1_DAY_IN_SECONDS
-      ? dayjs().startOf('day').add(remainingTime, 'second').format('HH:mm:ss')
-      : dayjs().add(remainingTime, 'second').fromNow(!showPrefix);
+      ? moment().startOf('day').add(remainingTime, 'second').format('HH:mm:ss')
+      : moment().add(remainingTime, 'second').fromNow(!showPrefix);
 
   return render({ value: remainingTime, formattedValue, endingSoon });
 }

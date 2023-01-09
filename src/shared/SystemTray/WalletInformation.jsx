@@ -1,21 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { Typography } from 'antd';
 import ReactBlockies from 'react-blockies';
-import { useDisconnectFromProvider } from '~/features/web3';
-import { selectAccount } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
 import EthAddress from '~/shared/EthAddress';
 import Spacer from '~/shared/Spacer';
+import { useConnect } from '~/hooks/useConnect';
+import { useWeb3 } from '~/hooks/useWeb3';
 
 export default function WalletInformation() {
-  const account = useSelector(selectAccount);
-  const disconnect = useDisconnectFromProvider();
-
-  const handleDisconnect = React.useCallback(() => {
-    disconnect();
-  }, [disconnect]);
+  const { account } = useWeb3();
+  const { disconnect } = useConnect();
 
   return account ? (
     <StyledWalletInformationWrapper>
@@ -34,7 +29,7 @@ export default function WalletInformation() {
         </StyledAccountAddress>
       </EthAddress>
       <Spacer />
-      <Button variant="outlined" onClick={handleDisconnect}>
+      <Button variant="outlined" onClick={disconnect}>
         Disconnect
       </Button>
     </StyledWalletInformationWrapper>

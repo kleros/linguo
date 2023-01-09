@@ -1,10 +1,9 @@
 import React from 'react';
 import t from 'prop-types';
-import { useSelector } from 'react-redux';
 import Web3 from 'web3';
-import { selectChainId } from '~/features/web3/web3Slice';
 import FormattedNumber from './FormattedNumber';
 import { defaultChainId } from '~/features/web3/supportedChains';
+import { useWeb3 } from '~/hooks/useWeb3';
 
 const DEFAULT_CHAIN_ID = process.env.DEFAULT_CHAIN_ID;
 
@@ -192,7 +191,7 @@ export const valueOf = ({ amount, unit = 'ether' }) => {
 };
 
 function EthValue({ amount, maxIntDigits, decimals, unit, suffixType, render }) {
-  const chainId = useSelector(selectChainId);
+  const { chainId } = useWeb3();
   const unitInfo = indexedAvailableUnits[unit]
     ? {
         unit,

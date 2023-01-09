@@ -1,24 +1,21 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { Badge } from 'antd';
 import { getNetworkShortName } from '~/features/web3';
-import { selectAccount, selectChainId, selectIsConnected, selectIsConnecting } from '~/features/web3/web3Slice';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useConnect } from '~/hooks/useConnect';
 
 export default function NetworkStatus({ textColor, accountRequired, className }) {
-  const account = useSelector(selectAccount);
-  const isConnecting = useSelector(selectIsConnecting);
-  const isConnected = useSelector(selectIsConnected);
-  const chainId = useSelector(selectChainId);
+  const { account, chainId, active } = useWeb3();
+  const { connecting } = useConnect();
 
-  const shouldDisplayInfo = accountRequired ? !!account : isConnected || isConnecting;
-
+  const shouldDisplayInfo = accountRequired ? !!account : active || connecting;
   return shouldDisplayInfo ? (
     <StyledBadge
       dot
       $textColor={textColor}
-      status={isConnected ? 'success' : isConnecting ? 'warning' : 'default'}
+      status={active ? 'success' : connecting ? 'warning' : 'default'}
       text={getNetworkShortName(chainId)}
       className={className}
     />
