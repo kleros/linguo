@@ -3,9 +3,6 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 import * as r from '~/app/routes';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
-import { selectAllSkills } from '~/features/translator/translatorSlice';
-
 import Button from '~/shared/Button';
 import ContentBlocker from '~/shared/ContentBlocker';
 import Spacer from '~/shared/Spacer';
@@ -19,14 +16,18 @@ import TaskAssignmentDepositFetcher from '../../components/TaskAssignmentDeposit
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
+import { useTranslatorSkills } from '~/context/TranslatorSkillsProvider';
 
 export default function CreatedForOther() {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
 
+  const { state, selectors } = useTranslatorSkills();
+  const { selectAllSkills } = selectors;
+  const skills = selectAllSkills(state);
+
   const minimumLevel = minimumLevelByQuality[task.expectedQuality];
-  const skills = useShallowEqualSelector(selectAllSkills);
 
   const hasSkill = React.useMemo(() => {
     const hasSourceLanguageSkill = skills.some(
@@ -79,7 +80,7 @@ export default function CreatedForOther() {
       }
     >
       <div>
-        <ContentBlocker blocked={false} contentBlur={0}>
+        <ContentBlocker blocked={!hasSkill} contentBlur={0}>
           <TaskStatusDetailsLayout {...props} />
         </ContentBlocker>
       </div>
