@@ -42,7 +42,6 @@ function TaskOwnershipFilterContainer() {
     updateFilters,
   } = useTasksFilter();
 
-  console.log({ updateFilters });
   const handleFilterChange = React.useCallback(
     value => {
       updateFilters({ status, allTasks: value });
