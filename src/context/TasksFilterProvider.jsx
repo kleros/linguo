@@ -2,17 +2,14 @@ import React, { useState, createContext, useContext, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types';
 
-const TasksFilterContext = createContext({
-  statusFilter: 'all',
-  allTasksFilter: true,
-});
+const TasksFilterContext = createContext();
 
 export const TasksFilterProvider = ({ children }) => {
   const location = useLocation();
   const history = useHistory();
 
   const queryParams = new URLSearchParams(location.search);
-  const [statusFilter, setStatusFilter] = useState(queryParams.get('status') || '');
+  const [statusFilter, setStatusFilter] = useState(queryParams.get('status') || 'all');
   const [allTasksFilter, setAllTasksFilter] = useState(queryParams.get('allTasks') === 'true');
 
   useEffect(() => {
@@ -28,12 +25,12 @@ export const TasksFilterProvider = ({ children }) => {
     allTasks: allTasksFilter,
   };
 
-  const setFilters = newFilters => {
-    setStatusFilter(newFilters.status || '');
+  const updateFilters = newFilters => {
+    setStatusFilter(newFilters.status || 'all');
     setAllTasksFilter(newFilters.allTasks || false);
   };
 
-  return <TasksFilterContext.Provider value={(filters, setFilters)}>{children}</TasksFilterContext.Provider>;
+  return <TasksFilterContext.Provider value={{ filters, updateFilters }}>{children}</TasksFilterContext.Provider>;
 };
 
 export const useTasksFilter = () => {
@@ -46,18 +43,4 @@ export const useTasksFilter = () => {
 
 TasksFilterProvider.propTypes = {
   children: PropTypes.node.isRequired,
-};
-
-export const statusFilters = {
-  all: 'all',
-  open: 'open',
-  inProgress: 'inProgress',
-  inReview: 'inReview',
-  inDispute: 'inDispute',
-  finished: 'finished',
-  incomplete: 'incomplete',
-};
-
-export const getStatusFilter = filterName => {
-  return statusFilters[filterName] ?? statusFilters.all;
 };
