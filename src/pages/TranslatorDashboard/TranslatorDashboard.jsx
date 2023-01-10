@@ -6,8 +6,9 @@ import AffixContainer from '~/shared/AffixContainer';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListHeader from './TaskListHeader';
 import TaskListFetcher from './TaskListFetcher';
+import { withRequiredSkills } from './withRequiredSkills';
 
-export default function TranslatorDashboard() {
+const WrappedTranslatorDashboard = () => {
   return (
     <Titled title={title => `Translator Dashboard | ${title}`}>
       <MultiCardLayout>
@@ -39,7 +40,10 @@ export default function TranslatorDashboard() {
       </MultiCardLayout>
     </Titled>
   );
-}
+};
+
+const TranslatorDashboard = withRequiredSkills(WrappedTranslatorDashboard);
+export default TranslatorDashboard;
 
 const StyledDivider = styled(Divider)`
   border-top-color: ${props => props.theme.color.primary.default};
