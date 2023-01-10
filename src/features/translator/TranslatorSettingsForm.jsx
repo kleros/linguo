@@ -1,34 +1,36 @@
 import React from 'react';
 import t from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
 import produce from 'immer';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+
 import { Col, Form, Row } from 'antd';
 import { Alert } from '~/adapters/antd';
 import * as r from '~/app/routes';
 import allLanguages from '~/assets/fixtures/languages';
+
 import Button from '~/shared/Button';
 import { AddIcon, RemoveIcon } from '~/shared/icons';
 import { LanguageSelect, LevelSelect } from '~/shared/LanguageSelect';
 import AffixContainer from '~/shared/AffixContainer';
 import Spacer from '~/shared/Spacer';
-import { cancelSaveSkills, saveSkills, selectAllSkills } from './translatorSlice';
+
+import { useTranslatorSkills, EMPTY_SKILL } from '~/context/TranslatorSkillsProvider';
 
 const emptyLevels = [];
 
 export default function TranslatorSettingsForm() {
+  const { state, actions, selectors } = useTranslatorSkills();
+  const { updateSkills, clearSkills } = actions;
+  const { selectAllSkills } = selectors;
+
   const [form] = Form.useForm();
 
-  const storedSkills = useSelector(selectAllSkills);
-  const [state, setState] = React.useState({ skills: ensureAtLeastOneEmptySkill(storedSkills) });
+  const [formState, setFormState] = React.useState({ skills: selectAllSkills(state) });
 
-  const handleValuesChange = React.useCallback(
-    (_, allValues) => {
-      setState(allValues);
-    },
-    [setState]
-  );
+  const handleValuesChange = React.useCallback((_, allValues) => {
+    setFormState(allValues);
+  }, []);
 
   const resetLevelOnLanguageChange = React.useCallback(
     change => {
@@ -44,23 +46,21 @@ export default function TranslatorSettingsForm() {
     [form]
   );
 
-  const dispatch = useDispatch();
-
   const handleReturnClick = React.useCallback(() => {
-    dispatch(cancelSaveSkills());
-  }, [dispatch]);
+    clearSkills();
+  }, [clearSkills]);
 
   const handleFinish = React.useCallback(
-    values => {
-      dispatch(saveSkills(values));
+    ({ skills }) => {
+      updateSkills(skills);
     },
-    [dispatch]
+    [updateSkills]
   );
 
-  const totalLanguagesReached = allLanguages.length === state.skills.length;
+  const totalLanguagesReached = allLanguages.length === formState.skills.length;
 
   return (
-    <Form form={form} initialValues={state} onValuesChange={handleValuesChange} onFinish={handleFinish}>
+    <Form form={form} initialValues={formState} onValuesChange={handleValuesChange} onFinish={handleFinish}>
       <Form.List name="skills">
         {(fields, { add, remove }) => {
           return (
@@ -70,8 +70,8 @@ export default function TranslatorSettingsForm() {
                   <LanguageSelectionCombobox
                     key={field.key}
                     name={field.name}
-                    selectedValues={state.skills}
-                    value={state.skills[field.name]}
+                    selectedValues={formState.skills}
+                    value={formState.skills[field.name]}
                     onChange={resetLevelOnLanguageChange}
                     remove={remove}
                   />
@@ -168,17 +168,6 @@ const StyledJumboButton = styled(Button)`
   height: 5.75rem;
   border-radius: 0.75rem;
 `;
-
-const EMPTY_SKILL = {
-  language: undefined,
-  level: undefined,
-};
-
-const ensureAtLeastOneEmptySkill = produce(skills => {
-  if (skills.length === 0) {
-    skills.push(EMPTY_SKILL);
-  }
-});
 
 const levelsByLanguage = allLanguages.reduce(
   (acc, { code, levels }) =>
