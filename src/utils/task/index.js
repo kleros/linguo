@@ -8,11 +8,15 @@ const isIncomplete = (status, translation, lastInteraction, submissionTimeout) =
     return translation === '';
   }
 
-  if ([taskStatus.Created, taskStatus.Assigned].includes(status)) {
+  if (isPending(status)) {
     return moment(lastInteraction).add(submissionTimeout).isBefore(moment());
   }
 
   return false;
+};
+
+const isInProgress = (status, translation, lastInteraction, submissionTimeout) => {
+  return status === taskStatus.Assigned && !Task.isIncomplete(status, translation, lastInteraction, submissionTimeout);
 };
 
 const isFinalized = (status, translation, lastInteraction, submissionTimeout) => {
@@ -21,6 +25,14 @@ const isFinalized = (status, translation, lastInteraction, submissionTimeout) =>
 
 const isPending = status => {
   return [taskStatus.Created, taskStatus.Assigned].includes(status);
+};
+
+const isCompleted = (status, translation, lastInteraction, submissionTimeout) => {
+  return status === taskStatus.Resolved && !isIncomplete(status, translation, lastInteraction, submissionTimeout);
+};
+
+const isOpen = (status, translation, lastInteraction, submissionTimeout) => {
+  return status === taskStatus.Created && !isIncomplete(status, translation, lastInteraction, submissionTimeout);
 };
 
 const getCurrentPrice = (requesterDeposit, minPrice, maxPrice, lastInteraction, submissionTimeout, status) => {
@@ -93,8 +105,11 @@ const getCurrentParty = (account, requester, translator, challenger) => {
 };
 
 const Task = {
+  isCompleted,
   isIncomplete,
+  isInProgress,
   isFinalized,
+  isOpen,
   isPending,
   getCurrentParty,
   getCurrentPrice,
