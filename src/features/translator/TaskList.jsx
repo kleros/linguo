@@ -1,14 +1,15 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
+
 import { Col, Row, Tooltip, Typography } from 'antd';
 import Spacer from '~/shared/Spacer';
 import TaskCard from '~/features/tasks/TaskCard';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { TaskCardFooterInfoDisplay } from '../tasks/TaskCardFooter';
-import { selectAllSkills } from './translatorSlice';
+
 import { useIPFSQuery } from '~/hooks/queries/useIPFSQuery';
 import taskStatus from '~/consts/taskStatus';
+import { useTranslatorSkills } from '~/context/TranslatorSkillsProvider';
 
 export default function TaskList({ data, showFootnote }) {
   return data.length === 0 ? (
@@ -68,7 +69,10 @@ function TranslatorTaskCard(props) {
   const { data } = useIPFSQuery(props.metaEvidence.URI);
   const metadata = data?.metadata;
   const minimumLevel = minimumLevelByQuality[metadata?.expectedQuality];
-  const skills = useShallowEqualSelector(selectAllSkills);
+
+  const { state, selectors } = useTranslatorSkills();
+  const { selectAllSkills } = selectors;
+  const skills = selectAllSkills(state);
 
   const hasSkill = React.useMemo(() => {
     const hasSourceLanguageSkill = skills.some(
