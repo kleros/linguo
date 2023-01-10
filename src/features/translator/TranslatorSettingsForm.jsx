@@ -1,7 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 import produce from 'immer';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Col, Form, Row } from 'antd';
@@ -20,6 +20,7 @@ import { useTranslatorSkills, EMPTY_SKILL } from '~/context/TranslatorSkillsProv
 const emptyLevels = [];
 
 export default function TranslatorSettingsForm() {
+  const history = useHistory();
   const { state, actions, selectors } = useTranslatorSkills();
   const { updateSkills, clearSkills } = actions;
   const { selectAllSkills } = selectors;
@@ -53,8 +54,9 @@ export default function TranslatorSettingsForm() {
   const handleFinish = React.useCallback(
     ({ skills }) => {
       updateSkills(skills);
+      history.push(r.TRANSLATOR_DASHBOARD);
     },
-    [updateSkills]
+    [history, updateSkills]
   );
 
   const totalLanguagesReached = allLanguages.length === formState.skills.length;
