@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Spin } from '~/adapters/antd';
 import * as r from '~/app/routes';
+
 import TaskList from '~/features/translator/TaskList';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import TopLoadingBar from '~/shared/TopLoadingBar';
@@ -20,8 +21,8 @@ export default function TaskListFetcher() {
   const { tasks, isLoading } = useTasksQuery(0);
 
   const filteredTasks = !isLoading ? getTasksByFilters(tasks, account, filters) : [];
-  console.log({ filteredTasks });
   const showFootnote = [statusFilters.open].includes(filters.status) && tasks !== undefined;
+
   return (
     <>
       <TopLoadingBar show={isLoading} />
