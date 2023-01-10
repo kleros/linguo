@@ -1,6 +1,7 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types';
+import TranslatorSkillsProvider from './TranslatorSkillsProvider';
 
 const TasksFilterContext = createContext();
 
@@ -30,7 +31,11 @@ export const TasksFilterProvider = ({ children }) => {
     setAllTasksFilter(newFilters.allTasks || false);
   };
 
-  return <TasksFilterContext.Provider value={{ filters, updateFilters }}>{children}</TasksFilterContext.Provider>;
+  return (
+    <TasksFilterContext.Provider value={{ filters, updateFilters }}>
+      <TranslatorSkillsProvider>{children}</TranslatorSkillsProvider>
+    </TasksFilterContext.Provider>
+  );
 };
 
 export const useTasksFilter = () => {
