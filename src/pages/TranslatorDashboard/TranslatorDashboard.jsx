@@ -7,36 +7,39 @@ import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListHeader from './TaskListHeader';
 import TaskListFetcher from './TaskListFetcher';
 import { withRequiredSkills } from './withRequiredSkills';
+import { TasksFilterProvider } from '~/context/TasksFilterProvider';
 
 const WrappedTranslatorDashboard = () => {
   return (
     <Titled title={title => `Translator Dashboard | ${title}`}>
       <MultiCardLayout>
-        <AffixContainer
-          position="top"
-          css={`
-            min-width: 384px;
-
-            @media (max-width: 575.98px) {
-              padding: 0;
-            }
-          `}
-          wrapperCss={css`
-            && {
-              padding: 0 3rem;
+        <TasksFilterProvider>
+          <AffixContainer
+            position="top"
+            css={`
+              min-width: 384px;
 
               @media (max-width: 575.98px) {
                 padding: 0;
               }
-            }
-          `}
-        >
-          <TaskListHeader />
-        </AffixContainer>
-        <StyledDivider />
-        <StyledContentWrapper>
-          <TaskListFetcher />
-        </StyledContentWrapper>
+            `}
+            wrapperCss={css`
+              && {
+                padding: 0 3rem;
+
+                @media (max-width: 575.98px) {
+                  padding: 0;
+                }
+              }
+            `}
+          >
+            <TaskListHeader />
+          </AffixContainer>
+          <StyledDivider />
+          <StyledContentWrapper>
+            <TaskListFetcher />
+          </StyledContentWrapper>
+        </TasksFilterProvider>
       </MultiCardLayout>
     </Titled>
   );

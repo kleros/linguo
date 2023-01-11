@@ -1,7 +1,6 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types';
-import TranslatorSkillsProvider from './TranslatorSkillsProvider';
 
 const TasksFilterContext = createContext();
 
@@ -10,8 +9,8 @@ export const TasksFilterProvider = ({ children }) => {
   const history = useHistory();
 
   const queryParams = new URLSearchParams(location.search);
-  const [statusFilter, setStatusFilter] = useState(queryParams.get('status') || 'all');
-  const [allTasksFilter, setAllTasksFilter] = useState(queryParams.get('allTasks') === 'true');
+  const [statusFilter, setStatusFilter] = useState(queryParams.get('status') || 'open');
+  const [allTasksFilter, setAllTasksFilter] = useState(queryParams.get('allTasks') === 'false');
 
   useEffect(() => {
     const search = new URLSearchParams({
@@ -27,15 +26,11 @@ export const TasksFilterProvider = ({ children }) => {
   };
 
   const updateFilters = newFilters => {
-    setStatusFilter(newFilters.status || 'all');
-    setAllTasksFilter(newFilters.allTasks || false);
+    setStatusFilter(newFilters.status || 'open');
+    setAllTasksFilter(newFilters.allTasks || true);
   };
 
-  return (
-    <TasksFilterContext.Provider value={{ filters, updateFilters }}>
-      <TranslatorSkillsProvider>{children}</TranslatorSkillsProvider>
-    </TasksFilterContext.Provider>
-  );
+  return <TasksFilterContext.Provider value={{ filters, updateFilters }}>{children}</TasksFilterContext.Provider>;
 };
 
 export const useTasksFilter = () => {

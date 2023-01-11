@@ -19,7 +19,7 @@ import { history } from '~/store';
 import Content from './Content';
 import * as r from './routes';
 import Web3ConnectionManager from '~/components/Web3ConnectionManager';
-import { TasksFilterProvider } from '~/context/TasksFilterProvider';
+import TranslatorSkillsProvider from '~/context/TranslatorSkillsProvider';
 
 const fallback = <Spin $centered tip="Loading page content..." />;
 
@@ -53,8 +53,8 @@ export default function MainRouter() {
             ></div>
             <GlobalWarnings />
             <Web3ErrorAlert />
-            <Content>
-              <TasksFilterProvider>
+            <TranslatorSkillsProvider>
+              <Content>
                 <Switch>
                   <Route exact path={r.ROOT}>
                     <Redirect to={defaultPage ?? r.HOME} />
@@ -81,8 +81,8 @@ export default function MainRouter() {
                     <TranslationDetails />
                   </Route>
                 </Switch>
-              </TasksFilterProvider>
-            </Content>
+              </Content>
+            </TranslatorSkillsProvider>
             <Footer />
           </Layout>
         </Layout>
