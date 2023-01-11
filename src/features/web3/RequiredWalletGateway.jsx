@@ -5,18 +5,19 @@ import { Alert } from '~/adapters/antd';
 import WalletConnectionModal from './WalletConnectionModal';
 import RequiredWeb3Gateway from './RequiredWeb3Gateway';
 import { useWeb3 } from '~/hooks/useWeb3';
+import { injected } from './connectors';
 
 function RequiredWalletGateway({ message, children, missing, error, render, renderMissing, renderError }) {
-  const { account } = useWeb3();
-  const isConnecting = false;
-  const isConnected = true;
+  const { account, active, chainId, connector } = useWeb3();
+
+  const isConnected = active && chainId && connector.name === injected.name;
   const hasAccount = isConnected && !!account;
 
   const missingWalletWarning = <MissingWalletAlert message={message} missing={missing} renderMissing={renderMissing} />;
 
   return (
     <RequiredWeb3Gateway missing={missingWalletWarning} error={error} renderError={renderError}>
-      {hasAccount ? children || render({ account }) : isConnecting ? null : missingWalletWarning}
+      {hasAccount ? children || render({ account }) : missingWalletWarning}
     </RequiredWeb3Gateway>
   );
 }
