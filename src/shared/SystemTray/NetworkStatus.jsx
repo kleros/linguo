@@ -2,9 +2,9 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Badge } from 'antd';
-import { getNetworkShortName } from '~/features/web3';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useConnect } from '~/hooks/useConnect';
+import { getNetworkShortName } from '~/consts/supportedChains';
 
 export default function NetworkStatus({ textColor, accountRequired, className }) {
   const { account, chainId, active } = useWeb3();
