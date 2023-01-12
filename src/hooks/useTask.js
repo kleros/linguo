@@ -28,7 +28,6 @@ export const useTask = id => {
     submissionTimeout,
   } = task;
 
-  console.log({ task });
   const { minPrice, maxPrice, wordCount } = data?.metadata;
 
   const latestRoundId = `${id}-${Number(numberOfRounds) - 1}`;

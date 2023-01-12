@@ -20,8 +20,10 @@ export default function TranslationDetails() {
   const { id } = useParamsCustom(chainId);
   const { task, isLoading } = useTaskQuery(id);
   const { data } = useIPFSQuery(task?.metaEvidence?.URI);
+
   const metadata = data?.metadata;
   if (!task || !metadata) return <></>;
+
   const { status, translation, lasttInteraction, submissionTimeout } = task;
   const cardProps = Task.isIncomplete(status, translation, lasttInteraction, submissionTimeout)
     ? taskStatusToProps.incomplete
