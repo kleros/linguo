@@ -25,7 +25,7 @@ import moment from 'moment';
 dayjs.extend(utc);
 
 function TranslationRequestForm() {
-  const { chainId } = useWeb3();
+  const { account, chainId } = useWeb3();
   const { createTask, setAddress } = useLinguoApi();
   const [form] = Form.useForm();
   const [state, send] = useStateMachine(formStateMachine);
@@ -48,6 +48,7 @@ function TranslationRequestForm() {
       send('SUBMIT');
       const metadata = {
         ...rest,
+        account,
         minPrice: safeToWei(minPriceNumeric),
         maxPrice: safeToWei(maxPriceNumeric),
         deadline: new Date(deadline).toISOString(),
@@ -61,7 +62,7 @@ function TranslationRequestForm() {
         send('RESET');
       }
     },
-    [send, chainId, createTask]
+    [send, account, chainId, createTask]
   );
 
   const handleFinishFailed = React.useCallback(
