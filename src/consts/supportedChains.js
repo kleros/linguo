@@ -5,6 +5,7 @@ export const RPC_URLS = JSON.parse(process.env.JSON_RPC_URLS);
 
 export const NETWORKS = Object.freeze({
   ethereum: 1,
+  goerli: 5,
   gnosis: 100,
   sokol: 77,
 });
@@ -13,7 +14,7 @@ export const SUPPORTED_CHAINS = {
   [NETWORKS.ethereum]: {
     chainName: 'Ethereum Mainnet',
     shortName: 'Mainnet',
-    sideChainId: false,
+    sideChain: false,
     nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
     rpcUrls: [RPC_URLS[NETWORKS.ethereum]],
     blockExplorerUrls: ['https://etherscan.io'],
@@ -25,6 +26,14 @@ export const SUPPORTED_CHAINS = {
     nativeCurrency: { name: 'xDAI', symbol: 'xDAI', decimals: 18 },
     rpcUrls: [RPC_URLS[NETWORKS.xDai]],
     blockExplorerUrls: ['https://blockscout.com/xdai/mainnet'],
+  },
+  [NETWORKS.goerli]: {
+    chainName: 'Goerli Testnet',
+    shortName: 'Goerli',
+    sideChain: true,
+    nativeCurrency: { name: 'Goerli ETH', symbol: 'GoerliETH', decimals: 18 },
+    rpcUrls: [RPC_URLS[NETWORKS.ethereum]],
+    blockExplorerUrls: ['https://goerli.etherscan.io'],
   },
   [NETWORKS.sokol]: {
     chainName: 'Poa Network Sokol',
@@ -38,6 +47,7 @@ export const SUPPORTED_CHAINS = {
 
 const counterPartyChainIdMap = {
   [NETWORKS.ethereum]: NETWORKS.gnosis,
+  [NETWORKS.goerli]: NETWORKS.gnosis,
   [NETWORKS.gnosis]: NETWORKS.ethereum,
 };
 
