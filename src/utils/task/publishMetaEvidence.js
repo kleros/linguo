@@ -1,5 +1,7 @@
 import deepmerge from 'deepmerge';
 import metaEvidenceTemplate from '~/assets/fixtures/metaEvidenceTemplate.json';
+import { NETWORKS } from '~/consts/supportedChains';
+import ipfs from '~/app/ipfs';
 
 export const publishMetaEvidence = async (chainId, { account, ...metadata }) => {
   const evidenceDisplayInterfaceURI =
@@ -31,21 +33,20 @@ export const publishMetaEvidence = async (chainId, { account, ...metadata }) => 
      */
     _v: '1.0.0',
   });
-  // const { path } = ipfs.publish('linguo-meta-evidence.json', JSON.stringify(metaEvidence));
-  const path = '1gfdgd' ?? metaEvidence; // remove this
+  const { path } = await ipfs.publish('linguo-meta-evidence.json', JSON.stringify(metaEvidence));
   return path;
 };
 
 const chainIdToCurrentEvidenceDisplayInterfaceURI = {
-  1: '/ipfs/QmXGDMfcxjfQi5SFwpBSb73pPjoZq2N8c6eWCgxx8pVqj7/index.html',
-  42: '/ipfs/QmYbtF7K6qCfSYfu2k6nYnVRY8HY97rEAF6mgBWtDgfovw/index.html',
-  77: '/ipfs/Qmb5n6PgbshktJqGpwMAxP1moXEPaqq7ZvRufeXXhSPXxW/linguo-evidence-display/index.html',
-  100: '/ipfs/Qmb5n6PgbshktJqGpwMAxP1moXEPaqq7ZvRufeXXhSPXxW/linguo-evidence-display/index.html',
+  [NETWORKS.ethereum]: '/ipfs/QmXGDMfcxjfQi5SFwpBSb73pPjoZq2N8c6eWCgxx8pVqj7/index.html',
+  [NETWORKS.goerli]: '/ipfs/QmXGDMfcxjfQi5SFwpBSb73pPjoZq2N8c6eWCgxx8pVqj7/index.html',
+  [NETWORKS.sokol]: '/ipfs/Qmb5n6PgbshktJqGpwMAxP1moXEPaqq7ZvRufeXXhSPXxW/linguo-evidence-display/index.html',
+  [NETWORKS.gnosis]: '/ipfs/Qmb5n6PgbshktJqGpwMAxP1moXEPaqq7ZvRufeXXhSPXxW/linguo-evidence-display/index.html',
 };
 
 const chainIdToCurrentDynamicScriptURI = {
-  1: '/ipfs/QmchWC6L3dT23wwQiJJLWCeS1EDnDYrLcYat93C4Lm4P4E/linguo-dynamic-script.js',
-  42: '/ipfs/QmZFcqdsR76jyHyLsBefc4SBuegj2boBDr2skxGauM5DNf/linguo-dynamic-script.js',
-  77: '/ipfs/QmPAHCRtSU844fdjNoEws8AgTpzzwsYwMF2wydtpvXAcoZ/linguo-script.js',
-  100: '/ipfs/QmPAHCRtSU844fdjNoEws8AgTpzzwsYwMF2wydtpvXAcoZ/linguo-script.js',
+  [NETWORKS.ethereum]: '/ipfs/QmchWC6L3dT23wwQiJJLWCeS1EDnDYrLcYat93C4Lm4P4E/linguo-dynamic-script.js',
+  [NETWORKS.goerli]: '/ipfs/QmchWC6L3dT23wwQiJJLWCeS1EDnDYrLcYat93C4Lm4P4E/linguo-dynamic-script.js',
+  [NETWORKS.sokol]: '/ipfs/QmPAHCRtSU844fdjNoEws8AgTpzzwsYwMF2wydtpvXAcoZ/linguo-script.js',
+  [NETWORKS.gnosis]: '/ipfs/QmPAHCRtSU844fdjNoEws8AgTpzzwsYwMF2wydtpvXAcoZ/linguo-script.js',
 };
