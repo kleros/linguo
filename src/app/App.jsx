@@ -15,7 +15,9 @@ const fetcherBuilder =
 
 function App() {
   return (
-    <SWRConfig value={{ fetcher: fetcherBuilder('https://api.thegraph.com/subgraphs/name/kleros/linguo-gnosis') }}>
+    <SWRConfig
+      value={{ fetcher: fetcherBuilder('https://api.thegraph.com/subgraphs/name/gratestas/linguo-goerli-test') }}
+    >
       <Web3Provider>
         <ThemeProvider theme={theme}>
           <GlobalStyle />
