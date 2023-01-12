@@ -244,7 +244,7 @@ export const useLinguoApi = () => {
       throw new Error(`Invalid number of arguments for function: ${method} `);
     }
 
-    const tx = await contract[method](...args, { value: value, gasLimit: 10000000 });
+    const tx = await contract[method](...args, { value: value, gasLimit: 10000000 }); // TODO: change hardcoded gasLimit
     return tx;
   };
 
