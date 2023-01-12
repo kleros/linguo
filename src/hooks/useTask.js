@@ -28,25 +28,33 @@ export const useTask = id => {
     submissionTimeout,
   } = task;
 
+  console.log({ task });
   const { minPrice, maxPrice, wordCount } = data?.metadata;
 
   const latestRoundId = `${id}-${Number(numberOfRounds) - 1}`;
   const [currentPrice, setCurrentPrice] = React.useState(
-    Task.getCurrentPrice(minPrice, maxPrice, lastInteraction, submissionTimeout, status)
+    Task.getCurrentPrice(requesterDeposit, minPrice, maxPrice, lastInteraction, submissionTimeout, status)
   );
 
   const updateCurrentPrice = React.useCallback(() => {
-    const value = Task.getCurrentPrice(minPrice, maxPrice, lastInteraction, submissionTimeout, status);
+    const value = Task.getCurrentPrice(
+      requesterDeposit,
+      minPrice,
+      maxPrice,
+      lastInteraction,
+      submissionTimeout,
+      status
+    );
     setCurrentPrice(value);
-  }, [lastInteraction, maxPrice, minPrice, status, submissionTimeout]);
+  }, [lastInteraction, maxPrice, minPrice, requesterDeposit, status, submissionTimeout]);
 
   const interval = requesterDeposit === undefined ? _1_MINUTE_MS : null;
   useInterval(updateCurrentPrice, interval);
 
   const actualPrice = status === taskStatus.Assigned ? requesterDeposit : currentPrice;
   const pricePerWord = Task.getCurrentPricePerWord(actualPrice, wordCount);
-  const isIncomoplete = Task.isIncomplete(status, translation, lastInteraction, submissionTimeout);
 
+  const isIncomoplete = Task.isIncomplete(status, translation, lastInteraction, submissionTimeout);
   const currentParty = Task.getCurrentParty(account, requester, translator, challenger);
 
   return {
