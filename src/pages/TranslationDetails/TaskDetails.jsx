@@ -4,8 +4,10 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Typography } from 'antd';
 import { FileTextOutlined, TranslationOutlined, LinkOutlined, PaperClipOutlined } from '@ant-design/icons';
+
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
+
 import getLanguageFlag from '~/shared/helpers/getLanguageFlag';
 import { CalendarIcon } from '~/shared/icons';
 import Button from '~/shared/Button';
@@ -13,18 +15,21 @@ import Spacer from '~/shared/Spacer';
 import FormattedDate from '~/shared/FormattedDate';
 import FormattedNumber from '~/shared/FormattedNumber';
 import TranslationQualityDefinition from '~/shared/TranslationQualityDefinition';
+import DownloadLink from '~/shared/DownloadLink';
+import AffixContainer from '~/shared/AffixContainer';
+
+import TaskStatusDetails from './TaskStatusDetails';
+import Evidences from './Evidences';
+
 import TaskInfoGrid from '~/features/tasks/TaskInfoGrid';
 import TaskPrice from '~/features/tasks/TaskPrice';
 import EthFiatValue from '~/features/tokens/EthFiatValue';
-import DownloadLink from '~/shared/DownloadLink';
 import { getFileUrl } from '~/features/tasks';
-import TaskStatusDetails from './TaskStatusDetails';
-import Evidences from './Evidences';
-import AffixContainer from '~/shared/AffixContainer';
+
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useWeb3 } from '~/hooks/useWeb3';
-import taskStatus from '~/consts/taskStatus';
 import { useTask } from '~/hooks/useTask';
+import taskStatus from '~/consts/taskStatus';
 
 export default function TaskDetails() {
   const { chainId } = useWeb3();
@@ -50,8 +55,8 @@ export default function TaskDetails() {
     },
     {
       title: 'Total Price',
-      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={task.actualPrice} />,
-      footer: <EthFiatValue amount={task.actualPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
+      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={task.currentPrice} />,
+      footer: <EthFiatValue amount={task.currentPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
       title: 'Quality Tier',

@@ -7,33 +7,27 @@ import TopLoadingBar from '~/shared/TopLoadingBar';
 import SingleCardLayout from '../layouts/SingleCardLayout';
 import TaskDetails from './TaskDetails';
 
-import { useTaskQuery } from '~/hooks/queries/useTaskQuery';
-import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useWeb3 } from '~/hooks/useWeb3';
-import { useIPFSQuery } from '~/hooks/queries/useIPFSQuery';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
 
-import Task from '~/utils/task';
 import { taskStatusToProps } from '~/utils/task/taskStatusToProps';
 
 export default function TranslationDetails() {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
-  const { task, isLoading } = useTaskQuery(id);
-  const { data } = useIPFSQuery(task?.metaEvidence?.URI);
+  const { task, isLoading } = useTask(id);
 
-  const metadata = data?.metadata;
-  if (!task || !metadata) return <></>;
+  if (isLoading) return <></>;
 
-  const { status, translation, lasttInteraction, submissionTimeout } = task;
-  const cardProps = Task.isIncomplete(status, translation, lasttInteraction, submissionTimeout)
-    ? taskStatusToProps.incomplete
-    : taskStatusToProps[status];
+  const { isIncomplete, status } = task;
+  const cardProps = isIncomplete ? taskStatusToProps.incomplete : taskStatusToProps[status];
 
   return (
     <>
       <Spin
         tip="Getting task details..."
-        spinning={isLoading && !metadata}
+        spinning={isLoading}
         css={`
           width: 100%;
         `}
