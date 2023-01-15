@@ -8,8 +8,12 @@ const isIncomplete = (status, translation, lastInteraction, submissionTimeout) =
     return translation === '';
   }
 
+  const currentDate = moment();
+  lastInteraction = moment.unix(lastInteraction);
+  submissionTimeout = moment.unix(submissionTimeout);
+
   if (isPending(status)) {
-    return moment(lastInteraction).add(submissionTimeout).isBefore(moment());
+    return lastInteraction.add(submissionTimeout).isBefore(currentDate);
   }
 
   return false;
@@ -35,8 +39,8 @@ const isOpen = (status, translation, lastInteraction, submissionTimeout) => {
   return status === taskStatus.Created && !isIncomplete(status, translation, lastInteraction, submissionTimeout);
 };
 
-const getCurrentPrice = (requesterDeposit, minPrice, maxPrice, lastInteraction, submissionTimeout, status) => {
-  if (requesterDeposit) return requesterDeposit;
+const getCurrentPrice = (assignedPrice, minPrice, maxPrice, lastInteraction, submissionTimeout) => {
+  if (!BigNumber.from(assignedPrice).isZero()) return assignedPrice;
 
   const currentTime = moment();
   const lastInteractionMoment = moment.unix(lastInteraction);
@@ -44,7 +48,7 @@ const getCurrentPrice = (requesterDeposit, minPrice, maxPrice, lastInteraction, 
   let timeSinceLastInteraction = currentTime.subtract(lastInteractionMoment);
 
   if (timeSinceLastInteraction.isAfter(submissionTimeoutMoment)) return maxPrice;
-  if (status !== taskStatus.Created) return '0';
+
   minPrice = BigNumber.from(minPrice);
   maxPrice = BigNumber.from(maxPrice);
 
@@ -56,10 +60,12 @@ const getCurrentPrice = (requesterDeposit, minPrice, maxPrice, lastInteraction, 
 };
 
 const getCurrentPricePerWord = (currentPrice, wordCount) => {
+  if (wordCount === 0) return currentPrice.toString();
+
   currentPrice = BigNumber.from(currentPrice);
   wordCount = BigNumber.from(wordCount);
 
-  return wordCount > 0 ? currentPrice.div(wordCount).toString() : currentPrice.toString();
+  return currentPrice.div(wordCount).toString();
 };
 
 const getRemainedSubmissionTime = (status, deadline) => {
