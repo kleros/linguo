@@ -5,6 +5,7 @@ const tasksQuery = gql`
   query TasksPage($skip: Int) {
     tasks(first: 100, skip: $skip, orderBy: taskID, orderDirection: desc) {
       id
+      assignedPrice
       taskID
       challenger
       deadline
