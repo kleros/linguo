@@ -3,7 +3,7 @@ import t from 'prop-types';
 import { CheckOutlined, LoadingOutlined, SendOutlined } from '@ant-design/icons';
 import Button from '~/shared/Button';
 import { useLinguoApi } from '~/hooks/useLinguo';
-import { useTransactionState } from '~/hooks/useTransactionState';
+import { useTransactionState, STATE } from '~/hooks/useTransactionState';
 
 export default function TaskInteractionButton({ id, interaction, content, buttonProps }) {
   const linguo = useLinguoApi();
@@ -46,13 +46,11 @@ TaskInteractionButton.propTypes = {
   id: t.string.isRequired,
   interaction: t.oneOf(Object.values(TaskInteraction)).isRequired,
   content: t.shape({
-    idle: contentItemShape,
-    pending: contentItemShape,
-    succeeded: contentItemShape,
+    [STATE.DEFAULT]: contentItemShape,
+    [STATE.PENDING]: contentItemShape,
+    [STATE.SUCCESS]: contentItemShape,
   }),
   buttonProps: t.object,
-  onSuccess: t.func,
-  onFailure: t.func,
 };
 
 TaskInteractionButton.defaultProps = {
@@ -63,15 +61,15 @@ TaskInteractionButton.defaultProps = {
 TaskInteractionButton.Interaction = TaskInteraction;
 
 const defaultButtonContent = {
-  idle: {
+  [STATE.DEFAULT]: {
     text: 'Send',
     icon: <SendOutlined />,
   },
-  pending: {
+  [STATE.PENDING]: {
     text: 'Sending...',
     icon: <LoadingOutlined />,
   },
-  succeeded: {
+  [STATE.SUCCESS]: {
     text: 'Done!',
     icon: <CheckOutlined />,
   },
