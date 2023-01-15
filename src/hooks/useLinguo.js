@@ -270,8 +270,8 @@ export const useLinguoApi = () => {
       return await _send(LinguoInteraction.assignTask, { args: [taskID], value: safeTranslationDeposit });
     },
 
-    acceptTranlation: async taskID => {
-      return await _send(LinguoInteraction.acceptTranlation, { args: [taskID] });
+    acceptTranslation: async taskID => {
+      return await _send(LinguoInteraction.acceptTranslation, { args: [taskID] });
     },
     challengeTranslation: async (taskID, evidence) => {
       const challengeDeposit = await _call(address, Linguo.abi, 'getChallengeValue', taskID);
@@ -303,7 +303,7 @@ export const useLinguoApi = () => {
 const LinguoInteraction = {
   createTask: 'createTask',
   assignTask: 'assignTask',
-  acceptTranslation: 'acceptTranlation',
+  acceptTranslation: 'acceptTranslation',
   submitTranslation: 'submitTranslation',
   submitEvidence: 'submitEvidence',
   challengeTranslation: 'challengeTranslation',
