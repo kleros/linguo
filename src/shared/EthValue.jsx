@@ -1,6 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 import Web3 from 'web3';
+
 import FormattedNumber from './FormattedNumber';
 import { defaultChainId } from '~/features/web3/supportedChains';
 import { useWeb3 } from '~/hooks/useWeb3';
@@ -19,6 +20,7 @@ const availableUnits = [
     unit: 'tether',
     chainIdToSuffixes: {
       1: { short: 'TETH', long: 'TEther' },
+      5: { short: 'TETH', long: 'TEther' },
       42: { short: 'TETH', long: 'TEther' },
       77: { short: 'TSPOA', long: 'TSPOA' },
       100: { short: 'TxDAI', long: 'TxDAI' },
@@ -28,6 +30,7 @@ const availableUnits = [
     unit: 'gether',
     chainIdToSuffixes: {
       1: { short: 'GETH', long: 'GEther' },
+      5: { short: 'GETH', long: 'GEther' },
       42: { short: 'GETH', long: 'GEther' },
       77: { short: 'GSPOA', long: 'GSPOA' },
       100: { short: 'GxDAI', long: 'GxDAI' },
@@ -37,6 +40,7 @@ const availableUnits = [
     unit: 'mether',
     chainIdToSuffixes: {
       1: { short: 'METH', long: 'MEther' },
+      5: { short: 'METH', long: 'MEther' },
       42: { short: 'METH', long: 'MEther' },
       77: { short: 'MSPOA', long: 'MSPOA' },
       100: { short: 'MxDAI', long: 'MxDAI' },
@@ -46,6 +50,7 @@ const availableUnits = [
     unit: 'kether',
     chainIdToSuffixes: {
       1: { short: 'kETH', long: 'kEther' },
+      5: { short: 'kETH', long: 'kEther' },
       42: { short: 'kETH', long: 'kEther' },
       77: { short: 'kSPOA', long: 'kSPOA' },
       100: { short: 'kxDAI', long: 'kxDAI' },
@@ -55,6 +60,7 @@ const availableUnits = [
     unit: 'ether',
     chainIdToSuffixes: {
       1: { short: 'ETH', long: 'Ether' },
+      5: { short: 'ETH', long: 'Ether' },
       42: { short: 'ETH', long: 'Ether' },
       77: { short: 'SPOA', long: 'SPOA' },
       100: { short: 'xDAI', long: 'xDAI' },
@@ -64,6 +70,7 @@ const availableUnits = [
     unit: 'milli',
     chainIdToSuffixes: {
       1: { short: 'mETH', long: 'mEther' },
+      5: { short: 'mETH', long: 'mEther' },
       42: { short: 'mETH', long: 'mEther' },
       77: { short: 'mSPOA', long: 'mSPOA' },
       100: { short: 'mxDAI', long: 'mxDAI' },
@@ -73,6 +80,7 @@ const availableUnits = [
     unit: 'micro',
     chainIdToSuffixes: {
       1: { short: 'μETH', long: 'μEther' },
+      5: { short: 'μETH', long: 'μEther' },
       42: { short: 'μETH', long: 'μEther' },
       77: { short: 'μSPOA', long: 'μSPOA' },
       100: { short: 'μxDAI', long: 'μxDAI' },
@@ -82,6 +90,7 @@ const availableUnits = [
     unit: 'gwei',
     chainIdToSuffixes: {
       1: { short: 'GWei', long: 'GWei' },
+      5: { short: 'GWei', long: 'GWei' },
       42: { short: 'GWei', long: 'GWei' },
       77: { short: 'GWei', long: 'GWei' },
       100: { short: 'GWei', long: 'GWei' },
@@ -91,6 +100,7 @@ const availableUnits = [
     unit: 'mwei',
     chainIdToSuffixes: {
       1: { short: 'MWei', long: 'MWei' },
+      5: { short: 'MWei', long: 'MWei' },
       42: { short: 'MWei', long: 'MWei' },
       77: { short: 'MWei', long: 'MWei' },
       100: { short: 'MWei', long: 'MWei' },
@@ -100,6 +110,7 @@ const availableUnits = [
     unit: 'kwei',
     chainIdToSuffixes: {
       1: { short: 'kWei', long: 'kWei' },
+      5: { short: 'kWei', long: 'kWei' },
       42: { short: 'kWei', long: 'kWei' },
       77: { short: 'kWei', long: 'kWei' },
       100: { short: 'kWei', long: 'kWei' },
@@ -109,6 +120,7 @@ const availableUnits = [
     unit: 'wei',
     chainIdToSuffixes: {
       1: { short: 'Wei', long: 'Wei' },
+      5: { short: 'Wei', long: 'Wei' },
       42: { short: 'Wei', long: 'Wei' },
       77: { short: 'Wei', long: 'Wei' },
       100: { short: 'Wei', long: 'Wei' },
