@@ -72,7 +72,7 @@ function LeftSideContent({ data, contractAddress }) {
 
   const TaskFooterInfoPending = () => {
     if (_isIncomplete) {
-      const isRequester = requester === account;
+      const isRequester = requester === account.toLowerCase();
 
       return isRequester ? (
         <TaskInteractionButton
