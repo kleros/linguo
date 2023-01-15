@@ -7,18 +7,23 @@ import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import SingleFileUpload, { validator as singleFileUploadValidator } from '~/shared/SingleFileUpload';
 import { InfoIcon } from '~/shared/icons';
-import { submit as submitEvidence } from '~/features/evidences/evidencesSlice';
 import { TaskParty } from '~/features/tasks';
-import { useDispatch } from 'react-redux';
 import { LoadingOutlined } from '@ant-design/icons';
 
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import useCurrentParty from '~/hooks/useCurrentParty';
+import publishEvidence, { TEMPLATE_TYPE } from '~/utils/dispute/submitEvidence';
+import { useLinguoApi } from '~/hooks/useLinguo';
+import { useTask } from '~/hooks/useTask';
 
 export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
-  const [visible, setVisible] = React.useState(false);
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const { submitEvidence } = useLinguoApi();
 
+  const [visible, setVisible] = React.useState(false);
   React.useEffect(() => {
     if (forceClose) {
       setVisible(false);
@@ -36,41 +41,29 @@ export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const { account, chainId } = useWeb3();
-  const { id: taskId } = useParamsCustom(chainId);
-
   const handleReset = React.useCallback(() => {
     form.resetFields();
     setVisible(false);
   }, [form]);
 
-  const dispatch = useDispatch();
-
   const handleFinish = React.useCallback(
     async values => {
-      const data = {
+      console.log({ values });
+      const overrides = {
         ...values,
-        taskId,
-        account,
         uploadedFile: extractUploadedFileResult(values.uploadedFile),
       };
 
       setIsSubmitting(true);
-      // TODO: create submitEvidence()
       try {
-        await dispatch(
-          submitEvidence(data, {
-            meta: {
-              thunk: { id: taskId },
-            },
-          })
-        );
+        const evidence = await publishEvidence(TEMPLATE_TYPE.evidence, task.taskID, overrides);
+        await submitEvidence(task.taskID, evidence);
         handleReset();
       } finally {
         setIsSubmitting(false);
       }
     },
-    [dispatch, account, taskId, handleReset]
+    [task.taskID, submitEvidence, handleReset]
   );
 
   const currentParty = useCurrentParty();
@@ -138,7 +131,7 @@ export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
           <Form.Item noStyle shouldUpdate={(prev, current) => prev.supportingSide !== current.supportingSide}>
             {({ getFieldValue }) => (
               <StyledFormItem
-                name="name"
+                name="title"
                 label="Evidence Title"
                 rules={[
                   {

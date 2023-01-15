@@ -274,10 +274,19 @@ export const useLinguoApi = () => {
       return await _send(LinguoInteraction.acceptTranlation, { args: [taskID] });
     },
     challengeTranslation: async (taskID, evidence) => {
-      return await _send(LinguoInteraction.challengeTranslation, { args: [taskID, evidence] });
+      const challengeDeposit = await _call(address, Linguo.abi, 'getChallengeValue', taskID);
+      const safeChallengeDeposit = increase(challengeDeposit).by(1);
+
+      return await _send(LinguoInteraction.challengeTranslation, {
+        args: [taskID, evidence],
+        value: safeChallengeDeposit,
+      });
     },
     submitTranslation: async (taskID, translation) => {
       return await _send(LinguoInteraction.submitTranslation, { args: [taskID, translation] });
+    },
+    submitEvidence: async (taskID, evidence) => {
+      return await _send(LinguoInteraction.submitEvidence, { args: [taskID, evidence] });
     },
     fundAppeal: async (taskID, party, totalAppealCost) => {
       return await _send('fundAppeal', { args: [taskID, party], value: totalAppealCost });
@@ -296,5 +305,6 @@ const LinguoInteraction = {
   assignTask: 'assignTask',
   acceptTranslation: 'acceptTranlation',
   submitTranslation: 'submitTranslation',
+  submitEvidence: 'submitEvidence',
   challengeTranslation: 'challengeTranslation',
 };
