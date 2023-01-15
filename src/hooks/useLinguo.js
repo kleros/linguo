@@ -244,9 +244,16 @@ export const useLinguoApi = () => {
       throw new Error(`Invalid number of arguments for function: ${method} `);
     }
 
-    const tx = await contract[method](...args, { value: value, gasLimit: 10000000 }); // TODO: change hardcoded gasLimit
+    const tx = await contract[method](...args, { value: value });
     return tx;
   };
+
+  const increase = value => ({
+    by: percentage => {
+      const increase = value.mul(percentage).div(100);
+      return value.add(increase);
+    },
+  });
 
   return {
     address,
@@ -259,7 +266,8 @@ export const useLinguoApi = () => {
     },
     assignTask: async taskID => {
       const translationDeposit = await _call(address, Linguo.abi, 'getDepositValue', taskID);
-      return await _send(LinguoInteraction.assignTask, { args: [taskID], value: translationDeposit });
+      const safeTranslationDeposit = increase(translationDeposit).by(1);
+      return await _send(LinguoInteraction.assignTask, { args: [taskID], value: safeTranslationDeposit });
     },
 
     acceptTranlation: async taskID => {
@@ -269,7 +277,7 @@ export const useLinguoApi = () => {
       return await _send(LinguoInteraction.challengeTranslation, { args: [taskID, evidence] });
     },
     submitTranslation: async (taskID, translation) => {
-      return await _send('submitTranslation', { args: [taskID, translation] });
+      return await _send(LinguoInteraction.submitTranslation, { args: [taskID, translation] });
     },
     fundAppeal: async (taskID, party, totalAppealCost) => {
       return await _send('fundAppeal', { args: [taskID, party], value: totalAppealCost });
@@ -287,5 +295,6 @@ const LinguoInteraction = {
   createTask: 'createTask',
   assignTask: 'assignTask',
   acceptTranslation: 'acceptTranlation',
+  submitTranslation: 'submitTranslation',
   challengeTranslation: 'challengeTranslation',
 };
