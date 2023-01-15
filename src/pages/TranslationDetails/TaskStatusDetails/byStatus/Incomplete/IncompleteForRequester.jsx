@@ -4,10 +4,11 @@ import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
+
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
-import useTask from '~/pages/TranslationDetails/useTask';
-import Task from '~/utils/task';
+import { useTask } from '~/hooks/useTask';
+
 import taskStatus from '~/consts/taskStatus';
 
 function IncompleteForRequester() {
@@ -15,12 +16,11 @@ function IncompleteForRequester() {
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
 
-  const isPending = Task.isPending(task.status);
   const isAssigned = task.status === taskStatus.Assigned;
 
   const title = 'This translation was not completed on time';
 
-  const props = isPending
+  const props = task.isPending
     ? {
         title,
         description: isAssigned

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Task } from '~/features/tasks';
 import TaskIgnoredAvatar from '~/assets/images/avatar-task-incomplete.svg';
 import EthValue from '~/shared/EthValue';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
@@ -13,8 +12,6 @@ function IncompleteForTranslator() {
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
 
-  const isPending = Task.isPending(task.status);
-
   /*
    * A task which is Incomplete was not challenged, so the value of sumDeposit
    * is exactly the value of the Translator Deposit.
@@ -24,7 +21,7 @@ function IncompleteForTranslator() {
   const title = 'You did not complete this translation in time';
   const illustration = <TaskIgnoredAvatar />;
 
-  const props = isPending
+  const props = task.isPending
     ? {
         title,
         illustration,

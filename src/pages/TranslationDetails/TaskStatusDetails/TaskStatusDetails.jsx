@@ -6,7 +6,6 @@ import byStatus from './byStatus';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
-import Task from '~/utils/task';
 import EvidenceUploadProvider from '~/context/EvidenceUpload';
 
 export default function TaskStatusDetails() {
@@ -14,8 +13,7 @@ export default function TaskStatusDetails() {
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
 
-  const { lastInteraction, status, submissionTimeout, translation } = task;
-  const isIncomplete = Task.isIncomplete(status, translation, lastInteraction, submissionTimeout);
+  const { isIncomplete, status } = task;
 
   const Component = isIncomplete ? byStatus.Incomplete : byStatus[status];
   const contentBlocked = !account;
