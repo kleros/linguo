@@ -6,6 +6,7 @@ const taskQuery = gql`
     task(id: $id) {
       id
       taskID
+      assignedPrice
       challenger
       deadline
       disputed
@@ -14,8 +15,6 @@ const taskQuery = gql`
       lang
       lastInteraction
       submissionTimeout
-      minPrice
-      maxPrice
       metaEvidence {
         id
         metaEvidenceID
@@ -51,5 +50,33 @@ export const useTaskQuery = id => {
   } else if (data) {
     console.log('Task data is already cached');
   }
-  return { task: data ? data.task : null, isLoading: !error && !data, isError: error };
+  return { task: data ? data.task : emptyTask, isLoading: !error && !data, isError: error };
+};
+
+const emptyTask = {
+  id: '',
+  taskID: '',
+  assignedPrice: '0',
+  challenger: '',
+  deadline: '',
+  disputed: false,
+  disputeID: '',
+  finalRuling: null,
+  lang: '',
+  lastInteraction: '',
+  submissionTimeout: '',
+  metaEvidence: {
+    id: '',
+    metaEvidenceID: '',
+    URI: '',
+  },
+  numberOfEvidences: 0,
+  numberOfRounds: 0,
+  reason: '',
+  requester: '',
+  requesterDeposit: '0',
+  status: '',
+  sumDeposit: '0',
+  translation: '',
+  translator: '',
 };
