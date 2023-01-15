@@ -41,5 +41,22 @@ export const useRoundQuery = id => {
   } else if (data) {
     console.log('Round data is already cached');
   }
-  return { round: data ? data.round : null, isLoading: !error && !data, error };
+  return { round: data ? data.round : emptyRound, isLoading: !error && !data, error };
+};
+
+const emptyRound = {
+  id: '',
+  amountPaidTranslator: '0',
+  amountPaidChallenger: '0',
+  appealed: '',
+  appealedAt: '',
+  appealPeriodStart: '',
+  appealPeriodEnd: '',
+  creationTime: '',
+  feeRewards: '0',
+  hasPaidChallenger: false,
+  hasPaidTranslator: false,
+  numberOfContributions: '0',
+  ruling: '',
+  rulingTime: '',
 };
