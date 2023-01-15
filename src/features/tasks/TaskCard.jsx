@@ -27,7 +27,7 @@ const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
 export default function TaskCard({ data, metadata, footerProps }) {
   const { chainId } = useWeb3();
-  const { title, sourceLanguage, targetLanguage, wordCount, expectedQuality } = metadata;
+  const { title, sourceLanguage, targetLanguage, wordCount, expectedQuality, deadline } = metadata;
   const { assignedPrice, minPrice, maxPrice, lang, lastInteraction, submissionTimeout, status, taskID, translation } =
     data;
 
@@ -77,7 +77,7 @@ export default function TaskCard({ data, metadata, footerProps }) {
       $colorKey={cardProps.colorKey}
       title={cardProps.title}
       titleLevel={2}
-      footer={<TaskCardFooter data={data} contractAddress={address} {...footerProps} />}
+      footer={<TaskCardFooter data={{ ...data, deadline }} contractAddress={address} {...footerProps} />}
     >
       <MainLink href={url}>See More</MainLink>
       <TaskLanguages fullWidth source={sourceLanguage} target={targetLanguage} />
@@ -101,7 +101,6 @@ export default function TaskCard({ data, metadata, footerProps }) {
 TaskCard.propTypes = {
   data: t.shape({
     assignedPrice: t.string.isRequired,
-    deadline: t.string.isRequired,
     lang: t.string.isRequired,
     lastInteraction: t.string.isRequired,
     minPrice: t.string.isRequired,
@@ -114,6 +113,7 @@ TaskCard.propTypes = {
     translation: t.string.isRequired,
   }),
   metadata: t.shape({
+    deadline: t.string.isRequired,
     title: t.string.isRequired,
     sourceLanguage: t.string.isRequired,
     targetLanguage: t.string.isRequired,

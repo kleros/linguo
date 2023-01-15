@@ -7,9 +7,9 @@ import Spacer from '~/shared/Spacer';
 import TaskCard from '~/features/tasks/TaskCard';
 import { TaskCardFooterInfoDisplay } from '../tasks/TaskCardFooter';
 
-import { useIPFSQuery } from '~/hooks/queries/useIPFSQuery';
 import taskStatus from '~/consts/taskStatus';
 import { useTranslatorSkills } from '~/context/TranslatorSkillsProvider';
+import { useMetaEvidenceQuery } from '~/hooks/queries/useMetaEvidenceQuery';
 
 export default function TaskList({ data, showFootnote }) {
   return data.length === 0 ? (
@@ -66,8 +66,7 @@ const minimumLevelByQuality = {
 };
 
 function TranslatorTaskCard(props) {
-  const { data } = useIPFSQuery(props.metaEvidence.URI);
-  const metadata = data?.metadata;
+  const { metadata } = useMetaEvidenceQuery(props.metaEvidence.URI);
   const minimumLevel = minimumLevelByQuality[metadata?.expectedQuality];
 
   const { state, selectors } = useTranslatorSkills();
@@ -86,7 +85,7 @@ function TranslatorTaskCard(props) {
   }, [metadata?.targetLanguage, metadata?.sourceLanguage, minimumLevel, skills]);
   return (
     <Tooltip title={!hasSkill ? "You don't have the required skills for this task" : ''}>
-      {metadata && (
+      {metadata?.title && (
         <TaskCard
           data={props}
           metadata={metadata}

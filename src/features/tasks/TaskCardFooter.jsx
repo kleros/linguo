@@ -25,6 +25,7 @@ export default function TaskCardFooter({ data, contractAddress, rightSideContent
 TaskCardFooter.propTypes = {
   contractAddress: t.string.isRequired,
   data: t.shape({
+    deadline: t.string.isRequired,
     lastInteraction: t.string.isRequired,
     minPrice: t.string.isRequired,
     maxPrice: t.string.isRequired,

@@ -72,6 +72,7 @@ const getRemainedSubmissionTime = (status, deadline) => {
   if (![taskStatus.Created, taskStatus.Assigned].includes(status)) {
     return 0;
   }
+
   const currentTime = moment();
   const deadlineMoment = moment(deadline);
 
