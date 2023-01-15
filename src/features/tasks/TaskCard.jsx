@@ -6,7 +6,6 @@ import { Tooltip, Typography } from 'antd';
 import * as r from '~/app/routes';
 import Card from '~/shared/Card';
 import FormattedNumber from '~/shared/FormattedNumber';
-import useInterval from '~/shared/useInterval';
 import Spacer from '~/shared/Spacer';
 import EthFiatValue from '~/features/tokens/EthFiatValue';
 
@@ -19,53 +18,29 @@ import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.j
 
 import Task from '~/utils/task';
 import taskStatus from '~/consts/taskStatus';
-import { _1_MINUTE_MS } from '~/consts/time';
 import { taskStatusToProps } from '~/utils/task/taskStatusToProps';
 import { getAddressByLanguageAndChain } from '~/utils/getAddressByLanguage';
 import { useWeb3 } from '~/hooks/useWeb3';
+import { useCurrentTaskPrice } from '~/hooks/useCurrentTaskPrice';
 
 const getTaskDetailsRoute = r.withParamSubtitution(r.TRANSLATION_TASK_DETAILS);
 
 export default function TaskCard({ data, metadata, footerProps }) {
   const { chainId } = useWeb3();
   const { title, sourceLanguage, targetLanguage, wordCount, expectedQuality } = metadata;
-  const {
+  const { assignedPrice, minPrice, maxPrice, lang, lastInteraction, submissionTimeout, status, taskID, translation } =
+    data;
+
+  const { currentPrice, pricePerWord } = useCurrentTaskPrice(
+    status,
     minPrice,
     maxPrice,
-    lang,
+    assignedPrice,
+    wordCount,
     lastInteraction,
-    requesterDeposit,
-    submissionTimeout,
-    status,
-    taskID,
-    translation,
-  } = data;
-
-  const [currentPrice, setCurrentPrice] = React.useState(
-    Task.getCurrentPrice(requesterDeposit, minPrice, maxPrice, lastInteraction, submissionTimeout, status)
+    submissionTimeout
   );
 
-  const updateCurrentPrice = React.useCallback(() => {
-    if (requesterDeposit) {
-      setCurrentPrice(requesterDeposit);
-    } else {
-      const value = Task.getCurrentPrice(
-        requesterDeposit,
-        minPrice,
-        maxPrice,
-        lastInteraction,
-        submissionTimeout,
-        status
-      );
-      setCurrentPrice(value);
-    }
-  }, [lastInteraction, maxPrice, minPrice, status, requesterDeposit, submissionTimeout]);
-
-  const interval = requesterDeposit === undefined ? _1_MINUTE_MS : null;
-  useInterval(updateCurrentPrice, interval);
-
-  const actualPrice = status === taskStatus.Assigned ? requesterDeposit : currentPrice;
-  const pricePerWord = Task.getCurrentPricePerWord(actualPrice, wordCount);
   const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
   const isIncomplete = Task.isIncomplete(status, translation, lastInteraction, submissionTimeout);
   const taskInfo = [
@@ -125,6 +100,7 @@ export default function TaskCard({ data, metadata, footerProps }) {
 
 TaskCard.propTypes = {
   data: t.shape({
+    assignedPrice: t.string.isRequired,
     deadline: t.string.isRequired,
     lang: t.string.isRequired,
     lastInteraction: t.string.isRequired,
