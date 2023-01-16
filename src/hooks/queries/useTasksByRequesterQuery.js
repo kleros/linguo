@@ -6,6 +6,7 @@ const tasksByRequesterQuery = gql`
     tasks(first: 30, skip: $skip, where: { requester: $requester }, orderBy: taskID, orderDirection: desc) {
       id
       taskID
+      assignedPrice
       challenger
       deadline
       disputed
