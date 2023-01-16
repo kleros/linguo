@@ -289,7 +289,7 @@ export const useLinguoApi = () => {
       return await _send(LinguoInteraction.submitEvidence, { args: [taskID, evidence] });
     },
     fundAppeal: async (taskID, party, totalAppealCost) => {
-      return await _send('fundAppeal', { args: [taskID, party], value: totalAppealCost });
+      return await _send(LinguoInteraction.fundAppeal, { args: [taskID, party], value: totalAppealCost });
     },
     reimburseRequester: async taskID => {
       return await _send('reimburseRequester', { args: [taskID] });
@@ -301,10 +301,11 @@ export const useLinguoApi = () => {
 };
 
 const LinguoInteraction = {
-  createTask: 'createTask',
-  assignTask: 'assignTask',
   acceptTranslation: 'acceptTranslation',
+  assignTask: 'assignTask',
+  challengeTranslation: 'challengeTranslation',
+  createTask: 'createTask',
+  fundAppeal: 'fundAppeal',
   submitTranslation: 'submitTranslation',
   submitEvidence: 'submitEvidence',
-  challengeTranslation: 'challengeTranslation',
 };
