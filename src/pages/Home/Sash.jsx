@@ -34,8 +34,8 @@ const Sash = () => (
   <Container>
     <StyledTitle>Why Translate with Linguo?</StyledTitle>
     <Layout>
-      {CARDS.map((props, i) => (
-        <SashCard key={i} {...props} />
+      {CARDS.map(card => (
+        <SashCard key={card.title} {...card} />
       ))}
     </Layout>
   </Container>

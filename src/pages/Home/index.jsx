@@ -9,7 +9,7 @@ import Translators from './Translators';
 
 export default function Home() {
   return (
-    <Titled title={() => 'Linguo by Kleros'}>
+    <Titled title={getTitle}>
       <Container>
         <Hero />
         <Sash />
@@ -20,6 +20,8 @@ export default function Home() {
     </Titled>
   );
 }
+
+const getTitle = () => 'Linguo by Kleros';
 
 const Container = styled.div`
   width: 100%;

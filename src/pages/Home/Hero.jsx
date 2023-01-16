@@ -31,8 +31,8 @@ const Hero = () => (
         <StyledTitle>The freelance translation platform for Web3</StyledTitle>
         <StyledSubtitle>Hire and make affordable and quality translations.</StyledSubtitle>
         <ButtonContainer>
-          {BUTTONS.map(({ text, link }, i) => (
-            <Link key={i} to={link}>
+          {BUTTONS.map(({ text, link }) => (
+            <Link key={text} to={link}>
               <Button>{text}</Button>
             </Link>
           ))}

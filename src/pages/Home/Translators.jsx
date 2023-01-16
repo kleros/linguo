@@ -42,8 +42,8 @@ const Translators = () => (
         <TextContainer>
           <TitleWithIcon title="For Translators" icon={AvatarTaskAssigned} />
           <SentenceContainer>
-            {SENTENCES.map((sentence, i) => (
-              <TextWithCheck key={i} text={sentence} />
+            {SENTENCES.map(sentence => (
+              <TextWithCheck key={sentence} text={sentence} />
             ))}
           </SentenceContainer>
         </TextContainer>
@@ -51,8 +51,8 @@ const Translators = () => (
       </ImageLayout>
       <BottomSection>
         <CardContainer>
-          {CARDS.map(({ title, body }, i) => (
-            <Card key={i} {...{ title, body }} />
+          {CARDS.map(card => (
+            <Card key={card.title} {...card} />
           ))}
         </CardContainer>
         <StartNowCard

@@ -21,8 +21,8 @@ const Pricing = () => (
       <SpecializedTranslationsContainer>
         <StyledBody>Specialized translations use cases:</StyledBody>
         <LabelContainer>
-          {USE_CASES.map((usecase, i) => (
-            <Label key={i}>{usecase}</Label>
+          {USE_CASES.map(usecase => (
+            <Label key={usecase}>{usecase}</Label>
           ))}
           <LabelNoStyle>And More!</LabelNoStyle>
         </LabelContainer>

@@ -23,8 +23,8 @@ const Requesters = () => (
         <TextContainer>
           <TitleWithIcon title="For Requesters" icon={AvatarRequestTranslation} />
           <SentenceContainer>
-            {SENTENCES.map((sentence, i) => (
-              <TextWithCheck key={i} text={sentence} />
+            {SENTENCES.map(sentence => (
+              <TextWithCheck key={sentence} text={sentence} />
             ))}
           </SentenceContainer>
         </TextContainer>
