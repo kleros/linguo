@@ -2,10 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import * as r from '~/app/routes';
+
 import RequesterAvatar from '~/assets/images/avatar-request-translation.svg';
-import { useFilters } from '~/features/requester';
 import TaskStatusFilter from '~/features/tasks/TaskStatusFilter';
 import Button from '~/shared/Button';
+
+import { useTasksFilter } from '~/context/TasksFilterProvider';
 
 export default function TaskListHeader() {
   return (
@@ -29,13 +31,16 @@ export default function TaskListHeader() {
 }
 
 function TaskStatusFilterContainer() {
-  const [{ status, allTasks }, setFilters] = useFilters();
+  const {
+    filters: { status, allTasks },
+    updateFilters,
+  } = useTasksFilter();
 
   const handleFilterChange = React.useCallback(
     value => {
-      setFilters({ status: value, allTasks });
+      updateFilters({ status: value, allTasks });
     },
-    [setFilters, allTasks]
+    [updateFilters, allTasks]
   );
 
   return <TaskStatusFilter fullWidth value={status} onChange={handleFilterChange} />;
