@@ -7,38 +7,41 @@ import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
 import MultiCardLayout from '../layouts/MultiCardLayout';
 import TaskListHeader from './TaskListHeader';
 import TaskListFetcher from './TaskListFetcher';
+import { TasksFilterProvider } from '~/context/TasksFilterProvider';
 
 function RequesterDashboard() {
   return (
     <Titled title={title => `Requester Dashboard | ${title}`}>
       <MultiCardLayout>
-        <AffixContainer
-          position="top"
-          css={`
-            min-width: 384px;
-
-            @media (max-width: 575.98px) {
-              padding: 0;
-            }
-          `}
-          wrapperCss={css`
-            && {
-              padding: 0 3rem;
+        <TasksFilterProvider>
+          <AffixContainer
+            position="top"
+            css={`
+              min-width: 384px;
 
               @media (max-width: 575.98px) {
                 padding: 0;
               }
-            }
-          `}
-        >
-          <TaskListHeader />
-        </AffixContainer>
-        <StyledDivider />
-        <StyledContentWrapper>
-          <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum Wallet.">
-            <TaskListFetcher />
-          </RequiredWalletGateway>
-        </StyledContentWrapper>
+            `}
+            wrapperCss={css`
+              && {
+                padding: 0 3rem;
+
+                @media (max-width: 575.98px) {
+                  padding: 0;
+                }
+              }
+            `}
+          >
+            <TaskListHeader />
+          </AffixContainer>
+          <StyledDivider />
+          <StyledContentWrapper>
+            <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum Wallet.">
+              <TaskListFetcher />
+            </RequiredWalletGateway>
+          </StyledContentWrapper>
+        </TasksFilterProvider>
       </MultiCardLayout>
     </Titled>
   );
