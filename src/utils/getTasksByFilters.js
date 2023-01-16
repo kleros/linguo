@@ -2,11 +2,17 @@ import { statusFilters } from '~/consts/statusFilters';
 import Task from '~/utils/task/index';
 import taskStatus from '~/consts/taskStatus';
 
-export const getTasksByFilters = (tasks, account, filters) => {
+export const USER_TYPE = Object.freeze({
+  requester: 'requester',
+  translator: 'translator',
+});
+
+export const getTasksByFilters = (tasks, { account, userType, filters }) => {
   const { status, allTasks } = filters;
+
   const filteredTasks = tasks.filter(task => {
     if (!filterToTaskStatusMap[status](task)) return false;
-    if (!allTasks && task.translator !== account) return false;
+    if (!allTasks && task[userType] !== account) return false;
     return true;
   });
 
