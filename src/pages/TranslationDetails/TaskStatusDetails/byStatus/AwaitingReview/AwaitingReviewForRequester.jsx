@@ -12,9 +12,9 @@ import TranslationChallengeDepositFetcher from '../../components/TranslationChal
 
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
-import useTask from '~/pages/TranslationDetails/useTask';
 import { useLinguo } from '~/hooks/useLinguo';
 import Task from '~/utils/task';
+import { useTask } from '~/hooks/useTask';
 
 function AwaitingReviewForRequester() {
   const { chainId } = useWeb3();
