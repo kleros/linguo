@@ -4,23 +4,27 @@ import styled from 'styled-components';
 import { Spin } from '~/adapters/antd';
 import * as r from '~/app/routes';
 
-import TaskList from '~/features/translator/TaskList';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import TopLoadingBar from '~/shared/TopLoadingBar';
+
+import TaskList from '~/components/TaskList';
+import TranslatorTaskCard from '~/components/TranslatorTaskCard';
 
 import { useTasksQuery } from '~/hooks/queries/useTasksQuery';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useTasksFilter } from '~/context/TasksFilterProvider';
+
 import { statusFilters } from '~/consts/statusFilters';
-import { getTasksByFilters } from '~/utils/getTasksByFilters';
+import { getTasksByFilters, USER_TYPE } from '~/utils/getTasksByFilters';
 
 export default function TaskListFetcher() {
   const { account } = useWeb3();
   const { filters } = useTasksFilter();
 
   const { tasks, isLoading } = useTasksQuery(0);
-
-  const filteredTasks = !isLoading ? getTasksByFilters(tasks, account, filters) : [];
+  const filteredTasks = !isLoading
+    ? getTasksByFilters(tasks, { account: account.toLowerCase(), userType: USER_TYPE.translator, filters })
+    : [];
   const showFootnote = [statusFilters.open].includes(filters.status) && tasks !== undefined;
 
   return (
@@ -28,7 +32,11 @@ export default function TaskListFetcher() {
       <TopLoadingBar show={isLoading} />
       <Spin $fixed tip="Loading translation tasks..." spinning={isLoading || tasks === undefined}>
         {filterDescriptionMap[getFilterTreeName({ status: filters.status, allTasks: filters.allTasks })]}
-        {filteredTasks && <TaskList data={filteredTasks} showFootnote={showFootnote} />}
+        {filteredTasks.length > 0 && (
+          <TaskList data={filteredTasks} showFootnote={showFootnote}>
+            {task => <TranslatorTaskCard {...task} />}
+          </TaskList>
+        )}
       </Spin>
     </>
   );
