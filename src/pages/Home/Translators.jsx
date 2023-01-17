@@ -108,8 +108,10 @@ const CardBody = styled(Typography.Text)`
 `;
 
 const CardSeparator = styled.hr`
+  margin: 16px 0;
   width: 30%;
   height: 0px;
+  background-color: ${props => props.theme.color.landing.secondary};
   border-color: ${props => props.theme.color.landing.secondary};
   border-style: solid;
   border-width: 3px;
