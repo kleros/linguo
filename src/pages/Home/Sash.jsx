@@ -86,6 +86,7 @@ const StyledTitle = styled(Typography.Title)`
 const StyledCard = styled(Card)`
   width: 22rem;
   border-radius: 18px;
+  box-shadow: 0 2px 3px rgb(0 0 0 / 15%);
   .card-header {
     border-radius: 18px 18px 0 0;
   }
