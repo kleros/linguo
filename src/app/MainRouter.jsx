@@ -1,17 +1,14 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import loadable from '@loadable/component';
 import { Layout } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
-import { Alert, Spin } from '~/adapters/antd';
+import { Spin } from '~/adapters/antd';
+
 import { selectPreference } from '~/features/ui/uiSlice';
-import { getNetworkName } from '~/features/web3';
-import { getCounterPartyChainId, isSupportedChain, isSupportedSideChain } from '~/features/web3/supportedChains';
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
-import { selectChainId, switchChain } from '~/features/web3/web3Slice';
-import { WarningIcon } from '~/shared/icons';
-import Button from '~/shared/Button';
+
 import Footer from '~/shared/Footer';
 import { DrawerMenu } from '~/shared/Menu';
 import Navbar from '~/shared/Navbar';
@@ -20,6 +17,7 @@ import Content from './Content';
 import * as r from './routes';
 import Web3ConnectionManager from '~/components/Web3ConnectionManager';
 import TranslatorSkillsProvider from '~/context/TranslatorSkillsProvider';
+import GlobalWarnings from '~/components/GlobalWarnings';
 
 const fallback = <Spin $centered tip="Loading page content..." />;
 
@@ -88,60 +86,5 @@ export default function MainRouter() {
         </Layout>
       </Web3ConnectionManager>
     </ConnectedRouter>
-  );
-}
-
-function GlobalWarnings() {
-  const dispatch = useDispatch();
-  const chainId = useSelector(selectChainId);
-  const counterPartyChainId = getCounterPartyChainId(chainId);
-
-  return (
-    <div
-      css={`
-        position: relative;
-
-        :empty {
-          display: none;
-        }
-
-        @media (max-width: 991.98px) {
-          margin-bottom: 0.5rem;
-        }
-
-        @media (max-width: 767.98px) {
-          margin-bottom: 1rem;
-        }
-
-        @media (max-width: 575.98px) {
-          margin-bottom: 2.5rem;
-        }
-      `}
-    >
-      {chainId !== -1 && !isSupportedSideChain(chainId) && (
-        <Alert
-          banner
-          type="warning"
-          icon={<WarningIcon />}
-          message={
-            <>
-              {isSupportedChain(chainId)
-                ? 'Linguo is moving to a side-chain for more affordable gas prices:'
-                : 'Network Not Supported.'}{' '}
-              <Button variant="link" onClick={() => dispatch(switchChain({ chainId: counterPartyChainId ?? 100 }))}>
-                Switch to {getNetworkName(counterPartyChainId ?? 100)}.
-              </Button>
-            </>
-          }
-          css={`
-            position: absolute;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            right: 0;
-          `}
-        />
-      )}
-    </div>
   );
 }
