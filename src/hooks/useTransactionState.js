@@ -9,7 +9,6 @@ export const STATE = {
   SUCCESS: 'success',
   ERROR: 'error',
 };
-// const REJECTED = 'rejected';
 
 export const useTransactionState = contractCallbackFn => {
   const [state, setState] = useState(STATE.DEFAULT);
@@ -27,7 +26,6 @@ export const useTransactionState = contractCallbackFn => {
     } catch (error) {
       if (error.code === TRANSACTION_REJECTED_CODE) {
         setMessage(TRANSACTION_REJECTED);
-        // setState(REJECTED);
         setState(STATE.DEFAULT);
       } else {
         console.error(error);
@@ -35,12 +33,6 @@ export const useTransactionState = contractCallbackFn => {
       }
     }
   };
-
-  /* useEffect(() => {
-            if (state === 'rejected') toast.error(message);
-            reset();
-          }, [message, state]);
-         */
 
   return {
     state,

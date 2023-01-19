@@ -36,7 +36,7 @@ export default function TaskDetails() {
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
 
-  const deprecatedOriginalText = task.__v > 0 ? undefined : ''; // task.text;
+  const deprecatedOriginalText = task.__v > 0 ? undefined : '';
   const deprecatedOriginalTextFile = task.__v > 0 ? undefined : task.originalTextFile;
   const originalTextFileUrl = task.__v > 0 ? `https://ipfs.kleros.io${task.originalTextFile}` : undefined;
   const translatedTextUrl = task.translation ? `https://ipfs.kleros.io${task.translation}` : undefined;

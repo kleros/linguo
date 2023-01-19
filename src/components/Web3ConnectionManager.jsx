@@ -32,7 +32,7 @@ const Web3ConnectionManager = ({ children }) => {
   useInactiveListener(!triedEager);
 
   if (!active && !networkActive) {
-    return <div>Loading...</div>; // TODO: add spinner
+    return <div>Loading...</div>;
   }
   return children;
 };
