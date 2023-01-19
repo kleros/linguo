@@ -15,7 +15,6 @@ export default function Navbar() {
           <StyledLogoWrapper>
             <NavLink to={r.HOME}>
               <StyledLinguoLogo />
-              <span>by Kleros</span>
             </NavLink>
           </StyledLogoWrapper>
         </Col>

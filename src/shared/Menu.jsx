@@ -37,6 +37,9 @@ export function MainMenu() {
 }
 
 const menuItems = [
+  <Menu.Item key="home">
+    <NavLink to={r.HOME}>Home</NavLink>
+  </Menu.Item>,
   <Menu.Item key="request-translation">
     <NavLink to={r.REQUESTER_DASHBOARD}>Request Translations</NavLink>
   </Menu.Item>,
@@ -47,7 +50,24 @@ const menuItems = [
         search: 'status=open',
       }}
     >
-      Work as a Translator
+      Find work
+    </NavLink>
+  </Menu.Item>,
+  <Menu.Item key="tutorial">
+    <NavLink
+      target="_blank"
+      rel="noreferer noopener"
+      to={{ pathname: 'https://kleros.gitbook.io/docs/products/linguo' }}
+    >
+      Tutorial
+    </NavLink>
+  </Menu.Item>,
+  <Menu.Item key="faq">
+    <NavLink to={r.FAQ}>FAQ</NavLink>
+  </Menu.Item>,
+  <Menu.Item key="contact-up">
+    <NavLink target="_blank" rel="noreferer noopener" to={{ pathname: 'mailto:linguo@kleros.io' }}>
+      Contact us
     </NavLink>
   </Menu.Item>,
 ];

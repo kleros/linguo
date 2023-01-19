@@ -5,6 +5,7 @@ export default {
       light: '#4A4A4A',
       lighter: '#8C8C8C',
       inverted: '#FFFFFF',
+      secondary: '#999999',
     },
     primary: {
       default: '#0043C5',
@@ -57,6 +58,11 @@ export default {
       inDispute: '#9013FE',
       incomplete: '#6C6C6C',
       finished: '#0043C5',
+    },
+    landing: {
+      secondary: '#00AAFF',
+      lightBlue: '#F1FAFF',
+      lightBackground: '#FAFBFC',
     },
   },
   fontSize: {

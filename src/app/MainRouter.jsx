@@ -1,23 +1,22 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import loadable from '@loadable/component';
 import { Layout } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
 import { Spin } from '~/adapters/antd';
+import * as r from './routes';
 
-import { selectPreference } from '~/features/ui/uiSlice';
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
 
 import Footer from '~/shared/Footer';
-import { DrawerMenu } from '~/shared/Menu';
 import Navbar from '~/shared/Navbar';
+import { DrawerMenu } from '~/shared/Menu';
+
 import { history } from '~/store';
 import Content from './Content';
-import * as r from './routes';
 import Web3ConnectionManager from '~/components/Web3ConnectionManager';
-import TranslatorSkillsProvider from '~/context/TranslatorSkillsProvider';
 import GlobalWarnings from '~/components/GlobalWarnings';
+import TranslatorSkillsProvider from '~/context/TranslatorSkillsProvider';
 
 const fallback = <Spin $centered tip="Loading page content..." />;
 
@@ -30,8 +29,6 @@ const TranslationRequest = loadable(() => import('~/pages/TranslationRequest'), 
 const TranslationDetails = loadable(() => import('~/pages/TranslationDetails'), { fallback });
 
 export default function MainRouter() {
-  const defaultPage = useSelector(selectPreference('page.default'));
-
   return (
     <ConnectedRouter history={history}>
       <Web3ConnectionManager>
@@ -55,7 +52,7 @@ export default function MainRouter() {
               <Content>
                 <Switch>
                   <Route exact path={r.ROOT}>
-                    <Redirect to={defaultPage ?? r.HOME} />
+                    <Redirect to={r.HOME} />
                   </Route>
                   <Route exact path={r.HOME}>
                     <Home />
