@@ -11,18 +11,17 @@ import EthFiatValue from '~/features/tokens/EthFiatValue';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
-import { useLinguo } from '~/hooks/useLinguo';
+import { useLinguoApi } from '~/hooks/useLinguo';
 
 function TaskAssignmentDepositFetcher() {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const { getTranslatorDeposit } = useLinguo();
+  const { getTranslatorDeposit } = useLinguoApi();
 
-  const data = getTranslatorDeposit(task.taskID);
-  const deposit = String(data);
+  const deposit = getTranslatorDeposit(task.taskID);
 
-  return data ? (
+  return deposit ? (
     <StyledWrapper>
       <div>
         <EthValue amount={deposit} suffixType="short" /> Deposit

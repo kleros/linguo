@@ -11,15 +11,15 @@ import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
 import Task from '~/utils/task';
-import { useLinguo } from '~/hooks/useLinguo';
+import { useLinguoApi } from '~/hooks/useLinguo';
 
 function AwaitingReviewForOther() {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const linguo = useLinguo();
+  const { getReviewTimeout } = useLinguoApi();
 
-  const reviewTimeout = linguo.call('reviewTimeout');
+  const reviewTimeout = getReviewTimeout();
   const remainingTime = Task.getRemainedReviewTime(task.status, task.lastInteraction, reviewTimeout);
 
   const props = {

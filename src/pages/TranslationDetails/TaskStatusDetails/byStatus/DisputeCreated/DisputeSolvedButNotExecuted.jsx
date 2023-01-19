@@ -9,25 +9,25 @@ import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import { useTask } from '~/hooks/useTask';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
-import useCurrentParty from '~/hooks/useCurrentParty';
 import disputeRuling from '~/consts/disputeRuling';
+import { useDispute } from '~/hooks/useDispute';
 
 function DisputeSolvedButNotExecuted() {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
 
-  const { disputeID, challenger, requester, finalRuling } = task;
-  const party = useCurrentParty();
+  const { disputeID, challenger, currentParty, latestRoundId, requester, finalRuling } = task;
 
+  const { dispute } = useDispute(disputeID, latestRoundId);
   const challengerIsRequester = requester === challenger;
 
   const title = titleMap[finalRuling];
   const description = [
     <DisputeLink key="kleros-dispute-link" disputeID={disputeID} />,
-    ...getDescription({ party, finalRuling, challengerIsRequester }),
+    ...getDescription({ party: currentParty, ruling: dispute.ruling, challengerIsRequester }),
   ];
-  const illustration = illustrationMap[finalRuling];
+  const illustration = illustrationMap[dispute.ruling];
 
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;
 }
@@ -78,7 +78,6 @@ const getDescription = ({ party, ruling, challengerIsRequester }) => {
       ],
     },
   };
-
   return descriptionMap[party][ruling];
 };
 

@@ -4,11 +4,11 @@ import FormattedRelativeDate from '~/shared/FormattedRelativeDate';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import TranslationUploadButton from '../../components/TranslationUploadButton';
-import { useLinguo } from '~/hooks/useLinguo';
+import { useLinguoApi } from '~/hooks/useLinguo';
 
 function AssignedForTranslator() {
-  const linguo = useLinguo();
-  const reviewTimeout = linguo.call('reviewTimeout');
+  const { getReviewTimeout } = useLinguoApi();
+  const reviewTimeout = getReviewTimeout();
 
   const props = {
     title: 'Deliver the translation file',

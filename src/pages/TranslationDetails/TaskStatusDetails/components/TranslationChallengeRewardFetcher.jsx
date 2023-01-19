@@ -10,7 +10,7 @@ import EthFiatValue from '~/features/tokens/EthFiatValue';
 
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
-import { useLinguo } from '~/hooks/useLinguo';
+import { useLinguoApi } from '~/hooks/useLinguo';
 import { useTask } from '~/hooks/useTask';
 
 import taskStatus from '~/consts/taskStatus';
@@ -20,11 +20,11 @@ function TranslationChallengeRewardFetcher() {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const linguo = useLinguo();
+
+  const { getArbitrationCost } = useLinguoApi();
+  const arbitrationCost = getArbitrationCost();
 
   let reward;
-  const arbitrationCost = linguo.getArbitrationCost();
-
   if (task.status !== taskStatus.AwaitingReview) {
     reward = 0;
   } else {

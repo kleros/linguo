@@ -15,7 +15,7 @@ import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
 import Task from '~/utils/task';
-import { useLinguo } from '~/hooks/useLinguo';
+import { useLinguoApi } from '~/hooks/useLinguo';
 import { useEvidencesByTaskQuery } from '~/hooks/queries/useEvidencesByTaskQuery';
 import { Spin } from 'antd';
 import { Alert } from '~/adapters/antd';
@@ -24,7 +24,7 @@ export default function Evidences({ open }) {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const linguo = useLinguo();
+  const linguo = useLinguoApi();
   const { evidences, isLoading, error } = useEvidencesByTaskQuery(task.id);
 
   const { taskID, lastInteraction, status, submissionTimeout, translation } = task;

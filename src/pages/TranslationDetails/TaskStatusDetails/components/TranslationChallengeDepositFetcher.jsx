@@ -11,15 +11,15 @@ import EthFiatValue from '~/features/tokens/EthFiatValue';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
-import { useLinguo } from '~/hooks/useLinguo';
+import { useLinguoApi } from '~/hooks/useLinguo';
 
 function TranslationChallengeDepositFetcher() {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const linguo = useLinguo();
 
-  const deposit = linguo.call('getChallengeValue', task.taskID);
+  const { getChallengeDeposit } = useLinguoApi();
+  const deposit = getChallengeDeposit(task.taskID);
 
   return deposit ? (
     <TranslationChallengeDeposit amount={deposit} />

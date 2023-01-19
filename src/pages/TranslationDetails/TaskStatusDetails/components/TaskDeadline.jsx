@@ -9,20 +9,21 @@ import { HourGlassIcon } from '~/shared/icons';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
+import { useLinguoApi } from '~/hooks/useLinguo';
 
 import Task from '~/utils/task';
 import taskStatus from '~/consts/taskStatus';
-import { useLinguo } from '~/hooks/useLinguo';
 
 function TaskDeadline({ showPrefix, render }) {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const linguo = useLinguo();
-  const reviewTimeout = linguo.call('reviewTimeout');
+
+  const { getReviewTimeout } = useLinguoApi();
+  const reviewTimeout = getReviewTimeout();
 
   const timeout = Task.isPending(task.status)
-    ? Task.getRemainedSubmissionTime(task.status, task.deadline) // TODO: refactor args
+    ? Task.getRemainedSubmissionTime(task.status, task.deadline)
     : task.status === taskStatus.AwaitingReview
     ? Task.getRemainedReviewTime(task.status, task.lastInteraction, reviewTimeout)
     : undefined;

@@ -1,38 +1,44 @@
 import React from 'react';
 import styled from 'styled-components';
+
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
 import TaskResolvedAvatar from '~/assets/images/avatar-task-resolved.svg';
+
 import { TaskParty } from '~/features/tasks';
 import DisputeLink from '~/shared/DisputeLink';
 import EthValue from '~/shared/EthValue';
 import Spacer from '~/shared/Spacer';
+
 import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
-import useCurrentParty from '../../hooks/useCurrentParty';
+
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
-import { useLinguo } from '~/hooks/useLinguo';
+import { useLinguoApi } from '~/hooks/useLinguo';
+
 import disputeRuling from '~/consts/disputeRuling';
 import resolutionReason from '~/consts/resolutionReason';
+
+const ZERO_WITHDRAWABLE = '0';
 
 export default function Resolved() {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const { challenger, disputed, disputeID, finalRuling, reason, requester } = task;
-  const party = useCurrentParty();
+
+  const { challenger, currentParty, disputed, disputeID, finalRuling, reason, requester } = task;
   const challengerIsRequester = requester === challenger;
 
   const title = titleMap[disputed][disputed ? finalRuling : reason];
   const description = disputed
     ? [
-        <DisputeLink key="kleros-dispute-link" disputeID={Number(disputeID)} />,
-        ...getDescription(party, disputed, disputed ? finalRuling : reason, challengerIsRequester),
+        <DisputeLink key="kleros-dispute-link" disputeID={disputeID} />,
+        ...getDescription(currentParty, disputed, disputed ? finalRuling : reason, challengerIsRequester),
       ]
-    : getDescription(party, disputed, disputed ? finalRuling : reason, challengerIsRequester);
+    : getDescription(currentParty, disputed, disputed ? finalRuling : reason, challengerIsRequester);
 
   const pendingWithdrawal = usePendingWithdrawal();
 
@@ -48,26 +54,17 @@ export default function Resolved() {
 }
 
 function usePendingWithdrawal() {
-  const { account, chainId } = useWeb3();
+  const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const linguo = useLinguo();
 
-  // const withdrawableAmountt = linguo.call('amountWithdrawable', task.taskID, account);
-  const [withdrawableAmount, setWithdrawableAmount] = React.useState(
-    linguo.call('amountWithdrawable', task.taskID, account)
-  );
-  const registerWithdrawal = React.useCallback(() => {
-    setWithdrawableAmount('0');
-  }, []);
+  const { getAmountWithdrawable } = useLinguoApi();
+  const withdrawableAmount = getAmountWithdrawable(task.taskID);
 
-  /* React.useEffect(() => {
-    setWithdrawableAmount(linguo.call('amountWithdrawable', task.taskID, account));
-  }, [account, linguo, task.taskID]); */
-  return withdrawableAmount === 0 ? null : (
+  return !withdrawableAmount ? null : (
     <>
       <ContextAwareTaskInteractionButton
-        onSuccess={registerWithdrawal}
+        onSuccess={ZERO_WITHDRAWABLE}
         interaction={ContextAwareTaskInteractionButton.Interaction.Withdraw}
         buttonProps={{
           fullWidth: true,

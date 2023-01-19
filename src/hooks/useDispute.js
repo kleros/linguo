@@ -1,17 +1,17 @@
 import { useCallback, useMemo } from 'react';
 import { useRoundQuery } from './queries/useRoundQuery';
-import { useLinguo } from './useLinguo';
+import { useLinguoApi } from './useLinguo';
 
 import Dispute from '~/utils/dispute';
 import { TaskParty } from '~/features/tasks';
 
 export const useDispute = (id, roundId) => {
   const { round, isLoading, error } = useRoundQuery(roundId);
-  const linguo = useLinguo();
+  const { getDisputeStatus, getAppealCost, getRewardPoolParams } = useLinguoApi();
 
-  const status = linguo.getDisputeStatus(id);
-  const appealCost = linguo.getAppealCost(id);
-  const rewardPoolParams = linguo.getRewardPoolParams();
+  const status = getDisputeStatus(id);
+  const appealCost = getAppealCost(id);
+  const rewardPoolParams = getRewardPoolParams();
 
   const isWaiting = useMemo(() => {
     if (status !== undefined) return Dispute.isWaiting(status);

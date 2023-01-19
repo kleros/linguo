@@ -1,6 +1,5 @@
 import React from 'react';
 import t from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
 import { Col, Form, Row } from 'antd';
 import { CheckOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import Button from '~/shared/Button';
@@ -8,12 +7,17 @@ import { InputNumberWithAddons } from '~/adapters/antd';
 import { subtract } from '~/adapters/big-number';
 import { getBestDisplayUnit, parse, valueOf } from '~/shared/EthValue';
 import useStateMachine from '~/shared/useStateMachine';
-import { fundAppeal } from '~/features/disputes/disputesSlice';
-import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
-import useTask from '../../../../useTask';
+import { useLinguoApi } from '~/hooks/useLinguo';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
 
 export default function AppealContributionForm({ totalAppealCost, paidFees, party }) {
   const [form] = Form.useForm();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const { fundAppeal } = useLinguoApi();
 
   const depositField = useDepositField({
     form,
@@ -71,9 +75,6 @@ export default function AppealContributionForm({ totalAppealCost, paidFees, part
   );
 
   const [state, send] = useStateMachine(formStateMachine);
-  const dispatch = useDispatch();
-  const account = useSelector(selectAccount);
-  const { id: taskId } = useTask();
   const disabled = state !== 'idle';
 
   const handleFinish = React.useCallback(
@@ -82,16 +83,7 @@ export default function AppealContributionForm({ totalAppealCost, paidFees, part
 
       send('SUBMIT');
       try {
-        await dispatch(
-          fundAppeal(
-            { taskId, account, party, deposit },
-            {
-              meta: {
-                thunk: { id: taskId },
-              },
-            }
-          )
-        );
+        await fundAppeal(task.taskID, party, deposit);
         send('SUCCESS');
       } catch (err) {
         send('ERROR');
@@ -99,7 +91,7 @@ export default function AppealContributionForm({ totalAppealCost, paidFees, part
         send('RESET');
       }
     },
-    [dispatch, send, party, account, taskId]
+    [send, fundAppeal, task.taskID, party]
   );
 
   return (
@@ -193,7 +185,7 @@ const getRemainingCost = ({ chainId, totalAppealCost = '0', paidFees = '0' } = {
 };
 
 function useDepositField({ form, totalAppealCost = '0', paidFees = '0' } = {}) {
-  const chainId = useSelector(selectChainId);
+  const { chainId } = useWeb3();
   const { unit, suffix, ...remainingCost } = getRemainingCost({ chainId, totalAppealCost, paidFees });
 
   const disabled = totalAppealCost === '0';

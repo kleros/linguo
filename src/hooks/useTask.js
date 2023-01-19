@@ -39,7 +39,7 @@ export const useTask = id => {
     submissionTimeout
   );
 
-  const currentParty = Task.getCurrentParty(account, requester, translator, challenger);
+  const currentParty = Task.getCurrentParty(account.toLowerCase(), requester, translator, challenger);
 
   return {
     task: {

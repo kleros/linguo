@@ -21,8 +21,6 @@ const componentsByRuling = {
 };
 
 function DisputeHasAppealableRuling() {
-  // const { ruling } = React.useContext(DisputeContext);
-
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);

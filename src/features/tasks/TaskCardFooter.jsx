@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Col, Row } from 'antd';
@@ -7,7 +7,7 @@ import TaskInteractionButton from './TaskInteractionButton';
 import RemainingTime from '~/shared/RemainingTime';
 
 import { useWeb3 } from '~/hooks/useWeb3';
-import { getReviewTimeout } from '~/hooks/useLinguo';
+import { useLinguoApi } from '~/hooks/useLinguo';
 import Task from '~/utils/task';
 import taskStatus from '~/consts/taskStatus';
 
@@ -57,19 +57,12 @@ LeftSideContent.propTypes = {
 };
 
 function LeftSideContent({ data, contractAddress }) {
-  const [reviewTimeout, setReviewTimeout] = useState(0);
+  const { account } = useWeb3();
+  const { getReviewTimeout } = useLinguoApi();
+  const reviewTimeout = getReviewTimeout(contractAddress);
 
   const { deadline, lastInteraction, requester, taskID, translation, status, submissionTimeout } = data;
-  const { account, library } = useWeb3();
   const _isIncomplete = Task.isIncomplete(status, translation, lastInteraction, submissionTimeout);
-
-  useEffect(() => {
-    const fetchReviewTimeout = async () => {
-      const timeout = await getReviewTimeout(contractAddress, library);
-      setReviewTimeout(timeout);
-    };
-    fetchReviewTimeout();
-  }, [contractAddress, library]);
 
   const TaskFooterInfoPending = () => {
     if (_isIncomplete) {
@@ -103,7 +96,7 @@ function LeftSideContent({ data, contractAddress }) {
   };
 
   const TaskFooterInfoAwaitingReview = () => {
-    const timeout = Task.getRemainedReviewTime(status, lastInteraction, reviewTimeout.toString());
+    const timeout = Task.getRemainedReviewTime(status, lastInteraction, reviewTimeout);
 
     return timeout > 0 ? (
       <RemainingTime
