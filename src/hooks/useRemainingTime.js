@@ -13,16 +13,19 @@ export function useRemainingTime(initialValueSeconds) {
   return remainingTime;
 }
 
+const formatRemainingTime = (remainingTime, showPrefix) => {
+  if (remainingTime === 0) return '00:00:00';
+
+  return remainingTime < _1_DAY_IN_SECONDS
+    ? moment().startOf('day').add(remainingTime, 'second').format('HH:mm:ss')
+    : moment().add(remainingTime, 'second').fromNow(!showPrefix);
+};
+
 function RemainingTime({ initialValueSeconds, render, showPrefix }) {
   const remainingTime = useRemainingTime(initialValueSeconds);
 
   const endingSoon = remainingTime < _1_DAY_IN_SECONDS;
-  const formattedValue =
-    remainingTime === 0
-      ? '00:00:00'
-      : remainingTime < _1_DAY_IN_SECONDS
-      ? moment().startOf('day').add(remainingTime, 'second').format('HH:mm:ss')
-      : moment().add(remainingTime, 'second').fromNow(!showPrefix);
+  const formattedValue = formatRemainingTime(remainingTime, showPrefix);
 
   return render({ value: remainingTime, formattedValue, endingSoon });
 }
