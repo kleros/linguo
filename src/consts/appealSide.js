@@ -17,7 +17,10 @@ const rulingToAppealSideMap = {
     [TaskParty.Translator]: AppealSide.Loser,
     [TaskParty.Challenger]: AppealSide.Winner,
   },
-  [disputeRuling.RefuseToRule]: AppealSide.Tie,
+  [disputeRuling.RefuseToRule]: {
+    [TaskParty.Translator]: AppealSide.Tie,
+    [TaskParty.Challenger]: AppealSide.Tie,
+  },
 };
 
 export const mapRulingAndPartyToAppealSide = (ruling, party) => {
