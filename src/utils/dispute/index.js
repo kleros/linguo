@@ -16,7 +16,7 @@ const isSolved = status => {
 const isWaiting = status => {
   return status === DisputeStatus.Waiting;
 };
-const isOtherPary = party => ![TaskParty.Translator, TaskParty.Challenger].includes(party);
+const isOtherParty = party => ![TaskParty.Translator, TaskParty.Challenger].includes(party);
 const hasWinner = ruling => [disputeRuling.TranslationApproved, disputeRuling.TranslationRejected].includes(ruling);
 
 const isAppealOngoing = (status, ruling, { remainingTime, hasPaidFees }) => {
@@ -111,7 +111,7 @@ const _min = (value1, value2) => {
 const getTotalAppealCost = (appealCost, rewardPool, party) => {
   if (!appealCost) return;
 
-  if (isOtherPary(party)) return NON_PAYABLE_VALUE.toString();
+  if (isOtherParty(party)) return NON_PAYABLE_VALUE.toString();
 
   appealCost = BigNumber.from(appealCost);
   const reward = BigNumber.from(rewardPool[party]) ?? NON_PAYABLE_VALUE;
@@ -122,7 +122,7 @@ const getTotalAppealCost = (appealCost, rewardPool, party) => {
 const getFundingROI = (appealCost, rewardPool, party) => {
   if (!appealCost) return;
 
-  if (isOtherPary(party)) return 0; // ZERO.toString();
+  if (isOtherParty(party)) return 0; // ZERO.toString();
 
   const counterParty = party === TaskParty.Challenger ? TaskParty.Translator : TaskParty.Challenger;
 
