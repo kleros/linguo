@@ -1,7 +1,7 @@
 const disputeRuling = Object.freeze({
   None: undefined,
   RefuseToRule: 'None',
-  TranslationApproved: 'Approve',
+  TranslationApproved: 'Accept',
   TranslationRejected: 'Reject',
 });
 
