@@ -1,23 +1,22 @@
 import React from 'react';
-import { TaskParty } from '~/features/tasks';
 import TaskInDisputeAvatar from '~/assets/images/avatar-task-in-dispute.svg';
 import DisputeLink from '~/shared/DisputeLink';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
+
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
-import useCurrentParty from '~/hooks/useCurrentParty';
+import { TaskParty } from '~/features/tasks';
 
 function DisputeIsWaiting() {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const party = useCurrentParty();
 
-  const { disputeID, challenger, requester } = task;
+  const { disputeID, challenger, currentParty, requester } = task;
   const challengerIsRequester = requester === challenger;
 
-  const { description, ...props } = contentByParty[party]({ challengerIsRequester });
+  const { description, ...props } = contentByParty[currentParty]({ challengerIsRequester });
 
   return (
     <TaskStatusDetailsLayout

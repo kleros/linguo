@@ -2,6 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { message, Form, Radio, Input, Divider } from 'antd';
+
 import Modal from '~/shared/Modal';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
@@ -12,10 +13,10 @@ import { LoadingOutlined } from '@ant-design/icons';
 
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
-import useCurrentParty from '~/hooks/useCurrentParty';
-import publishEvidence, { TEMPLATE_TYPE } from '~/utils/dispute/submitEvidence';
 import { useLinguoApi } from '~/hooks/useLinguo';
 import { useTask } from '~/hooks/useTask';
+
+import publishEvidence, { TEMPLATE_TYPE } from '~/utils/dispute/submitEvidence';
 
 export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
   const { chainId } = useWeb3();
@@ -66,7 +67,7 @@ export default function SubmitEvidenceModalForm({ trigger, forceClose }) {
     [task.taskID, submitEvidence, handleReset]
   );
 
-  const currentParty = useCurrentParty();
+  const { currentParty } = task;
 
   const initialValues = {
     supportingSide: [TaskParty.Translator, TaskParty.Challenger].includes(currentParty) ? currentParty : undefined,

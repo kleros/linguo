@@ -23,15 +23,20 @@ export default function TaskListFetcher() {
 
   const { tasks, isLoading } = useTasksQuery(0);
 
-  let filteredTasks;
-  if (!account) filteredTasks = tasks ?? [];
-
-  if (!isLoading && account)
-    filteredTasks = getTasksByFilters(tasks, {
+  /* const applyFilters = () =>
+    getTasksByFilters(tasks, {
       account: account.toLowerCase(),
       userType: USER_TYPE.translator,
       filters,
     });
+
+  let filteredTasks;
+  if (!account) filteredTasks = tasks ?? [];
+  else if ((filteredTasks = !isLoading ? applyFilters() : [])); */
+
+  const filteredTasks = !isLoading
+    ? getTasksByFilters(tasks, { account: account?.toLowerCase(), userType: USER_TYPE.translator, filters })
+    : [];
 
   const showFootnote = [statusFilters.open].includes(filters.status) && tasks !== undefined;
 
