@@ -12,7 +12,7 @@ export const getTasksByFilters = (tasks, { account, userType, filters }) => {
 
   const filteredTasks = tasks.filter(task => {
     if (!filterToTaskStatusMap[status](task)) return false;
-    if (!allTasks && task[userType] !== account) return false;
+    if (!allTasks && account && task[userType] !== account) return false;
     return true;
   });
 
