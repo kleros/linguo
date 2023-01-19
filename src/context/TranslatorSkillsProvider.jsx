@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 import { indexBy, map, prop } from '~/shared/fp';
@@ -45,12 +45,15 @@ const TranslatorSkillsProvider = ({ children }) => {
     setStoreValue(state);
   }, [setStoreValue, state]);
 
-  const updateSkills = skills => {
-    const getLanguage = prop('language');
-    const newEntities = indexBy(getLanguage, skills);
-    const newIds = map(getLanguage, skills);
-    setState({ ...state, entities: newEntities, ids: newIds });
-  };
+  const updateSkills = useCallback(
+    skills => {
+      const getLanguage = prop('language');
+      const newEntities = indexBy(getLanguage, skills);
+      const newIds = map(getLanguage, skills);
+      setState({ ...state, entities: newEntities, ids: newIds });
+    },
+    [state]
+  );
 
   const clearSkills = () => {
     setState(initialState);
@@ -58,19 +61,19 @@ const TranslatorSkillsProvider = ({ children }) => {
 
   const selectAllSkillLanguages = state => state.ids.filter(code => allLanguageCodes.includes(code)) ?? null;
 
-  const selectAllSkills = state => {
+  const selectAllSkills = useCallback(state => {
     const allSkills = selectAllSkillLanguages(state).map(language => state.entities[language]);
     return allSkills.length > 0 ? allSkills : [EMPTY_SKILL];
-  };
+  }, []);
 
-  const actions = { updateSkills, clearSkills };
-  const selectors = { selectAllSkillLanguages, selectAllSkills };
+  const value = useMemo(() => {
+    const actions = { updateSkills, clearSkills };
+    const selectors = { selectAllSkillLanguages, selectAllSkills };
 
-  return (
-    <TranslatorSkillsContext.Provider value={{ state, actions, selectors }}>
-      {children}
-    </TranslatorSkillsContext.Provider>
-  );
+    return { state, actions, selectors };
+  }, [selectAllSkills, state, updateSkills]);
+
+  return <TranslatorSkillsContext.Provider value={value}>{children}</TranslatorSkillsContext.Provider>;
 };
 
 export default TranslatorSkillsProvider;

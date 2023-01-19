@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext, useEffect } from 'react';
+import React, { useState, createContext, useContext, useEffect, useMemo } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types';
 
@@ -20,17 +20,23 @@ export const TasksFilterProvider = ({ children }) => {
     history.replace({ search: search.toString() });
   }, [history, statusFilter, allTasksFilter]);
 
-  const filters = {
-    status: statusFilter,
-    allTasks: allTasksFilter,
-  };
+  const filters = useMemo(() => {
+    return {
+      status: statusFilter,
+      allTasks: allTasksFilter,
+    };
+  }, [allTasksFilter, statusFilter]);
 
   const updateFilters = newFilters => {
     setStatusFilter(newFilters.status || 'open');
-    setAllTasksFilter(newFilters.allTasks || true);
+    setAllTasksFilter(newFilters.allTasks);
   };
 
-  return <TasksFilterContext.Provider value={{ filters, updateFilters }}>{children}</TasksFilterContext.Provider>;
+  const value = useMemo(() => {
+    return { filters, updateFilters };
+  }, [filters]);
+
+  return <TasksFilterContext.Provider value={value}>{children}</TasksFilterContext.Provider>;
 };
 
 export const useTasksFilter = () => {

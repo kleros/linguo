@@ -6,7 +6,6 @@ import byStatus from './byStatus';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
-import EvidenceUploadProvider from '~/context/EvidenceUpload';
 
 export default function TaskStatusDetails() {
   const { account, chainId } = useWeb3();
@@ -25,7 +24,7 @@ export default function TaskStatusDetails() {
       error={content}
       missing={content}
     >
-      <EvidenceUploadProvider>{content}</EvidenceUploadProvider>
+      {content}
     </RequiredWalletGateway>
   );
 }
