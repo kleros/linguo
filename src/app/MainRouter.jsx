@@ -6,7 +6,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { Spin } from '~/adapters/antd';
 import * as r from './routes';
 
-import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
+import Web3ErrorAlert from '~/components/Web3ErrorAlert';
 
 import Footer from '~/layout/Footer';
 import Navbar from '~/layout/Header/Navbar';

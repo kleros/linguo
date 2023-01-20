@@ -1,6 +1,8 @@
 import React from 'react';
 import t from 'prop-types';
 import { Badge } from 'antd';
+import { useSelector } from 'react-redux';
+import { selectState } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
 import WalletConnectionModal from './WalletConnectionModal';
 import { useWeb3 } from '~/hooks/useWeb3';
@@ -28,7 +30,8 @@ const stateToPropsMap = {
 function WalletConnectionButton({ children, ...props }) {
   const { disconnect } = useConnect();
 
-  const { account, active } = useWeb3();
+  const { account } = useWeb3();
+  const web3State = useSelector(selectState);
   const hasWallet = !!account;
   /**
    * If the user has not selected a wallet yet, the app will connect to
@@ -36,7 +39,7 @@ function WalletConnectionButton({ children, ...props }) {
    * However, since there is no wallet, the state should still be considered
    * `idle` in what concerns this component
    */
-  const buttonState = active && !hasWallet ? 'idle' : 'connected';
+  const buttonState = web3State === 'connected' && !hasWallet ? 'idle' : web3State;
 
   const [modalVisible, setModalVisible] = React.useState(false);
 
