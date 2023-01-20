@@ -1,6 +1,6 @@
 import moment from 'moment';
 import t from 'prop-types';
-import useCountdownTimer from '~/shared/useCountdownTimer';
+import useCountdownTimer from '~/hooks/useCountdownTimer';
 import { _1_DAY_IN_SECONDS, _1_SECOND_IN_MILISECONDS, _5_MINUTES_IN_MILISECONDS } from '~/consts/time';
 
 export function useRemainingTime(initialValueSeconds) {
