@@ -5,9 +5,10 @@ import { Divider } from 'antd';
 import AffixContainer from '~/shared/AffixContainer';
 import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import MultiCardLayout from '../../layout/MultiCardLayout';
-import TaskListHeader from './TaskListHeader';
 import TaskListFetcher from './TaskListFetcher';
 import { TasksFilterProvider } from '~/context/TasksFilterProvider';
+import TaskStatusFilterContainer from '~/components/Task/TaskStatusFilterContainer';
+import TaskListHeader from '~/components/Task/TaskListHeader';
 
 function RequesterDashboard() {
   return (
@@ -33,7 +34,11 @@ function RequesterDashboard() {
               }
             `}
           >
-            <TaskListHeader />
+            <TaskListHeader title="Requester">
+              <StyledTaskFilterWrapper>
+                <TaskStatusFilterContainer />
+              </StyledTaskFilterWrapper>
+            </TaskListHeader>
           </AffixContainer>
           <StyledDivider />
           <StyledContentWrapper>
@@ -54,6 +59,12 @@ const StyledContentWrapper = styled.div`
     padding: 0 1.5rem;
   }
 `;
+
+const StyledTaskFilterWrapper = styled.div`
+  flex: 14rem 1 1;
+  min-width: 8rem;
+  max-width: 14rem;
+}`;
 
 const StyledDivider = styled(Divider)`
   border-top-color: ${props => props.theme.color.primary.default};

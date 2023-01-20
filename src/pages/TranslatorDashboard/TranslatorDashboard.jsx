@@ -2,12 +2,17 @@ import React from 'react';
 import { Titled } from 'react-titled';
 import styled, { css } from 'styled-components';
 import { Divider } from 'antd';
+
 import AffixContainer from '~/shared/AffixContainer';
-import MultiCardLayout from '../../layout/MultiCardLayout';
-import TaskListHeader from './TaskListHeader';
+import MultiCardLayout from '~/layout/MultiCardLayout';
 import TaskListFetcher from './TaskListFetcher';
+
 import { withRequiredSkills } from './withRequiredSkills';
 import { TasksFilterProvider } from '~/context/TasksFilterProvider';
+
+import TaskListHeader from '~/components/Task/TaskListHeader';
+import TaskStatusFilterContainer from '~/components/Task/TaskStatusFilterContainer';
+import TaskOwnershipFilterContainer from '~/components/Task/TaskOwnershipFilterContainer';
 
 const WrappedTranslatorDashboard = () => {
   return (
@@ -33,7 +38,14 @@ const WrappedTranslatorDashboard = () => {
               }
             `}
           >
-            <TaskListHeader />
+            <TaskListHeader title="Translator">
+              <StyledTaskOwnershipFilterWrapper>
+                <TaskOwnershipFilterContainer />
+              </StyledTaskOwnershipFilterWrapper>
+              <StyledTaskFilterWrapper>
+                <TaskStatusFilterContainer />
+              </StyledTaskFilterWrapper>
+            </TaskListHeader>
           </AffixContainer>
           <StyledDivider />
           <StyledContentWrapper>
@@ -57,6 +69,22 @@ const StyledDivider = styled(Divider)`
     margin: 0 0 1rem;
   }
 `;
+
+const StyledTaskFilterWrapper = styled.div`
+  flex: 14rem 1 1;
+  min-width: 8rem;
+  max-width: 14rem;
+}`;
+
+const StyledTaskOwnershipFilterWrapper = styled.div`
+  flex: 8rem 0 0;
+  min-width: 8rem;
+  max-width: 8rem;
+  
+  :empty {
+    display: none;
+  }
+}`;
 
 const StyledContentWrapper = styled.div`
   @media (max-width: 575.98px) {

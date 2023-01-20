@@ -1,28 +1,23 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import t from 'prop-types';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import * as r from '~/app/routes';
-
-import RequesterAvatar from '~/assets/images/avatar-request-translation.svg';
-import TaskStatusFilter from '~/components/Task/TaskStatusFilter';
+import TranslatorAvatar from '~/assets/images/avatar-work-as-a-translator.svg';
 import Button from '~/shared/Button';
 
-import { useTasksFilter } from '~/context/TasksFilterProvider';
-
-export default function TaskListHeader() {
+export default function TaskListHeader({ title, children }) {
   return (
     <StyledHeader>
       <StyledTitle>
-        <RequesterAvatar />
-        Requester
+        <TranslatorAvatar />
+        {title}
       </StyledTitle>
       <StyledControls>
-        <div className="status-filter">
-          <TaskStatusFilterContainer />
-        </div>
-        <div className="request-translation-button">
-          <Link to={r.TRANSLATION_REQUEST} component={Button} fullWidth variant="filled">
-            New Translation
+        {children}
+        <div className="update-skills-button">
+          <Link to={r.TRANSLATOR_SETTINGS} component={Button} fullWidth variant="filled">
+            Update Skills
           </Link>
         </div>
       </StyledControls>
@@ -30,21 +25,10 @@ export default function TaskListHeader() {
   );
 }
 
-function TaskStatusFilterContainer() {
-  const {
-    filters: { status, allTasks },
-    updateFilters,
-  } = useTasksFilter();
-
-  const handleFilterChange = React.useCallback(
-    value => {
-      updateFilters({ status: value, allTasks });
-    },
-    [updateFilters, allTasks]
-  );
-
-  return <TaskStatusFilter fullWidth value={status} onChange={handleFilterChange} />;
-}
+TaskListHeader.propTypes = {
+  title: t.string.isRequired,
+  children: t.node,
+};
 
 const StyledHeader = styled.header`
   display: flex;
@@ -83,13 +67,7 @@ const StyledControls = styled.div`
   align-items: center;
   gap: 1.5rem;
 
-  > .status-filter {
-    flex: 14rem 1 1;
-    min-width: 8rem;
-    max-width: 14rem;
-  }
-
-  > .request-translation-button {
+  > .update-skills-button {
     flex: 10rem 1 1;
     min-width: 8rem;
     max-width: 10rem;
@@ -100,7 +78,7 @@ const StyledControls = styled.div`
     min-width: 100%;
 
     > .status-filter,
-    > .request-translation-button {
+    > .update-skills-button {
       max-width: 100%;
     }
   }
@@ -108,7 +86,7 @@ const StyledControls = styled.div`
   @media (max-width: 575.98px) {
     flex-wrap: wrap;
 
-    > .request-translation-button {
+    > .update-skills-button {
       min-width: 100%;
       order: 0;
     }

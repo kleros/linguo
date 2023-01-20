@@ -2,7 +2,7 @@ import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
 import { Badge, Select } from 'antd';
-import theme from '~/app/theme';
+import theme from '~/features/ui/theme';
 import { statusFilters } from '~/consts/statusFilters';
 
 export default function TaskStatusFilter({ fullWidth, onChange, value, defaultValue }) {
