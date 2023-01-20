@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import * as r from '~/app/routes';
 import TranslatorAvatar from '~/assets/images/avatar-work-as-a-translator.svg';
-import TaskStatusFilter from '~/features/tasks/TaskStatusFilter';
-import TaskOwnershipFilter from '~/features/translator/TaskOwnershipFilter';
+import TaskStatusFilter from '~/components/Task/TaskStatusFilter';
+import TaskOwnershipFilter from '~/components/Task/TaskOwnershipFilter';
 import Button from '~/shared/Button';
 
 import { useWeb3 } from '~/hooks/useWeb3';

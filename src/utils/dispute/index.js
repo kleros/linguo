@@ -1,20 +1,20 @@
 import moment from 'moment';
 import { BigNumber } from 'ethers';
-import { DisputeStatus } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
 import disputeRuling, { mapRulingToParty } from '~/consts/disputeRuling';
 import { percentage } from '../percentage';
+import disputeStatus from '~/consts/disputeStatus';
 
 const NON_PAYABLE_VALUE = BigNumber.from(2).pow(256).sub(1);
 
 const isAppealable = status => {
-  return status === DisputeStatus.Appealable;
+  return status === disputeStatus.Appealable;
 };
 const isSolved = status => {
-  return status === DisputeStatus.Solved;
+  return status === disputeStatus.Solved;
 };
 const isWaiting = status => {
-  return status === DisputeStatus.Waiting;
+  return status === disputeStatus.Waiting;
 };
 const isOtherParty = party => ![TaskParty.Translator, TaskParty.Challenger].includes(party);
 const hasWinner = ruling => [disputeRuling.TranslationApproved, disputeRuling.TranslationRejected].includes(ruling);
@@ -134,7 +134,7 @@ const getFundingROI = (appealCost, rewardPool, party) => {
 };
 
 const getExpectedFinalRuling = (status, ruling, isAppealOngoing, hasPaidFees) => {
-  if (status !== DisputeStatus.Appealable || isAppealOngoing) {
+  if (status !== disputeStatus.Appealable || isAppealOngoing) {
     return ruling;
   }
 

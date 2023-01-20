@@ -3,7 +3,7 @@ import { Titled } from 'react-titled';
 import styled, { css } from 'styled-components';
 import { Divider } from 'antd';
 import AffixContainer from '~/shared/AffixContainer';
-import MultiCardLayout from '../layouts/MultiCardLayout';
+import MultiCardLayout from '../../layout/MultiCardLayout';
 import TaskListHeader from './TaskListHeader';
 import TaskListFetcher from './TaskListFetcher';
 import { withRequiredSkills } from './withRequiredSkills';

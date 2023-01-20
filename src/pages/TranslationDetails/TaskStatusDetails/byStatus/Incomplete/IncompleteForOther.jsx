@@ -6,9 +6,9 @@ import ContextAwareTaskInteractionButton from '../../components/ContextAwareTask
 import TaskDeadline from '../../components/TaskDeadline';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
-import useTask from '~/pages/TranslationDetails/useTask';
 import Task from '~/utils/task';
 import taskStatus from '~/consts/taskStatus';
+import { useTask } from '~/hooks/useTask';
 
 function IncompleteForRequester() {
   const { chainId } = useWeb3();

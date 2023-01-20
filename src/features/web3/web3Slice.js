@@ -9,8 +9,7 @@ import createAsyncAction from '~/shared/createAsyncAction';
 import createWatcherSaga, { TakeType } from '~/shared/createWatcherSaga';
 import { PopupNotificationLevel, notify } from '~/features/ui/popupNotificationsSlice';
 import { watchAllWithBuffer } from './runWithContext';
-import { getTransactionUrl } from './blockExplorer';
-import requestSwitchChain from './requestSwitchChain';
+import { getTransactionUrl } from '~/consts/supportedChains';
 
 /* -------------------- Action Creators -------------------- */
 export const activate = Object.assign(createAction(`web3/activate`), {
@@ -119,12 +118,11 @@ export function* getBlockInfoSaga(action) {
 }
 
 export function* switchChainSaga(action) {
-  const web3 = yield getContext('library');
   const chainId = action.payload?.chainId;
   const meta = action.meta ?? {};
 
   try {
-    yield call(requestSwitchChain, web3.currentProvider, chainId);
+    yield call(switchChain, chainId);
     yield put(switchChain.fulfilled({ chainId }, { meta }));
   } catch (err) {
     yield put(switchChain.rejected({ chainId, error: err }, { meta }));

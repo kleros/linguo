@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import * as r from '~/app/routes';
 
 import RequesterAvatar from '~/assets/images/avatar-request-translation.svg';
-import TaskStatusFilter from '~/features/tasks/TaskStatusFilter';
+import TaskStatusFilter from '~/components/Task/TaskStatusFilter';
 import Button from '~/shared/Button';
 
 import { useTasksFilter } from '~/context/TasksFilterProvider';

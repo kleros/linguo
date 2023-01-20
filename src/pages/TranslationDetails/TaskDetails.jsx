@@ -21,15 +21,16 @@ import AffixContainer from '~/shared/AffixContainer';
 import TaskStatusDetails from './TaskStatusDetails';
 import Evidences from './Evidences';
 
-import TaskInfoGrid from '~/features/tasks/TaskInfoGrid';
-import TaskPrice from '~/features/tasks/TaskPrice';
+import TaskInfoGrid from '~/components/Task/TaskInfoGrid';
+import TaskPrice from '~/components/Task/TaskPrice';
 import EthFiatValue from '~/features/tokens/EthFiatValue';
-import { getFileUrl } from '~/features/tasks';
 
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useTask } from '~/hooks/useTask';
+
 import taskStatus from '~/consts/taskStatus';
+import getFileUrl from '~/utils/ipfs/getFileUrl';
 
 export default function TaskDetails() {
   const { chainId } = useWeb3();

@@ -11,12 +11,12 @@ import { PopupNotificationLevel } from '~/features/ui/popupNotificationsSlice';
 import { notify } from '~/features/ui/uiSlice';
 import { isUserSettingsSupported } from '~/features/users';
 import { fetchByAccount, selectIsLoadingSettings, selectSettings, update } from '~/features/users/userSettingsSlice';
-import { getNetworkName } from '~/features/web3';
-import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import Button from '~/shared/Button';
 import ContentBlocker from '~/shared/ContentBlocker';
 import { mapValues } from '~/shared/fp';
 import Spacer from '~/shared/Spacer';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { getNetworkName } from '~/consts/supportedChains';
 
 const CheckAllState = {
   Unchecked: 0,
@@ -25,7 +25,7 @@ const CheckAllState = {
 };
 
 export default function EmailNotificationsWrapper() {
-  const chainId = useSelector(selectChainId);
+  const { chainId } = useWeb3();
 
   return (
     <ContentBlocker
@@ -55,7 +55,7 @@ export default function EmailNotificationsWrapper() {
 
 function EmailNotifications() {
   const dispatch = useDispatch();
-  const account = useSelector(selectAccount);
+  const { account } = useWeb3();
   const settings = useShallowEqualSelector(state => selectSettings(state, { account }));
   const isLoadingSettings = useSelector(state => selectIsLoadingSettings(state, { account }));
 

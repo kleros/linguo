@@ -5,7 +5,7 @@ import { Spin } from '~/adapters/antd';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import TopLoadingBar from '~/shared/TopLoadingBar';
 
-import TaskList from '~/components/TaskList';
+import TaskList from '~/components/Task/TaskList';
 import RequesterTaskCard from '~/components/RequesterTaskCard';
 
 import { useWeb3 } from '~/hooks/useWeb3';

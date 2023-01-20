@@ -8,9 +8,9 @@ import * as r from './routes';
 
 import Web3ErrorAlert from '~/features/web3/Web3ErrorAlert';
 
-import Footer from '~/shared/Footer';
-import Navbar from '~/shared/Navbar';
-import { DrawerMenu } from '~/shared/Menu';
+import Footer from '~/layout/Footer';
+import Navbar from '~/layout/Header/Navbar';
+import { DrawerMenu } from '~/layout/Header/Menu';
 
 import { history } from '~/store';
 import Content from './Content';

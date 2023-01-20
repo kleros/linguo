@@ -1,19 +1,19 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { Row, Col, Divider, Typography, Spin } from 'antd';
 import Button from '~/shared/Button';
 import Modal from '~/shared/Modal';
 import MetamaskLogo from '~/assets/images/logo-metamask.svg';
 import WalletConnectLogo from '~/assets/images/logo-walletconnect.svg';
-import { selectIsConnecting, selectIsConnected } from './web3Slice';
-import { useConnectToProvider } from './hooks';
 import { injected, walletConnect } from '~/connectors';
+import { useConnect } from '~/hooks/useConnect';
+import { useWeb3 } from '~/hooks/useWeb3';
 
 function WalletConnectionModal({ visible, setVisible, onCancel }) {
-  const isConnecting = useSelector(selectIsConnecting);
-  const isConnected = useSelector(selectIsConnected);
+  const { account, active } = useWeb3();
+  const isConnecting = active && !account; // TODO: Check if this works/
+  const isConnected = active && account;
 
   React.useEffect(() => {
     if (isConnected) {
@@ -26,7 +26,7 @@ function WalletConnectionModal({ visible, setVisible, onCancel }) {
     onCancel();
   };
 
-  const connect = useConnectToProvider();
+  const { connect } = useConnect();
 
   const handleMetamaskActivation = React.useCallback(() => {
     connect(injected.name);

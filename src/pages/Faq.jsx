@@ -12,7 +12,7 @@ import CollapsibleSection from '~/shared/CollapsibleSection';
 import { TelegramIcon } from '~/shared/icons';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
-import SingleCardLayout from './layouts/SingleCardLayout';
+import SingleCardLayout from '../layout/SingleCardLayout';
 
 function Faq() {
   const history = useHistory();

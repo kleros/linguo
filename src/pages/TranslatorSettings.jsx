@@ -1,8 +1,8 @@
 import React from 'react';
 import { Titled } from 'react-titled';
-import TranslatorSettingsForm from '~/features/translator/TranslatorSettingsForm';
+import TranslatorSettingsForm from '~/components/Translator/TranslatorSettingsForm';
 import WithRouteMessage from '~/shared/WithRouteMessage';
-import SingleCardLayout from './layouts/SingleCardLayout';
+import SingleCardLayout from '../layout/SingleCardLayout';
 
 function TranslatorSettings() {
   return (

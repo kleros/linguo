@@ -1,6 +1,6 @@
 import React from 'react';
 import ContentBlocker from '~/shared/ContentBlocker';
-import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
+import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import byStatus from './byStatus';
 
 import { useWeb3 } from '~/hooks/useWeb3';

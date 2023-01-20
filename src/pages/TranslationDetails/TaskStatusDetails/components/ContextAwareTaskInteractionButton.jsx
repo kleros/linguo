@@ -1,5 +1,5 @@
 import React from 'react';
-import TaskInteractionButton from '~/features/tasks/TaskInteractionButton';
+import TaskInteractionButton from '~/components/Task/TaskInteractionButton';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
 import { useWeb3 } from '~/hooks/useWeb3';

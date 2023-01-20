@@ -4,7 +4,7 @@ import { useTask } from '~/hooks/useTask';
 import { useWeb3 } from '~/hooks/useWeb3';
 
 const getCurrentParty = ({ account, requester, translator, challenger }) => {
-  switch (account.toLowerCase()) {
+  switch (account?.toLowerCase()) {
     /**
      * The requester could also be the challenger.
      * If that happens, the role he should assume is the one

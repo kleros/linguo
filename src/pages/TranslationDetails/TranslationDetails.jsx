@@ -4,7 +4,7 @@ import { Titled } from 'react-titled';
 import { Spin } from 'antd';
 
 import TopLoadingBar from '~/shared/TopLoadingBar';
-import SingleCardLayout from '../layouts/SingleCardLayout';
+import SingleCardLayout from '../../layout/SingleCardLayout';
 import TaskDetails from './TaskDetails';
 
 import { useWeb3 } from '~/hooks/useWeb3';

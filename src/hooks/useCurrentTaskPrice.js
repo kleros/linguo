@@ -1,7 +1,7 @@
 import React from 'react';
 
 import taskStatus from '~/consts/taskStatus';
-import useInterval from '~/shared/useInterval';
+import useInterval from '~/hooks/useInterval';
 import Task from '~/utils/task';
 
 import { _1_MINUTE_MS } from '~/consts/time';

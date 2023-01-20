@@ -3,7 +3,7 @@ import t from 'prop-types';
 
 import { useWeb3React } from '@web3-react/core';
 import { useInactiveListener, useEagerConnect } from '~/hooks/useWeb3';
-import { network } from '../connectors';
+import { network } from '~/connectors';
 
 const Web3ConnectionManager = ({ children }) => {
   const { active } = useWeb3React();

@@ -18,7 +18,6 @@ const GlobalWarnings = () => {
   const { chainId } = useWeb3();
   const counterPartyChainId = getCounterPartyChainId(chainId);
 
-  console.log(counterPartyChainId);
   const handleClick = event => {
     event.preventDefault();
     switchChain(counterPartyChainId ?? NETWORKS.gnosis);

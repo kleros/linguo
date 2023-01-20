@@ -7,8 +7,8 @@ import * as r from '~/app/routes';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import TopLoadingBar from '~/shared/TopLoadingBar';
 
-import TaskList from '~/components/TaskList';
-import TranslatorTaskCard from '~/components/TranslatorTaskCard';
+import TaskList from '~/components/Task/TaskList';
+import TranslatorTaskCard from '~/components/Translator/TranslatorTaskCard';
 
 import { useTasksQuery } from '~/hooks/queries/useTasksQuery';
 import { useWeb3 } from '~/hooks/useWeb3';

@@ -7,7 +7,7 @@ import MetamaskLogo from '~/assets/images/logo-metamask.svg';
 import WalletConnectLogo from '~/assets/images/logo-walletconnect.svg';
 import { useConnectToProvider } from '~/features/web3';
 import { selectIsConnecting } from '~/features/web3/web3Slice';
-import { injected, walletConnect } from '~/features/web3/connectors';
+import { injected, walletConnect } from '~/connectors';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
 import { HelpIcon } from '~/shared/icons';

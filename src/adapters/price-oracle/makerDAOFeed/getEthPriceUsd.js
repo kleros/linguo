@@ -1,8 +1,9 @@
 import Web3 from 'web3';
-import { jsonRpcUrls } from '~/features/web3/supportedChains';
+import { RPC_URLS } from '~/consts/supportedChains';
+
 import abi from './assets/MedianEthUsd.json';
 
-const providerUrl = jsonRpcUrls[1];
+const providerUrl = RPC_URLS[1];
 const provider = new Web3.providers.HttpProvider(providerUrl);
 const web3 = new Web3(provider);
 const contract = new web3.eth.Contract(abi, '0x64de91f5a373cd4c28de3600cb34c7c6ce410c85');

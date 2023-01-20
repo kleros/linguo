@@ -8,13 +8,10 @@ import { nanoid } from 'nanoid';
 import scrollIntoView from 'scroll-into-view-if-needed';
 
 import { useShallowEqualSelector } from '~/adapters/react-redux';
-import { Task } from '~/features/tasks';
-import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
-import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
+import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import CollapsibleSection from '~/shared/CollapsibleSection';
 import Spacer from '~/shared/Spacer';
 import { LocalTopLoadingBar } from '~/shared/TopLoadingBar';
-import useTask from '../useTask';
 import AddCommentForm from './AddCommentForm';
 import CommentTimeline from './CommentTimeline';
 import {
@@ -24,11 +21,16 @@ import {
   getComments,
   addComment,
 } from '~/features/comments/commentsSlice';
+import { useTask } from '~/hooks/useTask';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import Task from '~/utils/task';
 
 export default function Comments() {
-  const chainId = useSelector(selectChainId);
-  const task = useTask();
-  const taskId = task.id;
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const task = useTask(id);
+  const taskId = task.taskID;
 
   const isLoading = useSelector(state => selectThreadIsLoading(state, { chainId, taskId }));
 
@@ -49,10 +51,10 @@ const selectSortedThreadComments = createSelector([selectThreadComments], commen
 function CommentsFetcher() {
   const dispatch = useDispatch();
 
-  const account = useSelector(selectAccount);
-  const chainId = useSelector(selectChainId);
-  const task = useTask();
-  const taskId = task.id;
+  const { account, chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const task = useTask(id);
+  const taskId = task.taskID;
 
   const isLoading = useSelector(state => selectThreadIsLoading(state, { chainId, taskId }));
   const error = useSelector(state => selectThreadError(state, { chainId, taskId }));
@@ -106,6 +108,8 @@ function CommentsFetcher() {
     [dispatch, account, chainId, taskId]
   );
 
+  const { status, translation, lastInteraction, submissionTimeout } = task;
+  const isFinalized = Task.isFinalized(status, translation, lastInteraction, submissionTimeout);
   return (
     <RequiredWalletGateway message="To participate in the discussion, you need to be connected to a wallet.">
       {error ? (
@@ -137,7 +141,7 @@ function CommentsFetcher() {
           </>
         ) : null}
         <Spacer />
-        {!Task.isFinalized(task) ? <AddCommentForm onFinish={handleSubmitComment} /> : null}
+        {!isFinalized ? <AddCommentForm onFinish={handleSubmitComment} /> : null}
       </Spin>
     </RequiredWalletGateway>
   );

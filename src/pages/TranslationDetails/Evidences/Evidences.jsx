@@ -3,7 +3,9 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import scrollIntoView from 'scroll-into-view-if-needed';
-import { DisputeStatus } from '~/features/disputes';
+import { Spin } from 'antd';
+import { Alert } from '~/adapters/antd';
+
 import Button from '~/shared/Button';
 import CollapsibleSection from '~/shared/CollapsibleSection';
 import Spacer from '~/shared/Spacer';
@@ -14,11 +16,11 @@ import SubmitEvidenceModalForm from './SubmitEvidenceModalForm';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
-import Task from '~/utils/task';
 import { useLinguoApi } from '~/hooks/useLinguo';
 import { useEvidencesByTaskQuery } from '~/hooks/queries/useEvidencesByTaskQuery';
-import { Spin } from 'antd';
-import { Alert } from '~/adapters/antd';
+
+import Task from '~/utils/task';
+import disputeStatus from '~/consts/disputeStatus';
 
 export default function Evidences({ open }) {
   const { chainId } = useWeb3();
@@ -30,8 +32,8 @@ export default function Evidences({ open }) {
   const { taskID, lastInteraction, status, submissionTimeout, translation } = task;
   const isFinalized = Task.isFinalized(status, translation, lastInteraction, submissionTimeout);
 
-  const disputeStatus = linguo.getDisputeStatus(taskID);
-  const hasOngoingDispute = [DisputeStatus.Waiting, DisputeStatus.Appealable].includes(disputeStatus);
+  const _disputeStatus = linguo.getDisputeStatus(taskID);
+  const hasOngoingDispute = [disputeStatus.Waiting, disputeStatus.Appealable].includes(_disputeStatus);
 
   const firstItemRef = React.useRef();
   const lastItemRef = React.useRef();

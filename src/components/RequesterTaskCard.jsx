@@ -1,7 +1,7 @@
 import React from 'react';
 import t from 'prop-types';
 
-import TaskCard from '~/features/tasks/TaskCard';
+import TaskCard from './Task/TaskCard';
 import { useMetaEvidenceQuery } from '~/hooks/queries/useMetaEvidenceQuery';
 
 const RequesterTaskCard = props => {

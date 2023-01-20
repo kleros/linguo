@@ -2,7 +2,7 @@ import React from 'react';
 import { Titled } from 'react-titled';
 import { Alert } from '~/adapters/antd';
 
-import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
+import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import Button from '~/shared/Button';
 import ContentBlocker from '~/shared/ContentBlocker';
 import Spacer from '~/shared/Spacer';
@@ -12,7 +12,7 @@ import { useWeb3 } from '~/hooks/useWeb3';
 import { getCounterPartyChainId, getNetworkName, isSupportedSideChain } from '~/consts/supportedChains';
 import { switchChain } from '~/utils/switchChain';
 
-import SingleCardLayout from '../layouts/SingleCardLayout';
+import SingleCardLayout from '../../layout/SingleCardLayout';
 import TranslationRequestForm from './TranslationRequestForm';
 
 function TranslationRequest() {

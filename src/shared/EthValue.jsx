@@ -3,8 +3,8 @@ import t from 'prop-types';
 import Web3 from 'web3';
 
 import FormattedNumber from './FormattedNumber';
-import { defaultChainId } from '~/features/web3/supportedChains';
 import { useWeb3 } from '~/hooks/useWeb3';
+import { defaultChainId } from '~/consts/defaultChainId';
 
 const DEFAULT_CHAIN_ID = process.env.DEFAULT_CHAIN_ID;
 

@@ -17,13 +17,13 @@ import ReactBlockies from 'react-blockies';
 import { composeRefs } from '~/adapters/react';
 import EthAddress from '~/shared/EthAddress';
 import FormattedDate from '~/shared/FormattedDate';
-import { getFileUrl } from '~/features/evidences';
 import { TaskParty } from '~/features/tasks';
 import { useWeb3 } from '~/hooks/useWeb3';
 import { useParamsCustom } from '~/hooks/useParamsCustom';
 import { useTask } from '~/hooks/useTask';
 import moment from 'moment';
 import { useIPFSQuery } from '~/hooks/queries/useIPFSQuery';
+import getFileUrl from '~/utils/ipfs/getFileUrl';
 
 export default function EvidenceTimeline({ data, lastItemRef, firstItemRef }) {
   const { chainId } = useWeb3();
