@@ -1,30 +1,18 @@
 import React from 'react';
-import { SWRConfig } from 'swr';
-import { request } from 'graphql-request';
 import { hot } from 'react-hot-loader';
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import theme from '~/features/ui/theme';
 import MainRouter from './MainRouter';
 import Web3Provider from '../context/Web3Provider';
 
-const fetcherBuilder =
-  url =>
-  ({ query, variables }) => {
-    return request(url, query, variables);
-  };
-
 function App() {
   return (
-    <SWRConfig
-      value={{ fetcher: fetcherBuilder('https://api.thegraph.com/subgraphs/name/gratestas/linguo-goerli-test') }}
-    >
-      <Web3Provider>
-        <ThemeProvider theme={theme}>
-          <GlobalStyle />
-          <MainRouter />
-        </ThemeProvider>
-      </Web3Provider>
-    </SWRConfig>
+    <Web3Provider>
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <MainRouter />
+      </ThemeProvider>
+    </Web3Provider>
   );
 }
 
