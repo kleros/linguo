@@ -25,7 +25,7 @@ export default function TaskCardFooter({ data, contractAddress, rightSideContent
 TaskCardFooter.propTypes = {
   contractAddress: t.string.isRequired,
   data: t.shape({
-    deadline: t.string.isRequired,
+    deadline: t.oneOfType([t.string, t.number]).isRequired,
     lastInteraction: t.string.isRequired,
     minPrice: t.string.isRequired,
     maxPrice: t.string.isRequired,
@@ -45,7 +45,7 @@ TaskCardFooter.defaultProps = {
 LeftSideContent.propTypes = {
   contractAddress: t.string.isRequired,
   data: t.shape({
-    deadline: t.string.isRequired,
+    deadline: t.oneOfType([t.string, t.number]).isRequired,
     lastInteraction: t.string.isRequired,
     requester: t.string.isRequired,
     submissionTimeout: t.string.isRequired,
@@ -66,7 +66,7 @@ function LeftSideContent({ data, contractAddress }) {
 
   const TaskFooterInfoPending = () => {
     if (_isIncomplete) {
-      const isRequester = requester === account.toLowerCase();
+      const isRequester = requester === account?.toLowerCase();
 
       return isRequester ? (
         <TaskInteractionButton

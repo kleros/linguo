@@ -113,7 +113,7 @@ TaskCard.propTypes = {
     translation: t.string.isRequired,
   }),
   metadata: t.shape({
-    deadline: t.string.isRequired,
+    deadline: t.oneOfType([t.string, t.number]).isRequired,
     title: t.string.isRequired,
     sourceLanguage: t.string.isRequired,
     targetLanguage: t.string.isRequired,
