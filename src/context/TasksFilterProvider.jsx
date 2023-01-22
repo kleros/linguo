@@ -28,8 +28,9 @@ export const TasksFilterProvider = ({ children }) => {
   }, [allTasksFilter, statusFilter]);
 
   const updateFilters = newFilters => {
-    setStatusFilter(newFilters.status || 'open');
-    setAllTasksFilter(newFilters.allTasks);
+    const { status, allTasks } = newFilters;
+    setStatusFilter(status || 'open');
+    setAllTasksFilter(status === 'open' ? true : allTasks);
   };
 
   const value = useMemo(() => {
