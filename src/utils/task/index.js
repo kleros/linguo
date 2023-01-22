@@ -74,7 +74,7 @@ const getRemainedSubmissionTime = (status, deadline) => {
   }
 
   const currentTime = moment();
-  const deadlineMoment = moment(deadline);
+  const deadlineMoment = moment.unix(deadline);
 
   const remainingTimeout = deadlineMoment.subtract(currentTime);
   return remainingTimeout.unix() > 0 ? remainingTimeout.unix() : 0;
