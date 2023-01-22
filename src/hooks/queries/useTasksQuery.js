@@ -3,7 +3,7 @@ import { gql } from 'graphql-request';
 
 const tasksQuery = gql`
   query TasksPage($skip: Int) {
-    tasks(first: 100, skip: $skip, orderBy: taskID, orderDirection: desc) {
+    tasks(first: 100, skip: $skip, orderBy: deadline, orderDirection: asc) {
       id
       assignedPrice
       taskID
