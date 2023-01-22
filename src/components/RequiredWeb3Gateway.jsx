@@ -3,13 +3,17 @@ import t from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Spin } from '~/adapters/antd';
 import getErrorMessage from '~/adapters/web3-react/getErrorMessage';
-import { selectError, selectHasError, selectIsConnected, selectIsConnecting } from '~/features/web3/web3Slice';
+import { selectError, selectHasError, selectIsConnecting } from '~/features/web3/web3Slice';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { injected } from '~/connectors';
 
 function RequiredWeb3Gateway({ children, missing, error, renderError }) {
   const hasWeb3Error = useSelector(selectHasError);
   const web3Error = useSelector(selectError);
-  const isConnected = useSelector(selectIsConnected);
   const isConnecting = useSelector(selectIsConnecting);
+  const { active, chainId, connector } = useWeb3();
+
+  const isConnected = active && chainId && connector.name === injected.name;
 
   return hasWeb3Error ? (
     error ?? renderError({ error: getErrorMessage(web3Error) })
