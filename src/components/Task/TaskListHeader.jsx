@@ -15,11 +15,19 @@ export default function TaskListHeader({ title, children }) {
       </StyledTitle>
       <StyledControls>
         {children}
-        <div className="update-skills-button">
-          <Link to={r.TRANSLATOR_SETTINGS} component={Button} fullWidth variant="filled">
-            Update Skills
-          </Link>
-        </div>
+        {title === 'Translator' ? (
+          <div className="update-skills-button">
+            <Link to={r.TRANSLATOR_SETTINGS} component={Button} fullWidth variant="filled">
+              Update Skills
+            </Link>
+          </div>
+        ) : (
+          <div className="request-translation-button">
+            <Link to={r.TRANSLATION_REQUEST} component={Button} fullWidth variant="filled">
+              New Translation
+            </Link>
+          </div>
+        )}
       </StyledControls>
     </StyledHeader>
   );
@@ -73,6 +81,12 @@ const StyledControls = styled.div`
     max-width: 10rem;
   }
 
+  > .request-translation-button {
+    flex: 10rem 1 1;
+    min-width: 8rem;
+    max-width: 10rem;
+  }
+
   @media (max-width: 767.98px) {
     justify-content: stretch;
     min-width: 100%;
@@ -81,12 +95,20 @@ const StyledControls = styled.div`
     > .update-skills-button {
       max-width: 100%;
     }
+    > .request-translation-button {
+      max-width: 100%;
+    }
   }
 
   @media (max-width: 575.98px) {
     flex-wrap: wrap;
 
     > .update-skills-button {
+      min-width: 100%;
+      order: 0;
+    }
+
+    > .request-translation-button {
       min-width: 100%;
       order: 0;
     }
