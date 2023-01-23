@@ -10,7 +10,7 @@ export const TasksFilterProvider = ({ children }) => {
 
   const queryParams = new URLSearchParams(location.search);
   const [statusFilter, setStatusFilter] = useState(queryParams.get('status') || 'open');
-  const [allTasksFilter, setAllTasksFilter] = useState(queryParams.get('allTasks') === 'false');
+  const [allTasksFilter, setAllTasksFilter] = useState(queryParams.get('status') === 'open');
 
   useEffect(() => {
     const search = new URLSearchParams({
