@@ -98,7 +98,7 @@ export const useLinguoApi = () => {
 
   const getReviewTimeout = (_address = address) => {
     const timeout = _call(_address, Linguo.abi, LinguoInteraction.reviewTimeout);
-    return (timeout && timeout.toString()) || undefined;
+    return (timeout && timeout.toString()) || 0;
   };
 
   const getRewardPoolParams = () => {
