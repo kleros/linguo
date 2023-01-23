@@ -46,18 +46,19 @@ function TranslationRequestForm() {
     async values => {
       const { originalTextFile, deadline, minPriceNumeric, maxPriceNumeric, ...rest } = values;
       send('SUBMIT');
+      const formattedDeadline = new Date(deadline).toISOString();
       const metadata = {
         ...rest,
         account,
         minPrice: safeToWei(minPriceNumeric),
         maxPrice: safeToWei(maxPriceNumeric),
-        deadline: new Date(deadline).toISOString(),
+        deadline: moment(formattedDeadline).unix(),
         originalTextFile: extractOriginalTextFilePath(originalTextFile),
       };
 
       try {
         const metaEvidence = await publishMetaEvidence(chainId, metadata);
-        await createTask(moment(metadata.deadline).unix(), metadata.minPrice, metaEvidence, metadata.maxPrice);
+        await createTask(moment(formattedDeadline).unix(), metadata.minPrice, metaEvidence, metadata.maxPrice);
       } finally {
         send('RESET');
       }
