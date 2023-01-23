@@ -1,14 +1,14 @@
 import React from 'react';
 import t from 'prop-types';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Col, Form, Input } from 'antd';
 import { InputNumberWithAddons } from '~/adapters/antd';
-import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
+
 import { InfoIcon } from '~/shared/icons';
 import PriceDefinitionInfographic from '~/shared/PriceDefinitionInfographic';
 import Spacer from '~/shared/Spacer';
 import { getBestDisplayUnit } from '~/shared/EthValue';
+import { useWeb3 } from '~/hooks/useWeb3';
 
 export default function PriceDefinitionFieldsWrapper() {
   return (
@@ -26,8 +26,7 @@ export default function PriceDefinitionFieldsWrapper() {
 const MIN_REPRESENTABLE_VALUE = 0.000000000000000001;
 
 function PriceDefinitionFields({ setFieldsValue, getFieldValue }) {
-  const account = useSelector(selectAccount);
-  const chainId = useSelector(selectChainId);
+  const { account, chainId } = useWeb3();
   const displayUnit = getBestDisplayUnit({ chainId, amount: '0' }).suffix.short;
 
   const [minMaxPriceNumeric, setMinMaxPriceNumeric] = React.useState(MIN_REPRESENTABLE_VALUE);
