@@ -18,10 +18,10 @@ export default function ChallengeUploadButton({ buttonProps }) {
   const { chainId } = useWeb3();
   const { id } = useParamsCustom(chainId);
   const { task } = useTask(id);
-  const { challengeTranslation } = useLinguoApi();
+  const { challengeTranslation, getChallengeDeposit } = useLinguoApi();
+  const deposit = getChallengeDeposit(task.taskID);
 
   const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
-
   const [uploadedFile, setUploadedFile] = React.useState(null);
 
   const handleFileChange = React.useCallback(async ({ fileList }) => {
@@ -43,11 +43,11 @@ export default function ChallengeUploadButton({ buttonProps }) {
     setHasPendingTxn(true);
     try {
       const evidence = await publishEvidence(TEMPLATE_TYPE.challenge, task.taskID, { uploadedFile });
-      await challengeTranslation(task.taskID, evidence);
+      await challengeTranslation(task.taskID, evidence, deposit);
     } finally {
       setHasPendingTxn(false);
     }
-  }, [challengeTranslation, task.taskID, uploadedFile]);
+  }, [challengeTranslation, deposit, task.taskID, uploadedFile]);
 
   const icon = hasPendingTxn ? <LoadingOutlined /> : null;
 

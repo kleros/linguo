@@ -6,13 +6,15 @@ import { useLinguoApi } from '~/hooks/useLinguo';
 import { useTransactionState, STATE } from '~/hooks/useTransactionState';
 
 export default function TaskInteractionButton({ id, interaction, content, buttonProps }) {
-  const linguo = useLinguoApi();
+  const { getTranslatorDeposit, assignTask, acceptTranslation, reimburseRequester, withdrawAllFeesAndRewards } =
+    useLinguoApi();
 
+  const deposit = getTranslatorDeposit(id);
   const interactionToActionMap = {
-    [TaskInteraction.Assign]: () => linguo.assignTask(id),
-    [TaskInteraction.Accept]: () => linguo.acceptTranslation(id),
-    [TaskInteraction.Reimburse]: () => linguo.reimburseRequester(id),
-    [TaskInteraction.Withdraw]: () => linguo.withdrawAllFeesAndRewards(id),
+    [TaskInteraction.Assign]: () => assignTask(id, deposit),
+    [TaskInteraction.Accept]: () => acceptTranslation(id),
+    [TaskInteraction.Reimburse]: () => reimburseRequester(id),
+    [TaskInteraction.Withdraw]: () => withdrawAllFeesAndRewards(id),
   };
 
   const taskAction = interactionToActionMap[interaction];
