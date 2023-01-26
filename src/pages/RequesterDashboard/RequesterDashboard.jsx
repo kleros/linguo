@@ -3,7 +3,6 @@ import { Titled } from 'react-titled';
 import styled, { css } from 'styled-components';
 import { Divider } from 'antd';
 import AffixContainer from '~/shared/AffixContainer';
-import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import MultiCardLayout from '../../layout/MultiCardLayout';
 import TaskListFetcher from './TaskListFetcher';
 import { TasksFilterProvider } from '~/context/TasksFilterProvider';
@@ -42,9 +41,7 @@ function RequesterDashboard() {
           </AffixContainer>
           <StyledDivider />
           <StyledContentWrapper>
-            <RequiredWalletGateway message="To view your requested translation tasks you need an Ethereum Wallet.">
-              <TaskListFetcher />
-            </RequiredWalletGateway>
+            <TaskListFetcher />
           </StyledContentWrapper>
         </TasksFilterProvider>
       </MultiCardLayout>

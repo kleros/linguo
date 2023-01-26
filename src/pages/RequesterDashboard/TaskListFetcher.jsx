@@ -14,8 +14,10 @@ import { useTasksByRequesterQuery } from '~/hooks/queries/useTasksByRequesterQue
 
 import { statusFilters } from '~/consts/statusFilters';
 import { getTasksByFilters, USER_TYPE } from '~/utils/getTasksByFilters';
+import { withRedirectFromMainnet } from '~/components/withRedirectFromMainnet';
+import { withRequiredWalletGateway } from '~/components/RequiredWalletGateway';
 
-export default function TaskListFetcher() {
+const WrappedTaskListFetcher = () => {
   const { account } = useWeb3();
   const { filters } = useTasksFilter();
 
@@ -40,7 +42,14 @@ export default function TaskListFetcher() {
       </Spin>
     </>
   );
-}
+};
+
+const TaskListFetcher = withRedirectFromMainnet(
+  withRequiredWalletGateway({ message: 'To view your requested translation tasks you need an Ethereum Wallet.' })(
+    WrappedTaskListFetcher
+  )
+);
+export default TaskListFetcher;
 
 const StyledDismissableAlert = styled(DismissableAlert)`
   margin-bottom: 1rem;

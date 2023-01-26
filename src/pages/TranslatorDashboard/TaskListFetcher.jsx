@@ -16,8 +16,9 @@ import { useTasksFilter } from '~/context/TasksFilterProvider';
 
 import { statusFilters } from '~/consts/statusFilters';
 import { getTasksByFilters, USER_TYPE } from '~/utils/getTasksByFilters';
+import { withRedirectFromMainnet } from '~/components/withRedirectFromMainnet';
 
-export default function TaskListFetcher() {
+const WrappedTaskListFetcher = () => {
   const { account } = useWeb3();
   const { filters } = useTasksFilter();
 
@@ -42,7 +43,10 @@ export default function TaskListFetcher() {
       </Spin>
     </>
   );
-}
+};
+
+const TaskListFetcher = withRedirectFromMainnet(WrappedTaskListFetcher);
+export default TaskListFetcher;
 
 const StyledDismissableAlert = styled(DismissableAlert)`
   margin-bottom: 1rem;
