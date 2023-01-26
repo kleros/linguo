@@ -53,7 +53,7 @@ const GlobalWarnings = () => {
           message={
             <>
               {isSupportedChain(chainId)
-                ? 'Linguo is moving to a side-chain for more affordable gas prices:'
+                ? 'Linguo has moved to a side-chain for more affordable gas prices:'
                 : 'Network Not Supported.'}{' '}
               <Button variant="link" onClick={handleClick}>
                 Switch to {getNetworkName(counterPartyChainId ?? NETWORKS.gnosis)}.
