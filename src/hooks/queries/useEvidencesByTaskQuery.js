@@ -18,7 +18,7 @@ const evidencesByTaskQuery = gql`
 `;
 
 export const useEvidencesByTaskQuery = id => {
-  const { data, error, isValidating } = useSWR(() =>
+  const { data, error } = useSWR(() =>
     typeof id !== 'undefined'
       ? {
           query: evidencesByTaskQuery,
@@ -27,12 +27,5 @@ export const useEvidencesByTaskQuery = id => {
       : false
   );
 
-  if (isValidating) {
-    console.log('Evidence data is being fetched');
-  } else if (error) {
-    console.log('Error loading evidence data');
-  } else if (data) {
-    console.log('Evidence data is already cached');
-  }
   return { evidences: data ? data.evidences : null, isLoading: !error && !data, error: error };
 };

@@ -32,17 +32,10 @@ const tasksQuery = gql`
 `;
 
 export const useTasksQuery = skip => {
-  const { data, error, isValidating } = useSWR({
+  const { data, error } = useSWR({
     query: tasksQuery,
     variables: { skip: skip },
   });
 
-  if (isValidating) {
-    console.log('Task data is being fetched');
-  } else if (error) {
-    console.log('Error loading task data');
-  } else if (data) {
-    console.log('Task data is already cached');
-  }
   return { tasks: data ? data.tasks : null, isLoading: !error && !data, isError: error };
 };

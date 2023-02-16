@@ -34,7 +34,7 @@ const taskQuery = gql`
 `;
 
 export const useTaskQuery = id => {
-  const { data, error, isValidating } = useSWR(() =>
+  const { data, error } = useSWR(() =>
     typeof id !== 'undefined'
       ? {
           query: taskQuery,
@@ -43,13 +43,6 @@ export const useTaskQuery = id => {
       : false
   );
 
-  if (isValidating) {
-    console.log('Task data is being fetched');
-  } else if (error) {
-    console.log('Error loading task data');
-  } else if (data) {
-    console.log('Task data is already cached');
-  }
   return { task: data ? data.task : emptyTask, isLoading: !error && !data, isError: error };
 };
 

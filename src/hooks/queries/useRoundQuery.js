@@ -29,18 +29,11 @@ const roundQuery = gql`
 `;
 
 export const useRoundQuery = id => {
-  const { data, error, isValidating } = useSWR({
+  const { data, error } = useSWR({
     query: roundQuery,
     variables: { id: id },
   });
 
-  if (isValidating) {
-    console.log('Round data is being fetched');
-  } else if (error) {
-    console.log('Round loading task data');
-  } else if (data) {
-    console.log('Round data is already cached');
-  }
   return { round: data ? data.round : emptyRound, isLoading: !error && !data, error };
 };
 

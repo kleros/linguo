@@ -32,17 +32,10 @@ const tasksByRequesterQuery = gql`
 `;
 
 export const useTasksByRequesterQuery = (requester, skip) => {
-  const { data, error, isValidating } = useSWR({
+  const { data, error } = useSWR({
     query: tasksByRequesterQuery,
     variables: { skip: skip, requester: requester },
   });
 
-  if (isValidating) {
-    console.log('RequesterTasks data is being fetched');
-  } else if (error) {
-    console.log('Error loading RequesterTasks data');
-  } else if (data) {
-    console.log('RequesterTasks data is already cached');
-  }
   return { tasks: data ? data.tasks : null, isLoading: !error && !data, error };
 };
