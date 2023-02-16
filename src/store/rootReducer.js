@@ -2,7 +2,6 @@ import { connectRouter } from 'connected-react-router';
 import { persistCombineReducers } from 'redux-persist';
 import { reducer as sagaThunkReducer } from 'redux-saga-thunk';
 import storage from 'redux-persist/lib/storage';
-import commentsReducer from '~/features/comments/commentsSlice';
 import userSettingsReducer from '~/features/users/userSettingsSlice';
 import notificationsReducer from '~/features/notifications/notificationsSlice';
 import tokensReducer from '~/features/tokens/tokensSlice';
@@ -37,7 +36,6 @@ export const createRootReducer = additionalReducers =>
     ...additionalReducers,
     router: connectRouter(history),
     thunk: sagaThunkReducer,
-    comments: commentsReducer,
     notifications: notificationsReducer,
     tokens: tokensReducer,
     transactions: transactionsReducer,

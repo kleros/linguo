@@ -26,7 +26,6 @@
     "caniuse-lite": "1.0.30001436"
   },
   "dependencies": {
-    "3box": "^1.19.1",
     "3id-resolver": "^1.0.1",
     "@ant-design/icons": "^4.3.0",
     "@ethersproject/address": "^5.0.5",
