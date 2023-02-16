@@ -26,10 +26,10 @@ const CheckAllState = {
 
 export default function EmailNotificationsWrapper() {
   const { chainId } = useWeb3();
-
+  const IS_UNDER_MAINTENANCE = true;
   return (
     <ContentBlocker
-      blocked={!isUserSettingsSupported({ chainId })}
+      blocked={!isUserSettingsSupported({ chainId }) || IS_UNDER_MAINTENANCE}
       overlayText={
         <span
           css={`
@@ -41,10 +41,9 @@ export default function EmailNotificationsWrapper() {
             border-radius: 3px;
             white-space: nowrap;
             display: inline-block;
-            transform: rotateZ(-15deg);
           `}
         >
-          Unavailable on {getNetworkName(chainId)}
+          {IS_UNDER_MAINTENANCE ? '🚧 Coming soon 🚧' : `Unavailable on ${getNetworkName(chainId)}`}
         </span>
       }
     >
