@@ -1,66 +1,25 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { useDispatch, useSelector } from 'react-redux';
 import { Layout } from 'antd';
 import { nanoid } from 'nanoid';
-import {
-  selectLatestBlock,
-  subscribeToUpdates,
-  unsubscribeFromUpdates,
-  updateTransientNotifications,
-} from '~/features/tasks/tasksSlice';
+
 import { subscribeToEthPrice, unsubscribeFromEthPrice } from '~/features/tokens/tokensSlice';
-import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useDispatch } from 'react-redux';
 
 export default function Content({ children }) {
-  useTaskUpdatesSubscription();
   useEthPricePolling();
 
   return <StyledContent>{children}</StyledContent>;
-}
-
-function useTaskUpdatesSubscription() {
-  const dispatch = useDispatch();
-
-  const account = useSelector(selectAccount);
-  const chainId = useSelector(selectChainId);
-  const latestBlock = useSelector(selectLatestBlock({ chainId, account }));
-
-  const subscribe = React.useCallback(
-    () => dispatch(subscribeToUpdates({ chainId, account, fromBlock: latestBlock + 1 }, { meta: { groupId } })),
-    [dispatch, account, chainId, latestBlock]
-  );
-  const unsubscribe = React.useCallback(() => dispatch(unsubscribeFromUpdates({}, { meta: { groupId } })), [dispatch]);
-
-  React.useEffect(() => {
-    dispatch(updateTransientNotifications({ account, chainId }));
-  }, [dispatch, account, chainId]);
-
-  React.useEffect(() => {
-    if (account) {
-      subscribe();
-
-      window.addEventListener('focus', subscribe);
-      window.addEventListener('blur', unsubscribe);
-
-      return () => {
-        unsubscribe();
-
-        window.removeEventListener('focus', subscribe);
-        window.removeEventListener('blur', unsubscribe);
-      };
-    }
-  }, [dispatch, account, subscribe, unsubscribe]);
 }
 
 const groupId = nanoid(10);
 const _1_MINUTE = 60 * 1000;
 
 function useEthPricePolling({ interval = _1_MINUTE } = {}) {
+  const { chainId } = useWeb3();
   const dispatch = useDispatch();
-
-  const chainId = useSelector(selectChainId);
 
   const subscribe = React.useCallback(
     () => dispatch(subscribeToEthPrice({ chainId, interval, immediate: true }, { meta: { groupId } })),

@@ -1,45 +1,34 @@
 import React from 'react';
 import t from 'prop-types';
+
 import { Spin } from 'antd';
 import { Alert } from '~/adapters/antd';
-import hoistNonReactStatics from 'hoist-non-react-statics';
 import { withErrorBoundary } from '~/shared/ErrorBoundary';
 import Spacer from '~/shared/Spacer';
-import useTask from '../../../useTask';
-import { DisputeProvider } from './DisputeContext';
-import { useDispatch, useSelector } from 'react-redux';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
-import {
-  selectIsLoadingByTaskId,
-  selectByTaskId,
-  selectErrorByTaskId,
-  fetchByTaskId,
-} from '~/features/disputes/disputesSlice';
+import hoistNonReactStatics from 'hoist-non-react-statics';
+
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import { useDispute } from '~/hooks/useDispute';
 
 function _DisputeFetcher({ children }) {
-  const { id: taskId } = useTask();
-  const dispatch = useDispatch();
-  const isLoading = useSelector(selectIsLoadingByTaskId(taskId));
-  const data = useShallowEqualSelector(selectByTaskId(taskId));
-  const error = useShallowEqualSelector(selectErrorByTaskId(taskId));
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
 
-  const doFetch = React.useCallback(() => {
-    dispatch(fetchByTaskId({ taskId }));
-  }, [dispatch, taskId]);
-
-  React.useEffect(() => {
-    doFetch();
-  }, [doFetch]);
+  const { disputeID, latestRoundId } = task;
+  const { isLoading, error } = useDispute(disputeID, latestRoundId);
 
   return (
-    <Spin tip="Loading translation dispute details..." spinning={isLoading && !data}>
+    <Spin tip="Loading translation dispute details..." spinning={isLoading}>
       {error && (
         <>
           <Alert
             type="warning"
             message={error.message}
             description={
-              data
+              isLoading
                 ? 'You are currently viewing a cached version which not might reflect the current state in the blockchain.'
                 : null
             }
@@ -47,7 +36,7 @@ function _DisputeFetcher({ children }) {
           <Spacer size={2} />
         </>
       )}
-      {data && <DisputeProvider dispute={data}>{children}</DisputeProvider>}
+      {!isLoading && children}
     </Spin>
   );
 }

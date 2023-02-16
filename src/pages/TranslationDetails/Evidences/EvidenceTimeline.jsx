@@ -13,52 +13,49 @@ import {
   FileUnknownFilled,
   FileWordFilled,
 } from '@ant-design/icons';
-import dayjs from 'dayjs';
 import ReactBlockies from 'react-blockies';
 import { composeRefs } from '~/adapters/react';
-import { mapValues } from '~/shared/fp';
 import EthAddress from '~/shared/EthAddress';
 import FormattedDate from '~/shared/FormattedDate';
-import { getFileUrl } from '~/features/evidences';
 import { TaskParty } from '~/features/tasks';
-import useTask from '../useTask';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import moment from 'moment';
+import { useIPFSQuery } from '~/hooks/queries/useIPFSQuery';
+import getFileUrl from '~/utils/ipfs/getFileUrl';
 
 export default function EvidenceTimeline({ data, lastItemRef, firstItemRef }) {
-  /**
-   * Evidences must be in descending order
-   */
-  const sortedData = [...data].sort((a, b) => b.submittedAt - a.submittedAt);
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
 
-  const task = useTask();
-  const normalizedParties = mapValues(address => String(address).toLowerCase(), task.parties);
-
-  return sortedData.length === 0 ? (
+  return data.length === 0 ? (
     <StyledEmptyList>Wow, such empty!</StyledEmptyList>
   ) : (
     <StyledEvidenceList>
-      {sortedData.map(({ transactionHash, submittedAt, submittedBy, evidenceJSON }, index) => {
+      {data.map(({ number, timestamp, party, URI }, index) => {
         const isLast = index === 0;
         const isFirst = index === data.length - 1;
         const ref = composeRefs(isLast ? lastItemRef : null, isFirst ? firstItemRef : null);
         const position = data.length - index;
 
-        submittedBy = String(submittedBy).toLowerCase();
         const role =
-          submittedBy === normalizedParties[TaskParty.Challenger]
+          party === task.challenger
             ? '(Challenger)'
-            : submittedBy === normalizedParties[TaskParty.Translator]
+            : party === task.translator
             ? '(Translator)'
-            : submittedBy === normalizedParties[TaskParty.Requester]
+            : party === task.requester
             ? '(Requester)'
             : '';
 
         return (
-          <StyledEvidenceListItem key={transactionHash} ref={ref}>
+          <StyledEvidenceListItem key={number} ref={ref}>
             <EvidenceCard
-              {...evidenceJSON}
+              evidencePath={URI}
               position={position}
-              submittedAt={submittedAt}
-              submittedBy={submittedBy}
+              submittedAt={timestamp}
+              submittedBy={party}
               role={role}
             />
           </StyledEvidenceListItem>
@@ -74,21 +71,14 @@ EvidenceTimeline.propTypes = {
   firstItemRef: t.shape({ current: t.any }),
 };
 
-function EvidenceCard({
-  submittedAt,
-  submittedBy,
-  role,
-  name,
-  position,
-  description,
-  supportingSide,
-  fileURI,
-  fileTypeExtension,
-}) {
+function EvidenceCard({ evidencePath, position, role, submittedAt, submittedBy }) {
+  const { data, isLoading } = useIPFSQuery(evidencePath);
+  if (isLoading || !data) return <></>;
+
+  const { name, description, supportingSide, fileURI, fileTypeExtension } = data;
   const supportingSideText = textBySupportingSide[supportingSide];
 
-  const submittedAtDate = dayjs.unix(submittedAt);
-
+  const submittedAtDate = moment.unix(submittedAt);
   return (
     <StyledCardSurface>
       <StyledCardContent>
@@ -128,15 +118,11 @@ function EvidenceCard({
 }
 
 EvidenceCard.propTypes = {
+  evidencePath: t.string.isRequired,
+  position: t.number.isRequired,
+  role: t.string,
   submittedAt: t.oneOfType([t.string, t.number, t.instanceOf(Date)]).isRequired,
   submittedBy: t.string.isRequired,
-  role: t.string,
-  position: t.number.isRequired,
-  name: t.string.isRequired,
-  description: t.string.isRequired,
-  supportingSide: t.oneOf(Object.values(TaskParty)).isRequired,
-  fileURI: t.string,
-  fileTypeExtension: t.string,
 };
 
 EvidenceCard.defaultProps = {

@@ -1,27 +1,35 @@
 import React from 'react';
 import { Alert } from '~/adapters/antd';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
-import { Dispute } from '~/features/disputes';
 import { TaskParty } from '~/features/tasks';
+
+import { useDispute } from '~/hooks/useDispute';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import { useWeb3 } from '~/hooks/useWeb3';
+
 import EthValue from '~/shared/EthValue';
 import Spacer from '~/shared/Spacer';
-import useTask from '../../../../useTask';
 import TaskStatusDetailsLayout from '../../../components/TaskStatusDetailsLayout';
-import useCurrentParty from '../../../hooks/useCurrentParty';
-import DisputeContext from '../DisputeContext';
 
 function JurorsRefusedToRule() {
-  const party = useCurrentParty();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
 
-  const dispute = React.useContext(DisputeContext);
-  const totalAppealCost = Dispute.totalAppealCost(dispute, { party });
+  const { disputeID, latestRoundId, challenger, requester, currentParty } = task;
+  const { dispute } = useDispute(disputeID, latestRoundId);
 
-  const { requester, parties } = useTask();
-  const challengerIsRequester = requester === parties[TaskParty.Challenger];
+  const { totalAppealCost } = dispute;
+  const challengerIsRequester = requester === challenger;
 
   const title = 'The jurors refused to vote';
   const illustration = <RefusedToRuleAvatar />;
-  const description = descriptionNodeByParty[party]({ totalAppealCost, challengerIsRequester });
+
+  const description = descriptionNodeByParty[currentParty]({
+    totalAppealCost: totalAppealCost(currentParty),
+    challengerIsRequester,
+  });
 
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;
 }

@@ -1,41 +1,35 @@
 import React from 'react';
 import t from 'prop-types';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Alert } from '~/adapters/antd';
-import { subtract } from '~/adapters/big-number';
-import { TaskStatus } from '~/features/tasks';
-import { getArbitrationCost } from '~/features/tasks/tasksSlice';
 import { withErrorBoundary } from '~/shared/ErrorBoundary';
 import EthValue from '~/shared/EthValue';
 import { compose } from '~/shared/fp';
-import useTask from '../../useTask';
 import EthFiatValue from '~/features/tokens/EthFiatValue';
 
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useLinguoApi } from '~/hooks/useLinguo';
+import { useTask } from '~/hooks/useTask';
+
+import taskStatus from '~/consts/taskStatus';
+import { BigNumber } from 'ethers';
+
 function TranslationChallengeRewardFetcher() {
-  const { id, status, sumDeposit } = useTask();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
 
-  const [reward, setReward] = React.useState(null);
-  const dispatch = useDispatch();
+  const { getArbitrationCost } = useLinguoApi();
+  const arbitrationCost = getArbitrationCost();
 
-  const getReward = React.useCallback(async () => {
-    if (status !== TaskStatus.AwaitingReview) {
-      return '0';
-    }
-
-    const { data: arbitrationCost } = await dispatch(getArbitrationCost({ id }, { meta: { thunk: { id } } }));
-
-    return String(subtract(sumDeposit, arbitrationCost));
-  }, [dispatch, id, sumDeposit, status]);
-
-  React.useEffect(() => {
-    async function updateReward() {
-      setReward(await getReward());
-    }
-
-    updateReward();
-  }, [getReward]);
+  let reward;
+  if (task.status !== taskStatus.AwaitingReview) {
+    reward = 0;
+  } else {
+    reward = arbitrationCost ? BigNumber.from(task.sumDeposit).sub(arbitrationCost).toString() : 0;
+  }
 
   return reward ? (
     <TranslationChallengeReward amount={reward} />

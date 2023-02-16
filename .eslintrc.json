@@ -5,7 +5,8 @@
     "plugin:react-hooks/recommended",
     "plugin:import/recommended",
     "plugin:import/react",
-    "plugin:security/recommended"
+    "plugin:security/recommended",
+    "prettier"
   ],
   "plugins": [
     "react",
@@ -28,7 +29,7 @@
     "ecmaFeatures": {
       "jsx": true
     },
-    "ecmaVersion": 2018,
+    "ecmaVersion": 2020,
     "sourceType": "module"
   },
   "settings": {
@@ -54,17 +55,6 @@
       {
         "varsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)|(^ignored)",
         "argsIgnorePattern": "(^_+[0-9]*$)|([iI]gnored$)|(^ignored)"
-      }
-    ],
-    "no-console": [
-      "error",
-      {
-        "allow": [
-          "warn",
-          "error",
-          "info",
-          "debug"
-        ]
       }
     ],
     "security/detect-object-injection": "off",

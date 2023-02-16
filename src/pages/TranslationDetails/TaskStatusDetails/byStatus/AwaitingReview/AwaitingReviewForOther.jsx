@@ -1,24 +1,31 @@
 import React from 'react';
-import { Task } from '~/features/tasks';
 import Spacer from '~/shared/Spacer';
 import FormattedRelativeDate from '~/shared/FormattedRelativeDate';
-import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import ChallengeUploadButton from '../../components/ChallengeUploadButton';
 import TranslationChallengeRewardFetcher from '../../components/TranslationChallengeRewardFetcher';
 import TranslationChallengeDepositFetcher from '../../components/TranslationChallengeDepositFetcher';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import Task from '~/utils/task';
+import { useLinguoApi } from '~/hooks/useLinguo';
 
 function AwaitingReviewForOther() {
-  const task = useTask();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const { getReviewTimeout } = useLinguoApi();
 
-  const remainingTime = Task.remainingTimeForReview(task, { currentDate: new Date() });
+  const reviewTimeout = getReviewTimeout();
+  const remainingTime = Task.getRemainedReviewTime(task.status, task.lastInteraction, reviewTimeout);
 
   const props = {
     title: (
       <FormattedRelativeDate
-        value={task.reviewTimeout}
+        value={reviewTimeout}
         unit="second"
         render={({ value, formattedValue }) =>
           value > 0 ? (
@@ -55,8 +62,8 @@ function AwaitingReviewForOther() {
         <Spacer />
         {remainingTime === 0 ? (
           <ContextAwareTaskInteractionButton
-            ID={task.ID}
-            interaction={ContextAwareTaskInteractionButton.Interaction.Approve}
+            ID={task.taskID}
+            interaction={ContextAwareTaskInteractionButton.Interaction.Accept}
             content={{
               idle: { text: 'Pay Translator' },
             }}

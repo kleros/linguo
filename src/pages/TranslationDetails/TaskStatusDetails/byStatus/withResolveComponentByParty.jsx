@@ -1,5 +1,5 @@
 import React from 'react';
-import useCurrentParty from '../hooks/useCurrentParty';
+import useCurrentParty from '~/hooks/useCurrentParty';
 
 const NoContent = () => null;
 

@@ -5,17 +5,16 @@ import { Link } from 'react-router-dom';
 import { SwapOutlined } from '@ant-design/icons';
 import { Col, Form, Row } from 'antd';
 import * as r from '~/app/routes';
-import { getAvailableLanguagePairing } from '~/features/linguo';
 import DismissableAlert from '~/features/ui/DismissableAlert';
 import Button from '~/shared/Button';
 import { LanguageSelect } from '~/shared/LanguageSelect';
+import getAvailableLanguagePairing from '~/utils/languagePairing/getAvailableLanguagePairing';
 
 export default function LanguagesSelectionFields({ setFieldsValue }) {
   const [seletectedLanguages, setSelectedLanguages] = React.useState({
     source: undefined,
     target: undefined,
   });
-
   const handleSourceLanguageChange = value => {
     setSelectedLanguages(current => ({ ...current, source: value }));
   };

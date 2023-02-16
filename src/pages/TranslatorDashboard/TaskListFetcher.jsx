@@ -1,52 +1,52 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { Spin } from '~/adapters/antd';
 import * as r from '~/app/routes';
-import TaskList from '~/features/translator/TaskList';
-import { statusFilters, useFilters } from '~/features/translator';
-import {
-  fetchTasks,
-  selectTasksForCurrentFilter,
-  selectAllSkills,
-  selectIsLoading,
-} from '~/features/translator/translatorSlice';
+
 import DismissableAlert from '~/features/ui/DismissableAlert';
-import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import TopLoadingBar from '~/shared/TopLoadingBar';
 
-export default function TaskListFetcher() {
-  const dispatch = useDispatch();
-  const account = useSelector(selectAccount);
-  const chainId = useSelector(selectChainId);
-  const isLoading = useSelector(state => selectIsLoading(state, { account, chainId }));
-  const skills = useShallowEqualSelector(selectAllSkills);
+import TaskList from '~/components/Task/TaskList';
+import TranslatorTaskCard from '~/components/Translator/TranslatorTaskCard';
 
-  const doFetchTasks = React.useCallback(() => {
-    dispatch(fetchTasks({ account, chainId }));
-  }, [dispatch, account, chainId]);
+import { useTasksQuery } from '~/hooks/queries/useTasksQuery';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useTasksFilter } from '~/context/TasksFilterProvider';
 
-  React.useEffect(() => {
-    doFetchTasks();
-  }, [doFetchTasks]);
+import { statusFilters } from '~/consts/statusFilters';
+import { getTasksByFilters, USER_TYPE } from '~/utils/getTasksByFilters';
+import { withRedirectFromMainnet } from '~/components/withRedirectFromMainnet';
 
-  const [filters] = useFilters();
+const WrappedTaskListFetcher = () => {
+  const { account } = useWeb3();
+  const { filters } = useTasksFilter();
 
-  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account, chainId, skills }));
-  const showFootnote = [statusFilters.open].includes(filters.status) && data.length > 0;
+  const { tasks, isLoading } = useTasksQuery(0);
+
+  const filteredTasks = !isLoading
+    ? getTasksByFilters(tasks, { account: account?.toLowerCase(), userType: USER_TYPE.translator, filters })
+    : [];
+
+  const showFootnote = [statusFilters.open].includes(filters.status) && tasks !== undefined;
 
   return (
     <>
       <TopLoadingBar show={isLoading} />
-      <Spin $fixed tip="Loading translation tasks..." spinning={isLoading && data.length === 0}>
-        {filterDescriptionMap[getFilterTreeName({ status, allTasks: filters.allTasks })]}
-        <TaskList data={data} showFootnote={showFootnote} />
+      <Spin $fixed tip="Loading translation tasks..." spinning={isLoading || tasks === undefined}>
+        {filterDescriptionMap[getFilterTreeName({ status: filters.status, allTasks: filters.allTasks })]}
+        {filteredTasks.length > 0 && (
+          <TaskList data={filteredTasks} showFootnote={showFootnote}>
+            {task => <TranslatorTaskCard {...task} />}
+          </TaskList>
+        )}
       </Spin>
     </>
   );
-}
+};
+
+const TaskListFetcher = withRedirectFromMainnet(WrappedTaskListFetcher);
+export default TaskListFetcher;
 
 const StyledDismissableAlert = styled(DismissableAlert)`
   margin-bottom: 1rem;

@@ -1,23 +1,27 @@
 import React from 'react';
 import t from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { notification, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { selectAccount } from '~/features/web3/web3Slice';
-import { challengeTranslation } from '~/features/tasks/tasksSlice';
+
 import SingleFileUpload from '~/shared/SingleFileUpload';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
-import useTask from '../../useTask';
+
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import { useLinguoApi } from '~/hooks/useLinguo';
+import publishEvidence, { TEMPLATE_TYPE } from '~/utils/dispute/submitEvidence';
 
 export default function ChallengeUploadButton({ buttonProps }) {
-  const { id } = useTask();
-  const dispatch = useDispatch();
-  const account = useSelector(selectAccount);
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const { challengeTranslation, getChallengeDeposit } = useLinguoApi();
+  const deposit = getChallengeDeposit(task.taskID);
 
   const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
-
   const [uploadedFile, setUploadedFile] = React.useState(null);
 
   const handleFileChange = React.useCallback(async ({ fileList }) => {
@@ -38,21 +42,12 @@ export default function ChallengeUploadButton({ buttonProps }) {
   const handleSubmit = React.useCallback(async () => {
     setHasPendingTxn(true);
     try {
-      await dispatch(
-        challengeTranslation(
-          { id, account, uploadedFile },
-          {
-            meta: {
-              tx: { wait: 0 },
-              thunk: { id },
-            },
-          }
-        )
-      );
+      const evidence = await publishEvidence(TEMPLATE_TYPE.challenge, task.taskID, { uploadedFile });
+      await challengeTranslation(task.taskID, evidence, deposit);
     } finally {
       setHasPendingTxn(false);
     }
-  }, [dispatch, id, account, uploadedFile]);
+  }, [challengeTranslation, deposit, task.taskID, uploadedFile]);
 
   const icon = hasPendingTxn ? <LoadingOutlined /> : null;
 

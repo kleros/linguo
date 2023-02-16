@@ -1,46 +1,55 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
 import { Spin } from '~/adapters/antd';
-import { statusFilters, useFilters } from '~/features/requester';
-import { fetchTasks, selectTasksForCurrentFilter, selectIsLoading } from '~/features/requester/requesterSlice';
-import TaskList from '~/features/tasks/TaskList';
+
 import DismissableAlert from '~/features/ui/DismissableAlert';
-import { selectAccount, selectChainId } from '~/features/web3/web3Slice';
 import TopLoadingBar from '~/shared/TopLoadingBar';
 
-export default function TaskListFetcher() {
-  const dispatch = useDispatch();
-  const account = useSelector(selectAccount);
-  const chainId = useSelector(selectChainId);
-  const isLoading = useSelector(state => selectIsLoading(state, { account, chainId }));
+import TaskList from '~/components/Task/TaskList';
+import RequesterTaskCard from '~/components/RequesterTaskCard';
 
-  const doFetchTasks = React.useCallback(() => {
-    dispatch(fetchTasks({ chainId, account }));
-  }, [dispatch, account, chainId]);
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useTasksFilter } from '~/context/TasksFilterProvider';
+import { useTasksByRequesterQuery } from '~/hooks/queries/useTasksByRequesterQuery';
 
-  React.useEffect(() => {
-    doFetchTasks();
-  }, [doFetchTasks]);
+import { statusFilters } from '~/consts/statusFilters';
+import { getTasksByFilters, USER_TYPE } from '~/utils/getTasksByFilters';
+import { withRedirectFromMainnet } from '~/components/withRedirectFromMainnet';
+import { withRequiredWalletGateway } from '~/components/RequiredWalletGateway';
 
-  const data = useShallowEqualSelector(state => selectTasksForCurrentFilter(state, { account, chainId }));
-  const [filterName] = useFilters();
+const WrappedTaskListFetcher = () => {
+  const { account } = useWeb3();
+  const { filters } = useTasksFilter();
 
-  const showFootnote = [statusFilters.open].includes(filterName) && data.length > 0;
+  const { tasks, isLoading } = useTasksByRequesterQuery(account.toLowerCase(), 0);
+  const filteredTasks = !isLoading
+    ? getTasksByFilters(tasks, { account: account.toLowerCase(), userType: USER_TYPE.requester, filters })
+    : [];
 
+  const showFootnote = [statusFilters.open].includes(filters.status) && tasks !== undefined;
   return (
     <>
       <TopLoadingBar show={isLoading} />
-      <Spin $fixed tip="Loading translation tasks..." spinning={isLoading && data.length === 0}>
+      <Spin $fixed tip="Loading translation tasks..." spinning={isLoading || tasks === undefined}>
         <>
-          {filterDescriptionMap[filterName]}
-          <TaskList data={data} showFootnote={showFootnote} />
+          {filterDescriptionMap[filters.status]}
+          {filteredTasks.length > 0 && (
+            <TaskList data={filteredTasks} showFootnote={showFootnote}>
+              {task => <RequesterTaskCard {...task} />}
+            </TaskList>
+          )}
         </>
       </Spin>
     </>
   );
-}
+};
+
+const TaskListFetcher = withRedirectFromMainnet(
+  withRequiredWalletGateway({ message: 'To view your requested translation tasks you need an Ethereum Wallet.' })(
+    WrappedTaskListFetcher
+  )
+);
+export default TaskListFetcher;
 
 const StyledDismissableAlert = styled(DismissableAlert)`
   margin-bottom: 1rem;

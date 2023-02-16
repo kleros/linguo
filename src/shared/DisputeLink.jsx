@@ -1,11 +1,11 @@
 import React from 'react';
 import t from 'prop-types';
-import { useSelector } from 'react-redux';
+
 import KlerosLogoOutlined from '~/assets/images/logo-kleros-outlined.svg';
-import { selectChainId } from '~/features/web3/web3Slice';
+import { useWeb3 } from '~/hooks/useWeb3';
 
 export default function DisputeLink({ disputeID }) {
-  const chainId = useSelector(selectChainId);
+  const { chainId } = useWeb3();
 
   return chainId === 1 ? (
     <a
@@ -33,5 +33,5 @@ export default function DisputeLink({ disputeID }) {
 }
 
 DisputeLink.propTypes = {
-  disputeID: t.number.isRequired,
+  disputeID: t.string.isRequired,
 };

@@ -5,24 +5,67 @@ import { Row, Col, Progress } from 'antd';
 import { DislikeOutlined, LikeOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { percentage, greaterThanOrEqual, subtract } from '~/adapters/big-number';
 import { Alert } from '~/adapters/antd';
-import { AppealSide } from '~/features/disputes';
+
 import { TaskParty } from '~/features/tasks';
+import EthFiatValue from '~/features/tokens/EthFiatValue';
+
 import Deadline from '~/shared/Deadline';
 import Spacer from '~/shared/Spacer';
 import FormattedNumber from '~/shared/FormattedNumber';
-import { useRemainingTime } from '~/shared/RemainingTime';
 import EthValue from '~/shared/EthValue';
-import EthFiatValue from '~/features/tokens/EthFiatValue';
+import CollapsibleSection from '~/shared/CollapsibleSection';
+
 import BoxTitle from '../../../components/BoxTitle';
 import BoxParagraph from '../../../components/BoxParagraph';
 import AppealContributionForm from './AppealContributionForm';
-import useAppealStatus from './useAppealStatus';
-import useCurrentParty from '../../../hooks/useCurrentParty';
-import useTask from '~/pages/TranslationDetails/useTask';
-import CollapsibleSection from '~/shared/CollapsibleSection';
+
+import { useTask } from '~/hooks/useTask';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useDispute } from '~/hooks/useDispute';
+import { useRemainingTime } from '~/hooks/useRemainingTime';
+import AppealSide, { mapRulingAndPartyToAppealSide } from '~/consts/appealSide';
 
 export default function AppealStatus() {
-  const { parties, isOngoing } = useAppealStatus();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+
+  const { disputeID, latestRoundId, currentParty } = task;
+  const { dispute } = useDispute(disputeID, latestRoundId);
+  const {
+    amountPaidChallenger,
+    amountPaidTranslator,
+    expectedFinalRuling,
+    fundingROI,
+    hasPaidChallenger,
+    hasPaidTranslator,
+    isAppealOngoing,
+    remainingTimeForChallenger,
+    remainingTimeForTranslator,
+    totalAppealCost,
+  } = dispute;
+
+  const parties = {
+    [TaskParty.Translator]: {
+      remainingTime: remainingTimeForTranslator,
+      appealSide: mapRulingAndPartyToAppealSide(dispute.ruling, TaskParty.Translator),
+      finalAppealSide: mapRulingAndPartyToAppealSide(expectedFinalRuling, TaskParty.Translator),
+      paidFees: amountPaidTranslator,
+      hasPaidFee: hasPaidTranslator,
+      totalAppealCost: totalAppealCost(TaskParty.Translator),
+      reward: fundingROI(TaskParty.Translator),
+    },
+    [TaskParty.Challenger]: {
+      remainingTime: remainingTimeForChallenger,
+      appealSide: mapRulingAndPartyToAppealSide(dispute.ruling, TaskParty.Challenger),
+      finalAppealSide: mapRulingAndPartyToAppealSide(expectedFinalRuling, TaskParty.Challenger),
+      paidFees: amountPaidChallenger,
+      hasPaidFee: hasPaidChallenger,
+      totalAppealCost: totalAppealCost(TaskParty.Challenger),
+      reward: fundingROI(TaskParty.Challenger),
+    },
+  };
 
   const translatorFundingProps = {
     ...parties[TaskParty.Translator],
@@ -34,19 +77,16 @@ export default function AppealStatus() {
     party: TaskParty.Challenger,
   };
 
-  const task = useTask();
-  const currentParty = useCurrentParty(task);
-
   const leftSideContent = (
     <AppealFundingSummary
-      isOngoing={isOngoing}
+      isOngoing={isAppealOngoing}
       showContributionForm={currentParty !== TaskParty.Challenger}
       {...translatorFundingProps}
     />
   );
   const rightSideContent = (
     <AppealFundingSummary
-      isOngoing={isOngoing}
+      isOngoing={isAppealOngoing}
       showContributionForm={currentParty !== TaskParty.Translator}
       {...challengerFundingProps}
     />
@@ -54,7 +94,11 @@ export default function AppealStatus() {
 
   return (
     <CollapsibleSection lazy title="Appeal" titleLevel={3} tabIndex={90}>
-      <AppealStatusLayout leftSideContent={leftSideContent} rightSideContent={rightSideContent} isOngoing={isOngoing} />
+      <AppealStatusLayout
+        leftSideContent={leftSideContent}
+        rightSideContent={rightSideContent}
+        isOngoing={isAppealOngoing}
+      />
     </CollapsibleSection>
   );
 }

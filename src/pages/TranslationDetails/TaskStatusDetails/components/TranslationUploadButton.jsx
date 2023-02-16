@@ -1,30 +1,33 @@
 import React from 'react';
 import t from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { notification, Tooltip } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { submitTranslation } from '~/features/tasks/tasksSlice';
-import { selectAccount } from '~/features/web3/web3Slice';
 import SingleFileUpload from '~/shared/SingleFileUpload';
 import Button from '~/shared/Button';
 import Spacer from '~/shared/Spacer';
-import useTask from '../../useTask';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useLinguoApi } from '~/hooks/useLinguo';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+
+const initialState = { path: null, hash: null };
 
 export default function TranslationUploadButton({ buttonProps }) {
-  const dispatch = useDispatch();
-  const { id } = useTask();
-  const account = useSelector(selectAccount);
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const { submitTranslation } = useLinguoApi();
 
   const [hasPendingTxn, setHasPendingTxn] = React.useState(false);
 
-  const [uploadedFile, setUploadedFile] = React.useState(null);
+  const [uploadedFile, setUploadedFile] = React.useState(initialState);
 
   const handleFileChange = React.useCallback(async ({ fileList }) => {
     const [file] = fileList;
 
     if (!file) {
-      setUploadedFile(null);
+      setUploadedFile(initialState);
     } else if (file.status === 'done') {
       const { path, hash } = file.response;
       if (!path) {
@@ -35,24 +38,15 @@ export default function TranslationUploadButton({ buttonProps }) {
     }
   }, []);
 
+  console.log({ uploadedFile });
   const handleSubmit = React.useCallback(async () => {
     setHasPendingTxn(true);
     try {
-      await dispatch(
-        submitTranslation(
-          { id, account, uploadedFile },
-          {
-            meta: {
-              tx: { wait: 0 },
-              thunk: { id },
-            },
-          }
-        )
-      );
+      await submitTranslation(task.taskID, uploadedFile.path);
     } finally {
       setHasPendingTxn(false);
     }
-  }, [dispatch, id, account, uploadedFile]);
+  }, [submitTranslation, task.taskID, uploadedFile.path]);
 
   const icon = hasPendingTxn ? <LoadingOutlined /> : null;
 

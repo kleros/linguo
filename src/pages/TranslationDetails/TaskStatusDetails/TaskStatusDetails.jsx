@@ -1,20 +1,21 @@
 import React from 'react';
 import ContentBlocker from '~/shared/ContentBlocker';
-import { Task } from '~/features/tasks';
-import { useWeb3React } from '~/features/web3';
-import RequiredWalletGateway from '~/features/web3/RequiredWalletGateway';
-import useTask from '../useTask';
+import RequiredWalletGateway from '~/components/RequiredWalletGateway';
 import byStatus from './byStatus';
 
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+
 export default function TaskStatusDetails() {
-  const task = useTask();
-  const isIncomplete = Task.isIncomplete(task);
+  const { account, chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
 
-  const Component = isIncomplete ? byStatus.Incomplete : byStatus[task.status];
+  const { isIncomplete, status } = task;
 
-  const { account } = useWeb3React();
+  const Component = isIncomplete ? byStatus.Incomplete : byStatus[status];
   const contentBlocked = !account;
-
   const content = <ContentBlocker blocked={contentBlocked}>{Component && <Component />}</ContentBlocker>;
 
   return (

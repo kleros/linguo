@@ -1,34 +1,44 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { Tooltip } from 'antd';
-import Spacer from '~/shared/Spacer';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
+
 import * as r from '~/app/routes';
-import { selectAllSkills } from '~/features/translator/translatorSlice';
-import ContentBlocker from '~/shared/ContentBlocker';
 import Button from '~/shared/Button';
+import ContentBlocker from '~/shared/ContentBlocker';
+import Spacer from '~/shared/Spacer';
+
+import { Tooltip } from 'antd';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
 import TaskDeadline from '../../components/TaskDeadline';
 import TaskAssignmentDepositFetcher from '../../components/TaskAssignmentDepositFetcher';
-import useTask from '../../../useTask';
+
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import { useTranslatorSkills } from '~/context/TranslatorSkillsProvider';
 
 export default function CreatedForOther() {
-  const { sourceLanguage, targetLanguage, expectedQuality } = useTask();
-  const minimumLevel = minimumLevelByQuality[expectedQuality];
-  const skills = useShallowEqualSelector(selectAllSkills);
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+
+  const { state, selectors } = useTranslatorSkills();
+  const { selectAllSkills } = selectors;
+  const skills = selectAllSkills(state);
+
+  const minimumLevel = minimumLevelByQuality[task.expectedQuality];
 
   const hasSkill = React.useMemo(() => {
     const hasSourceLanguageSkill = skills.some(
-      ({ language, level }) => sourceLanguage === language && level >= minimumLevel
+      ({ language, level }) => task.sourceLanguage === language && level >= minimumLevel
     );
     const hasTargetLanguageSkill = skills.some(
-      ({ language, level }) => targetLanguage === language && level >= minimumLevel
+      ({ language, level }) => task.targetLanguage === language && level >= minimumLevel
     );
 
     return hasSourceLanguageSkill && hasTargetLanguageSkill;
-  }, [targetLanguage, sourceLanguage, minimumLevel, skills]);
+  }, [task.targetLanguage, task.sourceLanguage, minimumLevel, skills]);
 
   const props = {
     title: 'Translate this text',

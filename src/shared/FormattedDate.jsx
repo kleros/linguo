@@ -1,16 +1,18 @@
 import t from 'prop-types';
+import moment from 'moment';
 
 function FormattedDate({ value, render, weekday, year, month, day, hour, minute, second, timeZoneName }) {
-  value = typeof value === 'string' ? new Date(value) : value;
+  let momentValue = moment.unix(value);
+  if (!momentValue.isValid()) momentValue = moment.utc(value);
 
   const df = new Intl.DateTimeFormat('en-us', { weekday, year, month, day, hour, minute, second, timeZoneName });
-  const formattedValue = df.format(value);
+  const formattedValue = df.format(momentValue);
 
   return render({ formattedValue, value });
 }
 
 FormattedDate.propTypes = {
-  value: t.oneOfType([t.string, t.instanceOf(Date)]).isRequired,
+  value: t.oneOfType([t.string, t.number]).isRequired,
   render: t.func,
   weekday: t.oneOf(['long', 'short', 'narrow']),
   year: t.oneOf(['numeric', '2-digit']),

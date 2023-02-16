@@ -1,32 +1,39 @@
 import React from 'react';
 import t from 'prop-types';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import scrollIntoView from 'scroll-into-view-if-needed';
-import { useShallowEqualSelector } from '~/adapters/react-redux';
-import { Task } from '~/features/tasks';
-import { DisputeStatus } from '~/features/disputes';
-import { selectByTaskId as selectDispute } from '~/features/disputes/disputesSlice';
-import { selectIsLoadingByTaskId as selectEvidenceIsLoading } from '~/features/evidences/evidencesSlice';
+import { Spin } from 'antd';
+import { Alert } from '~/adapters/antd';
+
 import Button from '~/shared/Button';
 import CollapsibleSection from '~/shared/CollapsibleSection';
 import Spacer from '~/shared/Spacer';
 import { LocalTopLoadingBar } from '~/shared/TopLoadingBar';
-import useTask from '../useTask';
-import EvidenceFetcher from './EvidenceFetcher';
 import EvidenceTimeline from './EvidenceTimeline';
 import SubmitEvidenceModalForm from './SubmitEvidenceModalForm';
 
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import { useLinguoApi } from '~/hooks/useLinguo';
+import { useEvidencesByTaskQuery } from '~/hooks/queries/useEvidencesByTaskQuery';
+
+import Task from '~/utils/task';
+import disputeStatus from '~/consts/disputeStatus';
+
 export default function Evidences({ open }) {
-  const task = useTask();
-  const taskId = task.id;
-  const isFinalized = Task.isFinalized(task);
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const linguo = useLinguoApi();
+  const { evidences, isLoading, error } = useEvidencesByTaskQuery(task.id);
 
-  const dispute = useShallowEqualSelector(selectDispute(taskId));
-  const hasOngoingDispute = [DisputeStatus.Waiting, DisputeStatus.Appealable].includes(dispute.status);
+  const { taskID, lastInteraction, status, submissionTimeout, translation } = task;
+  const isFinalized = Task.isFinalized(status, translation, lastInteraction, submissionTimeout);
 
-  const isLoadingEvidences = useSelector(selectEvidenceIsLoading(taskId));
+  const _disputeStatus = linguo.getDisputeStatus(taskID);
+  const hasOngoingDispute = [disputeStatus.Waiting, disputeStatus.Appealable].includes(_disputeStatus);
 
   const firstItemRef = React.useRef();
   const lastItemRef = React.useRef();
@@ -46,7 +53,7 @@ export default function Evidences({ open }) {
 
   return (
     <CollapsibleSection defaultOpen={open} title="Evidences" titleLevel={3} tabIndex={100}>
-      <LocalTopLoadingBar show={isLoadingEvidences} />
+      <LocalTopLoadingBar show={isLoading} />
       <StyledContent>
         <StyledActionsContainer>
           <SubmitEvidenceModalForm
@@ -66,9 +73,23 @@ export default function Evidences({ open }) {
           </StyledScrollAnchor>
         </StyledActionsContainer>
         <Spacer size={2.5} />
-        <EvidenceFetcher
-          render={data => <EvidenceTimeline data={data} firstItemRef={firstItemRef} lastItemRef={lastItemRef} />}
-        />
+        <Spin tip="Getting evidences..." spinning={isLoading && !evidences}>
+          {error && (
+            <>
+              <Alert
+                type="warning"
+                message={error.message}
+                description={
+                  evidences
+                    ? 'You are currently viewing a cached version which not might reflect the current state in the blockchain.'
+                    : null
+                }
+              />
+              <Spacer size={2} />
+            </>
+          )}
+          {evidences && <EvidenceTimeline data={evidences} firstItemRef={firstItemRef} lastItemRef={lastItemRef} />}
+        </Spin>
         <Spacer size={2.5} />
         <StyledActionsContainer>
           <StyledScrollAnchor href="#" onClick={handleScrollTo(lastItemRef)}>

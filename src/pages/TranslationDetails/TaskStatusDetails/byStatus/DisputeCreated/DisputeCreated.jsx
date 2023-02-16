@@ -1,9 +1,13 @@
 import React from 'react';
 import loadable from '@loadable/component';
-import { Dispute } from '~/features/disputes';
+
 import Spinner from '../../components/Spinner';
-import DisputeContext from './DisputeContext';
 import { withDisputeFetcher } from './DisputeFetcher';
+
+import { useDispute } from '~/hooks/useDispute';
+import { useTask } from '~/hooks/useTask';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
 
 const fallback = <Spinner />;
 
@@ -17,12 +21,17 @@ const componentsByDisputeStatus = {
 };
 
 function DisputeCreated() {
-  const dispute = React.useContext(DisputeContext);
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+
+  const { disputeID, latestRoundId } = task;
+  const { dispute } = useDispute(disputeID, latestRoundId);
 
   let Component;
-  if (Dispute.isWaiting(dispute)) {
+  if (dispute.isWaiting) {
     Component = componentsByDisputeStatus.waiting;
-  } else if (Dispute.isAppealable(dispute)) {
+  } else if (dispute.isAppealable) {
     Component = componentsByDisputeStatus.appealable;
   } else {
     Component = componentsByDisputeStatus.solvedButNotExecuted;

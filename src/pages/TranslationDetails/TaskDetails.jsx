@@ -4,8 +4,10 @@ import t from 'prop-types';
 import styled from 'styled-components';
 import { Typography } from 'antd';
 import { FileTextOutlined, TranslationOutlined, LinkOutlined, PaperClipOutlined } from '@ant-design/icons';
+
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import languages from '~/assets/fixtures/languages';
+
 import getLanguageFlag from '~/shared/helpers/getLanguageFlag';
 import { CalendarIcon } from '~/shared/icons';
 import Button from '~/shared/Button';
@@ -13,75 +15,49 @@ import Spacer from '~/shared/Spacer';
 import FormattedDate from '~/shared/FormattedDate';
 import FormattedNumber from '~/shared/FormattedNumber';
 import TranslationQualityDefinition from '~/shared/TranslationQualityDefinition';
-import TaskInfoGrid from '~/features/tasks/TaskInfoGrid';
-import TaskPrice from '~/features/tasks/TaskPrice';
-import EthFiatValue from '~/features/tokens/EthFiatValue';
 import DownloadLink from '~/shared/DownloadLink';
-import { Task, TaskStatus, getFileUrl } from '~/features/tasks';
-import useTask from './useTask';
-import TaskStatusDetails from './TaskStatusDetails';
-import Evidences from './Evidences';
-import useInterval from '~/shared/useInterval';
 import AffixContainer from '~/shared/AffixContainer';
 
-const _1_MINUTE_MS = 60 * 1000;
+import TaskStatusDetails from './TaskStatusDetails';
+import Evidences from './Evidences';
+
+import TaskInfoGrid from '~/components/Task/TaskInfoGrid';
+import TaskPrice from '~/components/Task/TaskPrice';
+import EthFiatValue from '~/features/tokens/EthFiatValue';
+
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useTask } from '~/hooks/useTask';
+
+import taskStatus from '~/consts/taskStatus';
+import getFileUrl from '~/utils/ipfs/getFileUrl';
 
 export default function TaskDetails() {
-  const task = useTask();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
 
-  const {
-    status,
-    title,
-    deadline,
-    assignedPrice,
-    expectedQuality,
-    wordCount,
-    sourceLanguage,
-    targetLanguage,
-    originalTextUrl,
-    translatedTextUrl,
-    version,
-  } = task;
-
-  const deprecatedOriginalText = version > 0 ? undefined : task.text;
-  const deprecatedOriginalTextFile = version > 0 ? undefined : task.originalTextFile;
-  const originalTextFileUrl = version > 0 ? task.originalTextFileUrl : undefined;
-
-  const getCurrentPrice = React.useCallback(() => Task.currentPrice(task), [task]);
-  const [currentPrice, setCurrentPrice] = React.useState(getCurrentPrice);
-
-  const updateCurrentPrice = React.useCallback(() => {
-    setCurrentPrice(getCurrentPrice());
-  }, [getCurrentPrice, setCurrentPrice]);
-
-  const interval = assignedPrice === undefined ? _1_MINUTE_MS : null;
-  useInterval(updateCurrentPrice, interval);
-
-  const actualPrice = assignedPrice ?? currentPrice;
-
-  const pricePerWord = Task.currentPricePerWord({
-    currentPrice: actualPrice,
-    wordCount,
-  });
-
-  const { name = '', requiredLevel = '' } = translationQualityTiers[expectedQuality] || {};
-
-  const showFootnote = status === TaskStatus.Created && !Task.isIncomplete(task);
+  const deprecatedOriginalText = task.__v > 0 ? undefined : '';
+  const deprecatedOriginalTextFile = task.__v > 0 ? undefined : task.originalTextFile;
+  const originalTextFileUrl = task.__v > 0 ? `https://ipfs.kleros.io${task.originalTextFile}` : undefined;
+  const translatedTextUrl = task.translation ? `https://ipfs.kleros.io${task.translation}` : undefined;
+  const { name = '', requiredLevel = '' } = translationQualityTiers[task.expectedQuality] || {};
+  const showFootnote = task.status === taskStatus.Created && !task.isIncomplete;
 
   const taskInfo = [
     {
       title: 'Price per Word',
-      content: <TaskPrice showTooltip value={pricePerWord} />,
-      footer: <EthFiatValue amount={pricePerWord} render={({ formattedValue }) => `(${formattedValue})`} />,
+      content: <TaskPrice showTooltip value={task.pricePerWord} />,
+      footer: <EthFiatValue amount={task.pricePerWord} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
       title: 'Word Count',
-      content: <FormattedNumber value={wordCount} />,
+      content: <FormattedNumber value={task.wordCount} />,
     },
     {
       title: 'Total Price',
-      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={actualPrice} />,
-      footer: <EthFiatValue amount={actualPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
+      content: <TaskPrice showTooltip showFootnoteMark={showFootnote} value={task.currentPrice} />,
+      footer: <EthFiatValue amount={task.currentPrice} render={({ formattedValue }) => `(${formattedValue})`} />,
     },
     {
       title: 'Quality Tier',
@@ -91,7 +67,7 @@ export default function TaskDetails() {
   ];
 
   return (
-    <Titled title={prev => `${title} | ${prev}`}>
+    <Titled title={prev => `${task.title} | ${prev}`}>
       <div
         css={`
           @media (min-width: 576px) {
@@ -103,13 +79,19 @@ export default function TaskDetails() {
       >
         <AffixContainer position="top">
           <div>
-            <StyledTaskTitle level={2}>{title}</StyledTaskTitle>
+            <StyledTaskTitle level={2}>{task.title}</StyledTaskTitle>
             <StyledDeadline>
               <StyledDefinitionTerm>
                 <CalendarIcon /> Translation Deadline:{' '}
               </StyledDefinitionTerm>
               <StyledDefinitionDescription>
-                <FormattedDate value={deadline} month="long" hour="2-digit" minute="2-digit" timeZoneName="short" />
+                <FormattedDate
+                  value={task.deadline}
+                  month="long"
+                  hour="2-digit"
+                  minute="2-digit"
+                  timeZoneName="short"
+                />
               </StyledDefinitionDescription>
             </StyledDeadline>
           </div>
@@ -141,13 +123,13 @@ export default function TaskDetails() {
           <div className="col source">
             <StyledDefinitionTerm>Source Language</StyledDefinitionTerm>
             <StyledDefinitionDescription>
-              <LanguageInfo language={sourceLanguage} />
+              <LanguageInfo language={task.sourceLanguage} />
             </StyledDefinitionDescription>
           </div>
           <div className="col target">
             <StyledDefinitionTerm>Target Language</StyledDefinitionTerm>
             <StyledDefinitionDescription>
-              <LanguageInfo language={targetLanguage} />
+              <LanguageInfo language={task.targetLanguage} />
             </StyledDefinitionDescription>
           </div>
         </StyledLanguageInfoWrapper>
@@ -155,7 +137,7 @@ export default function TaskDetails() {
         <StyledExpectedQuality>
           <StyledDefinitionTerm>Expected Quality</StyledDefinitionTerm>
           <StyledDefinitionDescription>
-            <TranslationQualityDefinition tierValue={expectedQuality} />
+            <TranslationQualityDefinition tierValue={task.expectedQuality} />
           </StyledDefinitionDescription>
         </StyledExpectedQuality>
         <Spacer size={3} />
@@ -163,7 +145,7 @@ export default function TaskDetails() {
           <div className="col">
             <DownloadLink
               download={
-                version > 0
+                task.__v > 0
                   ? {
                       url: originalTextFileUrl,
                     }
@@ -176,13 +158,13 @@ export default function TaskDetails() {
                 Original Text
               </JumboButton>
             </DownloadLink>
-            {(originalTextUrl || deprecatedOriginalTextFile) && (
+            {(task.originalTextUrl || deprecatedOriginalTextFile) && (
               <>
                 <Spacer size={1} />
                 <StyledLinkList>
-                  {originalTextUrl ? (
+                  {task.originalTextUrl ? (
                     <StyledLinkListItem>
-                      <a href={originalTextUrl} target="_blank" rel="noopener noreferrer external">
+                      <a href={task.originalTextUrl} target="_blank" rel="noopener noreferrer external">
                         <LinkOutlined /> Source of the original text
                       </a>
                     </StyledLinkListItem>
@@ -202,7 +184,7 @@ export default function TaskDetails() {
               </>
             )}
           </div>
-          {translatedTextUrl && (
+          {task.translation && (
             <div className="col">
               <DownloadLink
                 download={{

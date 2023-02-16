@@ -1,14 +1,20 @@
 import React from 'react';
-import { Task } from '~/features/tasks';
 import TaskAwaitingReviewAvatar from '~/assets/images/avatar-task-awaiting-review.svg';
 import Spacer from '~/shared/Spacer';
-import useTask from '../../../useTask';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
 import TaskDeadline from '../../components/TaskDeadline';
 import ContextAwareTaskInteractionButton from '../../components/ContextAwareTaskInteractionButton';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import { useTask } from '~/hooks/useTask';
+import { useLinguoApi } from '~/hooks/useLinguo';
+import Task from '~/utils/task';
 
 function AwaitingReviewForTranslator() {
-  const task = useTask();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
+  const { getReviewTimeout } = useLinguoApi();
 
   const title = (
     <TaskDeadline
@@ -24,7 +30,9 @@ function AwaitingReviewForTranslator() {
     />
   );
 
-  const remainingTime = Task.remainingTimeForReview(task, { currentDate: new Date() });
+  const reviewTimeout = getReviewTimeout();
+  const remainingTime = Task.getRemainedReviewTime(task.status, task.lastInteraction, reviewTimeout);
+
   const props =
     remainingTime > 0
       ? {
@@ -48,8 +56,8 @@ function AwaitingReviewForTranslator() {
               <TaskDeadline />
               <Spacer />
               <ContextAwareTaskInteractionButton
-                ID={task.ID}
-                interaction={ContextAwareTaskInteractionButton.Interaction.Approve}
+                ID={task.taskID}
+                interaction={ContextAwareTaskInteractionButton.Interaction.Accept}
                 content={{
                   idle: { text: 'Claim Payment' },
                 }}

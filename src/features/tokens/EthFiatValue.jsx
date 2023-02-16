@@ -7,22 +7,21 @@ import { SyncOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Web3 from 'web3';
 import FormattedNumber from '~/shared/FormattedNumber';
 import Button from '~/shared/Button';
-import { selectChainId } from '~/features/web3/web3Slice';
 import { selectEthPrice, selectEthPriceState, fetchEthPrice } from './tokensSlice';
-import supportedChainIds from './supportedChainIds';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { SUPPORTED_CHAINS } from '~/consts/supportedChains';
 
 const { fromWei } = Web3.utils;
 
 export default function EthFiatValueWrapper(props) {
-  const chainId = useSelector(selectChainId);
-
-  return supportedChainIds[chainId] ? <EthFiatValue {...props} /> : null;
+  const { chainId } = useWeb3();
+  return SUPPORTED_CHAINS[chainId].nativeCurrency.symbol.includes('ETH') ? <EthFiatValue {...props} /> : null;
 }
 
 function EthFiatValue({ amount, render, className }) {
   const dispatch = useDispatch();
 
-  const chainId = useSelector(selectChainId);
+  const { chainId } = useWeb3();
   const ethPrice = useSelector(state => selectEthPrice(state, { chainId }));
   const ethPriceState = useSelector(state => selectEthPriceState(state, { chainId }));
   const priceInUsd = fromWei(amount) * ethPrice;

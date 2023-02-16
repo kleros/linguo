@@ -5,34 +5,13 @@ import { Skeleton, Typography } from 'antd';
 import { Alert } from '~/adapters/antd';
 import EthLogo from '~/assets/images/logo-eth.svg';
 import EthValue from '~/shared/EthValue';
-import { useSelector, useDispatch } from 'react-redux';
-import { selectBalance, selectAccount, getBalance } from '~/features/web3/web3Slice';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useBalance } from '~/hooks/useBalance';
 
 export default function WalletBalance() {
-  const dispatch = useDispatch();
-  const account = useSelector(selectAccount);
-  const balance = useSelector(selectBalance(account));
-
-  const [state, setState] = React.useState('idle');
-
-  const fetchBalance = React.useCallback(async () => {
-    setState('pending');
-    try {
-      if (account) {
-        await dispatch(getBalance({ account }, { meta: { thunk: { id: account } } }));
-      }
-      setState('succeeded');
-    } catch (err) {
-      console.warn('Failed to get the account balance:', err);
-      setState('failed');
-    }
-  }, [dispatch, account]);
-
-  React.useEffect(() => {
-    fetchBalance();
-  }, [fetchBalance]);
-
-  return account ? <EthBalance state={state} balance={balance} decimals={6} /> : null;
+  const { account } = useWeb3();
+  const { balance, status } = useBalance();
+  return account ? <EthBalance state={status} balance={balance} decimals={6} /> : null;
 }
 
 function EthBalance({ state, balance, decimals }) {

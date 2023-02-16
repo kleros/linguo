@@ -1,28 +1,33 @@
 import React from 'react';
 import { TaskParty } from '~/features/tasks';
-import { DisputeRuling } from '~/features/disputes';
 import TranslationApprovedAvatar from '~/assets/images/avatar-translation-approved.svg';
 import TranslationRejectedAvatar from '~/assets/images/avatar-translation-rejected.svg';
 import RefusedToRuleAvatar from '~/assets/images/avatar-refused-to-rule.svg';
 import DisputeLink from '~/shared/DisputeLink';
-import useTask from '../../../useTask';
-import useCurrentParty from '../../hooks/useCurrentParty';
 import TaskStatusDetailsLayout from '../../components/TaskStatusDetailsLayout';
-import DisputeContext from './DisputeContext';
+
+import { useTask } from '~/hooks/useTask';
+import { useWeb3 } from '~/hooks/useWeb3';
+import { useParamsCustom } from '~/hooks/useParamsCustom';
+import disputeRuling from '~/consts/disputeRuling';
+import { useDispute } from '~/hooks/useDispute';
 
 function DisputeSolvedButNotExecuted() {
-  const { ruling } = React.useContext(DisputeContext);
-  const { requester, parties, disputeID } = useTask();
-  const party = useCurrentParty();
+  const { chainId } = useWeb3();
+  const { id } = useParamsCustom(chainId);
+  const { task } = useTask(id);
 
-  const challengerIsRequester = requester === parties[TaskParty.Challenger];
+  const { disputeID, challenger, currentParty, latestRoundId, requester, finalRuling } = task;
 
-  const title = titleMap[ruling];
+  const { dispute } = useDispute(disputeID, latestRoundId);
+  const challengerIsRequester = requester === challenger;
+
+  const title = titleMap[finalRuling];
   const description = [
     <DisputeLink key="kleros-dispute-link" disputeID={disputeID} />,
-    ...getDescription({ party, ruling, challengerIsRequester }),
+    ...getDescription({ party: currentParty, ruling: dispute.ruling, challengerIsRequester }),
   ];
-  const illustration = illustrationMap[ruling];
+  const illustration = illustrationMap[dispute.ruling];
 
   return <TaskStatusDetailsLayout title={title} description={description} illustration={illustration} />;
 }
@@ -30,55 +35,54 @@ function DisputeSolvedButNotExecuted() {
 export default DisputeSolvedButNotExecuted;
 
 const titleMap = {
-  [DisputeRuling.RefuseToRule]: 'Appeal period is over: the jurors refused to arbitrate',
-  [DisputeRuling.TranslationApproved]: 'Appeal period is over: the translation was accepted',
-  [DisputeRuling.TranslationRejected]: 'Appeal period is over: the translation was rejected',
+  [disputeRuling.RefuseToRule]: 'Appeal period is over: the jurors refused to arbitrate',
+  [disputeRuling.TranslationApproved]: 'Appeal period is over: the translation was accepted',
+  [disputeRuling.TranslationRejected]: 'Appeal period is over: the translation was rejected',
 };
 
 const getDescription = ({ party, ruling, challengerIsRequester }) => {
   const descriptionMap = {
     [TaskParty.Requester]: {
-      [DisputeRuling.RefuseToRule]: ['You will receive the bounty back.'],
-      [DisputeRuling.TranslationApproved]: ['The bounty will go to the translator.'],
-      [DisputeRuling.TranslationRejected]: [
+      [disputeRuling.RefuseToRule]: ['You will receive the bounty back.'],
+      [disputeRuling.TranslationApproved]: ['The bounty will go to the translator.'],
+      [disputeRuling.TranslationRejected]: [
         'You will receive the bounty back + the Translator Deposit - Arbitration Fees.',
       ],
     },
     [TaskParty.Translator]: {
-      [DisputeRuling.RefuseToRule]: ['You will receive the bounty back - Arbitration Fees.'],
-      [DisputeRuling.TranslationApproved]: [
+      [disputeRuling.RefuseToRule]: ['You will receive the bounty back - Arbitration Fees.'],
+      [disputeRuling.TranslationApproved]: [
         'You will receive your Translator Deposit back + the bounty - Arbitration Fees.',
       ],
-      [DisputeRuling.TranslationRejected]: ['Your Translator Deposit will be sent to the requester.'],
+      [disputeRuling.TranslationRejected]: ['Your Translator Deposit will be sent to the requester.'],
     },
     [TaskParty.Challenger]: {
-      [DisputeRuling.RefuseToRule]: challengerIsRequester
+      [disputeRuling.RefuseToRule]: challengerIsRequester
         ? ['You will receive the bounty + your Challenger Deposit back - Arbitration Fees.']
         : ['You will receive your Challenger Deposit back - Arbitration Fees.'],
-      [DisputeRuling.TranslationApproved]: challengerIsRequester
+      [disputeRuling.TranslationApproved]: challengerIsRequester
         ? ['The bounty + your Challenger Deposit will be sent to the translator.']
         : ['Your Challenger Deposit will be sent to the translator.'],
-      [DisputeRuling.TranslationRejected]: [
+      [disputeRuling.TranslationRejected]: [
         challengerIsRequester
           ? 'You will receive the bounty + your Challenger Deposit back + the Translator Deposit - Arbitration Fees.'
           : 'Your will receive your Challenger Deposit back + the Translator Deposit - Arbitration Fees.',
       ],
     },
     [TaskParty.Other]: {
-      [DisputeRuling.RefuseToRule]: ['The requester will receive the bounty back.'],
-      [DisputeRuling.TranslationApproved]: ['The bounty will go to the translator.'],
-      [DisputeRuling.TranslationRejected]: [
+      [disputeRuling.RefuseToRule]: ['The requester will receive the bounty back.'],
+      [disputeRuling.TranslationApproved]: ['The bounty will go to the translator.'],
+      [disputeRuling.TranslationRejected]: [
         'The requester will receive the bounty back.',
         'The challenger will receive the Translator Deposit - Arbitration Fees.',
       ],
     },
   };
-
   return descriptionMap[party][ruling];
 };
 
 const illustrationMap = {
-  [DisputeRuling.RefuseToRule]: <RefusedToRuleAvatar />,
-  [DisputeRuling.TranslationApproved]: <TranslationApprovedAvatar />,
-  [DisputeRuling.TranslationRejected]: <TranslationRejectedAvatar />,
+  [disputeRuling.RefuseToRule]: <RefusedToRuleAvatar />,
+  [disputeRuling.TranslationApproved]: <TranslationApprovedAvatar />,
+  [disputeRuling.TranslationRejected]: <TranslationRejectedAvatar />,
 };
