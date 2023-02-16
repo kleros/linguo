@@ -312,7 +312,7 @@ const faqs = [
         <div>
           <dt>Cost Effective:</dt>{' '}
           <dd>
-            A basic translation. The conveyed meaning must be the similar, but nuances might be lost. Occasional typos
+            A basic translation. The conveyed meaning must be similar, but nuances might be lost. Occasional typos
             and translation errors are acceptable.
           </dd>
         </div>
@@ -382,7 +382,7 @@ const faqs = [
         translation task.
       </p>
       <p>This will help you discover the right prices for your tasks.</p>
-      <p>If you would like to avoid this mechanism, you can set the same value for both minium and maximum price.</p>
+      <p>If you would like to avoid this mechanism, you can set the same value for both minimum and maximum price.</p>
     </>,
   ],
   [
@@ -424,7 +424,7 @@ const faqs = [
     <>
       <p>Short answer is: no! Always double-check it yourself.</p>
       <p>
-        Linguo works with several languages and a miriad of file formats. There is currently no fail-proof way to
+        Linguo works with several languages and a myriad of file formats. There is currently no fail-proof way to
         determine the word count for a translation task.
       </p>
       <p>
