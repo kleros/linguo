@@ -2,7 +2,7 @@ import React from 'react';
 import { SWRConfig } from 'swr';
 import { request } from 'graphql-request';
 
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Redirect, Switch } from 'react-router-dom';
 import loadable from '@loadable/component';
 import { Layout } from 'antd';
 import { ConnectedRouter } from 'connected-react-router';
@@ -15,7 +15,7 @@ import Footer from '~/layout/Footer';
 import Navbar from '~/layout/Header/Navbar';
 import { DrawerMenu } from '~/layout/Header/Menu';
 
-import { history } from '~/store';
+import { history, SentryRoute } from '~/store';
 import Content from './Content';
 import Web3ConnectionManager from '~/components/Web3ConnectionManager';
 import GlobalWarnings from '~/components/GlobalWarnings';
@@ -67,30 +67,30 @@ export default function MainRouter() {
               <TranslatorSkillsProvider>
                 <Content>
                   <Switch>
-                    <Route exact path={r.ROOT}>
+                    <SentryRoute exact path={r.ROOT}>
                       <Redirect to={r.HOME} />
-                    </Route>
-                    <Route exact path={r.HOME}>
+                    </SentryRoute>
+                    <SentryRoute exact path={r.HOME}>
                       <Home />
-                    </Route>
-                    <Route exact path={r.FAQ}>
+                    </SentryRoute>
+                    <SentryRoute exact path={r.FAQ}>
                       <Faq />
-                    </Route>
-                    <Route exact path={r.TRANSLATOR_DASHBOARD}>
+                    </SentryRoute>
+                    <SentryRoute exact path={r.TRANSLATOR_DASHBOARD}>
                       <TranslatorDashboard />
-                    </Route>
-                    <Route exact path={r.TRANSLATOR_SETTINGS}>
+                    </SentryRoute>
+                    <SentryRoute exact path={r.TRANSLATOR_SETTINGS}>
                       <TranslatorSettings />
-                    </Route>
-                    <Route exact path={r.TRANSLATION_REQUEST}>
+                    </SentryRoute>
+                    <SentryRoute exact path={r.TRANSLATION_REQUEST}>
                       <TranslationRequest />
-                    </Route>
-                    <Route exact path={r.REQUESTER_DASHBOARD}>
+                    </SentryRoute>
+                    <SentryRoute exact path={r.REQUESTER_DASHBOARD}>
                       <RequesterDashboard />
-                    </Route>
-                    <Route exact path={r.TRANSLATION_TASK_DETAILS}>
+                    </SentryRoute>
+                    <SentryRoute exact path={r.TRANSLATION_TASK_DETAILS}>
                       <TranslationDetails />
-                    </Route>
+                    </SentryRoute>
                   </Switch>
                 </Content>
               </TranslatorSkillsProvider>
