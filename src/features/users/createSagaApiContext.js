@@ -1,5 +1,7 @@
 import { call } from 'redux-saga/effects';
 import { createApiInstance, createApiPlaceholder } from './api';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const apiBaseUrls = JSON.parse(process.env.USER_SETTINGS_API_BASE_URLS);
 
