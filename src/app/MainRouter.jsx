@@ -1,6 +1,7 @@
 import React from 'react';
 import { SWRConfig } from 'swr';
 import { request } from 'graphql-request';
+import * as dotenv from 'dotenv';
 
 import { Redirect, Switch } from 'react-router-dom';
 import loadable from '@loadable/component';
@@ -21,6 +22,7 @@ import Web3ConnectionManager from '~/components/Web3ConnectionManager';
 import GlobalWarnings from '~/components/GlobalWarnings';
 import TranslatorSkillsProvider from '~/context/TranslatorSkillsProvider';
 import { useWeb3 } from '~/hooks/useWeb3';
+dotenv.config();
 
 const fallback = <Spin $centered tip="Loading page content..." />;
 
