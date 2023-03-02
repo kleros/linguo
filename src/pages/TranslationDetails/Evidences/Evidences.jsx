@@ -29,10 +29,10 @@ export default function Evidences({ open }) {
   const linguo = useLinguoApi();
   const { evidences, isLoading, error } = useEvidencesByTaskQuery(task.id);
 
-  const { taskID, lastInteraction, status, submissionTimeout, translation } = task;
+  const { disputeID, lastInteraction, status, submissionTimeout, translation } = task;
   const isFinalized = Task.isFinalized(status, translation, lastInteraction, submissionTimeout);
 
-  const _disputeStatus = linguo.getDisputeStatus(taskID);
+  const _disputeStatus = linguo.getDisputeStatus(disputeID);
   const hasOngoingDispute = [disputeStatus.Waiting, disputeStatus.Appealable].includes(_disputeStatus);
 
   const firstItemRef = React.useRef();
