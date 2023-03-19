@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { LoadingOutlined } from '@ant-design/icons';
-import { Form, Row, Steps } from 'antd';
 import dayjs from 'dayjs';
+import { CheckCircleOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Form, Row, Steps } from 'antd';
 import utc from 'dayjs/plugin/utc';
 import translationQualityTiers from '~/assets/fixtures/translationQualityTiers.json';
 import { normalizeBaseUnit } from '~/features/tokens';
@@ -21,10 +22,12 @@ import { useLinguoApi } from '~/hooks/useLinguo';
 import { getAddressByLanguageAndChain } from '~/utils/getAddressByLanguage';
 import { publishMetaEvidence } from '~/utils/task/publishMetaEvidence';
 import moment from 'moment';
+import * as r from '~/app/routes';
 
 dayjs.extend(utc);
 
 function TranslationRequestForm() {
+  const history = useHistory();
   const { account, chainId } = useWeb3();
   const { createTask, setAddress } = useLinguoApi();
   const [form] = Form.useForm();
@@ -59,11 +62,14 @@ function TranslationRequestForm() {
       try {
         const metaEvidence = await publishMetaEvidence(chainId, metadata);
         await createTask(moment(formattedDeadline).unix(), metadata.minPrice, metaEvidence, metadata.maxPrice);
-      } finally {
+        send('SUCCESS');
+        setTimeout(() => history.push(r.REQUESTER_DASHBOARD), 3000);
+      } catch (error) {
+        console.log({ error });
         send('RESET');
       }
     },
-    [send, account, chainId, createTask]
+    [send, account, chainId, createTask, history]
   );
 
   const handleFinishFailed = React.useCallback(
@@ -181,6 +187,12 @@ function TranslationRequestForm() {
                     disabled: true,
                     children: 'Request the Translation',
                   }
+                : state === 'success'
+                ? {
+                    icon: <CheckCircleOutlined />,
+                    disabled: true,
+                    children: 'Request Submitted',
+                  }
                 : {
                     children: 'Request the Translation',
                   })}
@@ -227,6 +239,7 @@ const formStateMachine = {
     submitting: {
       on: {
         RESET: 'idle',
+        SUCCESS: 'success',
       },
     },
   },
