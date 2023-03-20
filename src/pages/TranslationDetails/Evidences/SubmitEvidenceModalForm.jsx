@@ -223,6 +223,9 @@ const normalizeFile = e => {
 
 const ACCEPTED_FILE_TYPES = [
   'application/zip',
+  'application/x-zip-compressed',
+  'application/x-zip',
+  'multipart/x-zip',
   'application/pdf',
   'text/plain',
   'image/jpeg',
