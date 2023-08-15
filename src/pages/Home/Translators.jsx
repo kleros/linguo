@@ -12,8 +12,8 @@ import StartNowCard from './StartNowCard';
 
 const SENTENCES = [
   'Earn by translating documents.',
-  "Earn by reviewing other people's tranlations.",
-  'Flexibility to chose what you work on.',
+  "Earn by reviewing other people's translations.",
+  'Flexibility to choose what you work on.',
 ];
 
 const CARDS = [
